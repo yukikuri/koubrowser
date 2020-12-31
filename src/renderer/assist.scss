@@ -1,0 +1,3223 @@
+@charset 'utf-8';
+@import "node_modules/bulma/sass/utilities/_all";
+
+/*
+@font-face {
+  font-family: 'thisfont';
+    src: url('/font/NotoSansCJKjp-Thin.otf') format('opentype');
+    //src: url('/font/SourceHanSansJP-ExtraLight.otf') format('opentype');
+    //src: url('/font/SourceHanSansJP-Light.otf') format('opentype');
+    //src: url('/font/SourceHanSansJP-Normal.otf') format('opentype');
+}
+*/
+
+///////////////////////////////////////////////////////////////
+// params
+
+$ship-img-width: 200px;
+$assist-width: $ship-img-width * 3;
+$status-height: 24px;
+$background: #202020;
+$base-background: #595959;
+//$base-background: #595959;
+
+$base-color: #fff;
+$base-disable-color: #595959;
+//$base-border-color:#fff;
+$base-border-color:#dbdbdb;
+//$base-plus-color: #7bf;
+$base-plus-color: #75e8ff;
+$base-minus-color: orange;
+$base-minus2-color: #ff6232;// orangered;
+$cond-plus-color: yellow;
+$cond-minus1-color: orange;
+$cond-minus2-color:#ff6232;//orangered;
+$state-plus-color: yellow;
+
+$syouha-color: yellow;
+$tyuuha-color: orange;
+$taiha-color: #ff6232;//orangered;
+$tokuhou-color: yellow;
+
+$active-background: #1e8eff;
+$transition-duration: 0.8s;
+$transition-timing-function: cubic-bezier(.23,.86,.23,.86);
+
+$map-width: 600px;
+$tooltip-bkcolor: rgba(#363636, 0.9);
+
+$slot-width: 26px;
+$slot-height: 26px;
+$slot-width-sm: 26px;
+$slot-height-sm: 26px;
+$map-height: 360px;
+$map-height: 360px;
+
+html {
+  //overflow: hidden;
+  background: $background;
+}
+
+body {
+  //font-family: 'thisfont', 'ＭＳ Ｐゴシック', 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'ＭＳ Ｐゴシック', 'Avenir', Helvetica, Arial, sans-serif;
+  //font-family: helvetica neue,Helvetica,Arial,sans-serif;
+  //-webkit-font-smoothing: antialiased;
+
+  margin: 0;
+  //background: $background;
+  color: #fff;
+}
+
+.assist-container {
+  height: 100%;
+}
+.assist {
+  height: 100%;
+}
+
+.assist-root {
+  height: 100%;
+
+  .tab-content {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// buefy
+.b-table .table {
+  border-radius: 0;
+  background-color: $base-background;
+  color: $base-color;
+  border-color: $base-border-color;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+
+  td, th {
+    font-weight: 400;
+    color: $base-color;
+    border-width: 0 0 1px;
+    border-color: $base-border-color;
+    padding: 0;
+  }
+}
+
+.b-tabs {
+  .tabs {
+    > ul > li {
+      &.no-padding {
+        > a {
+          padding: 0;
+        }
+      }
+    }
+  }
+  margin-bottom: 0 !important;
+}
+
+///////////////////////////////////////////////////////////////
+// util
+.relative {
+  //position: relative;
+  top: 0px;
+}
+
+.pl1 {
+  padding-left: .3rem;
+}
+.pl-1px {
+  padding-left: 1px;
+}
+.pr-1px {
+  padding-right: 1px;
+}
+.pl-2px {
+  padding-left: 2px;
+}
+.pr-2px {
+  padding-right: 2px;
+}
+
+///////////////////////////////////////////////////////////////
+// common
+.syouha {
+  color: $syouha-color;
+}
+
+.tyuuha {
+  color: $tyuuha-color;
+}
+
+.taiha {
+  color: $taiha-color;
+}
+
+.cond-plus {
+  color: $cond-plus-color;
+}
+
+.plus-light {
+  animation-name: plus-light;
+  animation-duration: 2s;
+  animation-timing-function: $transition-timing-function;
+  animation-iteration-count: infinite;
+}
+
+.state-plus {
+  color: $state-plus-color;
+}
+
+.cond-minus1 {
+  color: $cond-minus1-color;
+}
+
+.cond-minus2 {
+  color: $cond-minus2-color;
+}
+
+.minus-color {
+  color: $base-minus-color;
+}
+
+.minus2-color {
+  color: $base-minus2-color;
+}
+
+.minus2-light {
+  animation-name: minus2-light;
+  animation-duration: 3s;
+  animation-timing-function: $transition-timing-function;
+  animation-iteration-count: infinite;
+}
+
+.plus-color {
+  color: $base-plus-color;
+}
+
+.ttplus {
+  font-size: 0.9em;
+}
+
+.s-icon {
+  vertical-align: middle;
+
+  &::before {
+    vertical-align: middle;
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-size: 16px, 16px;
+    margin-right: 2px;
+    transform: translateY(-2px);
+  }
+  &.small::before {
+    width: 14px;
+    height: 14px;
+    background-size: 14px, 14px;
+    margin-right: 1px;
+    transform: translateY(-1px);
+  }
+  &.xsmall::before {
+    width: 12px;
+    height: 12px;
+    background-size: 12px, 12px;
+    margin-right: 1px;
+    margin-left: 1px;
+    transform: translateY(-1px);
+  }
+  &.xxsmall::before {
+    width: 10px;
+    height: 10px;
+    background-size: 10px, 10px;
+    margin-right: 1px;
+    margin-left: 1px;
+    transform: translateY(-3px);
+  }
+  &.fuel::before {
+    background-image: url("/img/status/fuel.png");
+  }
+  &.bull::before {
+    background-image: url("/img/status/bull.png");
+  }
+  &.hp::before {
+    background-image: url("/img/status/hp.png");
+  }
+  &.fire::before {
+    background-image: url("/img/status/fire.png");
+  }
+  &.fire-a::before {
+    background-image: url("/img/status/fire-a.png");
+  }
+  &.apshell::before {
+    background-image: url("/img/status/apshell.png");
+  }
+  &.fire.small::before {
+    transform: translateY(-2px);
+  }
+  &.armor::before {
+    background-image: url("/img/status/armor.png");
+  }
+  &.tor::before {
+    background-image: url("/img/status/tor.png");
+  }
+  &.tor-a::before {
+    background-image: url("/img/status/tor-a.png");
+  }
+  &.ev::before {
+    background-image: url("/img/status/ev.png");
+  }
+  &.aa::before {
+    background-image: url("/img/status/aa.png");
+  }
+  //&.aa {
+    //display: inline-block;
+    //width: 220px;
+  //}
+  &.tousai::before {
+    background-image: url("/img/status/tousai.png");
+  }
+  &.seiku::before {
+    background-image: url("/img/status/seiku.png");
+  }
+  &.asw::before {
+    background-image: url("/img/status/asw.png");
+  }
+  &.asw-a::before {
+    background-image: url("/img/status/asw-a.png");
+  }
+  &.speed::before {
+    background-image: url("/img/status/speed.png");
+  }
+  &.los::before {
+    background-image: url("/img/status/los.png");
+  }
+  &.range::before {
+    background-image: url("/img/status/range.png");
+  }
+  &.luck::before {
+    background-image: url("/img/status/luck.png");
+  }
+  &.hit::before {
+    background-image: url("/img/status/hit.png");
+  }
+  &.cond::before {
+    background-image: url("/img/status/cond.png");
+    transform: scale(0.8,0.8);
+    opacity: 0.8;
+  }
+  &.heart::before {
+    background-image: url("/img/status/heart.svg");
+  }
+  &.heart-a2::before {
+    background-image: url("/img/status/heart-a2.svg");
+  }
+  &.cond-plus.cond::before {
+    animation-name: cond-light;
+    animation-duration: 1s;
+    animation-timing-function: $transition-timing-function;
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes cond-light {
+  0% {
+    transform: scale(1.0, 1.0);
+    opacity: 1.0;
+  }
+
+  50% {
+    transform: scale(0.8, 0.8);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.0, 1.0);
+    opacity: 1.0;
+  }
+}
+
+@keyframes plus-light {
+  0% {
+    color: $cond-plus-color;
+    text-shadow: 0 0 6px #fff;
+  }
+
+  50% {
+    color: #fff;
+    text-shadow: 0 0 0px #fff;
+  }
+
+  100% {
+    color: $cond-plus-color;
+    text-shadow: 0 0 6px #fff;
+  }
+}
+
+@keyframes minus2-light {
+  0% {
+    color: $base-minus2-color;
+    text-shadow: 0 0 0px $base-minus2-color;
+    //text-shadow: 0px 0px 16px #f00;//$base-minus2-color;
+  }
+
+  50% {
+    color: #f00;//$base-minus2-color;
+    text-shadow: 0 0 0px $base-minus2-color;
+    //color: #fff;
+    //text-shadow: 0 0 0px $base-minus2-color;
+  }
+
+  100% {
+    color: $base-minus2-color;
+    text-shadow: 0 0 0px $base-minus2-color;
+    //text-shadow: 0px 0px 16px #f00;//$base-minus2-color;
+  }
+}
+
+
+.slot-img {
+  //border: 1px solid rgba(#fff, 0.3);
+  border: 1px solid rgba(#000, 0.3);
+  border-radius: $slot-width / 2;
+  vertical-align: middle;
+  width: $slot-width;
+  height: $slot-height;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: $slot-width, $slot-height;
+  background-image: url("/img/slot/slot.png");
+}
+
+///////////////////////////////////////////////////////////////
+// assist root
+.assist-tabs {
+
+  .tabs {  
+    overflow: hidden;
+  }
+
+  .tabs > ul li {
+    background-color: linear-gradient(#454545, #232323);
+
+    a {
+      border-radius: 0 !important;
+      color: #fff;
+      border-color: #fff !important;
+      transition-property: background-color;
+      transition-duration: $transition-duration;
+      transition-timing-function: $transition-timing-function;  
+    }
+
+    &.is-active, &:hover {
+      a {
+        background-color: $active-background;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// world
+
+.world-root {
+  z-index: 1;
+  position: relative;
+  width: $map-width;
+  height: $map-height + 300px;
+  //height: 40px;
+}
+
+.world-img {
+  //width: 50px;//$assist-width / 8;
+  height: 40px;
+}
+  
+.world-event {
+  //width: 50px;//$assist-width / 8;
+  //height: 40px;
+  //font-size: 11px;
+  //background-color: rgba(red, 0.3);
+  $shadow-color: rgba(red, 1);
+  width: 100%;
+  height: 100%;
+  display: block;
+  white-space: normal;
+  word-break: normal;
+  text-overflow: clip;
+  text-shadow: 
+    -1px -1px 0 $shadow-color, 
+    1px -1px 0 $shadow-color, 
+    -1px 1px 0 $shadow-color, 
+    1px 1px 0 $shadow-color;
+}
+
+.world-tabs {
+  background: linear-gradient(rgba($color: #000000, $alpha: 0.7), rgba($color: #000000, $alpha: 0.05));
+
+  > .tabs { 
+    height: 40px;
+    overflow-x: hidden;
+
+    ul {
+      //width: $assist-width;
+      border: 0;
+      li {
+        background: transparent;
+        a {
+          border: 0;
+        }    
+      }
+    }
+
+    .is-event {
+      text-align: center;
+      width: 100px;
+      height: 40px;
+      animation: event-world-tab-bk 2.5s ease-in-out infinite alternate;
+      a {
+        //line-height: 12px;
+        font-size: 11px;
+        padding: 0.5em;
+        height: 100%;
+        @at-root {
+          @keyframes event-world-tab-bk {
+            0% { background-color: rgba(red, 0.3); }
+            100% { background-color: rgba(red, 0.6); }
+          }
+        }
+      }
+      &.is-active, &:hover {
+        a {
+          background-color: rgba(red, 0.8);
+        }
+      }
+    }
+
+    .is-battle, .is-battle.is-active {
+      a {
+        animation: world-tab-bk 2.5s ease-in-out infinite alternate;
+        @at-root {
+          @keyframes world-tab-bk {
+            0% { background-color: rgba(orangered, 0.4); }
+            100% { background-color: rgba(orangered, 0.9); }
+          }
+        }
+      }
+    }
+
+    .is-battle a {
+      position: relative;
+      &::before {
+        content: "出撃中";
+        top: 2px;
+        left: 2px;
+        display: inline-block;
+
+        position: absolute;
+        padding: 3px;
+        font-size: 10px;
+        line-height: 10px;
+        text-align: center;
+        white-space: pre;
+        color: #fff;
+        border-radius: 3px;
+        background: rgba(255,0,0,.8);
+        //animation: updown 1s ease-in-out infinite alternate;
+        box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+      }
+    }
+
+    .is-active &:hover {
+      a {
+        background-color: rgba($active-background, 0.8);
+      }
+    }
+  }
+
+  > .tab-content {
+    position: absolute;
+    top: 0;
+    z-index: -1;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// areas
+.areas {
+  &.carousel {
+    min-height: $map-height;
+    height: $map-height;
+    
+    .carousel-items {
+      height: $map-height;
+    }
+
+    .carousel-indicator {
+
+      width: $map-width;
+      padding: 0;
+
+      //background: linear-gradient(rgba($color: #000000, $alpha: 0.5), rgba($color: #000000, $alpha: 0.05));
+      background-color: rgba($color: #000000, $alpha: 0.5);
+      .indicator-item {
+        color: #fff;
+        margin-right: 0;// 1.25rem;
+        font-size: 1.25rem;
+        line-height: 1rem;
+        padding: 0;
+
+        svg {
+          $size: 1rem;
+          width: $size;
+          height: $size;
+          fill: yellow;
+          filter: drop-shadow(1px 1px 0px #000);
+        }
+
+        .is-locked {
+          cursor: not-allowed;
+        }
+
+        //padding: 0.5rem 1rem;
+        //padding-top: 0.5rem;
+        //padding-bottom: 0.5rem;
+        //padding-left: 1rem;
+        //padding-right: 1rem;
+        .areas-indicator {
+          display: inline-block;
+          //background-color: rgba($color: #000000, $alpha: 0.5);
+          padding: 0.5rem 1rem;
+          transition-property: background-color;
+          transition-duration: $transition-duration;
+          transition-timing-function: $transition-timing-function;
+
+          &.is-battle {
+              animation: battle-tab-bk 2.5s ease-in-out infinite alternate;
+              @at-root {
+                @keyframes battle-tab-bk {
+                  0% { background-color: rgba(orangered, 0.6); }
+                  100% { background-color: rgba(orangered, 0.9); }
+                }
+              }
+            }
+          }
+
+        &.is-active, &:hover:not(.is-active) {
+          //background-color: rgba(#fff, 0.15);
+          .areas-indicator {
+            background-color: $active-background;
+          }
+        }
+
+
+        
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// map
+.map {
+  //height: 100px;
+  position: relative;
+
+  .map-gauge {
+    $color: #0f0;
+    $fontsize: 14px;
+    font-size: $fontsize;
+    line-height: $fontsize;
+    padding: $fontsize / 4;
+    position: absolute;
+    right: 10px;
+    top: 50px;
+    color: $color;
+    border: 1px solid $color;
+    background-color: rgba(#000, 0.5);
+
+    svg {
+      width: $fontsize;
+      height: $fontsize;
+      fill: $color;
+      vertical-align: middle;
+    }
+  }
+
+  $airbase-bkcolor: rgba(#00f, 0.50);
+  .map-airbase {
+    $decks-height: 16px;
+    position: absolute;
+    font-size: 11px;
+    left: 10px;
+    top: 50px;
+    //bottom: 0px;
+    //height: 260px;
+    z-index: 1;
+    //background-color: rgba(#0f0, 0.35);
+    //border: 1px solid rgba(#0f0, 0.6);
+    //background-color: rgba(#00f, 0.50);
+    background-color: $airbase-bkcolor;
+    border: 1px solid rgba(#00f, 1);
+    //box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
+
+    .map-airbase-decks {
+      text-align: center;
+      height: 16px;
+      line-height: 20px;
+      $shadow-color: rgba(#00f, 1);//0.333);
+      text-shadow: 
+        -1px -1px 0 $shadow-color, 
+        1px -1px 0 $shadow-color, 
+        -1px 1px 0 $shadow-color, 
+        1px 1px 0 $shadow-color;
+
+    }
+  }
+
+  .map-airbase-spots-name {
+    margin-right: 4px;
+  }
+
+  .map-airbase-spots {
+    $height: 14px;
+    $font-size: 11px;
+    position: absolute;
+    right: 10px;
+    bottom: 40px;
+    font-size: $font-size;
+    
+    .field {
+      margin-bottom: 0;
+      height: $height;
+      &:not(:last-child) {
+        transform: translateY(1px);
+      }
+
+      &:not(:first-child) {
+        .map-airbase-spots-name {
+          transform: translateY(1px);
+        }
+      }
+    }
+    
+    .button {
+      color: #fff;
+      background: $airbase-bkcolor;
+      border-radius: 0 !important;
+      font-size: $font-size;
+      width: 30px;
+      height: $height;
+      &.is-primary {
+        background: #DC5856;  
+        border-color: #fff;
+      }
+    }
+  }
+
+  .current-cell {
+    position: absolute;
+    $size: 24px;
+    width: $size;
+    height: $size;
+    --top: 0px;
+    --left: 0px;
+    top: var(--top);
+    left: var(--left);
+    z-index: 0;
+    &.is-started {
+      transition-property: top, left;
+      transition-duration: 2.0s;
+      transition-timing-function: linear;
+    }
+    svg {
+      filter: drop-shadow(1px 1px 1px #000);
+      fill: #00ffff;
+    }
+    &.is-passed {
+      transform: translate(6px, -12px);
+      svg {
+        fill: #00ffff;
+        //fill: orangered;
+      }
+    }
+    &.active::before {
+      content: '';
+      position: absolute;
+      display: inline-block;
+      width: $size;
+      height: $size;
+      background: red;
+      border-radius: $size / 2;
+      opacity: 0;
+      animation: pos-effect 3s ease-in-out infinite;
+      z-index: -1;
+      @at-root {
+        @keyframes pos-effect {
+          0% { transform: scale(0); opacity: 0; }
+          50% { transform: scale(1.8); opacity: 0.3; }
+          100% { transform: scale(2.5); opacity: 0; }
+        }
+      }
+    }
+  }
+  
+  .map-img {
+    width: 600px;
+    height: 360px;
+  }
+  .debug-info {
+    position: absolute;
+    top: 50px;
+    left: 0;
+  }
+  
+  .spot {
+    position: absolute;
+    display: inline-block;
+    color: #0F0;
+  }
+  
+  .cellarea {
+    position: absolute;
+    border-radius: 50%;
+    width: 29px;
+    height: 29px;
+    border-color: red;
+    transition-property: background-color border opacity;
+    transition-duration: 1s;
+    &.active, &:hover {
+      border: 1px solid red;
+      background: red;
+      opacity: .5;
+    }
+    &.boss {
+      width: 50px;
+      height: 50px;
+    }
+  }
+  
+  .maplos {
+    font-size: 12px;
+    position: absolute;
+    display: inline-block;
+    width: 200px;
+    height: 50px;
+    line-height: 1;
+    color: #05FF9F;
+    transform: translateY(8px);
+    text-shadow: 1px 1px 1px rgba(#000, 1);
+  }
+  
+  .airsearch {
+    font-size: 14px;
+    position: absolute;
+    display: inline-block;
+    width: 200px;
+    height: 50px;
+    line-height: 1;
+    color: #05FF9F;
+    //color: #FAFF05;
+    //color: #FF9F05;
+    //color: #40C6FF;
+    //color: #fff;
+    transform: translate(-46px, 2px);
+    text-shadow: 1px 1px 1px rgba(#000, 1);
+  }
+  
+  $seiku-width: 120px;
+  .spot-airbases {
+    display: grid;
+    grid-template-columns: min-content min-content;
+    grid-template-rows: auto auto;
+    padding: 2px;
+    margin-bottom: 3px;
+    //text-shadow: 1px 1px 1px rgba(#000, 1);
+  }
+
+  .spot-airbase {
+    min-width: 67px;
+    &:nth-of-type(2) {
+      min-width: 45px;
+    }
+  }
+
+  .seiku {
+    font-size: 10px;
+    position: absolute;
+    display: inline-block;
+    width: $seiku-width;
+    height: 50px;
+    line-height: 1;
+    z-index: 0;
+    text-shadow: 1px 1px 1px rgba(#000, 1);
+    &.hasAirbase {
+      z-index: 1;
+      .spot-airbases { 
+        background-color: rgba(#00f, 0.7);
+      }
+    }
+    //border: 1px solid #fff;
+  
+    &.noAA {
+      transform: translateY(8px);
+    }
+  
+    &.kakuho, &.yuusei {
+      //color: #67ff41;
+      //color: #99ff80;
+      //color: #67ff41;
+      //color: #05FF3F;
+      //color: #05FF6D;
+      color: #05FF9F;
+      //color: #05FFD1;
+      //color: #82E9FF;
+      //color: #05FAFF;
+      //text-shadow: 1px 1px 1px rgba(#fff,0.4);
+      //text-shadow: 1px 1px 1px rgba(#fff,0.5);
+      //text-shadow: 1px 1px 1px rgba(#fff, 1);
+    }
+    &.kinkou, &.ressei, &.sousitu {
+      color: #FF9F05;
+      color: #FFD105;
+      color: #FAFF05;
+    }
+  
+    .state {
+      font-size: 12px;
+      display: inline-block;
+      width: 100%;
+      height: 12px;
+      overflow-x: visible;
+      //text-shadow: 1px 1px 1px rgba(#000, 1);
+      //padding-left: 10px;
+      //text-align: center;    
+    }
+    .seikubar {
+      display: inline-block;
+      position: relative;
+      width: 50px;
+      height: 4px;
+      //line-height: 6px;
+      margin-top: 2px;
+      vertical-align: top;
+      //background-color: #085099;
+      //border: 1px solid #40C6FF;
+      //border: 1px solid #000;
+      //text-align: center; 
+    }
+    .seikubar-text {
+      display: inline-block;
+      transform: translateY(1px);
+    }
+    $seikubar-s-color: #05FF3F; // #05C4FF;
+    .seikubar-s {
+      display: inline-block;
+      position: absolute;
+      width: 0;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: rgba(#05FF3F, 1);
+      //z-index: 2;
+    }
+  
+    $seikubar-e-color : #FAFF05;//#FFD105;//#FF6D05; 
+    .seikubar-e {
+      display: inline-block;
+      position: absolute;
+      width: 0;
+      top: 0;
+      right: 0;
+      height: 100%;
+      background: rgba($seikubar-e-color, 1);
+      //background: rgba(#05FF3F, 1);
+      //z-index: 2;
+    }
+  
+    .bar-text {
+      display: inline-block;
+      padding-left: 10px;
+      transform: translateY(1px);
+    }
+    .bar-ememy {
+      border: 1px solid #67ff41;
+      display: block;
+      width: 100%;
+      height: 12px;
+      text-align: left;
+      //background-color: red;
+      background-color: #089908;
+      overflow: visible;
+    }
+  
+    .bar-deck {
+      border: 1px solid #40C6FF;// 0x67, 0xff, 41
+      display: block;
+      width: 100%;
+      height: 12px;
+      text-align: left;
+      //background-color: red;
+      background-color: #085099;
+      transform: translateY(-1px);
+      overflow: visible;
+  
+      transition: width, 2s;
+      transition-timing-function: ease-in-out;
+    }
+  }  
+}
+
+///////////////////////////////////////////////////////////////
+// airbase
+.airbase {
+
+  $no-width: 24px;
+  $action-width: 24px;
+  $range-width: 32px;
+  $aa-width: 44px;
+  $spot-width: 16px;
+  //$width: $no-width + $action-width + $range-width + $aa-width + $spot-width;
+  $width: $action-width + $range-width + $aa-width + $spot-width + $spot-width;
+
+  $header-height: 16px;
+  font-size: 10px;
+  width: $width;
+
+  //$shadow-color: rgba(#000, 0.333);
+  $shadow-color: rgba(#000, 0.5);
+  text-shadow: 
+    -1px -1px 0 $shadow-color, 
+    1px -1px 0 $shadow-color, 
+    -1px 1px 0 $shadow-color, 
+    1px 1px 0 $shadow-color;
+
+  .airbase-info > span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    height: $header-height;
+    line-height: $header-height;
+    border: 1px solid #000;
+    border-right: 0;
+    background-color: #555;
+
+    &.airbase-no {
+      width: $no-width;
+      //background-color: #DC5856;
+    }
+  
+    &.airbase-action {
+      width: $action-width;
+      --bkcolor: #ccc;
+      background-color: var(--bkcolor);
+
+      &.is-taiki {
+        --bkcolor: #ccc;
+      }
+
+      &.is-syutugeki {
+        --bkcolor: #DC5856;
+      }
+
+      &.is-bouku {
+        --bkcolor: #0c0;
+      }
+
+      &.is-taihi {
+        --bkcolor: #ccc;
+      }
+
+      &.is-kyuusoku {
+        --bkcolor: #ccc;
+      }
+    }
+
+    &.airbase-range {
+      width: $range-width;
+      background-color: darken( #81BE5C, 15);
+    }
+
+    &.airbase-aa {
+      width: $aa-width;
+      //background-color: #05FF9F;
+      background-color: darken( #81BE5C, 15);
+    }
+
+    &.airbase-spot {
+      width: $spot-width;
+      //background-color: #05FF9F;
+      background-color: #DC5856;
+    }
+  }
+
+  .airbase-slots {
+    display: flex;
+    //align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+    width: $width;
+
+    $size: 20px;
+
+    .airbase-slot {
+      //line-height: $size;
+      height: $size;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+
+      > span {
+        height: $size;
+        line-height: $size;
+      }
+    }
+
+    .slot-img {
+      width: $size;
+      background-size: $size, $size;
+      $margin-x: 1px;
+      margin-left: $margin-x;
+      margin-right: 6px;
+      position: relative;
+      vertical-align: initial;
+    }
+
+    .type-img {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    $alv-width: 11px;
+    $alv-height: 22px;
+    .slot-alv-content {
+      width: $alv-width;
+      position: relative;
+      display: inline-block;
+      margin-right: 2px;
+    }
+    
+    .slot-alv {
+      display: inline-block;
+      width: $alv-width;
+      height: $size;
+      position: absolute;
+      top: 1px;
+      left: -1px;
+    }
+
+    .plane-seiku {
+      position: absolute;
+      display: inline-flex;
+      line-height: 1em;
+
+      justify-content: center;
+      align-items: center;
+      height: 1em;
+      width: $alv-width;
+      left: 0px;
+      bottom: 0px;
+      color:#0F0;
+    }
+
+    .onslot {
+      position: absolute;
+      //left: -2px;
+      //bottom: -4px;
+      //top: -10px;
+      top: -2px;
+      line-height: 1em;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 1em;
+      width: 18px;
+    }
+
+    .is-orange {
+      color: orange;
+    }
+
+    .is-red {
+      color: red;
+    }
+
+    .slot-name {
+      white-space: nowrap;
+      width: 90px;
+      overflow: hidden;
+      &.is-star {
+        width: 90px - 17px;
+        margin-right: 2px;
+      }
+
+      &.is-fighter {
+        //color:lighten(#0F0, 10);
+        color:#0F0;
+      }
+      &.is-attacker {
+        //color:lighten(red, 10);
+        //color: darken(#0f0, 5);
+        color: darken(#0f0, 3);
+        //color: orangered;
+        //color: olive;
+      }
+      &.is-asw {
+        color: lighten(#1e8eff, 10);
+      }
+      &.is-rec {
+        color: yellow;
+      }
+    }
+
+    .airbase-type {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: $size;
+      height: $size;
+      //line-height: 10px;//$size;
+      font-size: 10px;//$size - 8px;
+      //transform: rotate(-45deg);
+    }
+  }
+
+  .plane-star {
+    color: #0ff;
+    text-shadow: 0 0 8px #fff;
+  }
+
+  $tip-border-color: rgba(#00f, 1);
+  $tip-bkcolor: rgba(#00f, 0.8);
+  .tooltip-content {
+    font-size: 12px;
+    background: $tip-bkcolor !important;
+    &::before {
+      display: none;
+    }
+    border: 1px solid $tip-border-color;
+    width: 215px !important;
+
+    // fix tooltip in tooltip 
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: calc(100% + 5px + 2px) !important;
+    -webkit-transform: translateY(-50%) !important;
+    transform: translateY(-50%) !important;
+  }
+
+  .slot-tip {  
+
+    .slot-tip-name {
+      margin-bottom: 8px;
+    }
+
+    .weapon-img {
+      width: 80px;
+      height: 80px;
+      margin-right: 12px;
+    }
+
+    .slot-tip-status {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      grid-template-rows: max-content;
+      grid-auto-flow: column;
+    }
+
+    .slot-tip-grid {
+      display: grid;
+      //width: 80px;
+      grid-template-columns: 55px 50px;
+      grid-template-rows: repeat(10, min-content);
+      //grid-template-rows: 1.3em;
+      //grid-auto-flow: column;
+      text-align: left;
+      > div {
+        height: 1.3em;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// deck
+.ship-container {
+  position: relative;
+  .banner {
+    width: $ship-img-width;
+  }
+
+  > img {
+    width: 200px;
+    height: 50px;
+  }
+
+  .slots {
+    display: inline-block;
+    position: absolute;
+    height: $slot-height;
+    right: 0;
+    bottom: 3px;
+    max-width: $ship-img-width;
+    vertical-align: top;
+  }
+  .slot, .slot-inner {
+    width: $slot-width;
+    height: $slot-height;
+    display: inline-block;
+    position: relative;
+    overflow-x: hidden;
+  }
+  .level-text {
+    position: absolute;
+    display: inline-block;
+    width: 13px;//$slot-width;
+    height: 13.0px;
+    background-color: rgba($color: #000000, $alpha: 0.4);
+    //border-radius: 10px;
+    //border: 1px rgba($color: #000000, $alpha: 0.4) solid;
+    left: 0;
+    bottom: 0;
+    font-size: 13.0px;
+    font-weight: bold;
+    line-height: 13.0px;
+    text-shadow: 1px 1px 0px #000;
+    //color: #62EAE1;//#47AAA5;
+    color: #0ff;
+    text-align: center;
+    text-shadow: 0 0 8px #fff;
+    &.max {
+      font-size: 11px;
+    }
+  }
+  .alv-img {
+    position: absolute;
+    left: 0;
+    //width: 13px;
+    height: 13px;
+  }
+  .onslot-text {
+    position: absolute;
+    display: inline-block;
+    width: $slot-width;
+    height: 13.0px;
+    background-color: rgba($color: #000000, $alpha: 0.4);
+    top: 0px;
+    font-size: 13.0px;
+    font-weight: bold;
+    line-height: 13.0px;
+    text-shadow: 1px 1px 0px #000;
+    color:#fff;
+    text-align: center;
+
+    &.has-alv {
+      text-align: left;
+      //right: 0;
+      left: 11px;
+    }
+
+    &.red {
+      color: rgb(60, 255, 225);
+      background-color: rgba($color: red, $alpha: 0.8);
+    }
+  }
+}
+
+.deck {
+  min-width: $assist-width;
+  width: $assist-width;
+  overflow: hidden;
+}
+
+.deck-ship-imgs {
+  line-height: 0;
+  max-width: $ship-img-width * 3;
+  .tooltip-content {
+    width: unset;
+    background: $tooltip-bkcolor !important;
+  }
+}
+
+.deck-ship-list {
+  font-family: 'ＭＳ Ｐゴシック';
+  font-size: 0.8em;
+  width: 100%;
+
+  .header-name {
+    width: 70px;
+    max-width: 70px;
+  }
+  
+  .cell-name {
+    max-width: 70px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .header-sp {
+    //text-align: center;
+    width: 220px;
+    min-width: 220px;
+    padding-left: .5em !important;
+  }
+
+  .header-detail {
+    //text-align: center;
+    width: 320px;
+    min-width: 320px;
+    padding-left: .5em !important;
+  }
+
+  .cell-sp {
+    text-align: left;
+    padding-left: .5em !important;
+    text-shadow: 1px 1px 0px #222;
+  }
+
+  //.header-rate {
+    //text-align: center !important;
+    //.th-wrap {
+      //text-align: center;
+      //justify-content: center;
+    //}
+  //}
+
+  &.expanded {
+
+    .header-name {
+      width: 90px;
+      max-width: 90px;
+    }
+
+    .cell-name {
+      max-width: 90px;
+    }
+
+    .header-sp {
+      min-width: 230px;  
+    }
+  }
+
+  .sp {
+    line-height: 1.0;
+    height: 1.4em;
+    border-radius: 2px;
+    padding-left: .3em;
+    padding-right: .3em;
+    &:not(:last-child) {
+      margin-right: 0.3rem;
+    }
+
+    &.is-tokuhou {
+      color: $tokuhou-color;
+    }
+
+    &.is-disable {
+      color: $base-disable-color;
+      text-shadow: none;
+    }
+  }
+
+  .small {
+    font-size: 0.9em;
+  }
+}
+
+@keyframes shiny {
+  0% {
+    transform: scale(0) rotate(25deg);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1) rotate(25deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(50) rotate(25deg);
+    opacity: 0;
+  }
+}
+
+.message {
+  border-radius: 0;;
+}
+
+.progress {
+  border-radius: 0;
+  &.is-small {
+    height: 1.5rem;
+  }
+}
+
+$tkbar-height: 16px;//32px;
+//$tkbar-width: $assist-width;
+$tkbar-title-width: 155px;
+$tkbar-width: 445px;//$assist-width - $tkbar-title-width;
+
+.list-title {
+  font-size: 12px;
+  line-height: $tkbar-height;
+  padding-left: .5em;
+  padding-right: .5em;
+  display: inline-block;
+  width: $tkbar-title-width;
+  height: $tkbar-height;
+  vertical-align: top;
+}
+
+.tktip-root {
+
+  vertical-align: super;
+  .tooltip-content {
+    top: -130px !important;
+    background-color: rgba(#000, 0.8) !important;
+    border: 1px solid #000;
+
+    width: 180px;
+    //padding: 0em;
+    padding-bottom: .6em;
+    text-align: center;
+    &::before {
+      display: none;
+    }
+  }
+
+  .sp {
+    width: fit-content;
+    &:not(:last-child) {
+      margin-right: 3px;
+    }
+
+    &.tag {
+  
+      font-size: 14px;
+      line-height: 1em;
+      border-radius: 2px;
+      height: 1em;
+      padding-left: .3em;
+      padding-right: .3em;
+      padding-top: .6em;
+      padding-bottom: .6em;
+      box-shadow: 0px 0px 1px 0 rgba(0,0,0,.8);
+    }
+  }
+}
+
+.tkrate1 {
+  display: inline-block;
+  height: 16px;
+  width: $tkbar-title-width;
+}
+
+.tkrate2 {
+  display: inline-block;
+  height: 16px;
+  width: $tkbar-width;
+}
+
+.tkrate {
+  height: $tkbar-height;
+  width: $assist-width;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  
+  .tkrate-container {
+    //border: 1px solid #fff;
+    position: relative;
+    height: $tkbar-height;
+    width: $tkbar-width;
+    max-width: $tkbar-width;
+    text-shadow: 1px 1px 0px #777;
+    overflow: hidden;
+  }
+
+  .tkrate-unit {
+    position: absolute;
+    border: 1px solid #fff;
+    //border-left-width: 0;
+    //border-right: 1px solid #fff;
+    transition-property: left, width;
+    //transition-property: width;
+    transition-duration: $transition-duration;
+    transition-timing-function: $transition-timing-function;
+
+    --left: 0.0;
+    --width: 0.0;
+    top: 0;//$tkbar-height / 4;
+    height: $tkbar-height;
+    left: calc( #{$tkbar-width} * var(--left) - 1px);
+    width: calc( #{$tkbar-width} * var(--width) + 1px );
+    //background-color: #167df0;
+
+    &:nth-of-type(3n+2) {
+      background-color: $info;
+      &:hover {
+        background-color: lighten($info, 15%);
+      }
+    }
+
+    cursor: default;
+
+    &:nth-of-type(3n) {
+      background-color: $success;
+      &:hover {
+        background-color: lighten($success, 15%);
+      }
+    }
+
+    &:nth-of-type(3n+1) {
+      background-color: $primary;
+      &:hover {
+        background-color: lighten($primary, 15%);
+      }
+    }
+
+    &:nth-of-type(1) {
+      background-color: $grey;
+      &:hover {
+        background-color: $grey;
+      }
+    }
+  }
+
+  .tkrate-value-container {
+    position: relative;
+    top: 0;//-$tkbar-height / 4;
+    height: $tkbar-height;
+    width: 100%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+
+  .tkrate-img {
+    position: absolute;
+    height: $tkbar-height;
+    width: 128px;
+  }
+
+  .tkrate-text {
+    position: absolute;
+    top: 0;
+    line-height: $tkbar-height;
+    display: inline-block;
+    //background-color:rgba(#000,0.5);
+    //width: 128px;
+    //height: $tkbar-height;
+    //width: 100%;
+    white-space: nowrap;
+    //&.nkno {
+      //background-color: none;
+    //}
+  }
+}
+
+.tktip {
+  .img {
+    margin-top: .6em;
+    margin-bottom: .6em;
+    width: 120px;
+    height: 30px;
+  }
+}
+
+.tk-bar {
+  border: 1px solid #fff;
+
+  --width: 0%;
+  width: var(--width);
+  transition-property: width;
+  transition-duration: $transition-duration;
+  transition-timing-function: $transition-timing-function;
+}
+
+.progress-value {
+  font-size: 0.9rem !important;
+  text-align: right;
+  --left: 50%;
+  width: var(--left);
+  height: 2rem;
+}
+
+.bar-text {
+  line-height: 1.5rem;
+  display: inline-block;
+  background-color:rgba(#000,0.5);
+  height: 2rem;
+  width: 200px;
+}
+
+.bar-root {
+  width: 100%;
+}
+
+//.deck-tabs {}
+
+.deck-world {
+  .carousel .carousel-indicator.is-inside.is-bottom {
+    bottom: 50px;
+    .indicator-item {
+      font-size: 18px;
+    }
+    .areas-indicator {
+      padding-bottom: 4px;
+      padding-top: 4px;
+    }
+  }
+
+  .table-footer {
+  //.enemy-list-deck {
+    display: none;
+  }
+
+  .map .map-airbase-spots {
+    bottom: 80px;
+  }
+
+  .areas-cell-enemies {
+    transform: translateY(-50px);
+    ul {
+      background: $background;
+      li, a {
+        height: unset;
+        margin-bottom: unset;
+
+        .seiku-wrapper {
+          //display: none;
+          .seiku {
+            flex-direction: row;
+          }
+        }
+      }
+    }
+  }
+
+  .enemy-list-tabs {
+    a {
+      padding: 0;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// deck tabs
+.deck-tabs {
+  height: 333px;
+  overflow: hidden;
+
+  > .tabs {
+    overflow: hidden;
+    width: $assist-width;
+
+    li a {
+      //padding: 0;
+      height: 31px;
+      width: $assist-width / 4;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// map
+.deck-map {
+
+  .deck-status {
+    font-size: .8rem;
+  }
+
+  width: $assist-width;
+
+  thead {
+    display: none;
+  }
+
+  table {
+    .s-icon::before {
+      transform: translateY(0px);
+    }
+  }
+
+  table {
+    font-size: 12px;
+    line-height: 14px;
+    text-shadow: 1px 1px 0px #000;
+  }
+
+  > .b-table > .table-wrapper {
+    overflow: hidden;
+  }
+
+  .cell-name {
+    width: 50px;
+    max-width: 50px;
+  }
+  .lv {
+    height: 16px;
+    line-height: 16px;
+  }
+
+  .stype {
+    font-size: 10px;
+    line-height: 14px;
+    //text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .name {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .cell-status {
+    width: 26px;
+
+    .s-icon {
+      width: 100%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    &.small {
+      width: 22px;
+    }
+    &.large0 {
+      min-width: 28px;
+    }
+    &.large1 {
+      min-width: 30px;
+    }
+    &.large2 {
+      width: 30px;
+    }
+    &.large_aa {
+      width: 36px;
+    }
+  }
+
+  .cell-slot {
+    line-height: 28px;
+    vertical-align: top;
+  }
+
+  .cell-sps {
+    //height: 31px;
+    //vertical-align: top;
+    width: 300px;
+  }
+
+  .slots {
+    transform: translateY(-2px);
+    &.no-onslot {
+      transform: translateY(0px);
+    }
+  }
+
+  .slot-img {
+    width: $slot-width-sm;
+    height: $slot-height-sm;
+    background-size: $slot-width-sm, $slot-height-sm;
+  }
+
+  .slot-alv {
+    position: absolute;
+    width: 15px;
+    top: 0;
+    left: -1px;
+  }
+
+  .slot-lv {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    //line-height: 12px;
+    //width: 12px;//$slot-width;
+    height: 12px;
+    font-size: 12.0px;
+    font-weight: bold;
+    line-height: 12px;
+    color: #0ff;
+    text-align: center;
+    text-shadow: 0 0 8px #fff;
+    &.max {
+      font-size: 11px;
+    }
+    animation-name: level-light;
+    animation-duration: 2s;
+    animation-timing-function: $transition-timing-function;
+    animation-iteration-count: infinite;
+    @at-root {
+      @keyframes level-light {
+        0% {
+          text-shadow: 0 0 8px #fff;
+        }
+      
+        50% {
+          text-shadow: 0 0 0px #fff;
+        }
+      
+        100% {
+          text-shadow: 0 0 8px #fff;
+        }
+      }  
+    }  
+  }
+
+  .slot {
+    position: relative;
+    //overflow-x: hidden;
+    display: inline-block;
+    width: 32px;//$slot-width-sm;
+    height: 28px;
+    text-align: center;
+  }
+
+  .slot-onslot {
+    position: absolute;
+    display: inline-block;
+    width: 32px;
+    height: 11px;
+    bottom: -4px;
+    left: 0px;
+    font-size: 11px;
+    line-height: 11px;
+    text-align: center;
+  }
+
+  .sp-content {
+    padding-left: 5px;
+    display: flex;
+    overflow-x: hidden;
+    max-width: 290px;
+    //align-items: center;
+    //height: 31px;
+  }
+
+  .sp-rate {
+    //font-size: 11px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .sp {
+    width: fit-content;
+    &:not(:last-child) {
+      margin-right: 3px;
+    }
+
+    .small {
+      font-size: 0.9em;
+    }
+
+    .tag {
+
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+  
+      font-size: 11px;
+      line-height: 1em;
+      height: 1em;
+      border-radius: 2px;
+      padding-left: .3em;
+      padding-right: .3em;
+      padding-top: .6em;
+      padding-bottom: .6em;
+      box-shadow: 0px 0px 1px 0 rgba(0,0,0,.8);
+    }
+
+    .is-tokuhou {
+      color: $tokuhou-color;
+    }
+
+    .is-disable {
+      color: $base-disable-color;
+      text-shadow: none;
+    }
+  }
+
+  .list-title {
+    width: 100%;
+    margin-bottom: 0;
+    border-style: solid;
+    border-width: 0 0 0 4px;
+    border-color: $danger;
+    background-color: #0a0a0a;
+
+    .message-body {
+      padding-top: 0;
+      padding-bottom: 0;
+      color: white;
+    }
+  }
+}
+
+
+///////////////////////////////////////////////////////////////
+// mission badge
+.mission-badge {
+  display: grid;
+  place-items: center; 
+  margin-left: .5em;
+
+  .wrapper {
+    display: grid;
+    place-items: center;
+
+  }
+
+  .tag {
+    border-radius: 2px;
+  }
+
+  .mission-label {
+    font-size: .8em;
+    line-height: 1.2em;
+  }
+
+  .completed {
+    font-size: .9em;
+  }
+
+  .state {
+    height: 1em; 
+    line-height: 1em;
+
+    svg {
+      display: inline-block;
+      //display: none;
+      fill: #fff;
+      width: 1em;
+      height: 1em;
+      transform: translateY(2px);
+      margin-right: 2px;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// ship tooltip
+.shipTooltip {
+  line-height: 1rem;
+  width: 380px;
+  //padding: 1em;
+
+  .name {
+    font-size: 1.2rem;
+  }
+
+  .hr {
+    height: 1px;
+    margin: 0.25rem 0;
+  }
+
+  //.exp {
+    //float: right;
+  //}
+
+  .next-level-exp {
+    font-size: 0.7rem;
+  }
+
+  .status {
+    font-size: 90%;
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    //grid-template-rows: repeat(3,auto);
+  }
+
+  .slot {
+    line-height: $slot-height;
+    height: $slot-height;
+  }
+
+  .slot-onslot {
+    display: inline-block;
+    width: 18px;
+    vertical-align: middle;
+  }
+
+  .slot-alv-img {
+    height: 16px;
+    vertical-align: middle;
+    transform: translateY(-2px);
+    padding-right: 0.1rem;
+  }
+
+  .slot-text {
+    padding-left: 0.3rem;
+    line-height: $slot-height;
+    vertical-align: middle;
+  }
+
+  .slot-level, .remodel {
+    color: #0ff;
+    animation-name: remodel;
+    animation-duration: 3s;
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);// $transition-timing-function;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+  
+  @at-root {
+    .ani-start {
+      .slot-level, .remodel {
+        animation-play-state: running !important;
+      }
+    }
+  }
+}
+
+@keyframes remodel {
+  0% {
+    color: #0ff;
+    text-shadow: 0 0 10px #fff;
+  }
+
+  50% {
+    //color: #cff;
+    color: #1e8eff;
+    text-shadow: 0 0 0px #fff;
+  }
+
+  100% {
+    color: #0ff;
+    text-shadow: 0 0 10px #fff;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// cell enemies
+$cell-emeny-tab-item-height: 31px;
+.cell-enemies {
+  width: $assist-width;
+  .cell-enemy-tabs {
+    > .tabs {
+      ul {
+        border: 0;
+      }
+
+      .is-battle, .is-battle.is-active {
+        a {
+          animation: battle-tab-bk 2.5s ease-in-out infinite alternate;
+        }
+      }
+      .is-battle a {
+        position: relative;
+        &::before {
+          content: "場所";
+          top: 2px;
+          left: 2px;
+          display: inline-block;
+  
+          position: absolute;
+          padding: 3px;
+          font-size: 10px;
+          line-height: 10px;
+          text-align: center;
+          white-space: pre;
+          color: #fff;
+          border-radius: 3px;
+          background: rgba(255,0,0,.8);
+          //animation: updown 1s ease-in-out infinite alternate;
+          box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+        }
+      }
+    }
+  }
+  .cell-enemy-tab-item {
+    height: $cell-emeny-tab-item-height;
+    > a {
+      height: $cell-emeny-tab-item-height;
+      padding: 0 !important;
+    }
+  }
+}
+.seiku-wrapper {
+  padding-left: 3px;
+  .seiku {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    transform: translateY(1px);
+    .txt {
+      line-height: 12px;
+      transform: translateY(-2px);
+    }
+  }  
+}
+
+///////////////////////////////////////////////////////////////
+// enemy list
+$emeny-list-tab-item-height: 31px;
+$eship-ship-name: 60px;
+$eship-col-width: ( ( $assist-width - $eship-ship-name ) / 6 );
+$eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
+.enemy-list-tabs {
+  width: $assist-width;
+  li {
+    height: $cell-emeny-tab-item-height;
+    > a {
+      height: $cell-emeny-tab-item-height;
+    }
+  }
+  > .tabs {
+    ul {
+      border: 0;
+      a {
+        border: 0;
+      }
+    }
+
+    .is-battle, .is-battle.is-active {
+      a {
+        animation: battle-tab-bk 2.5s ease-in-out infinite alternate;
+      }
+    }
+
+    .is-battle a {
+      position: relative;
+      &::before {
+        content: "戦闘";
+        top: 2px;
+        left: 2px;
+        display: inline-block;
+
+        position: absolute;
+        padding: 3px;
+        font-size: 10px;
+        line-height: 10px;
+        text-align: center;
+        white-space: pre;
+        color: #fff;
+        border-radius: 3px;
+        background: rgba(255,0,0,.8);
+        //animation: updown 1s ease-in-out infinite alternate;
+        box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+      }
+    }
+  }
+}
+
+.enemy-list {
+
+  .enemy-cell {
+    width: $eship-col-width;
+  }
+
+  .enemy-cell-content {
+    position: relative;
+    width: 100%;
+
+    > div {
+      width: 100%;
+    }
+  }
+
+  .enemy-banner {
+    object-fit: contain;
+  }
+
+  .enemy-status {
+    font-size: 12px;
+    line-height: calc(1em - 2px);
+    span {
+      &:not(first-of-type) {
+        padding-left: 2px;
+      }
+      &::before {
+        transform: translateY(-2px);
+      }  
+    }
+  }
+
+  .enemy-dmg {
+    font-size: 12px;
+    line-height: 12px;
+    .apshell {
+      color: $state-plus-color;
+    }
+    /*
+    > div {
+      display: flex;
+      justify-content: flex-end;
+      & > :first-child {
+        margin-left: 2px;
+        margin-right: auto;
+      }
+      & > :last-child {
+        margin-right: 2px;
+      }
+    }
+    */
+  }
+  .small-mod {
+    display: inline-block;
+    font-size: 8px;
+    //line-height: 12px;
+    transform: translateY(-1px);
+  }
+  thead {
+    tr {
+      padding: 0;
+      margin: 0;
+      //line-height: $eship-col-height;
+      height: $eship-col-height;
+      line-height: 0;
+    }
+  }
+
+  table {
+    font-size: 12px;
+    line-height: 14px;
+    text-shadow: 1px 1px 0px #000;
+
+    td {
+      height: 30px;
+    }
+  }
+
+  .table tbody tr:last-child td, .table tbody tr:last-child th {
+    border-bottom-width: 1px;
+  }
+  
+  .enemy-col0 {
+    width: $eship-ship-name;
+    max-width: $eship-ship-name;
+    height: $eship-col-height;
+  }
+
+  .enemy-col {
+    width: $eship-col-width;
+    height: $eship-col-height;    
+    //line-height: $eship-col-height;
+    //text-align: center !important;
+  }
+
+  .cell-name {
+    max-width: $eship-ship-name;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .stype {
+    font-size: 10px;
+    line-height: 14px;
+    //text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .name {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  $tip-border-color: rgba(#000, 1);
+  $tip-bkcolor: rgba(#000, 0.8);
+  $tip-margin: 10px;
+  .tooltip-content {
+    font-size: 12px;
+    background: $tip-bkcolor !important;
+    &::before {
+      display: none;
+    }
+    border: 1px solid $tip-border-color;
+    //width: 215px !important;
+    transform: translateY(18px) !important;
+    padding: $tip-margin !important;
+  }
+
+  .enemy-tip {  
+
+    .tip-name {
+      height: 1em;
+      line-height: 1em;
+      margin-bottom: $tip-margin;
+
+      .flagship {
+        color: gold;
+      }
+
+      .elite {
+        color: orange;
+      }
+    }
+
+    .enemy-img {
+      width: 120px;
+      height: 30px;
+      margin-right: $tip-margin;
+      margin-bottom: $tip-margin / 2;
+    }
+
+    .tip-content {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      grid-template-rows: max-content;
+      grid-auto-flow: column;
+    }
+
+    .status-col1 {
+      display: grid;
+      grid-template-columns: max-content;
+      grid-template-rows: repeat(2, min-content);
+    }
+
+    .status-col2 {
+      display: grid;
+      grid-template-columns: 45px 45px;
+      grid-template-rows: repeat(10, min-content);
+      text-align: left;
+      > div {
+        height: 1.3em;
+      }
+    }
+
+    .enemy-slots {
+      text-align: left;
+      .slot-img {
+        position: relative;
+      }
+      .onslot {
+        position: absolute;
+        left: 0px;
+        bottom: calc((1em / 2 ) * -1);
+
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        height: 1em;
+        width: 26px;
+      }
+    }
+  }
+
+  .enemy-list-deck {
+    $height: 24px;
+    height: $height;
+    line-height: $height;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// quest
+.questlist {
+  font-size: 12px;
+  width: $assist-width;
+
+  $quest-width: $assist-width / 2;
+  .quest {
+    width: $quest-width;
+    height: 34px;
+    line-height: 20px;
+  }
+
+  .questlist-title {
+    $height: 32px;
+    height: $height;
+    line-height: $height;
+    border: 1px solid #fff;
+    text-align: center;
+  }
+
+  $tag-height: 20px;
+  .quest-category {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    $size: 20px;
+    width: $size*2 - 5px;
+    height: $tag-height;
+    line-height: $tag-height;
+    border: 1px solid #000;
+    border-right: 0;
+    background-color: #555;
+
+    $shadow-color: rgba(#000, 0.333);
+    text-shadow: 
+      -1px -1px 0 $shadow-color, 
+      1px -1px 0 $shadow-color, 
+      -1px 1px 0 $shadow-color, 
+      1px 1px 0 $shadow-color;
+
+    box-shadow: 0 0 1px 1px rgba(#fff, 0.1) inset;
+
+    &.is-hensei {
+      background-color: red;
+    }
+    &.is-syutugeki {
+      background-color: #DC5856;
+    }
+    &.is-ensyu {
+      background-color: #81BE5C;
+    }
+    &.is-hokyu-nukyo {
+      background-color: #D8BA64;
+    }
+    &.is-kousyou {
+      background-color: #845945;
+    }
+    &.is-kaisou {
+      background-color: #C5A3D8;
+    }
+  }
+
+  .quest-type {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    $size: 20px;
+    width: $size;
+    height: $tag-height;
+    line-height: $tag-height;
+    border: 1px solid #000;
+    border-right: 0;
+    background-color: #555;
+
+    $shadow-color: rgba(#000, 0.333);
+    text-shadow: 
+      -1px -1px 0 $shadow-color, 
+      1px -1px 0 $shadow-color, 
+      -1px 1px 0 $shadow-color, 
+      1px 1px 0 $shadow-color;
+
+    &.is-daily {
+      color: #77C7FF;
+    }
+    &.is-weekly {
+      color: #78DEEB;
+    }
+    &.is-monthly {
+      color: #BCE563;
+    }
+    &.is-single {
+      color: #F8E258;
+    }
+    &.is-quarterly {
+      color: #F8E258;
+    }
+    &.is-yearly {
+      color: #fff;
+    }
+  }
+
+  .quest-progress {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+
+    width: 40px;
+    height: $tag-height;
+    line-height: $tag-height;
+    border: 1px solid #000;
+    background-color: #555;
+
+    $shadow-color: rgba(#000, 0.333);
+    text-shadow: 
+      -1px -1px 0 $shadow-color, 
+      1px -1px 0 $shadow-color, 
+      -1px 1px 0 $shadow-color, 
+      1px 1px 0 $shadow-color;
+  }
+
+  .is-completed {
+    //$bkcolor_from: #48c774;
+    $bkcolor_from: #1e8eff;
+    //$bkcolor_to: lighten($bkcolor_from, 25%);
+    //$bkcolor_to: darken($bkcolor_from, 20%);
+    background-color: $bkcolor_from;
+    &::before {
+      position: absolute;
+      content: '';
+      display: inline-block;
+      top: -20px;
+      left: 0;
+      width: 10px;
+      height: 100%;
+      background-color: #fff;
+      transition: 0s;
+      animation: fadeinout 4s ease-in-out infinite;
+      @at-root {
+        @keyframes fadeinout {
+          0% { transform: scale(0) rotate(45deg); opacity: 0; }
+          80% { transform: scale(0) rotate(45deg); opacity: 0.5; }
+          81% { transform: scale(2) rotate(45deg); opacity: 0.9; }
+          100% { transform: scale(15) rotate(45deg); opacity: 0; }
+        }
+      }
+    }  
+  }
+
+  .quest-title {
+    display: inline-flex;
+    width: $quest-width - 35px - 20px - 40px - 5px;
+    height: $tag-height;
+    line-height: $tag-height;
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .quest-bar {
+    height: 14px;
+    background-color: #595959;
+    border-right: 1px solid $background;
+  }
+
+  .quest-progress-text {
+    position: absolute;
+    display: inline-flex;
+    $font-size: 12.0px;
+    $height: 14px;
+    font-size: $font-size;
+    line-height: $font-size;
+    height: $height;
+    left: 0;
+    width: $quest-width;
+    justify-content: center;
+    align-items: center;
+    color: #0f0;
+    $shadow-color: rgba(#000, 0.8);//0.333);
+    text-shadow: 
+      -1px -1px 1px $shadow-color, 
+      1px -1px 1px $shadow-color, 
+      -1px 1px 1px $shadow-color, 
+      1px 1px 1px $shadow-color;
+  }
+
+  .progress-bar {
+    transition-property: width;
+    transition-duration: $transition-duration;
+    transition-timing-function: $transition-timing-function;
+
+    .progress-value {
+      --width: 0%;
+      $fontsize: 12px;
+      font-size: $fontsize !important;
+      line-height: $fontsize + 2px;
+      width: unset;
+      overflow: hidden;
+      //font-weight: normal;
+      $shadow-color: rgba(#000, 0.333);
+      text-shadow: 
+        -1px -1px 0 $shadow-color, 
+        1px -1px 0 $shadow-color, 
+        -1px 1px 0 $shadow-color, 
+        1px 1px 0 $shadow-color;
+      //text-shadow: 1px 0px 0px rgba(#000, 0.8);
+    }
+
+    &.is-warning {
+      .progress-value {
+        color: #000 !important;
+        text-shadow: unset;
+        /*
+        $shadow-color: rgba(#fff, 0.333);
+        text-shadow: 
+          -1px -1px 0 $shadow-color, 
+          1px -1px 0 $shadow-color, 
+          -1px 1px 0 $shadow-color, 
+          1px 1px 0 $shadow-color;  
+        */
+        //text-shadow: 1px 0px 0px rgba(#000, 0.3);  
+      }
+    }
+  }
+
+  $tipborder-color: #999;
+  $tipborder-color: #ddd;
+  .tooltip-content {
+    //width: unset !important;
+    width: $assist-width - 14px !important;// 380px;
+    background: $tooltip-bkcolor !important;
+    //top: calc(100% + 00px) !important;
+    //left: 100%;
+    top: 0;
+    &::before {
+      display: none;
+    }
+    border: 1px solid $tipborder-color;
+    --tipx: -41px;
+    transform: translateY(var(--tipx)) !important;
+  }
+
+  .questtip {
+    &:nth-of-type(1), &:nth-of-type(2) {
+      .tooltip-content {
+        --tipx: -41px;//-34px;
+      }
+    }
+    &:nth-of-type(3), &:nth-of-type(4) {
+      .tooltip-content {
+        --tipx: -75px; // -68px
+      }
+    }
+    &:nth-of-type(5), &:nth-of-type(6) {
+      .tooltip-content {
+        --tipx: -109px; // -102px
+      }
+    }
+    &:nth-of-type(7), &:nth-of-type(8) {
+      .tooltip-content {
+        --tipx: -143px; // -136px
+      }
+    }
+  }
+
+  .quest-tip {
+    font-size: 16px;
+    //font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+    .tiptitle {
+      display: flex;
+      justify-content: space-between;
+      line-height: 1.6rem;
+
+      //$bkcolor: lime;
+      //background: linear-gradient(rgba(0,0,0,0), rgba($bkcolor,0.05), rgba($bkcolor,0.3));  
+      $shadow-color: blue;
+      text-shadow: 
+        -1px -1px 0 $shadow-color, 
+        1px -1px 0 $shadow-color, 
+        -1px 1px 0 $shadow-color, 
+        1px 1px 0 $shadow-color;  
+    }
+
+    .tipdetail {
+      text-align: left;
+      //font-size: 16px;
+    }
+    hr {
+      height: 1px;
+      margin: 0 0;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      border: none;
+      background-color: $tipborder-color;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// ndock
+.ndock-content {
+  font-size: 12px;
+  $dock-width: $assist-width / 2;
+  $dock-img-width: 136px;
+  $dock-height: 34px;
+  width: $dock-width;
+
+  .ndock-title {
+    $height: 32px;
+    height: $height;
+    line-height: $height;
+    border: 1px solid #fff;
+    border-left: 0;
+    text-align: center;
+  }  
+  .ndock {
+    /*
+    display: inline-flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    */
+    width: 100%;
+    height: $dock-height;
+  
+    .ndock-img-wrapper {
+      display: inline-block;
+      position: relative;
+      width: $dock-img-width;
+      height: $dock-height;
+    }
+
+    .ndock-banner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: $dock-img-width;
+      height: $dock-height;
+    }
+
+    .ndock-img-help {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 20px;
+      transform: rotate(20deg) translateY(-2px) translateX(-3px);
+      color: lightgreen;
+      font-weight: bold;
+      $shadow-color: #000;
+      text-shadow: 
+        -1px -1px 1px $shadow-color, 
+        1px -1px 1px $shadow-color, 
+        -1px 1px 1px $shadow-color, 
+        1px 1px 1px $shadow-color; 
+        .is-completed {
+          color: skyblue;
+        }  
+    }
+
+    .ndock-info {
+      $height: $dock-height / 2;
+      //font-size: 12px;
+      vertical-align: top;
+      line-height: $height;
+      display: inline-block;
+      width: $dock-width - $dock-img-width;
+      height: 100%;
+      padding-left: 6px;
+    }
+
+    .ndock-info-item {
+      display: inline-block;
+      width: 100%;
+      height: 50%;
+      //overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /*
+    .ndock-no {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #239E9E;
+      border: 1px solid #fff;
+      border-radius: 12px;
+    }
+    */
+
+    .ndock-empty, .ndock-locked {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      width: $dock-img-width;
+      height: $dock-height;
+      border: 1px solid rgba(#ccc, 0.5);
+      background-color: #555;
+    }
+    svg {
+      $size: 24px;
+      width: $size;
+      height: $size;
+      fill: yellow;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// kdock
+.kdock-content {
+  font-size: 12px;
+  $dock-width: $assist-width / 2;
+  $dock-img-width: 136px;
+  $dock-height: 34px;
+  width: $dock-width;
+
+  .kdock-title {
+    $height: 32px;
+    height: $height;
+    line-height: $height;
+    border: 1px solid #fff;
+    border-left: 0;
+    text-align: center;
+  }  
+  .kdock {
+    /*
+    display: inline-flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    */
+    width: 100%;
+    height: $dock-height;
+  
+    .kdock-img-wrapper {
+      display: inline-block;
+      position: relative;
+      width: $dock-img-width;
+      height: $dock-height;
+    }
+
+    .kdock-banner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: $dock-img-width;
+      height: $dock-height;
+    }
+
+    .kdock-img-help {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 20px;
+      transform: rotate(20deg) translateY(-2px) translateX(-3px);
+      color: lightgreen;
+      font-weight: bold;
+      $shadow-color: #000;
+      text-shadow: 
+        -1px -1px 1px $shadow-color, 
+        1px -1px 1px $shadow-color, 
+        -1px 1px 1px $shadow-color, 
+        1px 1px 1px $shadow-color; 
+      .is-completed {
+        color: skyblue;
+      }
+    }
+
+    .kdock-info {
+      $height: $dock-height / 2;
+      //font-size: 12px;
+      vertical-align: top;
+      line-height: $height;
+      display: inline-block;
+      width: $dock-width - $dock-img-width;
+      height: 100%;
+      padding-left: 6px;
+    }
+
+    .kdock-info-item {
+      display: inline-block;
+      width: 100%;
+      height: 50%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kdock-empty, .kdock-locked {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      width: $dock-img-width;
+      height: $dock-height;
+      border: 1px solid rgba(#ccc, 0.5);
+      background-color: #555;
+    }
+    svg {
+      $size: 24px;
+      width: $size;
+      height: $size;
+      fill: yellow;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// item
+.item-list {
+  width: $assist-width;
+  $column: 12;
+
+  .item-grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat($column, $assist-width / $column);
+
+    > div {
+      position: relative;
+    }
+    line-height: 0.5em;
+  }
+
+  .item-img {
+    width: $assist-width / $column;
+    height: $assist-width / $column;
+  }
+
+  .item-count {
+    $bkcolor: #7F593F;
+    $font-size: 16px;
+    position: absolute;
+    min-width: $font-size * 1.5;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    right: 0px;
+    bottom: 0px;
+    font-size: $font-size;
+    line-height: 1em;
+    background-color: rgba($bkcolor, 1);
+    padding: 0.1em;
+    border: 2px solid darken($bkcolor, 15);
+    border-radius: 50%;
+
+    $shadow-color: #000;
+    text-shadow: 
+      -1px -1px 0 $shadow-color, 
+      1px -1px 0 $shadow-color, 
+      -1px 1px 0 $shadow-color, 
+      1px 1px 0 $shadow-color;  
+  }
+}
+
+.assist-dock {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+
+  .ndock-title, .kdock-title {
+    border: 1px solid #fff;
+    border-top: 0;
+  }
+
+  .kdock-title {
+    border-left-width: 0px;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// about
+.about-root {
+  .hero-body {
+    flex-grow: unset;
+  }
+  .title {
+    margin-bottom: 2em;
+  }
+  .version {
+    font-size: .7em;
+    padding-left: 1em;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// invalid
+.invalid-root {
+  .hero-body {
+    flex-grow: unset;
+  }
+  .title {
+    margin-bottom: 2em;
+  }
+  .version {
+    font-size: .7em;
+    padding-left: 1em;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// ship items
+.ship-items-root {
+  .ship-items-tabs {
+    .tabs > ul li a {
+      border-top: 0;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// ship list
+.ship-list-root {
+  .list-content {
+    overflow-y: auto;
+    height: calc( 100vh - 150px );
+  } 
+
+  button {
+    margin-left: 1px;
+    margin-right: 1px !important;
+    padding-left: .5em;
+    padding-right: .5em;
+  }
+
+  .buttons {
+    margin-left: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 0;
+  }
+
+  $list-width: $assist-width - 25px;
+  $column_count: 3;
+  $ship-width: $list-width / $column_count;
+  $ship-height: 75px;
+  $ship-img-size: 160px;
+  $font-size: 14px;
+  $ship-margin: ($ship-width - $ship-img-size) / 2;
+
+  .ship-img {
+    //margin: 10px;
+    margin-left: $ship-margin;
+    //margin-right: $ship-margin;
+    //margin-bottom: 0;
+    width: $ship-img-size;
+    //height: fit-content;
+    //height: $weapon-img-size;
+  }
+
+  .ship-list {
+    font-size: $font-size;
+    width: $list-width;
+    display: grid;
+    grid-template-columns: repeat($column_count, $list-width / $column_count);
+    > div {
+      width: $ship-width;
+      height: $ship-height;
+      position: relative;
+    }
+
+    .level {
+      position: absolute;
+      font-size: 16px;
+      bottom: $font-size+12px;
+      right: $ship-margin;
+      padding: 4px;
+      background: rgba(#000, 0.7);
+      line-height: 12px;
+      color: #fff;
+
+      &.is-over {
+        color: #0ff;
+        animation-name: remodel;
+        animation-duration: 3s;
+        animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);// $transition-timing-function;
+        animation-iteration-count: infinite;
+      }
+    }
+
+    .ship-name {
+      display: inline-flex;
+      width: $ship-width - 4px;
+      height: $font-size;
+      //line-height: $font-size;
+      white-space: nowrap;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// slotitem list
+.slotitem-list-root {
+
+  .list-content {
+    overflow-y: auto;
+    height: calc( 100vh - 350px );
+  } 
+
+  button {
+    margin-left: 1px;
+    margin-right: 1px !important;
+    padding-left: .5em;
+    padding-right: .5em;
+  }
+
+  .buttons {
+    margin-left: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 0;
+  }
+
+
+  button {
+    margin-left: 2px;
+    /*
+    &:focus { 
+      background-color: transparent;
+      border-color: #167df0;
+      color: #167df0;
+    }
+    */
+  }
+
+  $list-width: $assist-width - 25px;
+  $column_count: 5;
+  $weapon-width: $list-width / $column_count;
+  $weapon-img-size: 80px;
+  $font-size: 12px;
+  $weapon-margin: ($weapon-width - $weapon-img-size) / 2;
+
+  .weapon-img {
+    //margin: 10px;
+    margin: $weapon-margin;
+    margin-bottom: 0;
+    width: $weapon-img-size;
+    height: $weapon-img-size;
+  }
+
+  .weapon-list {
+    font-size: $font-size;
+    width: $list-width;
+    display: grid;
+    grid-template-columns: repeat($column_count, $list-width / $column_count);
+    > div {
+      width: $weapon-width;
+      height: $weapon-width;
+      position: relative;
+    }
+
+    .level {
+      position: absolute;
+      font-size: 12px;
+      bottom: $font-size+5px;
+      right: $weapon-margin;
+      padding: 4px;
+      background: rgba(#000, 0.7);
+      line-height: 12px;
+      color: #0ff;
+      text-shadow: 0 0 8px #fff;
+      // 数が多いと重くなる
+      /*
+      animation-name: remodel;
+      animation-duration: 3s;
+      animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);// $transition-timing-function;
+      animation-iteration-count: infinite;
+      */
+    }
+
+    .weapon-name {
+      display: inline-flex;
+      width: $weapon-width - 4px;
+      height: $font-size;
+      white-space: nowrap;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// ship tool tip
+.ship-tool-tip {
+  > .tooltip-content {
+    top: 130px !important;
+    background-color: rgba(#000, 0.8) !important;
+    border: 1px solid #000;
+  }
+}
