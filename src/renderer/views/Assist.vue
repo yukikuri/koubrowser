@@ -14,9 +14,12 @@
         <component v-else-if="index===2" :is="'Invalid'" />
       </b-tab-item>
       <b-tab-item label="任務/ドック">
-        <div v-if="index===3 && isDataOk" class="assist-dock" >
-          <div><NDockList/></div>
-          <div><KDockList/></div>
+        <div v-if="index===3 && isDataOk">
+          <div class="assist-dock">
+            <div><NDockList/></div>
+            <div><KDockList/></div>
+          </div>
+          <div><QuestList/></div>
         </div>
         <component v-else-if="index===3" :is="'Invalid'" />
       </b-tab-item>
@@ -42,6 +45,7 @@ import WorldTab from '@/renderer/components/WorldTab.vue';
 import ShipItems from '@/renderer/components/ShipItems.vue';
 import NDockList from '@/renderer/components/NDockList.vue';
 import KDockList from '@/renderer/components/KDockList.vue';
+import QuestList from '@/renderer/components/QuestList.vue';
 import About from '@/renderer/components/About.vue';
 import Invalid from '@/renderer/components/Invalid.vue';
 import { Component, Vue } from 'vue-property-decorator';
@@ -53,6 +57,7 @@ import { Component, Vue } from 'vue-property-decorator';
     ShipItems,
     NDockList,
     KDockList,
+    QuestList,
     About,
     Invalid,
   },
