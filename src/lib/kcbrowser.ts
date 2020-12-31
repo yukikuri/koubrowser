@@ -221,7 +221,7 @@ export class KcApp {
     const withAssistSize = calcAssistWindowSize();
     const gameOnlySize = calcGameOnlySize();
 
-    const x = 1930;
+    const x = 20;
     const y = 40;
     this.frame_ratio = AppStuff.calcFrameRatio(gameOnlySize.width, gameOnlySize.height);
     const minWidth = 600;
