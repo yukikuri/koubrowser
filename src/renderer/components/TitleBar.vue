@@ -435,7 +435,12 @@ const checkTaihaSingeki = (): boolean => {
     return false;
   }
 
-  if (deck2.api_ship.some((el) => {
+  if (deck2.api_ship.some((el, index) => {
+    // 第2旗艦は判定しない
+    if (0 === index) {
+      return false;
+    }
+
     const ship = svdata.ship(el);
     if (! ship) {
       return false;
