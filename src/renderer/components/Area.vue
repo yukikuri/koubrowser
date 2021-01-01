@@ -579,7 +579,6 @@ export default class extends Vue {
   private cell_info: CellInfo;
   private area_id_no: string;
   private active_cell: HTMLElement | undefined;
-  private home_spot: Spot | null = null;
   private cb_port: number = 0;
   private home_location_setted: boolean = false;
   private target_label: [string, string, string];
@@ -593,11 +592,6 @@ export default class extends Vue {
     this.cell_info = MapStuff.cellInfo(this.area_id, this.area_no);
     this.area_id_no = `${('00'+this.area_id).substr(-3)}_${('0'+this.area_no).substr(-2)}`;
     this.target_label = ['-', '-', '-'];
-
-    const home_spot = this.cell_info.spots.find(spot => spot.no === 0);
-    if (home_spot) {
-      this.home_spot = home_spot;
-    }
   }
 
   private mounted(): void {
@@ -683,9 +677,9 @@ export default class extends Vue {
     }
 
     let ret: PassedCell[] = [];
-    const home_cell = this.cell_info.spots.find(spot => spot.no === 0);
-    if (home_cell) {
-      ret.push({ cellXY: this.locationXY(home_cell) });
+    const home_spot = this.homeSpot;
+    if (home_spot) {
+      ret.push({ cellXY: this.locationXY(home_spot) });
     }
 
     const battleMap = svdata.battleMap;
@@ -711,6 +705,14 @@ export default class extends Vue {
     }
   }
 
+  private get homeSpot(): Spot | undefined {
+    const mapStart= svdata.mapStart;
+    if (! mapStart) {
+      return undefined;
+    }
+    return this.cell_info.spots.find(spot => spot.no === mapStart.api_from_no);
+  }
+
   private get currentPosStyle(): object {
     const battleMap = svdata.battleMap;
 
@@ -732,8 +734,9 @@ export default class extends Vue {
         return lastMapPos(battleMap.length-2);
       }
 
-      if (this.home_spot) {
-        return this.locationXY(this.home_spot);
+      const home_spot = this.homeSpot;
+      if (home_spot) {
+        return this.locationXY(home_spot);
       }
       return {};
     }
@@ -1185,8 +1188,8 @@ export default class extends Vue {
         if (0 === eventmap.api_now_maphp) {
           return rank + 'クリア済';
         }
-        const txt = `ゲージ: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp}`;
-        return txt + ' ' + rank;
+        const gauge_name = mapinfo.api_gauge_type === ApiGaugeType.event ? '戦力' : '輸送';
+        return `${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp} ${rank}`;
       }
     }
 
