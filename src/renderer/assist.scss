@@ -695,6 +695,7 @@ body {
     .field {
       margin-bottom: 0;
       height: $height;
+      float: right;
       &:not(:last-child) {
         transform: translateY(1px);
       }
