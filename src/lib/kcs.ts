@@ -3806,7 +3806,7 @@ export class KcsUtil {
    * @param v 
    */
   public static isCombinedCombinedBattle(v: ApiBattleBase): boolean {
-    return Array.isArray((v as any).api_f_nowhps_combined);
+    return this.isCombinedBattle(v) && Array.isArray((v as any).api_f_nowhps_combined);
   }
   
   /**
