@@ -69,9 +69,12 @@ export default class extends Vue {
         return acc;
       }
 
-      const mst = svdata.mstUseItem(api.api_id);
-      if (mst) {
-        acc.push({api, name: mst.api_name, src: RUtil.itemImg(api.api_id)});
+      // count: 0
+      if (api.api_count > 0) {
+        const mst = svdata.mstUseItem(api.api_id);
+        if (mst) {
+          acc.push({api, name: mst.api_name, src: RUtil.itemImg(api.api_id)});
+        }
       }
       return acc;
     }, []);

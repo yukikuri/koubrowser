@@ -4226,6 +4226,7 @@ export const ApiItemId = {
   emergency_repair_god: 51,	// 応急修理女神
   kagu_craftsman: 52,	// 特注家具職人
   mamiya: 54,	// 給糧艦「間宮」
+  kekkonn_kakkokari: 55, // ケッコンカッコカリ
   chocolate: 56,	// 艦娘からのチョコ
   medal: 57,	// 勲章
   remodel_blueprint: 58,	// 改装設計図
@@ -6776,6 +6777,7 @@ export class SvData {
 
   private reqKaisouMarrige(api_data: ApiMarrige): void {
     this.updateShip([api_data]);
+    this.useitemAdd(ApiItemId.kekkonn_kakkokari, -1);
   }
 
   private reqHokyuCharge(api_data: ApiHokyuCharge): void {
