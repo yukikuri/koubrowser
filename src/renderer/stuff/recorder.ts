@@ -12,6 +12,8 @@ const sourceOptions = () => {
 }
 
 const userMediaOptions = (source: DesktopCapturerSource): MediaStreamConstraints => {
+  const width = gameSetting.assistInGame ? gameSetting.capture_assist_width : gameSetting.capture_min_width;
+  const height = gameSetting.assistInGame ? gameSetting.capture_assist_height : gameSetting.capture_min_height;
   return {
     audio: {
       mandatory: {
@@ -23,10 +25,10 @@ const userMediaOptions = (source: DesktopCapturerSource): MediaStreamConstraints
       mandatory: {
         chromeMediaSource: 'desktop',
         chromeMediaSourceId: source.id,
-        minWidth: gameSetting.capture_min_width,
-        maxWidth: gameSetting.capture_max_width,
-        minHeight: gameSetting.capture_min_height,
-        maxHeight: gameSetting.capture_max_height,
+        minWidth: width,
+        maxWidth: width,
+        minHeight: height,
+        maxHeight: height,
       }
     }
   } as MediaStreamConstraints;
