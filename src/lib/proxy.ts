@@ -1,3 +1,4 @@
+import { Socket } from 'net';
 import * as http from 'http';
 import Server from 'http-proxy';
 import zlib from 'zlib';
@@ -95,6 +96,19 @@ export class ProxyServer {
           }
         );
       });
+    this.server.on('connection', (client: Socket) => {
+      // localhost access only
+      if (client.remoteFamily === 'IPv4' && '127.0.0.1' === client.remoteAddress) {
+        return ;
+      }
+      if (client.remoteFamily === 'IPv6' && '::1' === client.remoteAddress) {
+        return ;
+      }
+
+      // access deny
+      console.log('access deny:', client.remoteAddress);
+      client.end();
+    });
     this.server_.listen(port);
   }
 }
