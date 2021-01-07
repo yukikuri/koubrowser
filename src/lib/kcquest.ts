@@ -669,10 +669,10 @@ abstract class QuestBattleMap extends QuestBattle {
     if (-1 === index) {
       return ;
     }
-    this.increment(1, this.max.length < index ? 0 : index);
+    this.increment(1, Math.min(this.max.length - 1, index));
   }
 
-  protected matchMap(map: Pick<ApiMap, 'api_event_id' | 'api_bosscell_no'>, win_rank: string | undefined): number {
+  protected matchMap(map: Pick<ApiMap, 'api_event_id' | 'api_bosscell_no'>, win_rank?: string): number {
 
     const map_start = svdata.mapStart;
     if (! map_start) {
@@ -717,7 +717,7 @@ abstract class QuestBattleMap extends QuestBattle {
       return ;
     } 
 
-    const index = this.matchMap(map, undefined);
+    const index = this.matchMap(map);
     if (-1 === index) {
       return ;
     }
