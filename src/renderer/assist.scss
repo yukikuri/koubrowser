@@ -2122,27 +2122,27 @@ $cell-emeny-tab-item-height: 31px;
           animation: battle-tab-bk 2.5s ease-in-out infinite alternate;
         }
       }
-      .is-battle a {
-        position: relative;
-        &::before {
-          content: "場所";
-          top: 2px;
-          left: 2px;
-          display: inline-block;
+      // .is-battle a {
+      //   position: relative;
+      //   &::before {
+      //     content: "場所";
+      //     top: 2px;
+      //     left: 2px;
+      //     display: inline-block;
   
-          position: absolute;
-          padding: 3px;
-          font-size: 10px;
-          line-height: 10px;
-          text-align: center;
-          white-space: pre;
-          color: #fff;
-          border-radius: 3px;
-          background: rgba(255,0,0,.8);
-          //animation: updown 1s ease-in-out infinite alternate;
-          box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
-        }
-      }
+      //     position: absolute;
+      //     padding: 3px;
+      //     font-size: 10px;
+      //     line-height: 10px;
+      //     text-align: center;
+      //     white-space: pre;
+      //     color: #fff;
+      //     border-radius: 3px;
+      //     background: rgba(255,0,0,.8);
+      //     //animation: updown 1s ease-in-out infinite alternate;
+      //     box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+      //   }
+      // }
     }
   }
   .cell-enemy-tab-item {
@@ -2195,27 +2195,27 @@ $eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
       }
     }
 
-    .is-battle a {
-      position: relative;
-      &::before {
-        content: "戦闘";
-        top: 2px;
-        left: 2px;
-        display: inline-block;
+    // .is-battle a {
+    //   position: relative;
+    //   &::before {
+    //     content: "戦闘";
+    //     top: 2px;
+    //     left: 2px;
+    //     display: inline-block;
 
-        position: absolute;
-        padding: 3px;
-        font-size: 10px;
-        line-height: 10px;
-        text-align: center;
-        white-space: pre;
-        color: #fff;
-        border-radius: 3px;
-        background: rgba(255,0,0,.8);
-        //animation: updown 1s ease-in-out infinite alternate;
-        box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
-      }
-    }
+    //     position: absolute;
+    //     padding: 3px;
+    //     font-size: 10px;
+    //     line-height: 10px;
+    //     text-align: center;
+    //     white-space: pre;
+    //     color: #fff;
+    //     border-radius: 3px;
+    //     background: rgba(255,0,0,.8);
+    //     //animation: updown 1s ease-in-out infinite alternate;
+    //     box-shadow: 0 0 3px 0 rgba(0,0,0,.8);
+    //   }
+    // }
   }
 }
 
