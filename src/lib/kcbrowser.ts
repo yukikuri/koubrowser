@@ -10,6 +10,9 @@ import {
   app,
   shell,
   dialog,
+  NewWindowEvent,
+  BrowserWindowConstructorOptions,
+  Referrer,
 } from 'electron'
 import * as fs from 'fs';
 import { svdata } from '@/main/svdata';
@@ -516,11 +519,49 @@ export class KcApp {
    */
   private onChannelNewWindow(arg: string): boolean {
     console.log('main process new-window', arg);
-    new BrowserWindow({
+    const child = new BrowserWindow({
       width: 1100,
       height: 800,
-    }).loadURL(arg);
+    });
+    child.webContents.on('will-prevent-unload', (event) => {
+      event.preventDefault();
+    });
+    child.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer) => {
+      this.handleNewWindow(event, url, frameName, disposition, options, additionalFeatures, referrer);
+    });
+    child.loadURL(arg);
     return true;
+  }
+
+  /**
+   * 
+   * @param event 
+   * @param url 
+   * @param frameName 
+   * @param disposition 
+   * @param options 
+   * @param additionalFeatures 
+   * @param referrer 
+   */
+  private handleNewWindow(
+    event: NewWindowEvent,
+    url: string,
+    frameName: string,
+    disposition: string,
+    options: BrowserWindowConstructorOptions,
+    additionalFeatures: string[],
+    referrer: Referrer): void {
+
+    event.preventDefault();
+    const child = new BrowserWindow(options);
+    event.newGuest = child;
+    child.webContents.on('will-prevent-unload', (event) => {
+      event.preventDefault();
+    });
+    child.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer) => {
+      this.handleNewWindow(event, url, frameName, disposition, options, additionalFeatures, referrer);
+    });
+    child.loadURL(url, referrer ? { httpReferrer: referrer } : undefined);
   }
 
   /**
