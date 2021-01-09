@@ -301,13 +301,19 @@ const YSCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
 }
 
 const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
-  let ret: string[] = [];
+  const ret: string[] = [];
   const sp = ship.sp;
 
   // thcutin
   if (sp.th) {
     ret.push(THCutinTag(ship, ships, sp.th));
   }
+
+  // facutin
+  ret.push(FACutinTag(ship, ships));
+
+  // aacutin
+  ret.push(AACutinTag(ship, ships));
 
   // tkcutin
   if (sp.tk) {
@@ -323,12 +329,6 @@ const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
   if (sp.sr) {
     ret.push(SenseiRaigekiTag(sp.sr));
   }
-
-  // facutin
-  ret.push(FACutinTag(ship, ships));
-
-  // aacutin
-  ret.push(AACutinTag(ship, ships));
 
   // funsindanmaku
   if (sp.fd) {
