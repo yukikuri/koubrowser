@@ -153,7 +153,7 @@ body {
   $button-size: 44px;
 
   display: grid;
-  grid-template-columns: min-content minmax(0px, min-content) 1fr min-content max-content max-content;
+  grid-template-columns: min-content min-content 1fr min-content max-content max-content;
   grid-template-rows: $height;
   grid-auto-flow: column;
   line-height: $height;
@@ -328,6 +328,7 @@ body {
         margin-right: auto;
         margin-left: 0;
       }
+      padding-right: 4px;
     }
 
     &.in-assist-main {

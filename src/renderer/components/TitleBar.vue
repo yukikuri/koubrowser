@@ -6,13 +6,13 @@
         <span class="kou-num kou-max" :class="{ kouMax: isKouMax }">{{kouNum}}</span>
       </div>
     </div>
-    <div class="title-content" :class="{ dragable: isDragable }">
-      {{title}}
-    </div>
     <div class="titlebar-buttons head" :class="{ dragable: isDragable }">
       <div>
         <div class="titlebar-button assist" :class="{ checked: isAssistShown, disabled: !isAssistOk }" title="アシストを表示" @click="onAssist"><ShowAssistImage/></div>
       </div>
+    </div>
+    <div class="title-content" :class="{ dragable: isDragable }">
+      {{title}}
     </div>
     <div class="mapinfo" :class="{ dragable: isDragable }">
       <div class="mapinfo-content">
