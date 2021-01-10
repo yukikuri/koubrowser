@@ -39,10 +39,13 @@ import NeDB from 'nedb';
 import { svdata } from '@/main/svdata';
 import moment from 'moment';
 
-const updaterCreators: {[key: number]: 
-  ((p: UpdaterCtorParam) => QuestUpdater) | undefined } = {};
+interface UpdaterFactory {
+  creator: ((p: UpdaterCtorParam) => QuestUpdater),
+  formatter: ((quest: Quest) => string),
+}
 
-export const detailFormatters: {[key: number]: ((quest: Quest) => string) | undefined } = {};
+const factories: {[key: number]: UpdaterFactory | undefined } = {};
+
 const detailFormat = (prefixs: string[], quest: Quest): string => {
   const state = quest.state as QuestCounter;
   return state.count.reduce<string[]>((acc, el, index) => {
@@ -1294,16 +1297,20 @@ class Quest201 extends QuestBattleSimple {
   max = [1];
   need_win = true;
 }
-updaterCreators[201] = (p: UpdaterCtorParam) => new Quest201(p);
-detailFormatters[201] = (quest: Quest): string => detailFormat(['戦闘勝利: '], quest);
+factories[201] = {
+  creator: (p: UpdaterCtorParam) => new Quest201(p),
+  formatter: (quest: Quest): string => detailFormat(['戦闘勝利: '], quest),
+};
 
 // 210: 敵艦隊を 10 回邀撃せよ！	
 class Quest210 extends QuestBattleSimple {
   max = [10];
   need_win = false;
 }
-updaterCreators[210] = (p: UpdaterCtorParam) => new Quest210(p);
-detailFormatters[210] = (quest: Quest): string => detailFormat(['戦闘: '], quest);
+factories[210] = {
+  creator: (p: UpdaterCtorParam) => new Quest210(p),
+  formatter: (quest: Quest): string => detailFormat(['戦闘: '], quest),
+};
 
 // 211: 敵空母を 3 隻撃沈せよ！
 class Quest211 extends QuestBattleEnemy {
@@ -1313,8 +1320,10 @@ class Quest211 extends QuestBattleEnemy {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[211] = (p: UpdaterCtorParam) => new Quest211(p);
-detailFormatters[211] = (quest: Quest): string => detailFormat(['空母系撃沈: '], quest);
+factories[211] = {
+  creator: (p: UpdaterCtorParam) => new Quest211(p),
+  formatter: (quest: Quest): string => detailFormat(['空母系撃沈: '], quest),
+};
 
 // 212:	敵輸送船団を叩け！
 class Quest212 extends QuestBattleEnemy {
@@ -1324,110 +1333,138 @@ class Quest212 extends QuestBattleEnemy {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[212] = (p: UpdaterCtorParam) => new Quest212(p);
-detailFormatters[212] = (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest);
+factories[212] = {
+  creator: (p: UpdaterCtorParam) => new Quest212(p),
+  formatter: (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest),
+};
 
 // 213:	海上通商破壊作戦
 class Quest213 extends QuestBattleEnemy {
   max = [20];
   type = [ApiShipType.hokyuukan_enemy];
 }
-updaterCreators[213] = (p: UpdaterCtorParam) => new Quest213(p);
-detailFormatters[213] = (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest);
+factories[213] = {
+  creator: (p: UpdaterCtorParam) => new Quest213(p),
+  formatter: (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest),
+};
 
 // 214: あ号作戦
 class Quest214 extends QuestBattle214 {
 }
-updaterCreators[214] = (p: UpdaterCtorParam) => new Quest214(p);
-detailFormatters[214] = (quest: Quest): string => detailFormat(['出撃:', 'S勝利:', 'Boss到達:', 'Boss勝利:'], quest);
+factories[214] = {
+  creator: (p: UpdaterCtorParam) => new Quest214(p),
+  formatter: (quest: Quest): string => detailFormat(['出撃:', 'S勝利:', 'Boss到達:', 'Boss勝利:'], quest),
+};
 
 // 216: 敵艦隊主力を撃滅せよ！	
 class Quest216 extends QuestBattleSimple {
   max = [1];
   need_win = false;
 }
-updaterCreators[216] = (p: UpdaterCtorParam) => new Quest216(p);
-detailFormatters[216] = (quest: Quest): string => detailFormat(['戦闘: '], quest);
+factories[216] = {
+  creator: (p: UpdaterCtorParam) => new Quest216(p),
+  formatter: (quest: Quest): string => detailFormat(['戦闘: '], quest),
+};
 
 // 218:	敵補給艦を 3 隻撃沈せよ！
 class Quest218 extends QuestBattleEnemy {
   max = [3];
   type = [ApiShipType.hokyuukan_enemy];
 }
-updaterCreators[218] = (p: UpdaterCtorParam) => new Quest218(p);
-detailFormatters[218] = (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest);
+factories[218] = {
+  creator: (p: UpdaterCtorParam) => new Quest218(p),
+  formatter: (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest),
+};
 
 // 220: い号作戦
 class Quest220 extends QuestBattleEnemy {
   max = [20];
   type = [ApiShipType.kei_kuubo, ApiShipType.seiki_kuubo];
 }
-updaterCreators[220] = (p: UpdaterCtorParam) => new Quest220(p);
-detailFormatters[220] = (quest: Quest): string => detailFormat(['空母系撃沈: '], quest);
+factories[220] = {
+  creator: (p: UpdaterCtorParam) => new Quest220(p),
+  formatter: (quest: Quest): string => detailFormat(['空母系撃沈: '], quest),
+};
 
 // 221:	ろ号作戦
 class Quest221 extends QuestBattleEnemy {
   max = [50];
   type = [ApiShipType.hokyuukan_enemy];
 }
-updaterCreators[221] = (p: UpdaterCtorParam) => new Quest221(p);
-detailFormatters[221] = (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest);
+factories[221] = {
+  creator: (p: UpdaterCtorParam) => new Quest221(p),
+  formatter: (quest: Quest): string => detailFormat(['補給艦撃沈: '], quest),
+};
 
 // 226:	南西諸島海域の制海権を握れ！
 class Quest226 extends QuestBattleMap {
   max = [5];
   area_and_rank: QuestMap[] = [ [ 2, 1, 'B' ], [ 2, 2, 'B' ], [ 2, 3, 'B' ], [ 2, 4, 'B' ], [ 2, 5, 'B' ] ];
 }
-updaterCreators[226] = (p: UpdaterCtorParam) => new Quest226(p);
-detailFormatters[226] = (quest: Quest): string => detailFormat(['2-X B勝利以上: '], quest);
+factories[226] = {
+  creator: (p: UpdaterCtorParam) => new Quest226(p),
+  formatter: (quest: Quest): string => detailFormat(['2-X B勝利以上: '], quest),
+};
 
 // 228:	海上護衛戦
 class Quest228 extends QuestBattleEnemy {
   max = [15];
   type = [ApiShipType.sensuikan];
 }
-updaterCreators[228] = (p: UpdaterCtorParam) => new Quest228(p);
-detailFormatters[228] = (quest: Quest): string => detailFormat(['潜水艦撃沈: '], quest);
+factories[228] = {
+  creator: (p: UpdaterCtorParam) => new Quest228(p),
+  formatter: (quest: Quest): string => detailFormat(['潜水艦撃沈: '], quest),
+};
 
 // 229: 敵東方艦隊を撃滅せよ！
 class Quest229 extends QuestBattleMap {
   max = [12];
   area_and_rank: QuestMap[] = [ [ 4, 1, 'B' ], [ 4, 2, 'B' ], [ 4, 3, 'B' ], [ 4, 4, 'B' ], [ 4, 5, 'B' ] ];
 }
-updaterCreators[229] = (p: UpdaterCtorParam) => new Quest229(p);
-detailFormatters[229] = (quest: Quest): string => detailFormat(['4-X B勝利以上: '], quest);
+factories[229] = {
+  creator: (p: UpdaterCtorParam) => new Quest229(p),
+  formatter: (quest: Quest): string => detailFormat(['4-X B勝利以上: '], quest),
+};
 
 // 230: 敵潜水艦を制圧せよ！
 class Quest230 extends QuestBattleEnemy {
   max = [6];
   type = [ApiShipType.sensuikan];
 }
-updaterCreators[230] = (p: UpdaterCtorParam) => new Quest230(p);
-detailFormatters[230] = (quest: Quest): string => detailFormat(['潜水艦撃沈: '], quest);
+factories[230] = {
+  creator: (p: UpdaterCtorParam) => new Quest230(p),
+  formatter: (quest: Quest): string => detailFormat(['潜水艦撃沈: '], quest),
+};
 
 // 241:	敵北方艦隊主力を撃滅せよ！
 class Quest241 extends QuestBattleMap {
   max = [5];
   area_and_rank: QuestMap[] = [ [ 3, 3, 'B' ], [ 3, 4, 'B' ], [ 3, 5, 'B' ] ];
 }
-updaterCreators[241] = (p: UpdaterCtorParam) => new Quest241(p);
-detailFormatters[241] = (quest: Quest): string => detailFormat(['3-3 3-4 3-5 B勝利以上: '], quest);
+factories[241] = {
+  creator: (p: UpdaterCtorParam) => new Quest241(p),
+  formatter: (quest: Quest): string => detailFormat(['3-3 3-4 3-5 B勝利以上: '], quest),
+};
 
 // 242:	敵東方中枢艦隊を撃破せよ！
 class Quest242 extends QuestBattleMap {
   max = [1];
   area_and_rank: QuestMap[] = [ [ 4, 4, 'B' ] ];
 }
-updaterCreators[242] = (p: UpdaterCtorParam) => new Quest242(p);
-detailFormatters[242] = (quest: Quest): string => detailFormatOne(['4-4 B勝利以上:'], quest);
+factories[242] = {
+  creator: (p: UpdaterCtorParam) => new Quest242(p),
+  formatter: (quest: Quest): string => detailFormatOne(['4-4 B勝利以上:'], quest),
+};
 
 // 243:	南方海域珊瑚諸島沖の制空権を握れ！
 class Quest243 extends QuestBattleMap {
   max = [2];
   area_and_rank: QuestMap[] = [ [ 5, 2, 'S' ] ];
 }
-updaterCreators[243] = (p: UpdaterCtorParam) => new Quest243(p);
-detailFormatters[243] = (quest: Quest): string => detailFormat(['5-2 S勝利: '], quest);
+factories[243] = {
+  creator: (p: UpdaterCtorParam) => new Quest243(p),
+  formatter: (quest: Quest): string => detailFormat(['5-2 S勝利: '], quest),
+};
 
 // 249:	「第五戦隊」出撃せよ！
 class Quest249 extends QuestBattleMapDeck {
@@ -1442,16 +1479,20 @@ class Quest249 extends QuestBattleMapDeck {
     return 3 === shipCount(toShipMsts(ship_ids), check_ids);
   });
 }
-updaterCreators[249] = (p: UpdaterCtorParam) => new Quest249(p);
-detailFormatters[249] = (quest: Quest): string => detailFormat(['第五戦隊 2-5 S勝利: '], quest);
+factories[249] = {
+  creator: (p: UpdaterCtorParam) => new Quest249(p),
+  formatter: (quest: Quest): string => detailFormat(['第五戦隊 2-5 S勝利: '], quest),
+};
 
 // 256:	「潜水艦隊」出撃せよ！
 class Quest256 extends QuestBattleMap {
   max = [3];
   area_and_rank: QuestMap[] = [ [ 6, 1, 'S' ] ];
 }
-updaterCreators[256] = (p: UpdaterCtorParam) => new Quest256(p);
-detailFormatters[256] = (quest: Quest): string => detailFormat(['6-1 S勝利: '], quest);
+factories[256] = {
+  creator: (p: UpdaterCtorParam) => new Quest256(p),
+  formatter: (quest: Quest): string => detailFormat(['6-1 S勝利: '], quest),
+};
 
 // 257:	「水雷戦隊」南西へ！
 class Quest257 extends QuestBattleMapDeck {
@@ -1474,8 +1515,10 @@ class Quest257 extends QuestBattleMapDeck {
     return true;
   };
 }
-updaterCreators[257] = (p: UpdaterCtorParam) => new Quest257(p);
-detailFormatters[257] = (quest: Quest): string => detailFormat(['1-4 S勝利: '], quest);
+factories[257] = {
+  creator: (p: UpdaterCtorParam) => new Quest257(p),
+  formatter: (quest: Quest): string => detailFormat(['1-4 S勝利: '], quest),
+};
 
 // 259:「水上打撃部隊」南方へ！
 class Quest259 extends QuestBattleMapDeck {
@@ -1506,16 +1549,20 @@ class Quest259 extends QuestBattleMapDeck {
     return true;
   };
 }
-updaterCreators[259] = (p: UpdaterCtorParam) => new Quest259(p);
-detailFormatters[259] = (quest: Quest): string => detailFormat(['5-1 S勝利: '], quest);
+factories[259] = {
+  creator: (p: UpdaterCtorParam) => new Quest259(p),
+  formatter: (quest: Quest): string => detailFormat(['5-1 S勝利: '], quest),
+};
 
 // 261:	海上輸送路の安全確保に努めよ！
 class Quest261 extends QuestBattleMap {
   max = [3];
   area_and_rank: QuestMap[] = [ [ 1, 5, 'A' ] ];
 }
-updaterCreators[261] = (p: UpdaterCtorParam) => new Quest261(p);
-detailFormatters[261] = (quest: Quest): string => detailFormat(['1-5 A勝利以上: '], quest);
+factories[261] = {
+  creator: (p: UpdaterCtorParam) => new Quest261(p),
+  formatter: (quest: Quest): string => detailFormat(['1-5 A勝利以上: '], quest),
+};
 
 // 264:「空母機動部隊」西へ！
 class Quest264 extends QuestBattleMapDeck {
@@ -1530,16 +1577,20 @@ class Quest264 extends QuestBattleMapDeck {
  ];
  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[264] = (p: UpdaterCtorParam) => new Quest264(p);
-detailFormatters[264] = (quest: Quest): string => detailFormat(['4-2 S勝利: '], quest);
+factories[264] = {
+  creator: (p: UpdaterCtorParam) => new Quest264(p),
+  formatter: (quest: Quest): string => detailFormat(['4-2 S勝利: '], quest),
+};
 
 // 265:	海上護衛強化月間
 class Quest265 extends QuestBattleMap {
   max = [10];
   area_and_rank: QuestMap[] = [ [ 1, 5, 'A' ] ];
 }
-updaterCreators[265] = (p: UpdaterCtorParam) => new Quest265(p);
-detailFormatters[265] = (quest: Quest): string => detailFormat(['1-5 A勝利以上: '], quest);
+factories[265] = {
+  creator: (p: UpdaterCtorParam) => new Quest265(p),
+  formatter: (quest: Quest): string => detailFormat(['1-5 A勝利以上: '], quest),
+};
 
 // 266:「水上反撃部隊」突入せよ！
 class Quest266 extends QuestBattleMapDeck {
@@ -1565,8 +1616,10 @@ class Quest266 extends QuestBattleMapDeck {
     return true;
   });
 }
-updaterCreators[266] = (p: UpdaterCtorParam) => new Quest266(p);
-detailFormatters[266] = (quest: Quest): string => detailFormatOne(['2-5S:'], quest);
+factories[266] = {
+  creator: (p: UpdaterCtorParam) => new Quest266(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-5S:'], quest),
+};
 
 // 280: 兵站線確保！海上警備を強化実施せよ！
 class Quest280 extends QuestBattleMapDeck {
@@ -1578,8 +1631,10 @@ class Quest280 extends QuestBattleMapDeck {
  ];
  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[280] = (p: UpdaterCtorParam) => new Quest280(p);
-detailFormatters[280] = (quest: Quest): string => detailFormatOne(['1-2S:', '1-3S:', '1-4S:','2-1S:'], quest);
+factories[280] = {
+  creator: (p: UpdaterCtorParam) => new Quest280(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-2S:', '1-3S:', '1-4S:','2-1S:'], quest),
+};
 
 // 284:	南西諸島方面「海上警備行動」発令！
 class Quest284 extends QuestBattleMapDeck {
@@ -1591,32 +1646,40 @@ class Quest284 extends QuestBattleMapDeck {
  ];
  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[284] = (p: UpdaterCtorParam) => new Quest284(p);
-detailFormatters[284] = (quest: Quest): string => detailFormatOne(['1-4S:', '2-1S:', '2-2S:','2-3S:'], quest);
+factories[284] = {
+  creator: (p: UpdaterCtorParam) => new Quest284(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-4S:', '2-1S:', '2-2S:','2-3S:'], quest),
+};
 
 // 302: 大規模演習
 class Quest302 extends QuestPractice {
   max = [20];
   need_win_rank = 'B';
 }
-updaterCreators[302] = (p: UpdaterCtorParam) => new Quest302(p);
-detailFormatters[302] = (quest: Quest): string => detailFormat(['演習勝利: '], quest);
+factories[302] = {
+  creator: (p: UpdaterCtorParam) => new Quest302(p),
+  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+};
 
 // 303:「演習」で練度向上！
 class Quest303 extends QuestPractice {
   max = [3];
   need_win_rank = '';
 }
-updaterCreators[303] = (p: UpdaterCtorParam) => new Quest303(p);
-detailFormatters[303] = (quest: Quest): string => detailFormat(['演習: '], quest);
+factories[303] = {
+  creator: (p: UpdaterCtorParam) => new Quest303(p),
+  formatter: (quest: Quest): string => detailFormat(['演習: '], quest),
+};
 
 // 304:「演習」で他提督を圧倒せよ！
 class Quest304 extends QuestPractice {
   max = [5];
   need_win_rank = 'B';
 }
-updaterCreators[304] = (p: UpdaterCtorParam) => new Quest304(p);
-detailFormatters[304] = (quest: Quest): string => detailFormat(['演習勝利: '], quest);
+factories[304] = {
+  creator: (p: UpdaterCtorParam) => new Quest304(p),
+  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+};
 
 // 311: 精鋭艦隊演習
 class Quest311 extends QuestPractice {
@@ -1626,8 +1689,10 @@ class Quest311 extends QuestPractice {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[311] = (p: UpdaterCtorParam) => new Quest311(p);
-detailFormatters[311] = (quest: Quest): string => detailFormat(['演習勝利: '], quest);
+factories[311] = {
+  creator: (p: UpdaterCtorParam) => new Quest311(p),
+  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+};
 
 // 330:	空母機動部隊、演習始め！
 class Quest330 extends QuestPracticeDeck {
@@ -1649,8 +1714,10 @@ class Quest330 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[330] = (p: UpdaterCtorParam) => new Quest330(p);
-detailFormatters[330] = (quest: Quest): string => detailFormat(['演習勝利: '], quest);
+factories[330] = {
+  creator: (p: UpdaterCtorParam) => new Quest330(p),
+  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+};
 
 // 337:	「十八駆」演習！
 class Quest337 extends QuestPracticeDeck {
@@ -1672,8 +1739,10 @@ class Quest337 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[337] = (p: UpdaterCtorParam) => new Quest337(p);
-detailFormatters[337] = (quest: Quest): string => detailFormat(['演習 S勝利: '], quest);
+factories[337] = {
+  creator: (p: UpdaterCtorParam) => new Quest337(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+};
 
 // 339:	「十九駆」演習！
 class Quest339 extends QuestPracticeDeck {
@@ -1695,8 +1764,10 @@ class Quest339 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[339] = (p: UpdaterCtorParam) => new Quest339(p);
-detailFormatters[339] = (quest: Quest): string => detailFormat(['演習 S勝利: '], quest);
+factories[339] = {
+  creator: (p: UpdaterCtorParam) => new Quest339(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+};
 
 // 342:	小艦艇群演習強化任務
 class Quest342 extends QuestPracticeDeck {
@@ -1721,8 +1792,10 @@ class Quest342 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[342] = (p: UpdaterCtorParam) => new Quest342(p);
-detailFormatters[342] = (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest);
+factories[342] = {
+  creator: (p: UpdaterCtorParam) => new Quest342(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+};
 
 // 345:	演習ティータイム！
 class Quest345 extends QuestPracticeDeck {
@@ -1746,8 +1819,10 @@ class Quest345 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[345] = (p: UpdaterCtorParam) => new Quest345(p);
-detailFormatters[345] = (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest);
+factories[345] = {
+  creator: (p: UpdaterCtorParam) => new Quest345(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+};
 
 // 346:	最精鋭！主力オブ主力、演習開始！
 class Quest346 extends QuestPracticeDeck {
@@ -1764,8 +1839,10 @@ class Quest346 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[346] = (p: UpdaterCtorParam) => new Quest346(p);
-detailFormatters[346] = (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest);
+factories[346] = {
+  creator: (p: UpdaterCtorParam) => new Quest346(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+};
 
 // 347: 奇跡の駆逐艦
 class Quest347 extends QuestPracticeDeck {
@@ -1789,189 +1866,239 @@ class Quest347 extends QuestPracticeDeck {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
   }
 }
-updaterCreators[347] = (p: UpdaterCtorParam) => new Quest347(p);
-detailFormatters[347] = (quest: Quest): string => detailFormat(['演習 S勝利: '], quest);
+factories[347] = {
+  creator: (p: UpdaterCtorParam) => new Quest347(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+};
 
 // 402: 「遠征」を 3 回成功させよう！
 class Quest402 extends QuestMission {
   max = [3];
 }
-updaterCreators[402] = (p: UpdaterCtorParam) => new Quest402(p);
-detailFormatters[402] = (quest: Quest): string => detailFormat(['遠征成功: '], quest);
+factories[402] = {
+  creator: (p: UpdaterCtorParam) => new Quest402(p),
+  formatter: (quest: Quest): string => detailFormat(['遠征成功: '], quest),
+};
 
 // 403: 「遠征」を１０回成功させよう！
 class Quest403 extends QuestMission {
   max = [10];
 }
-updaterCreators[403] = (p: UpdaterCtorParam) => new Quest403(p);
-detailFormatters[403] = (quest: Quest): string => detailFormat(['遠征成功: '], quest);
+factories[403] = {
+  creator: (p: UpdaterCtorParam) => new Quest403(p),
+  formatter: (quest: Quest): string => detailFormat(['遠征成功: '], quest),
+};
 
 // 404: 大規模遠征作戦、発令！
 class Quest404 extends QuestMission {
   max = [30];
 }
-updaterCreators[404] = (p: UpdaterCtorParam) => new Quest404(p);
-detailFormatters[404] = (quest: Quest): string => detailFormat(['遠征成功: '], quest);
+factories[404] = {
+  creator: (p: UpdaterCtorParam) => new Quest404(p),
+  formatter: (quest: Quest): string => detailFormat(['遠征成功: '], quest),
+};
 
 // 410:	南方への輸送作戦を成功させよ！
 class Quest410 extends QuestMissionA {
   max = [1];
   quest_names = [ ['東京急行', '東京急行(弐)'] ];
 }
-updaterCreators[410] = (p: UpdaterCtorParam) => new Quest410(p);
-detailFormatters[410] = (quest: Quest): string => detailFormat(['東急系成功: '], quest);
+factories[410] = {
+  creator: (p: UpdaterCtorParam) => new Quest410(p),
+  formatter: (quest: Quest): string => detailFormat(['東急系成功: '], quest),
+};
 
 // 411: 南方への鼠輸送を継続実施せよ！
 class Quest411 extends QuestMissionA {
   max = [6];
   quest_names = [ ['東京急行', '東京急行(弐)'] ];
 }
-updaterCreators[411] = (p: UpdaterCtorParam) => new Quest411(p);
-detailFormatters[411] = (quest: Quest): string => detailFormat(['東急系成功: '], quest);
+factories[411] = {
+  creator: (p: UpdaterCtorParam) => new Quest411(p),
+  formatter: (quest: Quest): string => detailFormat(['東急系成功: '], quest),
+};
 
 // 424:	輸送船団護衛を強化せよ！
 class Quest424 extends QuestMissionA {
   max = [4];
   quest_names = [ ['海上護衛任務'] ];
 }
-updaterCreators[424] = (p: UpdaterCtorParam) => new Quest424(p);
-detailFormatters[424] = (quest: Quest): string => detailFormat(['海上護衛任務: '], quest);
+factories[424] = {
+  creator: (p: UpdaterCtorParam) => new Quest424(p),
+  formatter: (quest: Quest): string => detailFormat(['海上護衛任務: '], quest),
+};
 
 // 426:	海上通商航路の警戒を厳とせよ！
 class Quest426 extends QuestMissionA {
   max = [1, 1, 1, 1];
   quest_names = [ ['警備任務'], ['対潜警戒任務'], ['海上護衛任務'], ['強行偵察任務'] ];
 }
-updaterCreators[426] = (p: UpdaterCtorParam) => new Quest426(p);
-detailFormatters[426] = (quest: Quest): string => detailFormatOne(['遠征3:', '遠征4:', '遠征5:', '遠征10:'], quest);
+factories[426] = {
+  creator: (p: UpdaterCtorParam) => new Quest426(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征3:', '遠征4:', '遠征5:', '遠征10:'], quest),
+};
 
 // 428:	近海に侵入する敵潜を制圧せよ！
 class Quest428 extends QuestMissionA {
   max = [2, 2, 2];
   quest_names = [ ['対潜警戒任務'], ['海峡警備行動'], ['長時間対潜警戒'] ];
 }
-updaterCreators[428] = (p: UpdaterCtorParam) => new Quest428(p);
-detailFormatters[428] = (quest: Quest): string => detailFormat(['遠征4: ', '遠征A2: ', '遠征A3: '], quest);
+factories[428] = {
+  creator: (p: UpdaterCtorParam) => new Quest428(p),
+  formatter: (quest: Quest): string => detailFormat(['遠征4: ', '遠征A2: ', '遠征A3: '], quest),
+};
 
 // 434:	特設護衛船団司令部、活動開始！
 class Quest434 extends QuestMissionA {
   max = [1, 1, 1, 1, 1];
   quest_names = [ ['警備任務'], ['海上護衛任務'], ['兵站強化任務'], ['海峡警備行動'], ['タンカー護衛任務'] ];
 }
-updaterCreators[434] = (p: UpdaterCtorParam) => new Quest434(p);
-detailFormatters[434] = (quest: Quest): string => detailFormatOne(['遠征3:', '遠征5:', '遠征A1:', '遠征A2:', '遠征9:'], quest);
+factories[434] = {
+  creator: (p: UpdaterCtorParam) => new Quest434(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征3:', '遠征5:', '遠征A1:', '遠征A2:', '遠征9:'], quest),
+};
 
 // 436:	練習航海及び警備任務を実施せよ！
 class Quest436 extends QuestMissionA {
   max = [1, 1, 1, 1, 1];
   quest_names = [ ['練習航海'], ['長距離練習航海'], ['警備任務'], ['対潜警戒任務'], ['強行偵察任務'] ];
 }
-updaterCreators[436] = (p: UpdaterCtorParam) => new Quest436(p);
-detailFormatters[436] = (quest: Quest): string => detailFormatOne(['遠征1:', '遠征2:', '遠征3:', '遠征4:', '遠征10:'], quest);
+factories[436] = {
+  creator: (p: UpdaterCtorParam) => new Quest436(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征1:', '遠征2:', '遠征3:', '遠征4:', '遠征10:'], quest),
+};
 
 // 437:	小笠原沖哨戒線の強化を実施せよ！
 class Quest437 extends QuestMissionA {
   max = [1, 1, 1, 1];
   quest_names = [ ['対潜警戒任務'], ['小笠原沖哨戒線'], ['小笠原沖戦闘哨戒'], ['南西方面航空偵察作戦'] ];
 }
-updaterCreators[437] = (p: UpdaterCtorParam) => new Quest437(p);
-detailFormatters[437] = (quest: Quest): string => detailFormatOne(['遠征4:', '遠征A5:', '遠征A6:', '遠征B1:'], quest);
+factories[437] = {
+  creator: (p: UpdaterCtorParam) => new Quest437(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征4:', '遠征A5:', '遠征A6:', '遠征B1:'], quest),
+};
 
 // 438:	南西諸島方面の海上護衛を強化せよ！
 class Quest438 extends QuestMissionA {
   max = [1, 1, 1, 1];
   quest_names = [ ['兵站強化任務'], ['対潜警戒任務'], ['タンカー護衛任務'], ['南西諸島捜索撃滅戦'] ];
 }
-updaterCreators[438] = (p: UpdaterCtorParam) => new Quest438(p);
-detailFormatters[438] = (quest: Quest): string => detailFormatOne(['遠征A1:', '遠征4:', '遠征9:', '遠征B5:'], quest);
+factories[438] = {
+  creator: (p: UpdaterCtorParam) => new Quest438(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征A1:', '遠征4:', '遠征9:', '遠征B5:'], quest),
+};
 
 // 439:	兵站強化遠征任務【基本作戦】
 class Quest439 extends QuestMissionA {
   max = [1, 1, 1, 1];
   quest_names = [ ['海上護衛任務'], ['兵站強化任務'], ['ボーキサイト輸送任務'], ['南西方面航空偵察作戦'] ];
 }
-updaterCreators[439] = (p: UpdaterCtorParam) => new Quest439(p);
-detailFormatters[439] = (quest: Quest): string => detailFormatOne(['遠征5:', '遠征A1:', '遠征11:', '遠征B1:'], quest);
+factories[439] = {
+  creator: (p: UpdaterCtorParam) => new Quest439(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征5:', '遠征A1:', '遠征11:', '遠征B1:'], quest),
+};
 
 // 440:	兵站強化遠征任務【拡張作戦】
 class Quest440 extends QuestMissionA {
   max = [1, 1, 1, 1, 1];
   quest_names = [ ['ブルネイ泊地沖哨戒'], ['海上護衛任務'], ['水上機前線輸送'], ['強行鼠輸送作戦'], ['南西海域戦闘哨戒'] ];
 }
-updaterCreators[440] = (p: UpdaterCtorParam) => new Quest440(p);
-detailFormatters[440] = (quest: Quest): string => detailFormatOne(['遠征41:', '遠征5:', '遠征40:', '遠征E2:', '遠征46:'], quest);
+factories[440] = {
+  creator: (p: UpdaterCtorParam) => new Quest440(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征41:', '遠征5:', '遠征40:', '遠征E2:', '遠征46:'], quest),
+};
 
 // 503: 艦隊大整備！
 class Quest503 extends QuestNyukyo {
   max = [5];
 }
-updaterCreators[503] = (p: UpdaterCtorParam) => new Quest503(p);
-detailFormatters[503] = (quest: Quest): string => detailFormat(['入渠: '], quest);
+factories[503] = {
+  creator: (p: UpdaterCtorParam) => new Quest503(p),
+  formatter: (quest: Quest): string => detailFormat(['入渠: '], quest),
+};
 
 // 504: 艦隊酒保祭り！
 class Quest504 extends QuestHokyu {
   max = [15];
 }
-updaterCreators[504] = (p: UpdaterCtorParam) => new Quest504(p);
-detailFormatters[504] = (quest: Quest): string => detailFormat(['補給: '], quest);
+factories[504] = {
+  creator: (p: UpdaterCtorParam) => new Quest504(p),
+  formatter: (quest: Quest): string => detailFormat(['補給: '], quest),
+};
 
 // 605:	新装備「開発」指令
 class Quest605 extends QuestCreateItem {
   max = [1];
 }
-updaterCreators[605] = (p: UpdaterCtorParam) => new Quest605(p);
-detailFormatters[605] = (quest: Quest): string => detailFormat(['開発: '], quest);
+factories[605] = {
+  creator: (p: UpdaterCtorParam) => new Quest605(p),
+  formatter: (quest: Quest): string => detailFormat(['開発: '], quest),
+};
 
 // 606:	新造艦「建造」指令
 class Quest606 extends QuestCreateShip {
   max = [1];
 }
-updaterCreators[606] = (p: UpdaterCtorParam) => new Quest606(p);
-detailFormatters[606] = (quest: Quest): string => detailFormat(['建造: '], quest);
+factories[606] = {
+  creator: (p: UpdaterCtorParam) => new Quest606(p),
+  formatter: (quest: Quest): string => detailFormat(['建造: '], quest),
+};
 
 // 607:	装備「開発」集中強化！
 class Quest607 extends QuestCreateItem {
   max = [3];
 }
-updaterCreators[607] = (p: UpdaterCtorParam) => new Quest607(p);
-detailFormatters[607] = (quest: Quest): string => detailFormat(['開発: '], quest);
+factories[607] = {
+  creator: (p: UpdaterCtorParam) => new Quest607(p),
+  formatter: (quest: Quest): string => detailFormat(['開発: '], quest),
+};
 
 // 608:	新造艦「建造」指令
 class Quest608 extends QuestCreateShip {
   max = [3];
 }
-updaterCreators[608] = (p: UpdaterCtorParam) => new Quest608(p);
-detailFormatters[608] = (quest: Quest): string => detailFormat(['建造: '], quest);
+factories[608] = {
+  creator: (p: UpdaterCtorParam) => new Quest608(p),
+  formatter: (quest: Quest): string => detailFormat(['建造: '], quest),
+};
 
 // 609:	軍縮条約対応！
 class Quest609 extends QuestDestroyShip {
   max = [2];
 }
-updaterCreators[609] = (p: UpdaterCtorParam) => new Quest609(p);
-detailFormatters[609] = (quest: Quest): string => detailFormat(['解体: '], quest);
+factories[609] = {
+  creator: (p: UpdaterCtorParam) => new Quest609(p),
+  formatter: (quest: Quest): string => detailFormat(['解体: '], quest),
+};
 
 // 613: 資源の再利用
 class Quest613 extends QuestDestroyItemA {
   max = [24];
   types = [];
 }
-updaterCreators[613] = (p: UpdaterCtorParam) => new Quest613(p);
-detailFormatters[613] = (quest: Quest): string => detailFormat(['破棄: '], quest);
+factories[613] = {
+  creator: (p: UpdaterCtorParam) => new Quest613(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄: '], quest),
+};
 
 // 619: 装備の改修強化
 class Quest619 extends QuestRemodel {
   max = [1];
 }
-updaterCreators[619] = (p: UpdaterCtorParam) => new Quest619(p);
-detailFormatters[619] = (quest: Quest): string => detailFormat(['改修: '], quest);
+factories[619] = {
+  creator: (p: UpdaterCtorParam) => new Quest619(p),
+  formatter: (quest: Quest): string => detailFormat(['改修: '], quest),
+};
 
 // 638:	対空機銃量産
 class Quest638 extends QuestDestroyItemA {
   max = [6];
   types = [SlotitemType.AAGun];
 }
-updaterCreators[638] = (p: UpdaterCtorParam) => new Quest638(p);
-detailFormatters[638] = (quest: Quest): string => detailFormat(['機銃破棄: '], quest);
+factories[638] = {
+  creator: (p: UpdaterCtorParam) => new Quest638(p),
+  formatter: (quest: Quest): string => detailFormat(['機銃破棄: '], quest),
+};
 
 // 643:	主力「陸攻」の調達
 class Quest643 extends QuestDestroyItemId {
@@ -1981,8 +2108,10 @@ class Quest643 extends QuestDestroyItemId {
     return false;
   }
 }
-updaterCreators[643] = (p: UpdaterCtorParam) => new Quest643(p);
-detailFormatters[643] = (quest: Quest): string => detailFormat(['零式艦戦21型破棄: '], quest);
+factories[643] = {
+  creator: (p: UpdaterCtorParam) => new Quest643(p),
+  formatter: (quest: Quest): string => detailFormat(['零式艦戦21型破棄: '], quest),
+};
 
 // 653:	工廠稼働！次期作戦準備！
 class Quest653 extends QuestDestroyItemId {
@@ -1992,16 +2121,20 @@ class Quest653 extends QuestDestroyItemId {
     return false;
   }
 }
-updaterCreators[653] = (p: UpdaterCtorParam) => new Quest653(p);
-detailFormatters[653] = (quest: Quest): string => detailFormat(['14cm単装砲破棄: '], quest);
+factories[653] = {
+  creator: (p: UpdaterCtorParam) => new Quest653(p),
+  formatter: (quest: Quest): string => detailFormat(['14cm単装砲破棄: '], quest),
+};
 
 // 663:	新型艤装の継続研究
 class Quest663 extends QuestDestroyItemA {
   max = [10];
   types = [SlotitemType.LargeMainGun];
 }
-updaterCreators[663] = (p: UpdaterCtorParam) => new Quest663(p);
-detailFormatters[663] = (quest: Quest): string => detailFormat(['大口径破棄: '], quest);
+factories[663] = {
+  creator: (p: UpdaterCtorParam) => new Quest663(p),
+  formatter: (quest: Quest): string => detailFormat(['大口径破棄: '], quest),
+};
 
 // 655: 工廠フル稼働！新兵装を開発せよ！
 class Quest655 extends QuestDestroyItemA {
@@ -2014,8 +2147,10 @@ class Quest655 extends QuestDestroyItemA {
     SlotitemType.TorpedoBomber
   ];
 }
-updaterCreators[655] = (p: UpdaterCtorParam) => new Quest655(p);
-detailFormatters[655] = (quest: Quest): string => detailFormat(['破棄 小口径: ', '中口径: ', '大口径: ', '偵察機: ', '魚雷: '], quest);
+factories[655] = {
+  creator: (p: UpdaterCtorParam) => new Quest655(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 小口径: ', '中口径: ', '大口径: ', '偵察機: ', '魚雷: '], quest),
+};
 
 // 657:	新型兵装開発整備の強化
 class Quest657 extends QuestDestroyItemA {
@@ -2026,48 +2161,60 @@ class Quest657 extends QuestDestroyItemA {
     SlotitemType.TorpedoBomber,
   ];
 }
-updaterCreators[657] = (p: UpdaterCtorParam) => new Quest657(p);
-detailFormatters[657] = (quest: Quest): string => detailFormat(['小口径破棄: ', '中口径破棄: ', '艦攻破棄: '], quest);
+factories[657] = {
+  creator: (p: UpdaterCtorParam) => new Quest657(p),
+  formatter: (quest: Quest): string => detailFormat(['小口径破棄: ', '中口径破棄: ', '艦攻破棄: '], quest),
+};
 
 // 673:	装備開発力の整備
 class Quest673 extends QuestDestroyItemA {
   max = [4];
   types = [SlotitemType.SmallMainGun];
 }
-updaterCreators[673] = (p: UpdaterCtorParam) => new Quest673(p);
-detailFormatters[673] = (quest: Quest): string => detailFormat(['小口径破棄: '], quest);
+factories[673] = {
+  creator: (p: UpdaterCtorParam) => new Quest673(p),
+  formatter: (quest: Quest): string => detailFormat(['小口径破棄: '], quest),
+};
 
 // 674:	工廠環境の整備
 class Quest674 extends QuestDestroyItemA {
   max = [3];
   types = [SlotitemType.AAGun];
 }
-updaterCreators[674] = (p: UpdaterCtorParam) => new Quest674(p);
-detailFormatters[674] = (quest: Quest): string => detailFormat(['機銃破棄: '], quest);
+factories[674] = {
+  creator: (p: UpdaterCtorParam) => new Quest674(p),
+  formatter: (quest: Quest): string => detailFormat(['機銃破棄: '], quest),
+};
 
 // 675:	運用装備の統合整備
 class Quest675 extends QuestDestroyItemA {
   max = [6, 4];
   types = [SlotitemType.Fighter, SlotitemType.AAGun];
 }
-updaterCreators[675] = (p: UpdaterCtorParam) => new Quest675(p);
-detailFormatters[675] = (quest: Quest): string => detailFormat(['艦戦破棄: ', '機銃破棄: '], quest);
+factories[675] = {
+  creator: (p: UpdaterCtorParam) => new Quest675(p),
+  formatter: (quest: Quest): string => detailFormat(['艦戦破棄: ', '機銃破棄: '], quest),
+};
 
 // 676:	装備開発力の集中整備
 class Quest676 extends QuestDestroyItemA {
   max = [3, 3, 1];
   types = [SlotitemType.MediumMainGun, SlotitemType.SecondaryGun, SlotitemType.STContainer];
 }
-updaterCreators[676] = (p: UpdaterCtorParam) => new Quest676(p);
-detailFormatters[676] = (quest: Quest): string => detailFormat(['中口径破棄: ', '副砲破棄: ', 'ドラム缶破棄: '], quest);
+factories[676] = {
+  creator: (p: UpdaterCtorParam) => new Quest676(p),
+  formatter: (quest: Quest): string => detailFormat(['中口径破棄: ', '副砲破棄: ', 'ドラム缶破棄: '], quest),
+};
 
 // 677:	継戦支援能力の整備
 class Quest677 extends QuestDestroyItemA {
   max = [4, 2, 3];
   types = [SlotitemType.LargeMainGun, SlotitemType.RecSeaplane, SlotitemType.Torpedo];
 }
-updaterCreators[677] = (p: UpdaterCtorParam) => new Quest677(p);
-detailFormatters[677] = (quest: Quest): string => detailFormat(['大口径破棄: ', '水偵破棄: ', '魚雷破棄: '], quest);
+factories[677] = {
+  creator: (p: UpdaterCtorParam) => new Quest677(p),
+  formatter: (quest: Quest): string => detailFormat(['大口径破棄: ', '水偵破棄: ', '魚雷破棄: '], quest),
+};
 
 // 678: 主力艦上戦闘機の更新
 class Quest678 extends QuestDestroyItemId {
@@ -2077,23 +2224,30 @@ class Quest678 extends QuestDestroyItemId {
     return false;
   }
 }
-updaterCreators[678] = (p: UpdaterCtorParam) => new Quest678(p);
+factories[678] = {
+  creator: (p: UpdaterCtorParam) => new Quest678(p),
+  formatter: (quest: Quest): string => detailFormat(['', ''], quest),
+};
 
 // 680:	対空兵装の整備拡充
 class Quest680 extends QuestDestroyItemT {
   max = [4, 4];
   types = [SlotitemImgType.kijyu, SlotitemImgType.dentan];
 }
-updaterCreators[680] = (p: UpdaterCtorParam) => new Quest680(p);
-detailFormatters[680] = (quest: Quest): string => detailFormat(['機銃破棄: ', '電探破棄: '], quest);
+factories[680] = {
+  creator: (p: UpdaterCtorParam) => new Quest680(p),
+  formatter: (quest: Quest): string => detailFormat(['機銃破棄: ', '電探破棄: '], quest),
+};
 
 // 688:	航空戦力の強化
 class Quest688 extends QuestDestroyItemA {
   max = [3, 3, 3, 3];
   types = [SlotitemType.Fighter, SlotitemType.DiveBomber, SlotitemType.TorpedoBomber, SlotitemType.RecSeaplane];
 }
-updaterCreators[688] = (p: UpdaterCtorParam) => new Quest688(p);
-detailFormatters[688] = (quest: Quest): string => detailFormat(['破棄 艦戦: ', '艦爆: ', '艦攻: ', '偵察機: '], quest);
+factories[688] = {
+  creator: (p: UpdaterCtorParam) => new Quest688(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 艦戦: ', '艦爆: ', '艦攻: ', '偵察機: '], quest),
+};
 
 // 698: 新鋭対潜哨戒航空戦力の導入
 class Quest698 extends QuestDestroyItemId {
@@ -2105,22 +2259,28 @@ class Quest698 extends QuestDestroyItemId {
     return false;
   }
 }
-updaterCreators[698] = (p: UpdaterCtorParam) => new Quest698(p);
-detailFormatters[698] = (quest: Quest): string => detailFormat(['加賀改二護旗艦 破棄 TBF: ', '流星: ', '流星改: '], quest);
+factories[698] = {
+  creator: (p: UpdaterCtorParam) => new Quest698(p),
+  formatter: (quest: Quest): string => detailFormat(['加賀改二護旗艦 破棄 TBF: ', '流星: ', '流星改: '], quest),
+};
 
 // 702:	艦の「近代化改修」を実施せよ！
 class Quest702 extends QuestKaisou {
   max = [2];
 }
-updaterCreators[702] = (p: UpdaterCtorParam) => new Quest702(p);
-detailFormatters[702] = (quest: Quest): string => detailFormat(['近代化改修成功: '], quest);
+factories[702] = {
+  creator: (p: UpdaterCtorParam) => new Quest702(p),
+  formatter: (quest: Quest): string => detailFormat(['近代化改修成功: '], quest),
+};
 
 // 703:	「近代化改修」を進め、戦備を整えよ！
 class Quest703 extends QuestKaisou {
   max = [15];
 }
-updaterCreators[703] = (p: UpdaterCtorParam) => new Quest703(p);
-detailFormatters[703] = (quest: Quest): string => detailFormat(['近代化改修成功: '], quest);
+factories[703] = {
+  creator: (p: UpdaterCtorParam) => new Quest703(p),
+  formatter: (quest: Quest): string => detailFormat(['近代化改修成功: '], quest),
+};
 
 // 714:	「駆逐艦」の改修工事を実施せよ！
 class Quest714 extends QuestKaisouUseType {
@@ -2128,8 +2288,10 @@ class Quest714 extends QuestKaisouUseType {
   powerup_ship_type = ApiShipType.kutikukan;
   use_ship_type: ShipTypeCount = [ ApiShipType.kutikukan, 3];
 }
-updaterCreators[714] = (p: UpdaterCtorParam) => new Quest714(p);
-detailFormatters[714] = (quest: Quest): string => detailFormat(['駆逐艦への駆逐艦3隻使用改修成功: '], quest);
+factories[714] = {
+  creator: (p: UpdaterCtorParam) => new Quest714(p),
+  formatter: (quest: Quest): string => detailFormat(['駆逐艦への駆逐艦3隻使用改修成功: '], quest),
+};
 
 // 715: 続：「駆逐艦」の改修工事を実施せよ！
 class Quest715 extends QuestKaisouUseType {
@@ -2137,16 +2299,20 @@ class Quest715 extends QuestKaisouUseType {
   powerup_ship_type = ApiShipType.kutikukan;
   use_ship_type: ShipTypeCount = [ ApiShipType.keijyun, 3];
 }
-updaterCreators[715] = (p: UpdaterCtorParam) => new Quest715(p);
-detailFormatters[715] = (quest: Quest): string => detailFormat(['駆逐艦への軽巡3隻使用改修成功: '], quest);
+factories[715] = {
+  creator: (p: UpdaterCtorParam) => new Quest715(p),
+  formatter: (quest: Quest): string => detailFormat(['駆逐艦への軽巡3隻使用改修成功: '], quest),
+};
 
 // 822:	沖ノ島海域迎撃戦
 class Quest822 extends QuestBattleMap {
   max = [2];
   area_and_rank: QuestMap[] = [ [ 2, 4, 'S' ] ];
 }
-updaterCreators[822] = (p: UpdaterCtorParam) => new Quest822(p);
-detailFormatters[822] = (quest: Quest): string => detailFormat(['2-4S: '], quest);
+factories[822] = {
+  creator: (p: UpdaterCtorParam) => new Quest822(p),
+  formatter: (quest: Quest): string => detailFormat(['2-4S: '], quest),
+};
 
 // 845:	発令！「西方海域作戦」
 class Quest845 extends QuestBattleMapDeck {
@@ -2154,8 +2320,10 @@ class Quest845 extends QuestBattleMapDeck {
   area_and_rank: QuestMap[] = [ [ 4, 1, 'S' ], [ 4, 2, 'S'], [ 4, 3, 'S'], [ 4, 4, 'S'], [ 4, 5, 'S'] ];
   isDeckMatch = null;
 }
-updaterCreators[845] = (p: UpdaterCtorParam) => new Quest845(p);
-detailFormatters[845] = (quest: Quest): string => detailFormatOne(['4-1A:', '4-2A:', '4-3A:', '4-4S:', '4-5S:'], quest);
+factories[845] = {
+  creator: (p: UpdaterCtorParam) => new Quest845(p),
+  formatter: (quest: Quest): string => detailFormatOne(['4-1A:', '4-2A:', '4-3A:', '4-4S:', '4-5S:'], quest),
+};
 
 // 854:	戦果拡張任務！「Z 作戦」前段作戦
 class Quest854 extends QuestBattleMapDeck {
@@ -2163,8 +2331,10 @@ class Quest854 extends QuestBattleMapDeck {
   area_and_rank: QuestMap[] = [ [ 2, 4, 'A' ], [ 6, 1, 'A'], [ 6, 3, 'A'], [ 6, 4, 'S'] ];
   isDeckMatch = null;
 }
-updaterCreators[854] = (p: UpdaterCtorParam) => new Quest854(p);
-detailFormatters[854] = (quest: Quest): string => detailFormatOne(['2-4A:', '6-1A:', '6-3A:', '6-4S:'], quest);
+factories[854] = {
+  creator: (p: UpdaterCtorParam) => new Quest854(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-4A:', '6-1A:', '6-3A:', '6-4S:'], quest),
+};
 
 // 861:	強行輸送艦隊、抜錨！
 class Quest861 extends QuestMapGoal {
@@ -2176,8 +2346,10 @@ class Quest861 extends QuestMapGoal {
   ];
   isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[861] = (p: UpdaterCtorParam) => new Quest861(p);
-detailFormatters[861] = (quest: Quest): string => detailFormat(['1-6 ゴール: '], quest);
+factories[861] = {
+  creator: (p: UpdaterCtorParam) => new Quest861(p),
+  formatter: (quest: Quest): string => detailFormat(['1-6 ゴール: '], quest),
+};
 
 // 862: 前線の航空偵察を実施せよ！
 class Quest862 extends QuestBattleMapDeck {
@@ -2189,8 +2361,10 @@ class Quest862 extends QuestBattleMapDeck {
   ];
   isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[862] = (p: UpdaterCtorParam) => new Quest862(p);
-detailFormatters[862] = (quest: Quest): string => detailFormat(['6-3A: '], quest);
+factories[862] = {
+  creator: (p: UpdaterCtorParam) => new Quest862(p),
+  formatter: (quest: Quest): string => detailFormat(['6-3A: '], quest),
+};
 
 // 872:	戦果拡張任務！「Z 作戦」後段作戦
 class Quest872 extends QuestBattleMapDeck {
@@ -2198,8 +2372,10 @@ class Quest872 extends QuestBattleMapDeck {
   area_and_rank: QuestMapOrCell[] = [ [ 7, 2, 'S', [15] ], [ 5, 5, 'S' ], [ 6, 2, 'S' ], [ 6, 5, 'S' ] ];
   isDeckMatch = null;
 }
-updaterCreators[872] = (p: UpdaterCtorParam) => new Quest872(p);
-detailFormatters[872] = (quest: Quest): string => detailFormatOne(['7-2(第2)S:', '5-5S:', '6-2S:', '6-5S:',], quest);
+factories[872] = {
+  creator: (p: UpdaterCtorParam) => new Quest872(p),
+  formatter: (quest: Quest): string => detailFormatOne(['7-2(第2)S:', '5-5S:', '6-2S:', '6-5S:',], quest),
+};
 
 // 873: 北方海域警備を実施せよ！
 class Quest873 extends QuestBattleMapDeck {
@@ -2210,8 +2386,10 @@ class Quest873 extends QuestBattleMapDeck {
   ];
   isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[873] = (p: UpdaterCtorParam) => new Quest873(p);
-detailFormatters[873] = (quest: Quest): string => detailFormatOne(['3-1A:', '3-2A:', '3-3A:'], quest);
+factories[873] = {
+  creator: (p: UpdaterCtorParam) => new Quest873(p),
+  formatter: (quest: Quest): string => detailFormatOne(['3-1A:', '3-2A:', '3-3A:'], quest),
+};
 
 // 875:	精鋭「三一駆」、鉄底海域に突入せよ！
 class Quest875 extends QuestBattleMapDeck {
@@ -2233,8 +2411,10 @@ class Quest875 extends QuestBattleMapDeck {
     return 1 <= shipCount(ships, check_ids);
   });
 }
-updaterCreators[875] = (p: UpdaterCtorParam) => new Quest875(p);
-detailFormatters[875] = (quest: Quest): string => detailFormat(['5-4S: '], quest);
+factories[875] = {
+  creator: (p: UpdaterCtorParam) => new Quest875(p),
+  formatter: (quest: Quest): string => detailFormat(['5-4S: '], quest),
+};
 
 // 888:	新編成「三川艦隊」、鉄底海峡に突入せよ！
 class Quest888 extends QuestBattleMapDeck {
@@ -2255,8 +2435,10 @@ class Quest888 extends QuestBattleMapDeck {
     return 4 <= shipCount(ships, check_ids);
   });
 }
-updaterCreators[888] = (p: UpdaterCtorParam) => new Quest888(p);
-detailFormatters[888] = (quest: Quest): string => detailFormatOne(['5-1S:', '5-3S:', '5-4S:'], quest);
+factories[888] = {
+  creator: (p: UpdaterCtorParam) => new Quest888(p),
+  formatter: (quest: Quest): string => detailFormatOne(['5-1S:', '5-3S:', '5-4S:'], quest),
+};
 
 // 893:	泊地周辺海域の安全確保を徹底せよ！
 class Quest893 extends QuestBattleMapDeck {
@@ -2264,8 +2446,10 @@ class Quest893 extends QuestBattleMapDeck {
   area_and_rank: QuestMapOrCell[] = [ [1, 5, 'S'], [7, 1, 'S'], [ 7, 2, 'S', [7] ], [ 7, 2, 'S', [15] ] ];
   isDeckMatch = null;
 }
-updaterCreators[893] = (p: UpdaterCtorParam) => new Quest893(p);
-detailFormatters[893] = (quest: Quest): string => detailFormat(['1-5S: ', '7-1S: ', '7-2(第1)S: ','7-2(第2)S: '], quest);
+factories[893] = {
+  creator: (p: UpdaterCtorParam) => new Quest893(p),
+  formatter: (quest: Quest): string => detailFormat(['1-5S: ', '7-1S: ', '7-2(第1)S: ','7-2(第2)S: '], quest),
+};
 
 // 894: 空母戦力の投入による兵站線戦闘哨戒
 class Quest894 extends QuestBattleMapDeck {
@@ -2276,8 +2460,10 @@ class Quest894 extends QuestBattleMapDeck {
   ];
   isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
 }
-updaterCreators[894] = (p: UpdaterCtorParam) => new Quest894(p);
-detailFormatters[894] = (quest: Quest): string => detailFormatOne(['1-3S:', '1-4S:', '2-1S:','2-2S:', '2-3S:'], quest);
+factories[894] = {
+  creator: (p: UpdaterCtorParam) => new Quest894(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-3S:', '1-4S:', '2-1S:','2-2S:', '2-3S:'], quest),
+};
 
 // 898: 北の海から愛をこめて
 class Quest898 extends QuestBattleMapDeck {
@@ -2285,8 +2471,10 @@ class Quest898 extends QuestBattleMapDeck {
   area_and_rank: QuestMap[] = [ [ 3, 1, 'A' ], [ 3, 2, 'A'], [ 3, 3, 'A'], [ 3, 4, 'A'], [ 3, 5, 'A'] ];
   isDeckMatch = null;
 }
-updaterCreators[898] = (p: UpdaterCtorParam) => new Quest898(p);
-detailFormatters[898] = (quest: Quest): string => detailFormatOne(['3-1A:', '3-2A:', '3-3A:','3-4A:', '3-5A:'], quest);
+factories[898] = {
+  creator: (p: UpdaterCtorParam) => new Quest898(p),
+  formatter: (quest: Quest): string => detailFormatOne(['3-1A:', '3-2A:', '3-3A:','3-4A:', '3-5A:'], quest),
+};
 
 // 903:	拡張「六水戦」、最前線へ！
 class Quest903 extends QuestBattleMapDeck {
@@ -2319,8 +2507,10 @@ class Quest903 extends QuestBattleMapDeck {
     return check1() || check2();
   });
 }
-updaterCreators[903] = (p: UpdaterCtorParam) => new Quest903(p);
-detailFormatters[903] = (quest: Quest): string => detailFormatOne(['5-1S:', '5-4S:', '6-4S:','6-5S:'], quest);
+factories[903] = {
+  creator: (p: UpdaterCtorParam) => new Quest903(p),
+  formatter: (quest: Quest): string => detailFormatOne(['5-1S:', '5-4S:', '6-4S:','6-5S:'], quest),
+};
 
 // 904:	精鋭「十九駆」、躍り出る！
 class Quest904 extends QuestBattleMapDeck {
@@ -2332,8 +2522,10 @@ class Quest904 extends QuestBattleMapDeck {
     return 2 === shipCount(ships, check_ids);
   });
 }
-updaterCreators[904] = (p: UpdaterCtorParam) => new Quest904(p);
-detailFormatters[904] = (quest: Quest): string => detailFormatOne(['2-5S:', '3-4S:', '4-5S:','5-3S:'], quest);
+factories[904] = {
+  creator: (p: UpdaterCtorParam) => new Quest904(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-5S:', '3-4S:', '4-5S:','5-3S:'], quest),
+};
 
 // 905:	「海防艦」、海を護る！
 class Quest905 extends QuestBattleMapDeck {
@@ -2349,8 +2541,10 @@ class Quest905 extends QuestBattleMapDeck {
     return isDeckShipType(ship_ids, this.ship_conds);
   });
 }
-updaterCreators[905] = (p: UpdaterCtorParam) => new Quest905(p);
-detailFormatters[905] = (quest: Quest): string => detailFormatOne(['1-1A:', '1-2A:', '1-3A:', '1-5A:', '1-6:'], quest);
+factories[905] = {
+  creator: (p: UpdaterCtorParam) => new Quest905(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-1A:', '1-2A:', '1-3A:', '1-5A:', '1-6:'], quest),
+};
 
 // 912:	工作艦「明石」護衛任務
 class Quest912 extends QuestBattleMapDeck {
@@ -2367,8 +2561,10 @@ class Quest912 extends QuestBattleMapDeck {
     return isDeckShipType(ship_ids, this.ship_conds);
   });
 }
-updaterCreators[912] = (p: UpdaterCtorParam) => new Quest912(p);
-detailFormatters[912] = (quest: Quest): string => detailFormatOne(['1-3A:', '2-1A:', '2-2A:', '2-3A:', '1-6:'], quest);
+factories[912] = {
+  creator: (p: UpdaterCtorParam) => new Quest912(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-3A:', '2-1A:', '2-2A:', '2-3A:', '1-6:'], quest),
+};
 
 // 914:	重巡戦隊、西へ！
 class Quest914 extends QuestBattleMapDeck {
@@ -2380,8 +2576,10 @@ class Quest914 extends QuestBattleMapDeck {
   ];
   isDeckMatch = ((ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds));
 }
-updaterCreators[914] = (p: UpdaterCtorParam) => new Quest914(p);
-detailFormatters[914] = (quest: Quest): string => detailFormatOne(['4-1A:', '4-2A:', '4-3A:', '4-4A:'], quest);
+factories[914] = {
+  creator: (p: UpdaterCtorParam) => new Quest914(p),
+  formatter: (quest: Quest): string => detailFormatOne(['4-1A:', '4-2A:', '4-3A:', '4-4A:'], quest),
+};
 
 // 928:	歴戦「第十方面艦隊」、全力出撃！
 class Quest928 extends QuestBattleMapDeck {
@@ -2399,8 +2597,10 @@ class Quest928 extends QuestBattleMapDeck {
     return shipCount(ships, check_ids) >= 2;
   });
 }
-updaterCreators[928] = (p: UpdaterCtorParam) => new Quest928(p);
-detailFormatters[928] = (quest: Quest): string => detailFormat(['7-3S(第2): ', '7-2S(第2): ', '4-2S: '], quest);
+factories[928] = {
+  creator: (p: UpdaterCtorParam) => new Quest928(p),
+  formatter: (quest: Quest): string => detailFormat(['7-3S(第2): ', '7-2S(第2): ', '4-2S: '], quest),
+};
 
 // 931: 精鋭「二七駆」、回避運動は気をつけて
 class Quest931 extends QuestBattleMapDeck {
@@ -2414,8 +2614,10 @@ class Quest931 extends QuestBattleMapDeck {
     return shipCount(toShipMsts(ship_ids), check_ids) == 2;
   });
 }
-updaterCreators[931] = (p: UpdaterCtorParam) => new Quest931(p);
-detailFormatters[931] = (quest: Quest): string => detailFormatOne(['1-5S:', '2-5S:', '7-1S:', '5-5S:', '6-3S:'], quest);
+factories[931] = {
+  creator: (p: UpdaterCtorParam) => new Quest931(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-5S:', '2-5S:', '7-1S:', '5-5S:', '6-3S:'], quest),
+};
 
 // 933:【艦隊司令部強化】艦隊旗艦、出撃せよ！
 class Quest933 extends QuestBattleMapDeck {
@@ -2443,8 +2645,10 @@ class Quest933 extends QuestBattleMapDeck {
     return false;
   });
 }
-updaterCreators[933] = (p: UpdaterCtorParam) => new Quest933(p);
-detailFormatters[933] = (quest: Quest): string => detailFormatOne(['1-3S:', '1-4S:', '2-1S:', '2-2S:'], quest);
+factories[933] = {
+  creator: (p: UpdaterCtorParam) => new Quest933(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-3S:', '1-4S:', '2-1S:', '2-2S:'], quest),
+};
 
 // 934: 奇跡の駆逐艦「雪風」、再び出撃す！
 class Quest934 extends QuestBattleMapDeck {
@@ -2452,8 +2656,10 @@ class Quest934 extends QuestBattleMapDeck {
   area_and_rank: QuestMapOrCell[] = [ [ 2, 3, 'S' ], [ 2, 4, 'S' ], [ 2, 5, 'S' ], [ 3, 3, 'S' ], [ 7, 3, 'S', [18, 23, 24 ,25] ] ];
   isDeckMatch = ((ship_ids: number[]) => isShipIds(ship_ids[0], [651, 656]));
 }
-updaterCreators[934] = (p: UpdaterCtorParam) => new Quest934(p);
-detailFormatters[934] = (quest: Quest): string => detailFormatOne(['2-3S:', '2-4S:', '2-5S:', '3-3S:', '7-3S(第2):'], quest);
+factories[934] = {
+  creator: (p: UpdaterCtorParam) => new Quest934(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-3S:', '2-4S:', '2-5S:', '3-3S:', '7-3S(第2):'], quest),
+};
 
 // 935:	最精強！「呉の雪風」「佐世保の時雨」
 class Quest935 extends QuestBattleMapDeck {
@@ -2461,8 +2667,10 @@ class Quest935 extends QuestBattleMapDeck {
   area_and_rank: QuestMap[] = [ [ 5, 3, 'S' ], [ 5, 5, 'S' ], [ 4, 5, 'S' ], [ 6, 4, 'S' ], [ 6, 5, 'S' ] ];
   isDeckMatch = ((ship_ids: number[]) => 2 === shipCount(toShipMsts(ship_ids), [145, 656]));
 }
-updaterCreators[935] = (p: UpdaterCtorParam) => new Quest935(p);
-detailFormatters[935] = (quest: Quest): string => detailFormatOne(['5-3S:', '5-5S:', '4-5S:', '6-4S:', '6-5S:'], quest);
+factories[935] = {
+  creator: (p: UpdaterCtorParam) => new Quest935(p),
+  formatter: (quest: Quest): string => detailFormatOne(['5-3S:', '5-5S:', '4-5S:', '6-4S:', '6-5S:'], quest),
+};
 
 /**
  * 
@@ -2479,11 +2687,11 @@ const createQuestUpdater = (db: NeDB, quest: ApiQuest, updated: UpdatedCallback,
   }
 
   // create updater
-  const creator = updaterCreators[quest.api_no];
-  if (! creator) {
+  const factory = factories[quest.api_no];
+  if (! factory) {
     return ;
   }
-  const updater: QuestUpdater = creator({db, quest, updated});
+  const updater: QuestUpdater = factory.creator({db, quest, updated});
 
   // not api data
   if (record) {
@@ -2502,17 +2710,10 @@ const createQuestUpdater = (db: NeDB, quest: ApiQuest, updated: UpdatedCallback,
 export const questProgressDetailFormat = (quest: Quest): string => {
   if (quest.state) {
     if (isQuestCounter(quest.state)) {
-      const state = quest.state as QuestCounter;
-      const formatter = detailFormatters[quest.no];
-      if (formatter) {
-        return formatter(quest);
+      const factory = factories[quest.no];
+      if (factory) {
+        return factory.formatter(quest);
       }
-
-      return state.count.reduce<string[]>((acc, el, index) => {
-        acc.push(`${el}/${state.countMax[index]}`);
-        return acc;
-      }, []).join(' ');
-      // return `${state.count[0]}/${state.countMax[0]}`;
     }
   }
 
