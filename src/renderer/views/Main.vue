@@ -40,6 +40,7 @@ import { ipcRenderer, IpcRendererEvent, Rectangle, WebviewTag } from 'electron';
 import { Const, SupportCodecs } from '@/lib/const';
 import { InvalidQuestContext, MainChannel, TimelineResult } from '@/lib/app';
 import { gameSetting } from '@/renderer/store/gamesetting';
+import { rendererState } from '@/renderer/store/rendererState';
 import { appState } from '@/global/appstate';
 import TitleBar from '@/renderer/components/TitleBar.vue';
 import Timeline from '@/renderer/components/Timeline.vue';
@@ -217,7 +218,7 @@ export default class extends Vue {
   }
 
   private onMute(): void {
-    this.getGame()?.setMute(!gameSetting.muted);
+    this.getGame()?.setMute(!rendererState.muted);
   }
   
   private onOpenAssist(): void {

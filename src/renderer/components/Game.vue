@@ -29,6 +29,7 @@ import {
   IpcRendererEvent 
 } from 'electron';
 import { gameSetting } from '@/renderer/store/gamesetting';
+import { rendererState } from '@/renderer/store/rendererState';
 import { MainChannel, GameChannel } from '@/lib/app';
 import { Unpacked } from '@/lib/ts'; 
 import { GameSetting } from '@/lib/setting';
@@ -205,8 +206,8 @@ body {
     if (webview) {
       console.log('now muted:', webview.isAudioMuted());
       webview.setAudioMuted(mute);
-      gameSetting.muted = webview.isAudioMuted();
-      console.log('set muted:', gameSetting.muted);
+      rendererState.muted = webview.isAudioMuted();
+      console.log('set muted:', rendererState.muted);
     }
   }
 

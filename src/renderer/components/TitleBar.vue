@@ -60,10 +60,12 @@
 import { ipcRenderer } from 'electron';
 import { Const } from '@/lib/const';
 import { DispSeikuText, TacticsText } from '@/lib/locale';
-import { MainChannel } from '@/lib/app';
-import { AppStuff } from '@/lib/app';
+import { AppStuff, MainChannel } from '@/lib/app';
+import { MapStuff } from '@/lib/map'
+import { replaceArray } from '@/lib/ts';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { gameSetting } from '@/renderer/store/gamesetting';
+import { rendererState } from '@/renderer/store/rendererState';
 import MapInOutImage from '@/renderer/assets/map-in-out.svg';
 import TimelineImage from '@/renderer/assets/timeline.svg';
 import ArrowDropDownImage from '@/renderer/assets/arrow-drop-down.svg';
@@ -81,7 +83,7 @@ import SoundOnImage from '@/renderer/assets/sound-on.svg';
 import SoundOffImage from '@/renderer/assets/sound-off.svg';
 import { gameState } from '@/renderer/store/gamestate';
 import { svdata } from '@/renderer/store/svdata';
-import { Api, ApiCallback, ApiDeckPortId, ApiShipType, KcsUtil, ShipHpState } from '@/lib/kcs';
+import { Api, ApiBattleNormal, ApiBattleStartType, ApiCallback, ApiDeckPortId, ApiDispSeiku, ApiFormation, ApiFormations, ApiShipType, ApiTactics, KcsUtil, ShipHpState } from '@/lib/kcs';
 
 @Component({
   components: {
@@ -107,9 +109,16 @@ export default class extends Vue {
   @Prop({required: true})
   public timeline_pressed!: boolean;
 
-  private cb_map_next: number = 0;
   private cb_port: number = 0;
+  private cb_map_start = 0;
+  private cb_map_next: number = 0;
+  private cb_battle_start = 0;
   private taiha_singeki: boolean = false;
+  private mapcell_labels: string[] = [];
+  private disp_seiku: ApiDispSeiku | null = null;
+  private deck_formation: ApiFormation | null = null;
+  private enemy_formation: ApiFormation | null = null;
+  private tactics: ApiTactics | null = null;
 
   constructor() {
     super();
@@ -139,75 +148,65 @@ export default class extends Vue {
   }
 
   private get kouNum(): string {
-    if (gameSetting.medals) {
-      return `${gameSetting.medals}`;
-    }
-    return '';
+    const medals = svdata.basic.api_medals;
+    return medals ? medals.toString() : '';
   }
   
   private get isMaterialOk(): boolean {
-    return isFinite(gameSetting.fual) && 
-      isFinite(gameSetting.bull) && 
-      isFinite(gameSetting.steel) && 
-      isFinite(gameSetting.buxite) &&
-      isFinite(gameSetting.fast_build) &&
-      isFinite(gameSetting.fast_repair) &&
-      isFinite(gameSetting.build_kit) &&
-      isFinite(gameSetting.remodel_kit) &&
-      isFinite(gameSetting.ship_count) &&
-      isFinite(gameSetting.slotitem_count);
+    return svdata.isShipDataOk;
   }
 
   private get fual(): number {
-    return gameSetting.fual;
+    return svdata.fual;
   }
   
   private get bull(): number {
-    return gameSetting.bull;
+    return svdata.bull;
   }
   
   private get steel(): number {
-    return gameSetting.steel;
+    return svdata.steel;
   }
 
   private get buxite(): number {
-    return gameSetting.buxite;
+    return svdata.buxite;
   }
 
   private get fastRepair(): number {
-    return gameSetting.fast_repair;
+    return svdata.fastRepair;
   }
 
   private get buildKit(): number {
-    return gameSetting.build_kit;
+    return svdata.buildKit;
   }
 
   private get fastBuild(): number {
-    return gameSetting.fast_build;
+    return svdata.fastBuild;
   }
 
   private get remodelKit(): number {
-    return gameSetting.remodel_kit;
+    return svdata.remodelKit;
   }
 
   private get ship_count(): number {
-    return gameSetting.ship_count;
+    return svdata.ships.length;
   }
 
   private get shipCountClass(): object {
     return {
-      'ship-count-over' : (gameSetting.max_ship_count-5) <= gameSetting.ship_count,
+      'ship-count-over' : (svdata.basic.api_max_chara-5) <= svdata.ship.length,
     };
   }
 
   private get slotitem_count(): number {
-    return gameSetting.slotitem_count;
+    return svdata.slotitems.length;
   }
 
   private get slotitemCountClass(): object {
-    const max_count = gameSetting.max_slotitem_count+3;
-    const over1 = (max_count-20) < gameSetting.slotitem_count;
-    const over2 = (max_count-3) <= gameSetting.slotitem_count;
+    const slotitem_count = svdata.slotitems.length;
+    const max_count = svdata.basic.api_max_slotitem+3;
+    const over1 = (max_count-20) < slotitem_count;
+    const over2 = (max_count-3) <= slotitem_count;
 
     return {
       'slotitem-count-over1' : over1 && ! over2, 
@@ -216,7 +215,7 @@ export default class extends Vue {
   }
 
   private get isKouMax(): boolean {
-    return gameSetting.medals === Const.MaxMedals;
+    return svdata.basic.api_medals === Const.MaxMedals;
   }
 
   private get iconContainerStyle() {
@@ -228,38 +227,35 @@ export default class extends Vue {
   }
 
   private get inMap(): boolean {
-    return gameSetting.inMap;
-  }
-
-  private get isMapInfoOk(): boolean {
-    return isFinite(gameSetting.maparea_id) && isFinite(gameSetting.mapinfo_no);
+    return svdata.inMap;
   }
 
   private get mapAreaText(): string {
-    if (! this.isMapInfoOk) {
+    const mapinfo = svdata.mstBattleMapInfo;
+    if (! mapinfo) {
       return '出撃情報がありません';
     }
 
-    const s1 = gameSetting.inMap ? '出撃中' : '出撃帰';
-    return `${s1}: ${gameSetting.maparea_id > 10 ? 'E' : gameSetting.maparea_id}-${gameSetting.mapinfo_no} ${gameSetting.mapname}`;
+    const s1 = svdata.inMap ? '出撃中' : '出撃帰';
+    return `${s1}: ${mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id}-${mapinfo.api_no} ${mapinfo.api_name}`;
   }
 
   private get mapCellText(): string {
-    return gameSetting.mapcell_labels.join('-');
+    return this.mapcell_labels.join('-');
   }
 
   private get dispSeikuText(): string {
-    console.log('dispSeikuText', gameSetting.disp_seiku);
-    if (gameSetting.disp_seiku !== null) {
-      return DispSeikuText[gameSetting.disp_seiku] ?? '';
+    console.log('dispSeikuText', this.disp_seiku);
+    if (this.disp_seiku !== null) {
+      return DispSeikuText[this.disp_seiku] ?? '';
     }
     return '';
   }
 
   private get tacticsText(): string {
-    console.log('tacticsText', gameSetting.formations);
-    if (gameSetting.formations !== null) {
-      return TacticsText[gameSetting.formations[2]] ?? '';
+    console.log('tacticsText', this.tactics);
+    if (this.tactics !== null) {
+      return TacticsText[this.tactics] ?? '';
     }
     return '';
   }
@@ -270,17 +266,56 @@ export default class extends Vue {
     console.log('titlebar mounted');
     this.setTimelineClickEvent(true);
 
-    // taiha singeki check
+    //
     this.cb_port = ApiCallback.set([Api.PORT_PORT, () => this.onPort()]);
+    this.cb_map_start = ApiCallback.set([Api.REQ_MAP_START, () => this.onMapStart()]);
     this.cb_map_next = ApiCallback.set([Api.REQ_MAP_NEXT, () => this.onMapNext()]);
+    this.cb_battle_start = ApiCallback.set(['battle-start', (arg: ApiBattleStartType) => this.onApiBattleStart(arg)]);
   }
 
   private onPort(): void {
     this.taiha_singeki = false;
+    this.disp_seiku = null;
+    this.deck_formation = null;
+    this.enemy_formation = null;
+    this.tactics = null;
+  }
+
+  private onMapStart(): void {
+    replaceArray(this.mapcell_labels, []);
+    this.mapPushCell();
   }
 
   private onMapNext(): void {
     this.taiha_singeki = checkTaihaSingeki();
+    this.disp_seiku = null;
+    this.deck_formation = null;
+    this.enemy_formation = null;
+    this.tactics = null;
+    this.mapPushCell();
+  }
+
+  private onApiBattleStart(arg: ApiBattleStartType): void {
+    this.deck_formation = arg.api_formation[0];
+    this.enemy_formation = arg.api_formation[1];
+    this.tactics = arg.api_formation[2];
+    if (KcsUtil.isBattleNormal(arg)) {
+      this.disp_seiku = (arg as ApiBattleNormal).api_kouku.api_stage1.api_disp_seiku;
+    } else {
+      this.disp_seiku = null;
+    }
+  }
+
+  private mapPushCell(): void {
+    const mapinfo = svdata.mstBattleMapInfo;
+    if (mapinfo) {
+      const api_map = svdata.lastMap;
+      if (api_map) {
+        const cell_info = MapStuff.cellInfo(mapinfo.api_maparea_id, mapinfo.api_no);
+        const spot = MapStuff.findSpotForLabel(cell_info.spots, api_map.api_no);
+        this.mapcell_labels.push(spot?.label ?? '?');
+      }
+    }
   }
 
   private setTimelineClickEvent(set: boolean): void {
@@ -373,7 +408,8 @@ export default class extends Vue {
   }
 
   private get isMute(): boolean {
-    return gameSetting.muted;
+    console.log('is mute:', rendererState.muted);
+    return rendererState.muted;
   }
   
   private get muteTitle(): string {

@@ -7,7 +7,6 @@ import {
   webContents,
   session,
   screen,
-  app,
   shell,
   dialog,
   NewWindowEvent,
@@ -19,10 +18,9 @@ import { svdata } from '@/main/svdata';
 import { Const } from '@/lib/const';
 import { AppStuff, MainChannel, GameChannel, AssistChannel, QuestContext, IpcSvData, AirbaseSpot } from '@/lib/app';
 import  moment from 'moment';
-import { MapStuff } from '@/lib/map'
 import { GameSetting } from '@/lib//setting';
 import { KcRecord } from '@/lib/kcrecord';
-import { Api, ApiCallback, ApiBattleStartType, KcsUtil, ApiBattleNormal } from '@/lib/kcs';
+import { Api, ApiCallback, KcsUtil } from '@/lib/kcs';
 import { KcProxyStart } from '@/lib/kcproxy';
 import { appState } from '@/global/appstate'
 import path from 'path'
@@ -57,114 +55,6 @@ const calcFrameHeight = (width: number): number => {
     width -= Const.AssistWidth;
   }
   return AppStuff.calcGameZoomFactor(width);
-};
-
-const updateMedals = () : void => {
-  const medals = svdata.basic?.api_medals ?? 0;
-  console.log('kc browser api port medals:', medals);
-  if (gameSetting.medals !== medals) {
-    gameSetting.medals = medals;
-  }
-};
-
-const updateMaterial = (): void => {
-  let v: number;
-  v = svdata.fual;
-  if (v && v !== gameSetting.fual) {
-    gameSetting.fual = v;
-  }
-  v = svdata.bull;
-  if (v && v !== gameSetting.bull) {
-    gameSetting.bull = v;
-  }
-  v = svdata.steel;
-  if (v && v !== gameSetting.steel) {
-    gameSetting.steel = v;
-  }
-  v = svdata.buxite;
-  if (v && v !== gameSetting.buxite) {
-    gameSetting.buxite = v;
-  }
-  v = svdata.fastBuild;
-  if (v && v !== gameSetting.fast_build) {
-    gameSetting.fast_build = v;
-  }
-  v = svdata.fastRepair;
-  if (v && v !== gameSetting.fast_repair) {
-    gameSetting.fast_repair = v;
-  }
-  v = svdata.buildKit;
-  if (v && v !== gameSetting.build_kit) {
-    gameSetting.build_kit = v;
-  }
-  v = svdata.remodelKit;
-  if (v && v !== gameSetting.remodel_kit) {
-    gameSetting.remodel_kit = v;
-  }
-}
-
-const updateShipItemCount = (): void => {
-  let v: number;
-  v = svdata.shipCountWithDrop;
-  if (v && v !== gameSetting.ship_count) {
-    gameSetting.ship_count = v;
-  }
-  v = svdata.slotitemCountWithDrop;
-  if (v && v !== gameSetting.slotitem_count) {
-    gameSetting.slotitem_count = v;
-  }
-};
-
-
-const updateMaxCount = (): void => {
-  let v: number;
-  const basic = svdata.basic;
-  v = basic.api_max_chara;
-  if (v && v !== gameSetting.max_ship_count) {
-    gameSetting.max_ship_count = v;
-  }
-  v = basic.api_max_slotitem;
-  if (v && v !== gameSetting.max_slotitem_count) {
-    gameSetting.max_slotitem_count = v;
-  }
-};
-
-const mapPushCell = (): void => {
-  const api_map = svdata.lastMap;
-  if (api_map) {
-    const map = MapStuff.cellInfo(gameSetting.maparea_id, gameSetting.mapinfo_no);
-    const spot = MapStuff.findSpotForLabel(map.spots, api_map.api_no);
-    gameSetting.mapcell_labels.push(spot?.label ?? '?');
-    gameSetting.disp_seiku = null;
-    gameSetting.formations = null;
-  }
-};
-
-const mapStart = (): void => {
-  const mapinfo = svdata.mstBattleMapInfo;
-  if (mapinfo) {
-    gameSetting.inMap = true;
-    gameSetting.maparea_id = mapinfo.api_maparea_id;
-    gameSetting.mapinfo_no = mapinfo.api_no;
-    gameSetting.mapname = mapinfo.api_name;
-  }
-  gameSetting.mapcell_labels = [];
-  mapPushCell();
-};
-
-const mapEnd = (): void => {
-  gameSetting.inMap = false;
-  gameSetting.disp_seiku = null;
-  gameSetting.formations = null;
-};
-
-const battleStart = (arg: ApiBattleStartType): void => {
-  gameSetting.formations = [ arg.api_formation[0], arg.api_formation[1], arg.api_formation[2] ];
-  if (KcsUtil.isBattleNormal(arg)) {
-    gameSetting.disp_seiku = (arg as ApiBattleNormal).api_kouku.api_stage1.api_disp_seiku;
-  } else {
-    gameSetting.disp_seiku = null;
-  }
 };
 
 /**
@@ -291,15 +181,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.set_airbase_spots, async(event, arg) => this.onChannelSetAirbaseSpots(arg));
     ipcMain.handle(MainChannel.open_url_by_external, async(event, url) => this.onChannelOpenUrlByExternal(url));
     powerMonitor.on('resume', () => this.onPowerResume());
-    ApiCallback.set([Api.PORT_PORT, () => this.onApiPort()]);
     this.cbBasicFirst = ApiCallback.set([Api.GET_MEMBER_REQUIRE_INFO, () => this.onRequireInfo()]);  
-    ApiCallback.set(['material-updated', () => this.onMaterialUpdated()]);
-    ApiCallback.set(['ship-count-updated', () => this.onShipCountUpdated()]);
-    ApiCallback.set(['slotitem-count-updated', () => this.onSlotitemCountUpdated()]);
-    ApiCallback.set(['basic-updated', () => this.onBasicUpdated()]);
-    ApiCallback.set([Api.REQ_MAP_START, () => this.onApiMapStart()]);
-    ApiCallback.set([Api.REQ_MAP_NEXT, () => this.onApiMapNext()]);
-    ApiCallback.set(['battle-start', (arg: ApiBattleStartType) => this.onApiBattleStart(arg)]);
   
     const dev_url = process.env.WEBPACK_DEV_SERVER_URL as string;
     console.log('WEBPACK_DEV_SERVER_URL:', dev_url);
@@ -769,58 +651,6 @@ export class KcApp {
   /**
    * 
    */
-  private onApiPort(): void {
-    updateMedals();
-    updateMaterial();
-    updateShipItemCount();
-    mapEnd();
-  }
-
-  /**
-   * 
-   */
-  private onApiMapStart(): void {
-    mapStart();
-  }
-
-  /**
-   * 
-   */
-  private onApiMapNext(): void {
-    mapPushCell();
-  }
-
-  /**
-   * 
-   */
-  private onApiBattleStart(arg: ApiBattleStartType): void {
-    battleStart(arg);
-  }
-
-  /**
-   * 
-   */
-  private onMaterialUpdated(): void {
-    updateMaterial();
-  }
-
-  /**
-   * 
-   */
-  private onShipCountUpdated(): void {
-    updateShipItemCount();
-  }
-
-  /**
-   * 
-   */
-  private onSlotitemCountUpdated(): void {
-    updateShipItemCount();
-  }
-
-  /**
-   * 
-   */
   private onRequireInfo(): void {
     
     if (this.cbBasicFirst) {
@@ -838,22 +668,11 @@ export class KcApp {
         ipcMain.handle(MainChannel.timeline, async() => this.onChannelTimeline());
       } 
     }
-
-    //
-    updateMaxCount();
   }
 
   private questUpdated(): void {
     //console.log('send to quests:', this.kcrecord!.quests);
     this.assist_webcontents.forEach(el => el.webcontents.send(AssistChannel.quest_data, this.kcrecord!.quests));
-  }
-
-
-  /**
-   * 
-   */
-  private onBasicUpdated(): void {
-    updateMaxCount();
   }
 
   /**
