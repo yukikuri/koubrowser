@@ -5393,6 +5393,7 @@ export const ApiEventId = {
   bossBattle: 5,
   noBattle: 6,
   airSearchMaterial: 7,
+  eoMaterialGet: 8, // 1-6 goal
 } as const;
 export type ApiEventId = Unpacked<typeof ApiEventId>;
 

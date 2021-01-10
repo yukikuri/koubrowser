@@ -620,7 +620,7 @@ class QuestBattle214 extends QuestBattle {
 /**
  * 
  */
-type QuestMap = [number, number, 'S' | 'A' | 'B' ]; // area_id, area_no, win_rank
+type QuestMap = [number, number, 'S' | 'A' | 'B' | '' ]; // area_id, area_no, win_rank('' is goal)
 type QuestMapCell = [number, number, 'S' | 'A' | 'B', number[] | undefined ]; // area_id, area_no, win_rank, cells
 type QuestMapOrCell = QuestMap | QuestMapCell;
 const win_ranks = ['S', 'A', 'B'];
@@ -644,14 +644,120 @@ const fullfillWinCond = (this_win_rank: string, need_win_rank: string): boolean 
   return this_rank <= need_rank;
 };
 
+const matchMap = (area_and_rank: (QuestMap | QuestMapCell)[], map: Pick<ApiMap, 'api_event_id' | 'api_bosscell_no'>, win_rank?: string): number => {
+
+  const map_start = svdata.mapStart;
+  if (! map_start) {
+    return -1;
+  }
+
+  const index = area_and_rank.findIndex((el) => el[0] === map_start.api_maparea_id && el[1] === map_start.api_mapinfo_no);
+  if (-1 === index) {
+    return -1;
+  }
+
+  const area_and_map = area_and_rank[index];
+  if (Array.isArray(area_and_map[3])) {
+    const cells = area_and_map[3];
+    //console.log('is target cell:', JSON.stringify(this.record));
+    //console.log('is target cell map:', map, cells.includes(result.map.api_bosscell_no));
+    //console.log('is target cell result:', result);
+    if (!cells.includes(map.api_bosscell_no)) {
+      return -1;
+    }
+  }
+
+  if (fullfillWinCond(win_rank ?? '', area_and_map[2])) {
+    return index;
+  }
+
+  return -1;
+};
+
 abstract class QuestBattleMap extends QuestBattle {
-  private cb_map_next: number = 0;
   abstract area_and_rank: (QuestMap | QuestMapCell)[];
 
   setCallback(): void {
     super.setCallback();
-    // no battle: 1-6
-    if (this.area_and_rank.some(el => el[0] === 1 && el[1] === 6)) {
+  }
+
+  unsetCallback(): void {
+    super.unsetCallback();
+  }
+
+  onBattle(result: PrvBattleInfo): void {
+  
+    // boss battle?
+    if (result.map.api_event_id !== ApiEventId.bossBattle) {
+      return ;
+    }
+    
+    const index = matchMap(this.area_and_rank, result.map, result.result?.api_win_rank);
+    if (-1 === index) {
+      return ;
+    }
+    this.increment(1, Math.min(this.max.length - 1, index));
+  }
+}
+
+/**
+ * 
+ */
+abstract class QuestMapGoal extends QuestAnyCounter {
+  private cb_map_next: number = 0;
+  abstract area_and_rank: (QuestMap | QuestMapCell)[];
+  abstract isDeckMatch: IsDeckMatch | null;
+
+  setCallback(): void {
+    this.cb_map_next = ApiCallback.set([Api.REQ_MAP_NEXT, (map: ApiMapNext) => this.mapNext(map) ]);
+  }
+
+  unsetCallback(): void {
+    if (this.cb_map_next) {
+      ApiCallback.unset(this.cb_map_next);
+      this.cb_map_next = 0;
+    }
+  }
+
+  mapNext(map: ApiMapNext): void {
+    if(map.api_event_id !== ApiEventId.eoMaterialGet) {
+      return ;
+    } 
+
+    const index = matchMap(this.area_and_rank, map);
+    if (-1 === index) {
+      return ;
+    }
+
+    if (this.isDeckMatch) {
+      const deck = svdata.battleDeck;
+      if (! deck) {
+        return ;
+      }
+      if (! this.isDeckMatch(deck.api_ship)) {
+        return ;
+      }
+    }
+
+    this.increment(1, Math.min(this.max.length - 1, index));
+  }
+}
+
+/**
+ * 
+ */
+type isShipType = (mst: MstShip) => boolean;
+type ShipCond = [ isShipType, number, boolean ]; // shiptype, count, == count
+type IsDeckMatch = (ship_ids: number[]) => boolean;
+
+abstract class QuestBattleMapDeck extends QuestBattleMap {
+  private cb_map_next: number = 0;
+  abstract isDeckMatch: IsDeckMatch | null;
+
+  setCallback(): void {
+    super.setCallback();
+    // no battle: 1-6...
+    if (this.area_and_rank.some(el => el[2] == '')) {
       this.cb_map_next = ApiCallback.set([Api.REQ_MAP_NEXT, (map: ApiMapNext) => this.mapNext(map) ]);
     }
   }
@@ -665,79 +771,8 @@ abstract class QuestBattleMap extends QuestBattle {
   }
 
   onBattle(result: PrvBattleInfo): void {
-    const index = this.matchMap(result.map, result.result?.api_win_rank);
-    if (-1 === index) {
-      return ;
-    }
-    this.increment(1, Math.min(this.max.length - 1, index));
-  }
-
-  protected matchMap(map: Pick<ApiMap, 'api_event_id' | 'api_bosscell_no'>, win_rank?: string): number {
-
-    const map_start = svdata.mapStart;
-    if (! map_start) {
-      return -1;
-    }
-
-    // 1-6 no boss: 1-6
-    const isBossExist = map_start.api_bosscell_no !== 0;
-    if (isBossExist && map.api_event_id !== ApiEventId.bossBattle) {
-      return -1;
-    }
-
-    const index = this.area_and_rank.findIndex(el => el[0] === map_start.api_maparea_id && el[1] === map_start.api_mapinfo_no);
-    if (-1 === index) {
-      return -1;
-    }
-
-    const area_and_map = this.area_and_rank[index];
-    if (Array.isArray(area_and_map[3])) {
-      const cells = area_and_map[3];
-      //console.log('is target cell:', JSON.stringify(this.record));
-      //console.log('is target cell map:', map, cells.includes(result.map.api_bosscell_no));
-      //console.log('is target cell result:', result);
-      if (!cells.includes(map.api_bosscell_no)) {
-        return -1;
-      }
-    }
-
-    if (! isBossExist) {
-      return index;
-    }
-
-    if (fullfillWinCond(win_rank ?? '', area_and_map[2])) {
-      return index;
-    }
-
-    return -1;
-  }
-
-  mapNext(map: ApiMapNext): void {
-    if(! map.api_itemget_eo_comment) {
-      return ;
-    } 
-
-    const index = this.matchMap(map);
-    if (-1 === index) {
-      return ;
-    }
-    this.increment(1, this.max.length < index ? 0 : index);
-  }
-}
-
-/**
- * 
- */
-type isShipType = (mst: MstShip) => boolean;
-type ShipCond = [ isShipType, number, boolean ]; // shiptype, count, == count
-type IsDeckMatch = (ship_ids: number[]) => boolean;
-
-abstract class QuestBattleMapDeck extends QuestBattleMap {
-  abstract isDeckMatch: IsDeckMatch | null;
-
-  onBattle(result: PrvBattleInfo): void {
-  
-    const index = this.matchMap(result.map, result.result?.api_win_rank);
+      
+    const index = matchMap(this.area_and_rank, result.map, result.result?.api_win_rank);
     if (-1 === index) {
       return ;
     }
@@ -752,8 +787,31 @@ abstract class QuestBattleMapDeck extends QuestBattleMap {
       }
     }
 
-    this.increment(1, this.max.length < index ? 0 : index);
+    this.increment(1, Math.min(this.max.length - 1, index));
   }
+
+  mapNext(map: ApiMapNext): void {
+    if(map.api_event_id !== ApiEventId.eoMaterialGet) {
+      return ;
+    } 
+      
+    const index = matchMap(this.area_and_rank, map);
+    if (-1 === index) {
+      return ;
+    }
+    
+    if (this.isDeckMatch) {
+      const deck = svdata.battleDeck;
+      if (! deck) {
+        return ;
+      }
+      if (! this.isDeckMatch(deck.api_ship)) {
+        return ;
+      }
+    }
+
+    this.increment(1, Math.min(this.max.length - 1, index));
+  } 
 }
 
 const isShipIds = (ship_id: number, mst_ship_ids: number[]): boolean => {
@@ -2109,9 +2167,9 @@ updaterCreators[854] = (p: UpdaterCtorParam) => new Quest854(p);
 detailFormatters[854] = (quest: Quest): string => detailFormatOne(['2-4A:', '6-1A:', '6-3A:', '6-4S:'], quest);
 
 // 861:	強行輸送艦隊、抜錨！
-class Quest861 extends QuestBattleMapDeck {
+class Quest861 extends QuestMapGoal {
   max = [2];
-  area_and_rank: QuestMap[] = [ [ 1, 6, 'B' ] ];
+  area_and_rank: QuestMap[] = [ [ 1, 6, '' ] ];
   ship_conds: ShipCond[] = [ 
     [ (mst: MstShip): boolean => 
       mst.api_stype === ApiShipType.koukuu_senkan || mst.api_stype === ApiShipType.hokyuukan, 2, false],
@@ -2280,7 +2338,7 @@ detailFormatters[904] = (quest: Quest): string => detailFormatOne(['2-5S:', '3-4
 // 905:	「海防艦」、海を護る！
 class Quest905 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
-  area_and_rank: QuestMap[] = [ [ 1, 1, 'A' ], [ 1, 2, 'A' ], [ 1, 3, 'A' ], [ 1, 5, 'A' ], [ 1, 6, 'A' ] ];
+  area_and_rank: QuestMap[] = [ [ 1, 1, 'A' ], [ 1, 2, 'A' ], [ 1, 3, 'A' ], [ 1, 5, 'A' ], [ 1, 6, '' ] ];
   ship_conds: ShipCond[] = [ 
     [ (mst: MstShip): boolean => ApiShipType.kaiboukan === mst.api_stype, 3, false] 
   ];
@@ -2297,7 +2355,7 @@ detailFormatters[905] = (quest: Quest): string => detailFormatOne(['1-1A:', '1-2
 // 912:	工作艦「明石」護衛任務
 class Quest912 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
-  area_and_rank: QuestMap[] = [ [ 1, 3, 'A' ], [ 2, 1, 'A' ], [ 2, 2, 'A' ], [ 2, 3, 'A' ], [ 1, 6, 'A' ] ];
+  area_and_rank: QuestMap[] = [ [ 1, 3, 'A' ], [ 2, 1, 'A' ], [ 2, 2, 'A' ], [ 2, 3, 'A' ], [ 1, 6, '' ] ];
   ship_conds: ShipCond[] = [ 
     [ (mst: MstShip): boolean => ApiShipType.kutikukan === mst.api_stype, 3, false] 
   ];
