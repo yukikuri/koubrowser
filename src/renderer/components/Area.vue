@@ -1172,25 +1172,25 @@ export default class extends Vue {
       return 'ゲージ情報が未取得です。出撃画面を開いてください。';
     }
 
-    if (! mapinfo.api_defeat_count && ! mapinfo.api_required_defeat_count && 
-        mapinfo.api_cleared) {
-      return 'クリア済';
-    }
-
-    if (mapinfo.api_gauge_type === ApiGaugeType.counter) {
-      return `${mapinfo.api_defeat_count}/${mapinfo.api_required_defeat_count} クリア`;
-    }
-
     if (mapinfo.api_gauge_type === ApiGaugeType.event || mapinfo.api_gauge_type === ApiGaugeType.yusou) {
       const eventmap = mapinfo.api_eventmap;
       if (eventmap) {
         const rank = MapLvText[eventmap.api_selected_rank] ?? '';
-        if (0 === eventmap.api_now_maphp) {
-          return rank + 'クリア済';
+        if (0 === eventmap.api_now_maphp || mapinfo.api_cleared) {
+          return 'クリア ' + rank;
         }
         const gauge_name = mapinfo.api_gauge_type === ApiGaugeType.event ? '戦力' : '輸送';
         return `${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp} ${rank}`;
       }
+    }
+
+    if (! mapinfo.api_defeat_count && ! mapinfo.api_required_defeat_count && 
+        mapinfo.api_cleared) {
+      return 'クリア';
+    }
+
+    if (mapinfo.api_gauge_type === ApiGaugeType.counter) {
+      return `${mapinfo.api_defeat_count}/${mapinfo.api_required_defeat_count} クリア`;
     }
 
     return '';
