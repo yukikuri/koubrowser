@@ -15,6 +15,7 @@
 // params
 
 $ship-img-width: 200px;
+$ship-img-height: 50px;
 $assist-width: $ship-img-width * 3;
 $status-height: 24px;
 $background: #202020;
@@ -1256,13 +1257,18 @@ body {
 // deck
 .ship-container {
   position: relative;
+  display: inline-block;
+  width: $ship-img-width;
+  height: $ship-img-height;
+
   .banner {
     width: $ship-img-width;
+    height: $ship-img-height;
   }
 
   > img {
-    width: 200px;
-    height: 50px;
+    width: $ship-img-width;
+    height: $ship-img-height;
   }
 
   .slots {
@@ -1333,6 +1339,32 @@ body {
       color: rgb(60, 255, 225);
       background-color: rgba($color: red, $alpha: 0.8);
     }
+  }
+
+
+  .ship-state {
+    position: absolute;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    $font-size: 14px;
+    height: $ship-img-height;
+    top: 0px;
+    left: 0px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: $font-size;
+    color: lightgreen;
+    font-weight: bold;
+    background-color: rgba(lightgreen, 0.5);
+    $shadow-color: #000;
+    line-height: $font-size;
+    text-shadow: 
+      -1px -1px 1px $shadow-color, 
+      1px -1px 1px $shadow-color, 
+      -1px 1px 1px $shadow-color, 
+      1px 1px 1px $shadow-color; 
   }
 }
 

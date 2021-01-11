@@ -6,6 +6,7 @@
       >
         <!-- todo: load image error draw ship name -->
         <img class="banner" :src="ship.banner_img" />
+        <span v-if="ship.escaped" class="ship-state">退避</span>
         <span class="slots">
           <img v-for="(slot, index) in ship.ship.slots" :key="index" class="slot" src="/img/slot/slot.png" >
         </span>
@@ -165,185 +166,6 @@ interface TKRate {
   left: number;
 }
 
-const toNaNTxt = (v: number): string => {
-  return isNaN(v) ? '?' : v.toString();
-};
-
-const THCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], st: THCutinState): string => {
-  const name = (st.type === THCutin.Kongou || st.type === THCutin.Hiei) ? '夜戦突撃' : '特殊砲撃';
-  const rate = KcsUtil.rateTH(ship, ships);
-  const rate_v = MathUtil.floor((rate?.rate ?? NaN)*100.0, 1);
-  return `<span class="sp"><span class="tag ${st.enable ? 'is-danger is-tokuhou' : 'is-disable'} ">${name}</span><br><span class="sp-rate">${toNaNTxt(rate_v)}%</span></span>`;
-};
-
-const TKCutinTag = (tk: TKCutinState): string => {
-  const rates = tk.type.map((el) => toNaNTxt(MathUtil.floor(KcsUtil.rateTK(el) * 100.0, 1))+'%');
-  return `<span class="sp"><span class="tag is-info">${tk.type.join('/')}種 対空CI</span><br><span class="sp-rate">${rates.join(' ')}</span></span>`;
-};
-
-const SenseiTaisenTag = (st: SenseiTaisenState): string => {
-  let issmall = '';
-  if (SenseiTaisenType.auto === st.type) {
-      issmall = 'small';
-  }
-  return `<span class="sp"><span class="${issmall} tag ${st.enable ? 'is-info' : 'is-disable'}">${SenseiTaisenText[st.type]}</span></span>`;
-};
-
-const SenseiRaigekiTag = (st: SenseiRaigekiState): string => {
-  return '<span class="sp"><span class="tag is-info">先制雷撃</span></span>';
-};
-
-const FunsindanmakuTag = (ship: ShipInfoSp): string => {
-  const fdrate = KcsUtil.rateFD(ship);
-  let rate_txt = '?';
-  if (fdrate) {
-    rate_txt = toNaNTxt(MathUtil.floor(fdrate.rate*100, 1));
-  }
-  return `<span class="sp"><span class="small tag is-primary">噴弾</span><br><span class="sp-rate">${rate_txt}%</span></span>`;
-}
-
-const FACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
-  const rates = KcsUtil.rateFA(ship, ships);
-  if (! rates.length) {
-    return '';
-  }
-
-  let total_html = '';
-  if (rates.length > 1) {
-    let calc_rates:number[][] = [[],[]];
-    rates.forEach((rate) => {
-      calc_rates[0].push(rate.rate[0]);
-      calc_rates[1].push(rate.rate[1]);
-    });
-    const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total*100, 1);
-    const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total*100, 1);
-    total_html = `<span class="sp"><span class="tag is-danger">合計</span><span class="sp-rate">${toNaNTxt(total_kakuho)}%/${toNaNTxt(total_yuusei)}%</span></span>`;
-  }
-
-  const html = rates.reduce((acc, rate, index) => {
-    const rate_kakuho = MathUtil.floor(rate.rate[0]*100, 1);
-    const rate_yuusei = MathUtil.floor(rate.rate[1]*100, 1);
-    acc += `<span class="sp"><span class="tag ${rate.enable ? 'is-danger' : 'is-disable'}">${FACutinText[rate.type]}</span><span class="sp-rate">${toNaNTxt(rate_kakuho)}%/${toNaNTxt(rate_yuusei)}%</span></span>`;
-    return acc;
-  }, '');
-
-  return total_html + html;
-};
-
-const AACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
-  const rates = KcsUtil.rateAA(ship, ships);
-  if (! rates.length) {
-    return '';
-  }
-
-  let total_html = '';
-  if (rates.length > 1) {
-    let calc_rates:number[][] = [[],[]];
-    rates.forEach((rate) => {
-      calc_rates[0].push(rate.rate[0]);
-      calc_rates[1].push(rate.rate[1]);
-    });
-    const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total*100, 1);
-    const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total*100, 1);
-    total_html = `<span class="sp"><span class="tag is-danger">合計</span><span class="sp-rate">${toNaNTxt(total_kakuho)}%/${toNaNTxt(total_yuusei)}%</span></span>`;
-  }
-
-  const html = rates.reduce((acc, rate, index) => {
-    const rate_kakuho = MathUtil.floor(rate.rate[0]*100, 1);
-    const rate_yuusei = MathUtil.floor(rate.rate[1]*100, 1);
-    acc += `<span class="sp"><span class="tag ${rate.enable ? 'is-danger' : 'is-disable'}">${AACutinText[rate.type]}</span><span class="sp-rate">${toNaNTxt(rate_kakuho)}%/${toNaNTxt(rate_yuusei)}%</span></span>`;
-    return acc;
-  }, '');
-
-  return total_html + html;
-};
-
-const YCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
-  const rates = KcsUtil.rateY(ship, ships);
-  if (! rates.length) {
-    return '';
-  }
-
-  let total_html = '';
-  if (rates.length > 1) {
-    const calc_rates: number[] = rates.map((rate) => rate.rate);
-    const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total*100, 1);
-    total_html = `<span class="sp"><span class="tag is-dark">合計</span><br><span class="sp-rate">${toNaNTxt(total)}%</span></span>`;
-  }
-
-  const html = rates.reduce((acc, rate, index) => {
-    const rate_txt = MathUtil.floor(rate.rate*100, 1);
-    acc += `<span class="sp"><span class="tag is-dark">${YCutinText[rate.type]}</span><br><span class="sp-rate">${toNaNTxt(rate_txt)}%</span></span>`;
-    return acc;
-  }, '');
-  return total_html + html;
-};
-
-const YSCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
-  const rates = KcsUtil.rateYS(ship, ships);
-  if (! rates.length) {
-    return '';
-  }
-
-  let total_html = '';
-  if (rates.length > 1) {
-    const calc_rates: number[] = rates.map((rate) => rate.rate);
-    const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total*100, 1);
-    total_html = `<span class="sp"><span class="tag is-dark">合計</span><br><span class="sp-rate">${toNaNTxt(total)}%</span></span>`;
-  }
-
-  const html = rates.reduce((acc, rate, index) => {
-    const rate_txt = MathUtil.floor(rate.rate*100, 1);
-    acc += `<span class="sp"><span class="tag is-dark">${YSCutinText[rate.type]}</span><br><span class="sp-rate">${toNaNTxt(rate_txt)}%</span></span>`;
-    return acc;
-  }, '');
-  return total_html + html;
-}
-
-const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
-  const ret: string[] = [];
-  const sp = ship.sp;
-
-  // thcutin
-  if (sp.th) {
-    ret.push(THCutinTag(ship, ships, sp.th));
-  }
-
-  // facutin
-  ret.push(FACutinTag(ship, ships));
-
-  // aacutin
-  ret.push(AACutinTag(ship, ships));
-
-  // tkcutin
-  if (sp.tk) {
-    ret.push(TKCutinTag(sp.tk));
-  }
-
-  // sensei taisen
-  if (sp.st) {
-    ret.push(SenseiTaisenTag(sp.st));
-  }
-
-  // sensei raigeki
-  if (sp.sr) {
-    ret.push(SenseiRaigekiTag(sp.sr));
-  }
-
-  // funsindanmaku
-  if (sp.fd) {
-    ret.push(FunsindanmakuTag(ship));
-  }
-
-  // ycutin
-  ret.push(YCutinTag(ship, ships));
-
-  // yscutin
-  ret.push(YSCutinTag(ship, ships));
-
-  return ret.join('');
-};
-
 interface SlotDisp {
   readonly type_img: string;
   readonly onslot_html: string;
@@ -370,6 +192,7 @@ interface DeckShip {
   readonly ev: number;
   readonly boku_text: string;
   readonly sp_html: string;
+  readonly escaped: boolean;
 }
 
 const shipSlotDips = (ship: ShipInfoSp): SlotDisp[] => {
@@ -559,7 +382,7 @@ export default class extends Vue {
   private get ships(): DeckShip[] {
     console.log('deck v2 ships called');
     const sps = this.shipSps;
-    const ret = sps.map((ship) => {
+    const ret = sps.map((ship, index) => {
       return {
         ship, 
         slot_disps: shipSlotDips(ship),
@@ -582,6 +405,7 @@ export default class extends Vue {
         ev: MathUtil.floor(KcsUtil.shipKaihi(ship).kaihi, 0),
         boku_text: shipBouku(sps, ship),
         sp_html: shipSpHtml(sps, ship),
+        escaped: svdata.isShipEscaped(this.deck, index),
       };
     });
     return ret;
@@ -669,6 +493,185 @@ const levelHtml = (slot: Slot): string => {
   }
 
   return '';
+};
+
+const toNaNTxt = (v: number): string => {
+  return isNaN(v) ? '?' : v.toString();
+};
+
+const THCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], st: THCutinState): string => {
+  const name = (st.type === THCutin.Kongou || st.type === THCutin.Hiei) ? '夜戦突撃' : '特殊砲撃';
+  const rate = KcsUtil.rateTH(ship, ships);
+  const rate_v = MathUtil.floor((rate?.rate ?? NaN)*100.0, 1);
+  return `<span class="sp"><span class="tag ${st.enable ? 'is-danger is-tokuhou' : 'is-disable'} ">${name}</span><br><span class="sp-rate">${toNaNTxt(rate_v)}%</span></span>`;
+};
+
+const TKCutinTag = (tk: TKCutinState): string => {
+  const rates = tk.type.map((el) => toNaNTxt(MathUtil.floor(KcsUtil.rateTK(el) * 100.0, 1))+'%');
+  return `<span class="sp"><span class="tag is-info">${tk.type.join('/')}種 対空CI</span><br><span class="sp-rate">${rates.join(' ')}</span></span>`;
+};
+
+const SenseiTaisenTag = (st: SenseiTaisenState): string => {
+  let issmall = '';
+  if (SenseiTaisenType.auto === st.type) {
+      issmall = 'small';
+  }
+  return `<span class="sp"><span class="${issmall} tag ${st.enable ? 'is-info' : 'is-disable'}">${SenseiTaisenText[st.type]}</span></span>`;
+};
+
+const SenseiRaigekiTag = (st: SenseiRaigekiState): string => {
+  return '<span class="sp"><span class="tag is-info">先制雷撃</span></span>';
+};
+
+const FunsindanmakuTag = (ship: ShipInfoSp): string => {
+  const fdrate = KcsUtil.rateFD(ship);
+  let rate_txt = '?';
+  if (fdrate) {
+    rate_txt = toNaNTxt(MathUtil.floor(fdrate.rate*100, 1));
+  }
+  return `<span class="sp"><span class="small tag is-primary">噴弾</span><br><span class="sp-rate">${rate_txt}%</span></span>`;
+}
+
+const FACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
+  const rates = KcsUtil.rateFA(ship, ships);
+  if (! rates.length) {
+    return '';
+  }
+
+  let total_html = '';
+  if (rates.length > 1) {
+    let calc_rates:number[][] = [[],[]];
+    rates.forEach((rate) => {
+      calc_rates[0].push(rate.rate[0]);
+      calc_rates[1].push(rate.rate[1]);
+    });
+    const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total*100, 1);
+    const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total*100, 1);
+    total_html = `<span class="sp"><span class="tag is-danger">合計</span><span class="sp-rate">${toNaNTxt(total_kakuho)}%/${toNaNTxt(total_yuusei)}%</span></span>`;
+  }
+
+  const html = rates.reduce((acc, rate, index) => {
+    const rate_kakuho = MathUtil.floor(rate.rate[0]*100, 1);
+    const rate_yuusei = MathUtil.floor(rate.rate[1]*100, 1);
+    acc += `<span class="sp"><span class="tag ${rate.enable ? 'is-danger' : 'is-disable'}">${FACutinText[rate.type]}</span><span class="sp-rate">${toNaNTxt(rate_kakuho)}%/${toNaNTxt(rate_yuusei)}%</span></span>`;
+    return acc;
+  }, '');
+
+  return total_html + html;
+};
+
+const AACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
+  const rates = KcsUtil.rateAA(ship, ships);
+  if (! rates.length) {
+    return '';
+  }
+
+  let total_html = '';
+  if (rates.length > 1) {
+    let calc_rates:number[][] = [[],[]];
+    rates.forEach((rate) => {
+      calc_rates[0].push(rate.rate[0]);
+      calc_rates[1].push(rate.rate[1]);
+    });
+    const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total*100, 1);
+    const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total*100, 1);
+    total_html = `<span class="sp"><span class="tag is-danger">合計</span><span class="sp-rate">${toNaNTxt(total_kakuho)}%/${toNaNTxt(total_yuusei)}%</span></span>`;
+  }
+
+  const html = rates.reduce((acc, rate, index) => {
+    const rate_kakuho = MathUtil.floor(rate.rate[0]*100, 1);
+    const rate_yuusei = MathUtil.floor(rate.rate[1]*100, 1);
+    acc += `<span class="sp"><span class="tag ${rate.enable ? 'is-danger' : 'is-disable'}">${AACutinText[rate.type]}</span><span class="sp-rate">${toNaNTxt(rate_kakuho)}%/${toNaNTxt(rate_yuusei)}%</span></span>`;
+    return acc;
+  }, '');
+
+  return total_html + html;
+};
+
+const YCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
+  const rates = KcsUtil.rateY(ship, ships);
+  if (! rates.length) {
+    return '';
+  }
+
+  let total_html = '';
+  if (rates.length > 1) {
+    const calc_rates: number[] = rates.map((rate) => rate.rate);
+    const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total*100, 1);
+    total_html = `<span class="sp"><span class="tag is-dark">合計</span><br><span class="sp-rate">${toNaNTxt(total)}%</span></span>`;
+  }
+
+  const html = rates.reduce((acc, rate, index) => {
+    const rate_txt = MathUtil.floor(rate.rate*100, 1);
+    acc += `<span class="sp"><span class="tag is-dark">${YCutinText[rate.type]}</span><br><span class="sp-rate">${toNaNTxt(rate_txt)}%</span></span>`;
+    return acc;
+  }, '');
+  return total_html + html;
+};
+
+const YSCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
+  const rates = KcsUtil.rateYS(ship, ships);
+  if (! rates.length) {
+    return '';
+  }
+
+  let total_html = '';
+  if (rates.length > 1) {
+    const calc_rates: number[] = rates.map((rate) => rate.rate);
+    const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total*100, 1);
+    total_html = `<span class="sp"><span class="tag is-dark">合計</span><br><span class="sp-rate">${toNaNTxt(total)}%</span></span>`;
+  }
+
+  const html = rates.reduce((acc, rate, index) => {
+    const rate_txt = MathUtil.floor(rate.rate*100, 1);
+    acc += `<span class="sp"><span class="tag is-dark">${YSCutinText[rate.type]}</span><br><span class="sp-rate">${toNaNTxt(rate_txt)}%</span></span>`;
+    return acc;
+  }, '');
+  return total_html + html;
+}
+
+const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
+  const ret: string[] = [];
+  const sp = ship.sp;
+
+  // thcutin
+  if (sp.th) {
+    ret.push(THCutinTag(ship, ships, sp.th));
+  }
+
+  // facutin
+  ret.push(FACutinTag(ship, ships));
+
+  // aacutin
+  ret.push(AACutinTag(ship, ships));
+
+  // tkcutin
+  if (sp.tk) {
+    ret.push(TKCutinTag(sp.tk));
+  }
+
+  // sensei taisen
+  if (sp.st) {
+    ret.push(SenseiTaisenTag(sp.st));
+  }
+
+  // sensei raigeki
+  if (sp.sr) {
+    ret.push(SenseiRaigekiTag(sp.sr));
+  }
+
+  // funsindanmaku
+  if (sp.fd) {
+    ret.push(FunsindanmakuTag(ship));
+  }
+
+  // ycutin
+  ret.push(YCutinTag(ship, ships));
+
+  // yscutin
+  ret.push(YSCutinTag(ship, ships));
+
+  return ret.join('');
 };
 
 const shipBouku = (shipSps: ShipInfoSp[], ship: ShipInfoSp): string => {

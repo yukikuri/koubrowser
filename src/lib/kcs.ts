@@ -194,10 +194,12 @@ export const Api = {
   REQ_COMBINED_BATTLE_EACH_BATTLE: '/api_req_combined_battle/each_battle',
   // 出撃(連合) - 夜戦開始
   REQ_COMBINED_BATTLE_EC_MIDNIGHT_BATTLE: '/api_req_combined_battle/ec_midnight_battle',
-  // 出撃(連合-) - 戦闘開始
+  // 出撃(連合) - 戦闘開始
   REQ_COMBINED_BATTLE_BATTLE: '/api_req_combined_battle/battle',
   // 出撃(連合-空襲) - 戦闘開始
   REQ_COMBINED_BATTLE_LD_AIRBATTLE: '/api_req_combined_battle/ld_airbattle',
+  // 出撃(連合) - 護衛退避
+  REQ_COMBINED_BATTLE_GOBACK_PORT: 'api_req_combined_battle/goback_port',
 
   // airbase set order
   REQ_AIR_CORPS_SET_PLANE: '/api_req_air_corps/set_plane',
@@ -5492,6 +5494,8 @@ export interface PrvBattleMapInfo {
   deck_id: number;
   uuid: string;
   start: boolean;
+  escape_indexs: number[]; // 1起算 1～6 第一艦隊 7~12 第二艦隊
+  tow_indexs: number[];    // 1起算 1～6 第一艦隊 7~12 第二艦隊
 }
 
 export const ApiFormation = {
@@ -5861,8 +5865,8 @@ export interface ApiBattleResult {
   readonly api_get_exmap_useitem_id: number; // EOクリア時Item
   readonly api_escape_flag: number;
   readonly api_escape?: null | undefined | {
-    readonly api_escape_idx: number; // 退避艦ID
-    readonly api_tow_idx: number; // 護衛艦ID
+    readonly api_escape_idx: number[]; // 退避艦 index
+    readonly api_tow_idx: number[]; // 護衛艦 index
   };
   readonly api_get_useitem?: ApiGetItem;
 
@@ -6424,6 +6428,10 @@ export class SvData {
         case Api.REQ_COMBINED_BATTLE_BATTLERESULT:
           this.reqCombinedBattleResult(api_data as ApiCombinedBattleResult);
           break;
+
+        case Api.REQ_COMBINED_BATTLE_GOBACK_PORT:
+          this.reqCombinedBattleGobackPort();
+          break;
   
         case Api.REQ_NYUKYO_START:
           this.reqNyukyoStart();
@@ -6532,6 +6540,10 @@ export class SvData {
     assignSafeE(this.apiData, api_data);
     this.shipDataOk = true;
     this.apiData.prv_in_map = false;
+    if (this.apiData.prv_battle_map_info) {
+      replaceArray(this.apiData.prv_battle_map_info.escape_indexs, []);
+      replaceArray(this.apiData.prv_battle_map_info.tow_indexs, []);
+    }
     ApiCallback.call(Api.PORT_PORT, api_data);
   }
 
@@ -7335,6 +7347,8 @@ export class SvData {
         deck_id: toNumberSafe(req.api_deck_id),
         uuid: uuidv4(),
         start: true,
+        escape_indexs: [],
+        tow_indexs: [],
       });
       replaceArray(this.apiData.prv_battle_infos, []);
       replaceArray(this.apiData.api_req_map, [api_data]);
@@ -7536,6 +7550,28 @@ export class SvData {
     const battle_info = this.setBattleResult(api_data);
     if (battle_info) {
       ApiCallback.call(Api.REQ_COMBINED_BATTLE_BATTLERESULT, battle_info);
+    }
+  }
+
+  private reqCombinedBattleGobackPort(): void {
+    const result = this.lastBattle?.result;
+    if (! result || ! result.api_escape) {
+      return ;
+    }
+
+    const prv_battle_map_info = this.apiData.prv_battle_map_info;
+    if (! prv_battle_map_info) {
+      return ;
+    }
+
+    const escape_index = result.api_escape.api_escape_idx.find((el) => !prv_battle_map_info.escape_indexs.includes(el));
+    if (escape_index !== undefined) {
+      prv_battle_map_info.escape_indexs.push(escape_index);
+    }
+
+    const tow_index = result.api_escape.api_tow_idx.find((el) => !prv_battle_map_info.tow_indexs.includes(el));
+    if (tow_index !== undefined) {
+      prv_battle_map_info.tow_indexs.push(tow_index);
     }
   }
 
@@ -7955,6 +7991,22 @@ export class SvData {
 
   public kdock(id: number): ApiKDock | undefined {
     return this.apiData.api_kdock.find(kdock => kdock.api_id === id);
+  }
+
+  public isShipEscaped(deck: ApiDeckPort, index: number): boolean {
+    if (! this.isCombined) {
+      return false;
+    }
+
+    const map_info = this.apiData.prv_battle_map_info;
+    if (! map_info) {
+      return false;
+    }
+
+    // escape start index: 1. not 0.
+    const start_index = deck.api_id === ApiDeckPortId.deck2st ? 7 : 1;
+    const check_indexs = map_info.escape_indexs.concat(map_info.tow_indexs);
+    return check_indexs.includes(start_index+index);
   }
 
   public shipSeiku(ship: ApiShip | undefined): number {
