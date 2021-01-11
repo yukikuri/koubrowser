@@ -5505,6 +5505,10 @@ export const ApiFormation = {
   teikei : 4, // 梯形陣
   tanou : 5, // 単横陣
   keikai : 6, // 警戒陣
+  combined_dai1_keikai: 11, // 第一警戒航行序列(対潜警戒)
+  combined_dai2_zenpou_keikai: 12, // 第二警戒航行序列(前方警戒)
+  combined_dai3_rinkei: 13, // 第三警戒航行序列(輪形陣)
+  combined_dai4_sentou: 14, // 第四警戒航行序列(戦闘隊形)
 } as const;
 export type ApiFormation = Unpacked<typeof ApiFormation>;
 

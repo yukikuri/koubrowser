@@ -19,7 +19,7 @@
         <div class="map-in-out-img" :class="{ 'in-map': inMap }"><MapInOutImage/></div>
         <div>{{mapAreaText}}</div>
         <div class="timeline-button" :class="{ 'press': timeline_pressed }" title="タイムライン"><TimelineImage class="timeline-img"/>▼</div>
-        <div>{{mapCellText}} {{dispSeikuText}} {{tacticsText}}</div>
+        <div>{{mapCellText}} {{formationText}} {{dispSeikuText}} {{tacticsText}}</div>
       </div>
     </div>
     <div class="materials" :class="{ dragable: isDragable }">
@@ -59,7 +59,7 @@
 <script lang="ts">
 import { ipcRenderer } from 'electron';
 import { Const } from '@/lib/const';
-import { DispSeikuText, TacticsText } from '@/lib/locale';
+import { DispSeikuText, FormationText, TacticsText } from '@/lib/locale';
 import { AppStuff, MainChannel } from '@/lib/app';
 import { MapStuff } from '@/lib/map'
 import { replaceArray } from '@/lib/ts';
@@ -242,6 +242,16 @@ export default class extends Vue {
 
   private get mapCellText(): string {
     return this.mapcell_labels.join('-');
+  }
+
+  private get formationText(): string {
+    if (! this.deck_formation || ! this.enemy_formation) {
+      return '';
+    }
+    
+    const deck_txt = FormationText[this.deck_formation] ?? '?';
+    const enemy_txt = FormationText[this.enemy_formation] ?? '?';
+    return deck_txt+'-'+enemy_txt;
   }
 
   private get dispSeikuText(): string {
