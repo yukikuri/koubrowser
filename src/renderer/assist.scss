@@ -2513,6 +2513,11 @@ $eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
     &.is-kaisou {
       background-color: #C5A3D8;
     }
+
+    &.is-special {
+      min-width: 30px;
+      border-left: 0;
+    }
   }
 
   .quest-type {
@@ -2618,6 +2623,15 @@ $eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
     height: 14px;
     background-color: #595959;
     border-right: 1px solid $background;
+    
+    .deckOk {
+      color: #77ffff;
+      margin-right: .8em;
+    }
+    .deckNg {
+      color: #ffc57f;
+      margin-right: .8em;
+    }
   }
 
   .quest-progress-text {

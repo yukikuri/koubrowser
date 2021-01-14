@@ -24,6 +24,7 @@ import {
   ApiMap,
   SlotitemImgType,
   ApiDeckPortId,
+  SvData,
 } from '@/lib/kcs'
 import {
   Quest, 
@@ -40,8 +41,9 @@ import { svdata } from '@/main/svdata';
 import moment from 'moment';
 
 interface UpdaterFactory {
-  creator: ((p: UpdaterCtorParam) => QuestUpdater),
-  formatter: ((quest: Quest) => string),
+  creator: (p: UpdaterCtorParam) => QuestUpdater,
+  formatter: (quest: Quest) => string,
+  isDeckMatch?: (svdata: SvData, ship_ids: number[]) => boolean,
 }
 
 const factories: {[key: number]: UpdaterFactory | undefined } = {};
@@ -833,7 +835,15 @@ const isShipType = (ship_id: number, types: ApiShipType[]): boolean => {
   return false;
 };
 
-const isDeckShipType = (ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
+const isShipTypeS = (svdata: SvData, ship_id: number, types: ApiShipType[]): boolean => {
+  const mst = svdata.mstShipFrom(ship_id);
+  if (mst) {
+    return types.includes(mst.api_stype)
+  }
+  return false;
+};
+
+const isDeckShipTypeS = (svdata: SvData, ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
 
   const counts = ship_ids?.reduce<number[]>((acc, ship_id) => {
     const mst = svdata.mstShipFrom(ship_id);
@@ -862,6 +872,10 @@ const isDeckShipType = (ship_ids: number[] | undefined, ship_types: ShipCond[]):
   return true;
 };
 
+const isDeckShipType = (ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
+  return isDeckShipTypeS(svdata, ship_ids, ship_types);
+};
+
 interface ShipMst {
   readonly api: ApiShip;
   readonly mst: MstShip;
@@ -880,6 +894,21 @@ const toShipMsts = (ship_ids: number[]) : ShipMst[] => {
     return acc;
   }, []);
 };
+
+const toShipMstsS = (svdata: SvData, ship_ids: number[]) : ShipMst[] => {
+  return ship_ids.reduce<ShipMst[]>((acc, ship_id) => {
+    const api = svdata.ship(ship_id);
+    let mst = undefined;
+    if (api) {
+      mst = svdata.mstShip(api.api_ship_id);
+      if (mst) {
+        acc.push({api, mst});
+      }
+    }
+    return acc;
+  }, []);
+};
+
 
 const shipCount = (ships: ShipMst[], mst_ship_ids: number[]): number => {
   return ships.reduce((acc, ship) => {
@@ -1694,6 +1723,38 @@ factories[311] = {
   formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
 };
 
+// 314: 冬季大演習
+class Quest314 extends QuestPractice {
+  max = [8];
+  need_win_rank = 'B';
+}
+factories[314] = {
+  creator: (p: UpdaterCtorParam) => new Quest314(p),
+  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+};
+
+// 329: 【節分任務】節分演習！
+class Quest329 extends QuestPractice {
+  max = [3];
+  need_win_rank = 'S';
+  isDeckMatch = (ship_ids: number[]) => Quest329.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMstsS(svdata, ship_ids);
+    if (2 <= shipTypeCount(ships, [ApiShipType.kaiboukan])) {
+      return true;
+    }
+    if (2 <= shipTypeCount(ships, [ApiShipType.kutikukan])) {
+      return true;
+    }
+    return false;
+  }
+}
+factories[329] = {
+  creator: (p: UpdaterCtorParam) => new Quest329(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest329.isDeckMatchS(svdata, ship_ids),
+};
+
 // 330:	空母機動部隊、演習始め！
 class Quest330 extends QuestPracticeDeck {
   max = [4];
@@ -2008,6 +2069,16 @@ factories[440] = {
   formatter: (quest: Quest): string => detailFormatOne(['遠征41:', '遠征5:', '遠征40:', '遠征E2:', '遠征46:'], quest),
 };
 
+// 441:	【節分任務】令和三年節分遠征任務
+class Quest441 extends QuestMissionA {
+  max = [1, 1, 1, 1 ];
+  quest_names = [ ['南西方面航空偵察作戦'], ['潜水艦通商破壊作戦'], ['西方海域封鎖作戦'], ['西方海域偵察作戦'] ];
+}
+factories[441] = {
+  creator: (p: UpdaterCtorParam) => new Quest441(p),
+  formatter: (quest: Quest): string => detailFormatOne(['遠征B1:', '遠征27:', '遠征28:', '遠征D1:'], quest),
+};
+
 // 503: 艦隊大整備！
 class Quest503 extends QuestNyukyo {
   max = [5];
@@ -2239,6 +2310,16 @@ factories[680] = {
   formatter: (quest: Quest): string => detailFormat(['機銃破棄: ', '電探破棄: '], quest),
 };
 
+// 681: 航空戦力の再編増強準備
+class Quest681 extends QuestDestroyItemT {
+  max = [4, 4];
+  types = [SlotitemImgType.kanjyou_bakugekiki, SlotitemImgType.kanjyou_kougekiki];
+}
+factories[681] = {
+  creator: (p: UpdaterCtorParam) => new Quest681(p),
+  formatter: (quest: Quest): string => detailFormat(['艦爆破棄: ', '艦攻破棄: '], quest),
+};
+
 // 688:	航空戦力の強化
 class Quest688 extends QuestDestroyItemA {
   max = [3, 3, 3, 3];
@@ -2312,6 +2393,83 @@ class Quest822 extends QuestBattleMap {
 factories[822] = {
   creator: (p: UpdaterCtorParam) => new Quest822(p),
   formatter: (quest: Quest): string => detailFormat(['2-4S: '], quest),
+};
+
+// 840: 【節分任務】令和三年節分作戦
+class Quest840 extends QuestBattleMap {
+  max = [1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 2, 1, 'A' ], [ 2, 2, 'A' ], [ 2, 3, 'A' ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest840.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (! isShipTypeS(svdata, ship_ids[0], [ApiShipType.kei_kuubo, ApiShipType.keijyun, ApiShipType.raijyun, ApiShipType.renjyun])) {
+      return false;
+    }
+
+    const ships = toShipMstsS(svdata, ship_ids);
+    if (3 <= shipTypeCount(ships, [ApiShipType.kaiboukan])) {
+      return true;
+    }
+    if (3 <= shipTypeCount(ships, [ApiShipType.kutikukan])) {
+      return true;
+    }
+    return false;
+  }
+}
+factories[840] = {
+  creator: (p: UpdaterCtorParam) => new Quest840(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-1A:', '2-2A:', '2-3A:'], quest),
+  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest840.isDeckMatchS(svdata, ship_ids),
+};
+
+// 841: 【節分任務】令和三年西方海域節分作戦
+class Quest841 extends QuestBattleMap {
+  max = [1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 4, 1, 'S' ], [ 4, 2, 'S' ], [ 4, 3, 'S' ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest841.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (! isShipTypeS(svdata, ship_ids[0], [ApiShipType.suibo, ApiShipType.koujyun, ApiShipType.jyuujyun])) {
+      return false;
+    }
+
+    const ships = toShipMstsS(svdata, ship_ids);
+    if (2 <= shipTypeCount(ships, [ships[0].mst.api_stype])) {
+      return true;
+    }
+    return false;
+  }
+}
+factories[841] = {
+  creator: (p: UpdaterCtorParam) => new Quest841(p),
+  formatter: (quest: Quest): string => detailFormatOne(['4-1S:', '4-2S:', '4-3S:'], quest),
+  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest841.isDeckMatchS(svdata, ship_ids),
+};
+
+// 843: 【節分拡張任務】令和三年節分作戦、全力出撃！
+class Quest843 extends QuestBattleMap {
+  max = [1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 5, 2, 'S' ], [ 5, 5, 'S' ], [ 6, 4, 'S' ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest843.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (! isShipTypeS(svdata, ship_ids[0], [
+      ApiShipType.kousoku_senkan, ApiShipType.teisoku_senkan, ApiShipType.koukuu_senkan,
+      ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo,])) {
+      return false;
+    }
+
+    const ships = toShipMstsS(svdata, ship_ids);
+    if (2 <= shipTypeCount(ships, [ApiShipType.kutikukan])) {
+      return true;
+    }
+    return false;
+  }
+}
+factories[843] = {
+  creator: (p: UpdaterCtorParam) => new Quest843(p),
+  formatter: (quest: Quest): string => detailFormatOne(['5-2S:', '5-5S:', '6-4S:'], quest),
+  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest843.isDeckMatchS(svdata, ship_ids),
 };
 
 // 845:	発令！「西方海域作戦」
@@ -2718,4 +2876,14 @@ export const questProgressDetailFormat = (quest: Quest): string => {
   }
 
   return '';
+};
+
+export const isDeckMatch = (svdata: SvData, quest: Quest): boolean | undefined => {
+  const factory = factories[quest.no];
+  if (factory && factory.isDeckMatch) {
+    const deck = svdata.deckPort(ApiDeckPortId.deck1st);
+    if (deck) {
+      return factory.isDeckMatch(svdata, deck.api_ship);
+    }
+  }
 };

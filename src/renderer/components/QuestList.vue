@@ -17,12 +17,15 @@
       <div class="quest">
         <span class="quest-category" :class="quest.categoryClass">{{quest.categoryText}}</span>
         <span class="quest-type" :class="quest.typeClass">{{quest.typeText}}</span>
-        <span class="quest-progress mr-1" :class="{'is-completed': quest.completed}">{{quest.progressText}}</span>
-        <span class="quest-title">{{quest.record.quest.api_title}}</span><!--<span v-if="quest.progressDetail">( {{quest.progressDetail}} )</span>-->
+        <span class="quest-progress" :class="{'is-completed': quest.completed}">{{quest.progressText}}</span>
+        <span class="quest-title"><span v-if="quest.is_special" class="quest-category is-syutugeki is-special">限定</span><span class="ml-1">{{quest.record.quest.api_title}}</span></span><!--<span v-if="quest.progressDetail">( {{quest.progressDetail}} )</span>-->
         <b-progress format="percent" :max="100" show-value0 class="quest-bar is-radiusless">
           <b-progress-bar v-for="(state, state_index) in quest.states" :key="state_index" 
             slot="bar" :value="state.percent" :class="state.className"></b-progress-bar>
-          <span v-if="quest.progressDetail" slot="bar" class="quest-progress-text">{{quest.progressDetail}}</span>
+          <span v-if="quest.progressDetail" slot="bar" class="quest-progress-text">
+            <span v-if="quest.deckOk===true" class="deckOk">編成条件:OK</span>
+            <span v-if="quest.deckOk===false" class="deckNg">編成条件:NG</span>
+            <span>{{quest.progressDetail}}</span></span>
         </b-progress>
       </div>
     </b-tooltip>
@@ -35,7 +38,7 @@ import { KcsUtil, ApiQuestState, ApiQuest, ApiQuestCategory } from '@/lib/kcs';
 import { svdata } from '@/renderer/store/svdata';
 import { quests } from '@/renderer/store/quests';
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Quest, QuestCounter, questProgress, questProgressDetail } from '@/lib/record';
+import { Quest, QuestCounter, questIsDeckMatch, questProgress, questProgressDetail } from '@/lib/record';
 import { RUtil } from '@/renderer/util';
 import { QuestCategoryText } from '@/lib/locale';
 import { AppStuff } from '@/lib/app';
@@ -52,6 +55,8 @@ interface QuestContent {
   typeClass: object;
   typeText: string;
   progressDetail: string;
+  deckOk: boolean | undefined;
+  is_special: boolean;
   tipDetail: string;
   record: Quest;
   states: QuestState[];
@@ -66,12 +71,17 @@ interface QuestState {
 }
 const progressClasses = [
   'is-success',
-  'is-primary',
+  'is-info',
   'is-warning',
   'is-danger',
   'is-dark',
   //'is-info',
 ] as const;
+
+// 期間限定クエストか判定
+const isSpecial = (quest: Quest): boolean => {
+  return [329,840,841,843,441,].includes(quest.no);
+};
 
 const questStates = (quest: Quest, countTotal: number, countTotalMax: number): QuestState[] => {
   if (quest.state === null) {
@@ -150,11 +160,15 @@ private mounted(): void {
       const countTotalMax = el.state === null ? 100 : (el.state as QuestCounter).countMax.reduce((acc, value) => acc+value, 0);
       const progress = questProgress(el);
       let progressDetail = questProgressDetail(el);
+      let deckOk = undefined;
       if (! progressDetail) {
         if (el.quest.api_state === ApiQuestState.completed) {
           progressDetail = '100%';
         }
+      } else {
+        deckOk = questIsDeckMatch(svdata, el);
       }
+
       return {
         completed: progress >= 100,
         progress,
@@ -166,6 +180,8 @@ private mounted(): void {
         record: el,
         tipDetail: el.quest.api_detail.replace(/<br>/g, ''),
         progressDetail,
+        deckOk,
+        is_special: isSpecial(el),
         countTotal,
         countTotalMax,
         states: questStates(el, countTotal, countTotalMax),
