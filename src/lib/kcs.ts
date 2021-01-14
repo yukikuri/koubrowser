@@ -194,9 +194,9 @@ export const Api = {
   REQ_COMBINED_BATTLE_EACH_BATTLE: '/api_req_combined_battle/each_battle',
   // 出撃(連合) - 夜戦開始
   REQ_COMBINED_BATTLE_EC_MIDNIGHT_BATTLE: '/api_req_combined_battle/ec_midnight_battle',
-  // 出撃(連合) - 戦闘開始
+  // 出撃(連合-通常) - 戦闘開始
   REQ_COMBINED_BATTLE_BATTLE: '/api_req_combined_battle/battle',
-  // 出撃(連合-空襲) - 戦闘開始
+  // 出撃(連合-通常空襲) - 戦闘開始
   REQ_COMBINED_BATTLE_LD_AIRBATTLE: '/api_req_combined_battle/ld_airbattle',
   // 出撃(連合) - 護衛退避
   REQ_COMBINED_BATTLE_GOBACK_PORT: 'api_req_combined_battle/goback_port',
@@ -3768,7 +3768,8 @@ export class KcsUtil {
    * @param v 
    */
   public static isBattle(v: ApiBattleBase | null): boolean {
-    return !!v && !KcsUtil.isCombinedBattle(v) && Array.isArray((v as any).api_hourai_flag);
+    return !!v && 
+      Array.isArray((v as any).api_hourai_flag);
   }
 
   /**
@@ -3799,18 +3800,34 @@ export class KcsUtil {
    * 
    * @param v 
    */
-  public static isCombinedBattle(v: ApiBattleBase | null): boolean {
-    return !!v && Array.isArray((v as any).api_ship_ke_combined);
+  public static isNormalVsCombinedBattle(v: ApiBattleBase | null): boolean {
+    return !!v && ! Array.isArray((v as any).api_f_nowhps_combined) && Array.isArray((v as any).api_ship_ke_combined);
   }
 
   /**
    * 
    * @param v 
    */
-  public static isCombinedCombinedBattle(v: ApiBattleBase): boolean {
-    return this.isCombinedBattle(v) && Array.isArray((v as any).api_f_nowhps_combined);
+  public static isCombinedVsNormalBattle(v: ApiBattleBase | null): boolean {
+    return !!v && Array.isArray((v as any).api_f_nowhps_combined) && ! Array.isArray((v as any).api_ship_ke_combined);
+  }
+
+  /**
+   * 
+   * @param v 
+   */
+  public static isCombinedVsCombinedBattle(v: ApiBattleBase): boolean {
+    return !!v && Array.isArray((v as any).api_f_nowhps_combined) && Array.isArray((v as any).api_ship_ke_combined);
   }
   
+  /**
+   * 
+   * @param v 
+   */
+  public static isEnemyCombined(v: ApiBattleBase | null): boolean {
+    return !!v && Array.isArray((v as any).api_ship_ke_combined);
+  }
+
   /**
    * 
    * @param v 
@@ -5644,8 +5661,8 @@ export interface ApiSortieAirBattle extends ApiBattleNormal {
 export interface ApiSortieLdAirBattle extends ApiBattleNormal {
 }
 
-// combined battle
-export interface ApiCombinedBattle extends ApiBattle {
+// normal vs combined battle
+export interface ApiNormalVsCombinedBattle extends ApiBattle {
   readonly api_ship_ke_combined: number[];
   readonly api_ship_lv_combined: number[];
   readonly api_e_nowhps_combined: number[];
@@ -5654,11 +5671,54 @@ export interface ApiCombinedBattle extends ApiBattle {
   readonly api_eParam_combined: number[][];
 }
 
-// combined combined battle
-export interface ApiCombinedCombinedBattle extends ApiCombinedBattle {
+// combined vs normal battle
+export interface ApiCombinedVsNormalBattle extends ApiBattle {
   readonly api_f_nowhps_combined: number[];
   readonly api_f_maxhps_combined: number[];
   readonly api_fParam_combined: number[][];
+}
+
+// combined combined battle
+export interface ApiCombinedVsCombinedBattle extends ApiBattle {
+  readonly api_f_nowhps_combined: number[];
+  readonly api_f_maxhps_combined: number[];
+  readonly api_fParam_combined: number[][];
+
+  readonly api_ship_ke_combined: number[];
+  readonly api_ship_lv_combined: number[];
+  readonly api_e_nowhps_combined: number[];
+  readonly api_e_maxhps_combined: number[];
+  readonly api_eSlot_combined: number[][];
+  readonly api_eParam_combined: number[][];
+}
+
+// friendly battle info
+export interface ApiFriendlyBattle {
+  readonly api_flare_pos: number[];
+  readonly api_hougeki: ApiFriendlyHougeki;
+}
+
+export interface ApiFriendlyHougeki {
+  readonly api_at_eflag: number[];
+  readonly api_at_list: number[];
+  readonly api_n_mother_list: number[];
+  readonly api_df_list: number[][];
+  readonly api_si_list: number[][];
+  readonly api_cl_list: number[][];
+  readonly api_sp_list: number[];
+  readonly api_damage: number[][];
+}
+
+export interface ApiFriendlyInfo {
+  readonly api_production_type: number;
+  readonly api_ship_id: number[];
+  readonly api_ship_lv: number[];
+  readonly api_nowhps: number[];
+  readonly api_maxhps: number[];
+  readonly api_Slot: number[][];
+  readonly api_Param: number[][];
+  readonly api_voice_id: number[];
+  readonly api_voice_p_no: number[];
 }
 
 // night battle
@@ -5666,6 +5726,8 @@ export interface ApiMidnightBattle extends ApiBattleBase {
   readonly api_touch_plane: number[];
   readonly api_flare_pos: number[];
   readonly api_hougeki: ApiHougekiMidnight;
+  readonly api_friendly_info?: ApiFriendlyInfo;
+  readonly api_friendly_battle?: ApiFriendlyBattle;
 }
 
 // night sp battle
@@ -5689,8 +5751,9 @@ export type ApiMiddayBattleType =
   ApiSortieBattle | 
   ApiSortieAirBattle |
   ApiSortieLdAirBattle | 
-  ApiCombinedBattle | 
-  ApiCombinedCombinedBattle;
+  ApiCombinedVsNormalBattle | 
+  ApiNormalVsCombinedBattle | 
+  ApiCombinedVsCombinedBattle;
 
 export type ApiMidnightBattleType = 
   ApiMidnightBattle |
@@ -5728,7 +5791,7 @@ export interface ApiAirBaseAttack {
   readonly api_stage1: ApiStage1;
   readonly api_stage2: ApiStage2;
   readonly api_stage3: ApiStage3;
-  readonly api_stage3_combined: ApiStage3;
+  readonly api_stage3_combined?: ApiStage3;
 }
 
 export interface ApiAirFire {
@@ -6410,19 +6473,19 @@ export class SvData {
           break;
 
         case Api.REQ_COMBINED_BATTLE_BATTLE:
-          this.reqCombinedCombinedBattle(api_data as ApiCombinedCombinedBattle, data);
+          this.reqCombinedCombinedBattle(api_data as ApiCombinedVsNormalBattle, data);
           break;
 
         case Api.REQ_COMBINED_BATTLE_EACH_BATTLE:
-          this.reqCombinedEachBattle(api_data as ApiCombinedCombinedBattle, data);
+          this.reqCombinedEachBattle(api_data as ApiCombinedVsCombinedBattle, data);
           break;
   
         case Api.REQ_COMBINED_BATTLE_EC_BATTLE:
-          this.reqCombinedEcBattle(api_data as ApiCombinedBattle, data);
+          this.reqCombinedEcBattle(api_data as ApiNormalVsCombinedBattle, data);
           break;
 
         case Api.REQ_COMBINED_BATTLE_LD_AIRBATTLE:
-          this.reqCombinedBattleLdAirBattle(api_data as ApiCombinedBattle, data);
+          this.reqCombinedBattleLdAirBattle(api_data as ApiCombinedVsNormalBattle, data);
           break;
   
         case Api.REQ_COMBINED_BATTLE_EC_MIDNIGHT_BATTLE:
@@ -7530,19 +7593,19 @@ export class SvData {
     }
   }
 
-  private reqCombinedCombinedBattle(api_data: ApiCombinedCombinedBattle, json: string): void {
+  private reqCombinedCombinedBattle(api_data: ApiCombinedVsNormalBattle, json: string): void {
     this.pushMiddayBattle(BattleType.combined, api_data, json);
   }
 
-  private reqCombinedEachBattle(api_data: ApiCombinedCombinedBattle, json: string): void {
+  private reqCombinedEachBattle(api_data: ApiCombinedVsCombinedBattle, json: string): void {
     this.pushMiddayBattle(BattleType.combined_each, api_data, json);
   }
   
-  private reqCombinedEcBattle(api_data: ApiCombinedBattle, json: string): void {
+  private reqCombinedEcBattle(api_data: ApiNormalVsCombinedBattle, json: string): void {
     this.pushMiddayBattle(BattleType.combined_ec, api_data, json);
   }
 
-  private reqCombinedBattleLdAirBattle(api_data: ApiCombinedBattle, json: string): void {
+  private reqCombinedBattleLdAirBattle(api_data: ApiCombinedVsNormalBattle, json: string): void {
     this.pushMiddayBattle(BattleType.combined_ld_air, api_data, json);
   }
 

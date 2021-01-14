@@ -17,7 +17,7 @@ import {
   ApiBattle,
   ApiHougeki,
   ApiHougekiMidnight,
-  ApiCombinedBattle,
+  ApiNormalVsCombinedBattle,
   ApiMidnightSpBattle,
   ApiMidnightBattleType,
   ApiMissionClearResult,
@@ -27,8 +27,9 @@ import {
   ApiQuest,
   ApiQuestState,
 } from '@/lib/kcs'
-import moment from 'moment';
-import { questProgressDetailFormat } from '@/lib/kcquest';
+import moment, { now } from 'moment';
+import { isDeckMatch, questProgressDetailFormat } from '@/lib/kcquest';
+import { svdata } from '@/main/svdata';
 
 // port
 export interface PortRecord {
@@ -219,12 +220,12 @@ export const recordDate = (upload: boolean): string => {
 const toRecordMapId = (map: ApiMap): number =>
   map.api_maparea_id * 10 + map.api_mapinfo_no;
 
-const damaged = (hps: number[], damages: number[] | null | undefined): void => {
+const damaged = (hps: number[], damages: number[] | null | undefined, offset: number = 0): void => {
   const hpLen = hps.length;
   damages?.forEach((damage, index) => {
     console.log('index:', index, 'damage:', damage, 'nowhp:', hps[index]);
     if (index < hpLen) {
-      hps[index] -= Math.floor(damage);
+      hps[offset + index] -= Math.floor(damage);
     }
   });
 };
@@ -238,13 +239,13 @@ const hougekiDam = (hps: number[], hougeki: ApiHougeki | ApiHougekiMidnight | un
   console.log('>> hougeki damage info. hps:', hps, 'api_damage:', hougeki.api_damage, 'api_fd_list:', hougeki.api_df_list);
   hougeki.api_at_eflag.forEach((eflag, index) => {
     if (0 === eflag) {
-      const fd_list = hougeki.api_df_list[index];
-      console.log('hougeki index:', index, 'eflags:', eflag, 'fd_list:', fd_list);
+      const df_list = hougeki.api_df_list[index];
+      console.log('hougeki index:', index, 'eflags:', eflag, 'df_list:', df_list);
       const dmg = hougeki.api_damage[index];
-      fd_list?.forEach((fd, fd_index) => {
-        console.log('gamage from, to:', index, fd, 'to hp:', hps[fd] ?? null, 'damage:', dmg?.[fd_index] ?? null);
-        if (fd < hps.length) {
-          hps[fd] -= Math.floor(dmg?.[fd_index] ?? 0);
+      df_list?.forEach((df, df_index) => {
+        console.log('gamage from, to:', index, df, 'to hp:', hps[df] ?? null, 'damage:', dmg?.[df_index] ?? null);
+        if (df < hps.length) {
+          hps[df] -= Math.floor(dmg?.[df_index] ?? 0);
         }
       });
     }
@@ -254,7 +255,9 @@ const hougekiDam = (hps: number[], hougeki: ApiHougeki | ApiHougekiMidnight | un
 
 const calcMiddayDamage = (hps: number[], api_battle: ApiBattle): void => {
 
+  const air_base_attack = api_battle.api_air_base_attack;
   const stage3_edam = api_battle.api_kouku?.api_stage3?.api_edam;
+  const stage3_edam_combined = api_battle.api_kouku?.api_stage3_combined?.api_edam;
   const opening_atack_edam = api_battle.api_opening_atack?.api_edam;
   const opening_taisen_edam = api_battle.api_opening_taisen;
   const support_air_dam = api_battle.api_support_info?.api_support_airatack?.api_stage3.api_edam;
@@ -265,10 +268,32 @@ const calcMiddayDamage = (hps: number[], api_battle: ApiBattle): void => {
   const raigeki_dam = api_battle.api_raigeki?.api_edam;
 
   //
+  air_base_attack?.forEach((attack, index) => {
+    {
+      const edam = attack.api_stage3.api_edam;
+      //console.log('>> air base attack:', index, ' dam:', edam, 'hps:', hps);
+      damaged(hps, edam);
+      //console.log('<< air base attack:', index, ' dam:', edam, 'hps:', hps);
+    }
+
+    {
+      const edam = attack.api_stage3_combined?.api_edam;
+      //console.log('>> air base attack combined:', index, ' dam:', edam, 'hps:', hps);
+      damaged(hps, edam, 6);
+      //console.log('<< air base attack combined:', index, ' dam:', edam, 'hps:', hps);
+    }
+  })
+  
+  //
   //console.log('>> stage3 dam:', stage3_edam, 'hps:', hps);
   damaged(hps, stage3_edam);
   //console.log('<< stage3 dam hps:', hps);
 
+  //
+  //console.log('>> stage3 dam combined:', stage3_edam_combined, 'hps:', hps);
+  damaged(hps, stage3_edam_combined, 6);
+  //console.log('<< stage3 dam combined hps:', hps);
+  
   // 
   //console.log('>> support air dam:', support_air_dam, 'hps:', hps);
   damaged(hps, support_air_dam);
@@ -307,7 +332,7 @@ const calcMiddayDamage = (hps: number[], api_battle: ApiBattle): void => {
   //
   //console.log('>> hougeki3 dam:', hougeki3, 'hps:', hps);
   hougekiDam(hps, hougeki3);
-  //console.log('>> hougeki3 dam:', hougeki3, 'hps:', hps);
+  //console.log('<<  hougeki3 dam:', hougeki3, 'hps:', hps);
 };
 
 const calcMidnightDamage = (hps: number[], midnight: ApiMidnightBattleType): void => {
@@ -321,10 +346,18 @@ const calcMidnightDamage = (hps: number[], midnight: ApiMidnightBattleType): voi
     damaged(hps, support_hourai_dam);
   }
 
+  // friendly
+  if (midnight.api_friendly_battle) {
+    const hougeki = midnight.api_friendly_battle.api_hougeki;
+    console.log('>> midnight hougeki friendly dam:', hougeki, 'hps:', hps);
+    hougekiDam(hps, hougeki);
+    console.log('<< midnight hougeki friendly dam:', hougeki, 'hps:', hps);  
+  }
+
   // 
-  //console.log('>> midnight hougeki dam:', midnight.api_hougeki, 'hps:', hps);
+  console.log('>> midnight hougeki dam:', midnight.api_hougeki, 'hps:', hps);
   hougekiDam(hps, midnight.api_hougeki);
-  //console.log('<< midnight hougeki dam:', midnight.api_hougeki, 'hps:', hps);
+  console.log('<< midnight hougeki dam:', midnight.api_hougeki, 'hps:', hps);
 };
 
 const enemyParam = (arg: PrvBattleInfo): EnemyParam[] => {
@@ -369,19 +402,42 @@ interface EnemyState {
 
 export const calcEnemyHps = (arg: PrvBattleInfo): EnemyState[] => {
 
-  const ship_ke = arg.midday ? arg.midday.api_ship_ke : arg.midnight?.api_ship_ke ?? [];
+  const e_ship_ke = arg.midday ? arg.midday.api_ship_ke : arg.midnight?.api_ship_ke ?? [];
   const e_nowhps = arg.midday ? arg.midday.api_e_nowhps : arg.midnight?.api_e_nowhps ?? [];
+  const ship_ke = e_ship_ke.concat();
   const nowhps = e_nowhps.concat();
+
+  console.log('ship_ke', ship_ke, nowhps);
+
+  const pushCombined = (battle: any): void => {
+    if (Array.isArray(battle.api_ship_ke_combined) &&
+       Array.isArray(battle.api_e_nowhps_combined)) {
+      ship_ke.push(...(battle.api_ship_ke_combined) as number[]);
+      nowhps.push(...(battle.api_e_nowhps_combined) as number[]);
+    }
+  };
+
+  if (arg.midday) {
+    pushCombined(arg.midday as any);
+    console.log('ship_ke2', ship_ke, nowhps);
+  } else if (arg.midnight) {
+    pushCombined(arg.midnight as any);
+    console.log('ship_ke3', ship_ke, nowhps);
+  }
 
   if (KcsUtil.isBattle(arg.midday)) {
     calcMiddayDamage(nowhps, arg.midday as ApiBattle);
+    console.log('ship_ke4', ship_ke, nowhps);
   }
 
   if (arg.midnight) {
     calcMidnightDamage(nowhps, arg.midnight);
+    console.log('ship_ke5', ship_ke, nowhps);
   }
 
-  return ship_ke.map((el, index) => ({ id: el, hp: nowhps[index] ?? 9999 }));
+  const ret = ship_ke.map((el, index) => ({ id: el, hp: nowhps[index] ?? 9999 }));
+  console.log('calc enemy hps', ret);
+  return ret;
 };
 
 /*
@@ -622,8 +678,8 @@ export class RecordUtil {
       ship_id = -2;
     }
     let enemyShips2 = undefined;
-    if (KcsUtil.isCombinedBattle(info.midday)) {
-      enemyShips2 = (info.midday as ApiCombinedBattle).api_ship_ke_combined;
+    if (KcsUtil.isEnemyCombined(info.midday)) {
+      enemyShips2 = (info.midday as any).api_ship_ke_combined;
     }
 
     const mst_ship = svdata.mstShip(ship_id);
@@ -930,3 +986,6 @@ export const questProgressDetail = (quest: Quest): string => {
   return questProgressDetailFormat(quest);
 }
 
+export const questIsDeckMatch = (svdata: SvData, quest: Quest): boolean | undefined => {
+  return isDeckMatch(svdata, quest);
+}
