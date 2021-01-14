@@ -16,7 +16,7 @@
           <template slot="header">
             {{deck.name}}
             <MissionBadge v-if="deck.inMission" :deck="deck.deck" />
-            <div v-else-if="deck.seiku>0" class="seiku-wrapper ml-1">
+            <div v-else-if="deck.seiku>0" title="制空値" class="seiku-wrapper ml-1">
               <div class="seiku">
                 <span class="s-icon seiku"></span>
                 <div class="txt">{{deck.seiku}}</div>
