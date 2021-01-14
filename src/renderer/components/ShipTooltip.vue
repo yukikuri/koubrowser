@@ -27,7 +27,7 @@
     </div>
     <hr class="hr">
     <div class="slot" v-for="(slot, index) in slots" :key="index">
-      <span class="slot-onslot">{{slotOnSlotText(slot, index)}}</span>
+      <span class="slot-onslot mr-1">{{slotOnSlotText(slot, index)}}</span>
       <span class="slot-img"><img v-if="slot!==undefined" :src="slotTypeImg(slot)"></span>
       <span class="slot-text" v-if="slot!==undefined">{{slot.mst.api_name}} 
         <img v-if="!!slot.api.api_alv" class="slot-alv-img" :src="slotAlvImg(slot)">
@@ -44,6 +44,7 @@ import { MathUtil } from '@/lib/math';
 import { RUtil } from '@/renderer/util';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { SokuText, SyateiText } from '@/lib/locale';
+import { max } from 'moment';
 
 const remodelText = (slots: Slot[], func: (mst: MstSlotitem, level: number) => number): string => {
   const add = slots.reduce((acc, slot) => {
@@ -197,11 +198,16 @@ export default class extends Vue {
 
   private slotOnSlotText(slot: Slot, index: number): string {
     if (this.tousai === 0) {
-      return '';
+      return ''; 
     }
+    const shipInfo = this.shipInfo;
     const onslot = this.api.api_onslot[index] ?? -1;
-    if (onslot >= 0) {
-      return onslot.toString();
+    const maxslot = shipInfo.onslotMax[index] ?? -1;
+    if (onslot >= 0 && maxslot > -1) {
+      return `${onslot}/${maxslot}`; 
+    }
+    if (onslot > 0) {
+      return `${onslot}`; 
     }
     return '';
   }

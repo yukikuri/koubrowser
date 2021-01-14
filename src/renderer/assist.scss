@@ -2084,9 +2084,12 @@ $tkbar-width: 445px;//$assist-width - $tkbar-title-width;
   }
 
   .slot-onslot {
-    display: inline-block;
-    width: 18px;
-    vertical-align: middle;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    //height: 26px;
+    width: 36px;
+    //vertical-align: middle;
   }
 
   .slot-alv-img {
