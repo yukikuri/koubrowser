@@ -475,7 +475,7 @@ const enemyParamCombined = (arg: PrvBattleInfo): EnemyParam[] => {
 };
 */
 
-const orign = 'koubrowser/0.0.1' as const;
+const orign = 'koubrowser/0.0.2' as const;
 const ApiItemIdsAdd = Object.entries(ApiItemId).map(ids => ids[1]).
   filter((id =>
     (id !== ApiItemId.fast_repair) &&
