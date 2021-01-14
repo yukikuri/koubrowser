@@ -14,7 +14,14 @@
       <b-tabs size="is-small" expanded class="deck-tabs" v-model="index">
         <b-tab-item v-for="(deck, idx) in decks" :key="idx">
           <template slot="header">
-            {{deck.name}}<MissionBadge v-if="deck.inMission" :deck="deck.deck" />
+            {{deck.name}}
+            <MissionBadge v-if="deck.inMission" :deck="deck.deck" />
+            <div v-else-if="deck.seiku>0" class="seiku-wrapper ml-1">
+              <div class="seiku">
+                <span class="s-icon seiku"></span>
+                <div class="txt">{{deck.seiku}}</div>
+              </div>
+            </div>
           </template>
           <div class="deckport">
             <deck v-if="idx===index" :show_rate="show_rate" :deck="deck.deck" 

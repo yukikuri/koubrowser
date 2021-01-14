@@ -3,9 +3,7 @@ import {
   KcsUtil, 
   ApiShip, 
   ApiSoku, 
-  MstShipBase, 
   MapAreaId, 
-  InvalidMstShipBase, 
   ApiDeckPort, 
   MissionState, 
   ShipHpState, 
@@ -25,6 +23,7 @@ export interface DeckInfo {
   name: string;
   deck: ApiDeckPort;
   inMission: boolean;
+  seiku: number;
 }
 
 export interface EnemyInfo {
@@ -269,6 +268,7 @@ export class RUtil {
       name: DeckNames[index],
       deck: deckport,
       inMission: [MissionState.in as number, MissionState.completed].includes(deckport.api_mission[0]),
+      seiku: svdata.deckSeiku(deckport),
     }));
   }
 
