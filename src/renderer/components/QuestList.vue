@@ -18,7 +18,11 @@
         <span class="quest-category" :class="quest.categoryClass">{{quest.categoryText}}</span>
         <span class="quest-type" :class="quest.typeClass">{{quest.typeText}}</span>
         <span class="quest-progress" :class="{'is-completed': quest.completed}">{{quest.progressText}}</span>
-        <span class="quest-title"><span v-if="quest.is_special" class="quest-category is-syutugeki is-special">限定</span><span class="ml-1">{{quest.record.quest.api_title}}</span></span><!--<span v-if="quest.progressDetail">( {{quest.progressDetail}} )</span>-->
+        <span class="quest-title">
+          <span v-if="quest.is_special" class="quest-category is-special pl-1 pr-1">限定</span>
+          <span class="quest-category is-senka pl-1 pr-1" v-if="quest.senka>0">戦果{{quest.senka}}</span>
+          <span class="ml-1">{{quest.record.quest.api_title}}</span>
+        </span><!--<span v-if="quest.progressDetail">( {{quest.progressDetail}} )</span>-->
         <b-progress format="percent" :max="100" show-value0 class="quest-bar is-radiusless">
           <b-progress-bar v-for="(state, state_index) in quest.states" :key="state_index" 
             slot="bar" :value="state.percent" :class="state.className"></b-progress-bar>
@@ -56,6 +60,7 @@ interface QuestContent {
   typeText: string;
   progressDetail: string;
   deckOk: boolean | undefined;
+  senka: number;
   is_special: boolean;
   tipDetail: string;
   record: Quest;
@@ -71,17 +76,12 @@ interface QuestState {
 }
 const progressClasses = [
   'is-success',
-  'is-info',
-  'is-warning',
-  'is-danger',
-  'is-dark',
+  'is-success',// 'is-info',
+  'is-success',//'is-warning',
+  'is-success',//'is-danger',
+  'is-success',// 'is-dark',
   //'is-info',
 ] as const;
-
-// 期間限定クエストか判定
-const isSpecial = (quest: Quest): boolean => {
-  return [329,840,841,843,441,].includes(quest.no);
-};
 
 const questStates = (quest: Quest, countTotal: number, countTotalMax: number): QuestState[] => {
   if (quest.state === null) {
@@ -181,7 +181,8 @@ private mounted(): void {
         tipDetail: el.quest.api_detail.replace(/<br>/g, ''),
         progressDetail,
         deckOk,
-        is_special: isSpecial(el),
+        senka: KcsUtil.questSenka(el.no),
+        is_special: KcsUtil.questIsSpecial(el.no),
         countTotal,
         countTotalMax,
         states: questStates(el, countTotal, countTotalMax),

@@ -3869,43 +3869,34 @@ export class KcsUtil {
     }
     return [0, 50, 80][quest.api_progress_flag] ?? 0;
   }
-}
 
-/*
-export interface EShipStatus {
-  readonly api_id: number;
-  readonly api_lv: number; // lv
-  readonly api_taik: number; // 耐久
-  readonly api_souk: number; // 装甲
-  readonly api_houg: number; // 火力
-  readonly api_raig: number; // 雷撃
-  readonly api_tyku: number; // 対空
-  readonly api_kaih: number; // 回避
-  readonly api_luck: number; // 運
-  readonly api_leng: ApiRange; // 射程
-  readonly api_slot: number[]; // 装備スロット
-  readonly api_onslot: number[]; // 搭載機
-  readonly api_aa: number; // 制空値
-}
+  /**
+   * 期間限定クエストか判定
+   * @param quest_no 
+   */
+  public static questIsSpecial(quest_no: number): boolean {
+    return [329,840,841,843,441,].includes(quest_no);
+  }
 
-export const InvalidEShipStatus = (): EShipStatus => {
-  return {
-    api_id: 0,
-    api_lv: NaN,
-    api_taik: NaN,
-    api_souk: NaN,
-    api_houg: NaN,
-    api_raig: NaN,
-    api_tyku: NaN,
-    api_kaih: NaN,
-    api_luck: NaN,
-    api_leng: ApiRange.invalid,
-    api_slot: [],
-    api_onslot: [],
-    api_aa: NaN,
-  };
-};
-*/
+  /**
+   * 戦果
+   * @param id 
+   */
+  public static questSenka(id: number): number {
+    const m: {[key: number]: number} = {
+      284: 80, // 南西諸島方面「海上警備行動」発令！
+      843: 203, // 【節分拡張任務】令和三年節分作戦、全力出撃！
+      845: 330, // 発令！「西方海域作戦」
+      854: 350, // 戦果拡張任務！「Z作戦」前段作戦
+      872: 400, // 戦果拡張任務！「Z作戦」後段作戦
+      888: 200, // 新編成「三川艦隊」、鉄底海峡に突入せよ！
+      893: 300, // 泊地周辺海域の安全確保を徹底せよ！
+      903: 390, // 拡張「六水戦」、最前線へ！
+    };
+    return m[id] ?? 0;
+  }
+
+}
 
 export interface MstShipBase {
   readonly api_id: number;

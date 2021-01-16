@@ -2518,9 +2518,17 @@ $eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
     }
 
     &.is-special {
-      min-width: 30px;
+      background-color: #DC5856;
+      width: min-content;
       border-left: 0;
     }
+
+    &.is-senka {
+      background-color: #DC5856;
+      width: min-content;
+      border-left: 0;
+    }
+
   }
 
   .quest-type {
