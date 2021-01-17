@@ -777,6 +777,11 @@ abstract class QuestBattleMapDeck extends QuestBattleMap {
 
   onBattle(result: PrvBattleInfo): void {
       
+    // boss battle?
+    if (result.map.api_event_id !== ApiEventId.bossBattle) {
+      return ;
+    }
+
     const index = matchMap(this.area_and_rank, result.map, result.result?.api_win_rank);
     if (-1 === index) {
       return ;
