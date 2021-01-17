@@ -2,7 +2,7 @@
   <div class="deck">
     <section class="deck-ship-imgs" @mouseleave="shipMouseLeave">
       <span class="ship-container" @mouseenter="shipMouseEnter" :data-ship-id="ship.ship.api.api_id"
-        v-for="(ship, index) in ships" :key="index"
+        v-for="(ship, index) in shipsData" :key="index"
       >
         <!-- todo: load image error draw ship name -->
         <img class="banner" :src="ship.banner_img" />
@@ -24,7 +24,7 @@
 
     <section class="deck-map">
       <b-table
-        :data="ships"
+        :data="shipsRow"
         :bordered="false"
         :striped="false"
         :narrowed="false"
@@ -32,65 +32,89 @@
         :mobile-cards="false"
         >
         <b-table-column v-slot="props" label="name" centered cell-class="cell-name">
-          <div :class="props.row.hpClassTT">
+          <div v-if="props.row!==null" :class="props.row.hpClassTT">
             <div class="stype">{{props.row.stype}}</div>
             <div class="name">{{props.row.ship.mst.api_name}}</div>
           </div>
+          <div v-else class="ship-empty">
+          </div>
         </b-table-column>
         <b-table-column v-slot="props" label="Lv" centered cell-class="cell-status small">
-          <div class="lv">Lv</div>
-          <div><span :class="{ 'state-plus': props.row.ship.api.api_lv >= 100 }">{{props.row.ship.api.api_lv}}</span></div>
+          <div v-if="props.row!==null">
+            <div class="lv">Lv</div>
+            <div>
+              <span :class="{ 'state-plus': props.row.ship.api.api_lv >= 100 }">{{props.row.ship.api.api_lv}}</span>
+            </div>
+          </div>
         </b-table-column>
         <b-table-column v-slot="props" label="hp" centered cell-class="cell-status small">
-          <div class="s-icon heart-a2" title="耐久"></div>
-          <div>
-            <span :class="props.row.hpClass">{{props.row.ship.api.api_nowhp}}</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon heart-a2" title="耐久"></div>
+            <div>
+              <span :class="props.row.hpClass">{{props.row.ship.api.api_nowhp}}</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="cond" centered cell-class="cell-status small">
-          <div class="s-icon cond" :class="props.row.condClass" title="コンディション"></div>
-          <div>
-            <span :class="props.row.condClass">{{props.row.ship.api.api_cond}}</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon cond" :class="props.row.condClass" title="コンディション"></div>
+            <div>
+              <span :class="props.row.condClass">{{props.row.ship.api.api_cond}}</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="fual" centered cell-class="cell-status large0">
-          <div class="s-icon fuel" title="燃料"></div>
-          <div :class="props.row.fualClass">
-            <span>{{props.row.fual_per}}%</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon fuel" title="燃料"></div>
+            <div :class="props.row.fualClass">
+              <span>{{props.row.fual_per}}%</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="bull" centered cell-class="cell-status large0">
-          <div class="s-icon bull" title="弾薬"></div>
-          <div :class="props.row.bullClass">
-            <span>{{props.row.bull_per}}%</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon bull" title="弾薬"></div>
+            <div :class="props.row.bullClass">
+              <span>{{props.row.bull_per}}%</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="speed" centered cell-class="cell-status large1">
-          <div class="s-icon speed" title="速力"></div>
-          <div>
-            <span :class="props.row.sokuClass">{{props.row.soku_text}}</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon speed" title="速力"></div>
+            <div>
+              <span :class="props.row.sokuClass">{{props.row.soku_text}}</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="range" centered cell-class="cell-status large1">
-          <div class="s-icon range" title="射程"></div>
-          <div>
-            <span :class="props.row.syateiClass">{{props.row.syatei_text}}</span>
+          <div v-if="props.row!==null">
+            <div class="s-icon range" title="射程"></div>
+            <div>
+              <span :class="props.row.syateiClass">{{props.row.syatei_text}}</span>
+            </div>
           </div>
         </b-table-column>
         <b-table-column v-slot="props" label="hit" centered cell-class="cell-status large0">
-          <div class="s-icon hit" title="命中項"></div>
-          <div :class="props.row.hitClass">{{props.row.hit}}%</div>
+          <div v-if="props.row!==null">
+            <div class="s-icon hit" title="命中項"></div>
+            <div :class="props.row.hitClass">{{props.row.hit}}%</div>
+          </div>
         </b-table-column>
         <b-table-column v-slot="props" label="ev" centered cell-class="cell-status large0">
-          <div class="s-icon ev" title="回避項"></div>
-          <div :class="props.row.evClass">{{props.row.ev}}%</div>
+          <div v-if="props.row!==null">
+            <div class="s-icon ev" title="回避項"></div>
+            <div :class="props.row.evClass">{{props.row.ev}}%</div>
+          </div>
         </b-table-column>
         <b-table-column v-slot="props" label="boku" cell-class="cell-status large_aa">
-          <div class="s-icon aa" title="撃墜 割合/固定"></div>
-          {{props.row.boku_text}}
+          <div v-if="props.row!==null">
+            <div class="s-icon aa" title="撃墜 割合/固定"></div>
+            <div class="status-txt">{{props.row.boku_text}}</div>
+          </div>
         </b-table-column>
         <b-table-column v-slot="props" label="slot" cell-class="cell-sps">
-          <div class="sp-content" v-html="props.row.sp_html"></div>
+          <div v-if="props.row!==null" class="sp-content" v-html="props.row.sp_html"></div>
         </b-table-column>
       </b-table>
     </section>
@@ -232,7 +256,7 @@ export default class extends Vue {
     }
     const shipId = parseInt(this.tkHoverShipId);
     const tk: TKCutin = parseInt(this.tkHoverTk) as TKCutin;
-    const ship = this.ships.find((s) => s.ship.api.api_id === shipId);
+    const ship = this.shipsData.find((s) => s.ship.api.api_id === shipId);
     if (! ship || ! tk) {
       return '';
     }
@@ -363,7 +387,7 @@ export default class extends Vue {
   }
 
   private get deckKTBText() {
-    return KcsUtil.shipsSeiku(this.ships.map((ship) => ship.ship));
+    return KcsUtil.shipsSeiku(this.shipsData.map((ship) => ship.ship));
   }
 
   private tkbarType(index: number): string {
@@ -379,7 +403,7 @@ export default class extends Vue {
     return svdata.shipInfoSps(this.deck.api_ship);
   }
 
-  private get ships(): DeckShip[] {
+  private get shipsData(): DeckShip[] {
     console.log('deck v2 ships called');
     const sps = this.shipSps;
     const ret = sps.map((ship, index) => {
@@ -410,9 +434,18 @@ export default class extends Vue {
     });
     return ret;
   }
-    
+
+  private get shipsRow(): DeckShip[] {
+    const rows = this.shipsData.concat();
+    if (rows.length < 6) {
+      rows.push(...new Array(6-rows.length).fill(null));
+    }
+    return rows;
+  }
+
+
   private deckSeiku(): number {
-    return KcsUtil.shipsSeiku(this.ships.map((ship) => ship.ship));
+    return KcsUtil.shipsSeiku(this.shipsData.map((ship) => ship.ship));
   }
 
   private seiku(ship: ShipInfo): number {

@@ -1377,6 +1377,7 @@ body {
 .deck-ship-imgs {
   line-height: 0;
   max-width: $ship-img-width * 3;
+  height: $ship-img-height * 2;
   .tooltip-content {
     width: unset;
     background: $tooltip-bkcolor !important;
@@ -1817,6 +1818,10 @@ $tkbar-width: 445px;//$assist-width - $tkbar-title-width;
     white-space: nowrap;
   }
 
+  .ship-empty {
+    height: 30px;
+  }
+
   .cell-status {
     width: 26px;
 
@@ -1826,6 +1831,14 @@ $tkbar-width: 445px;//$assist-width - $tkbar-title-width;
       justify-content: center;
       align-items: center;
     }
+
+    .status-txt {
+      width: 100%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     
     &.small {
       width: 22px;
