@@ -12,6 +12,7 @@ import {
   NewWindowEvent,
   BrowserWindowConstructorOptions,
   Referrer,
+  app,
 } from 'electron'
 import * as fs from 'fs';
 import { svdata } from '@/main/svdata';
@@ -620,7 +621,7 @@ export class KcApp {
    * 
    */
   private onChannelGetVersion(): string {
-    return process.env['npm_package_version'] ?? '';
+    return app.getVersion();
   }
 
   /**
