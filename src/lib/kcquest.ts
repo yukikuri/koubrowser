@@ -1589,7 +1589,7 @@ class Quest264 extends QuestBattleMapDeck {
       return false;
     }
 
-    const kutiku = shipTypeCount(ships, [ApiShipType.kei_kuubo, ApiShipType.seiki_kuubo, ApiShipType.soukou_kuubo]);
+    const kutiku = shipTypeCount(ships, [ApiShipType.kutikukan]);
     if (2 > kutiku) {
       return false;
     }
