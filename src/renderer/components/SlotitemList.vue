@@ -49,6 +49,7 @@
       <b-button @click="ctgl(45)" :outlined="!iscon(45)" :type="cclr(45)"  size="is-small">{{ctxt(45)}}</b-button>
       <b-button @click="ctgl(46)" :outlined="!iscon(46)" :type="cclr(46)"  size="is-small">{{ctxt(46)}}</b-button>
       <b-button @click="ctgl(47)" :outlined="!iscon(47)" :type="cclr(47)"  size="is-small">{{ctxt(47)}}</b-button>
+      <b-button @click="ctgl(48)" :outlined="!iscon(48)" :type="cclr(48)"  size="is-small">{{ctxt(48)}}</b-button>
     </div>
     <div class="list-content">
       count: {{slotitems.length}}
@@ -151,6 +152,7 @@ export default class SlotitemList extends Vue {
     new Cat(49, '陸上偵察機'),
     //new Cat(50, '輸送機材'),
     new Cat(51, '潜水艦装備'),
+    new Cat(53, '大型陸上機'),
     //new Cat(56, '噴式戦闘機'),
     new Cat(57, '噴式戦闘爆撃機'),
   ];

@@ -382,6 +382,7 @@ export const SlotitemType = {
   LandRecAircraft: 49, // 陸上偵察機
   TransMaterial: 50, // 輸送機材
   SubmarineEquipment: 51, // 潜水艦装備
+  LargeLandPlane: 53, // 大型陸上機
   JetFighter: 56, // 噴式戦闘機
   JetFighterBomber: 57, //噴式戦闘爆撃機
 } as const;
