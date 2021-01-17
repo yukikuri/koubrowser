@@ -55,6 +55,7 @@ export const MainChannel = {
   get_airbase_spots: 'get_airbase_spots',
   set_airbase_spots: 'set_airbase_spots',
   open_url_by_external: 'open_url_by_external',
+  get_version: 'get_version',
 } as const;
 export type MainChannel = Unpacked<typeof MainChannel>;
 

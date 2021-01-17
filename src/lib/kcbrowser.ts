@@ -180,6 +180,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.get_airbase_spots, async(event, area_id, area_no) => this.onChannelGetAirbaseSpots(area_id, area_no));
     ipcMain.handle(MainChannel.set_airbase_spots, async(event, arg) => this.onChannelSetAirbaseSpots(arg));
     ipcMain.handle(MainChannel.open_url_by_external, async(event, url) => this.onChannelOpenUrlByExternal(url));
+    ipcMain.handle(MainChannel.get_version, () => this.onChannelGetVersion());
     powerMonitor.on('resume', () => this.onPowerResume());
     this.cbBasicFirst = ApiCallback.set([Api.GET_MEMBER_REQUIRE_INFO, () => this.onRequireInfo()]);  
   
@@ -613,6 +614,13 @@ export class KcApp {
    */
   private onChannelOpenUrlByExternal(url: string): void {
     shell.openExternal(url);
+  }
+
+  /**
+   * 
+   */
+  private onChannelGetVersion(): string {
+    return process.env['npm_package_version'] ?? '';
   }
 
   /**
