@@ -819,7 +819,7 @@ abstract class QuestBattleMapDeck extends QuestBattleMap {
   } 
 }
 
-const isShipIds = (ship_id: number, mst_ship_ids: number[]): boolean => {
+const isShipIds = (svdata: SvData, ship_id: number, mst_ship_ids: number[]): boolean => {
   const mst = svdata.mstShipFrom(ship_id);
   if (mst) {
     return mst_ship_ids.includes(mst.api_id)
@@ -827,7 +827,7 @@ const isShipIds = (ship_id: number, mst_ship_ids: number[]): boolean => {
   return false;
 };
 
-const isShipType = (ship_id: number, types: ApiShipType[]): boolean => {
+const isShipType = (svdata: SvData, ship_id: number, types: ApiShipType[]): boolean => {
   const mst = svdata.mstShipFrom(ship_id);
   if (mst) {
     return types.includes(mst.api_stype)
@@ -835,15 +835,7 @@ const isShipType = (ship_id: number, types: ApiShipType[]): boolean => {
   return false;
 };
 
-const isShipTypeS = (svdata: SvData, ship_id: number, types: ApiShipType[]): boolean => {
-  const mst = svdata.mstShipFrom(ship_id);
-  if (mst) {
-    return types.includes(mst.api_stype)
-  }
-  return false;
-};
-
-const isDeckShipTypeS = (svdata: SvData, ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
+const isDeckShipType = (svdata: SvData, ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
 
   const counts = ship_ids?.reduce<number[]>((acc, ship_id) => {
     const mst = svdata.mstShipFrom(ship_id);
@@ -872,16 +864,12 @@ const isDeckShipTypeS = (svdata: SvData, ship_ids: number[] | undefined, ship_ty
   return true;
 };
 
-const isDeckShipType = (ship_ids: number[] | undefined, ship_types: ShipCond[]): boolean => {
-  return isDeckShipTypeS(svdata, ship_ids, ship_types);
-};
-
 interface ShipMst {
   readonly api: ApiShip;
   readonly mst: MstShip;
 }
 
-const toShipMsts = (ship_ids: number[]) : ShipMst[] => {
+const toShipMsts = (svdata: SvData, ship_ids: number[]) : ShipMst[] => {
   return ship_ids.reduce<ShipMst[]>((acc, ship_id) => {
     const api = svdata.ship(ship_id);
     let mst = undefined;
@@ -894,21 +882,6 @@ const toShipMsts = (ship_ids: number[]) : ShipMst[] => {
     return acc;
   }, []);
 };
-
-const toShipMstsS = (svdata: SvData, ship_ids: number[]) : ShipMst[] => {
-  return ship_ids.reduce<ShipMst[]>((acc, ship_id) => {
-    const api = svdata.ship(ship_id);
-    let mst = undefined;
-    if (api) {
-      mst = svdata.mstShip(api.api_ship_id);
-      if (mst) {
-        acc.push({api, mst});
-      }
-    }
-    return acc;
-  }, []);
-};
-
 
 const shipCount = (ships: ShipMst[], mst_ship_ids: number[]): number => {
   return ships.reduce((acc, ship) => {
@@ -918,7 +891,6 @@ const shipCount = (ships: ShipMst[], mst_ship_ids: number[]): number => {
     return acc;
   }, 0);
 };
-
 
 const shipTypeCount = (ships: ShipMst[], ship_types: ApiShipType[]): number => {
   return ships.reduce((acc, ship) => {
@@ -1158,7 +1130,7 @@ abstract class QuestDestroyItem extends QuestAnyCounter {
       return false;
     }
 
-    if (! isShipIds(deck.api_ship[0], this.flagship_ids)) {
+    if (! isShipIds(svdata, deck.api_ship[0], this.flagship_ids)) {
       return false;
     }
 
@@ -1499,18 +1471,20 @@ factories[243] = {
 class Quest249 extends QuestBattleMapDeck {
   max = [1];
   area_and_rank: QuestMap[] = [ [ 2, 5, 'S' ] ];
-  isDeckMatch = ((ship_ids: number[]) => {
+  isDeckMatch = (ship_ids: number[]) => Quest249.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
     const check_ids = [ 
       svdata.shipMstIds(62), 
       svdata.shipMstIds(63), 
       svdata.shipMstIds(65), 
      ].flat();
-    return 3 === shipCount(toShipMsts(ship_ids), check_ids);
-  });
+    return 3 === shipCount(toShipMsts(svdata, ship_ids), check_ids);
+  }
 }
 factories[249] = {
   creator: (p: UpdaterCtorParam) => new Quest249(p),
   formatter: (quest: Quest): string => detailFormat(['第五戦隊 2-5 S勝利: '], quest),
+  isDeckMatch: (svdata, ship_ids): boolean => Quest249.isDeckMatchS(svdata, ship_ids),
 };
 
 // 256:	「潜水艦隊」出撃せよ！
@@ -1527,12 +1501,13 @@ factories[256] = {
 class Quest257 extends QuestBattleMapDeck {
   max = [1];
   area_and_rank: QuestMap[] = [ [ 1, 4, 'S' ] ];
-  isDeckMatch = (ship_ids: number[]) => {
-    if (! isShipType(ship_ids[0], [ApiShipType.keijyun])) {
+  isDeckMatch = (ship_ids: number[]) => Quest257.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (! isShipType(svdata, ship_ids[0], [ApiShipType.keijyun])) {
       return false;
     }
 
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     const kutiku = shipTypeCount(ships, [ApiShipType.kutikukan]);
     const keijyun = shipTypeCount(ships, [ApiShipType.keijyun]);
     if ((kutiku + keijyun) != 6) {
@@ -1542,20 +1517,22 @@ class Quest257 extends QuestBattleMapDeck {
       return false;
     }
     return true;
-  };
+  }
 }
 factories[257] = {
   creator: (p: UpdaterCtorParam) => new Quest257(p),
   formatter: (quest: Quest): string => detailFormat(['1-4 S勝利: '], quest),
+  isDeckMatch: (svdata, ship_ids) => Quest257.isDeckMatchS(svdata, ship_ids),
 };
 
 // 259:「水上打撃部隊」南方へ！
 class Quest259 extends QuestBattleMapDeck {
   max = [1];
   area_and_rank: QuestMap[] = [ [ 5, 1, 'S' ] ];
-  isDeckMatch = (ship_ids: number[]) => {
+  isDeckMatch = (ship_ids: number[]) => Quest259.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
 
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     const keijyun = shipTypeCount(ships, [ApiShipType.keijyun]);
     if (keijyun < 1) {
       return false;
@@ -1576,11 +1553,12 @@ class Quest259 extends QuestBattleMapDeck {
       return false;
     }
     return true;
-  };
+  }
 }
 factories[259] = {
   creator: (p: UpdaterCtorParam) => new Quest259(p),
   formatter: (quest: Quest): string => detailFormat(['5-1 S勝利: '], quest),
+  isDeckMatch: (svdata, ship_ids) => Quest259.isDeckMatchS(svdata, ship_ids),
 };
 
 // 261:	海上輸送路の安全確保に努めよ！
@@ -1597,18 +1575,27 @@ factories[261] = {
 class Quest264 extends QuestBattleMapDeck {
   max = [1];
   area_and_rank: QuestMap[] = [ [ 4, 2, 'S' ] ];
-  ship_conds: ShipCond[] = [ 
-    [ (mst: MstShip): boolean => 
-      mst.api_stype === ApiShipType.kei_kuubo || 
-      mst.api_stype === ApiShipType.seiki_kuubo || 
-      mst.api_stype === ApiShipType.soukou_kuubo, 2, false],
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kutikukan, 2, false] 
- ];
- isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+  isDeckMatch = (ship_ids: number[]) => Quest264.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+
+    const ships = toShipMsts(svdata, ship_ids);
+    const kuubo = shipTypeCount(ships, [ApiShipType.kei_kuubo, ApiShipType.seiki_kuubo, ApiShipType.soukou_kuubo]);
+    if (2 > kuubo) {
+      return false;
+    }
+
+    const kutiku = shipTypeCount(ships, [ApiShipType.kei_kuubo, ApiShipType.seiki_kuubo, ApiShipType.soukou_kuubo]);
+    if (2 > kutiku) {
+      return false;
+    }
+
+    return true;
+  }
 }
 factories[264] = {
   creator: (p: UpdaterCtorParam) => new Quest264(p),
   formatter: (quest: Quest): string => detailFormat(['4-2 S勝利: '], quest),
+  isDeckMatch: (svdata, ship_ids) => Quest264.isDeckMatchS(svdata, ship_ids),
 };
 
 // 265:	海上護衛強化月間
@@ -1625,12 +1612,13 @@ factories[265] = {
 class Quest266 extends QuestBattleMapDeck {
   max = [1];
   area_and_rank: QuestMap[] = [[2, 5, 'S']];
-  isDeckMatch = ((ship_ids: number[]) => {
-    if (!isShipType(ship_ids[0], [ApiShipType.kutikukan])) {
+  isDeckMatch = (ship_ids: number[]) => Quest266.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (!isShipType(svdata, ship_ids[0], [ApiShipType.kutikukan])) {
       return false;
     }
 
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     if (1 !== shipTypeCount(ships, [ApiShipType.keijyun])) {
       return false;
     }
@@ -1643,11 +1631,12 @@ class Quest266 extends QuestBattleMapDeck {
       return false;
     }
     return true;
-  });
+  }
 }
 factories[266] = {
   creator: (p: UpdaterCtorParam) => new Quest266(p),
   formatter: (quest: Quest): string => detailFormatOne(['2-5S:'], quest),
+  isDeckMatch: Quest266.isDeckMatchS,
 };
 
 // 280: 兵站線確保！海上警備を強化実施せよ！
@@ -1658,7 +1647,7 @@ class Quest280 extends QuestBattleMapDeck {
     [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kei_kuubo || mst.api_stype === ApiShipType.keijyun, 1, false],
     [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kutikukan || mst.api_stype === ApiShipType.kaiboukan, 3, false] 
  ];
- isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+ isDeckMatch = (ship_ids: number[]) => isDeckShipType(svdata, ship_ids, this.ship_conds);
 }
 factories[280] = {
   creator: (p: UpdaterCtorParam) => new Quest280(p),
@@ -1673,7 +1662,7 @@ class Quest284 extends QuestBattleMapDeck {
     [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kei_kuubo || mst.api_stype === ApiShipType.keijyun, 1, false],
     [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kutikukan || mst.api_stype === ApiShipType.kaiboukan, 3, false] 
  ];
- isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+ isDeckMatch = (ship_ids: number[]) => isDeckShipType(svdata, ship_ids, this.ship_conds);
 }
 factories[284] = {
   creator: (p: UpdaterCtorParam) => new Quest284(p),
@@ -1739,7 +1728,7 @@ class Quest329 extends QuestPractice {
   need_win_rank = 'S';
   isDeckMatch = (ship_ids: number[]) => Quest329.isDeckMatchS(svdata, ship_ids);
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
-    const ships = toShipMstsS(svdata, ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     if (2 <= shipTypeCount(ships, [ApiShipType.kaiboukan])) {
       return true;
     }
@@ -1752,24 +1741,29 @@ class Quest329 extends QuestPractice {
 factories[329] = {
   creator: (p: UpdaterCtorParam) => new Quest329(p),
   formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
-  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest329.isDeckMatchS(svdata, ship_ids),
+  isDeckMatch: Quest329.isDeckMatchS,
 };
 
 // 330:	空母機動部隊、演習始め！
 class Quest330 extends QuestPracticeDeck {
   max = [4];
   need_win_rank = 'B';
-  ship_conds: ShipCond[] = [ 
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.seiki_kuubo || mst.api_stype === ApiShipType.kei_kuubo || mst.api_stype === ApiShipType.soukou_kuubo, 2, false],
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kutikukan, 2, false ]
-  ];
+  isDeckMatch = (ship_ids: number[]) => Quest330.isDeckMatchS(svdata, ship_ids);
 
-  isDeckMatch = (ship_ids: number[]) => {
-    if (! isShipType(ship_ids[0], [ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo])) {
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    if (! isShipType(svdata, ship_ids[0], [ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo])) {
       return false;
     }
-    return isDeckShipType(ship_ids, this.ship_conds);
-  };
+
+    const ships = toShipMsts(svdata, ship_ids);
+    if (2 > shipTypeCount(ships, [ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo])) {
+      return false;
+    }
+    if (2 > shipTypeCount(ships, [ApiShipType.kutikukan])) {
+      return false;
+    }
+    return true;
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1778,15 +1772,17 @@ class Quest330 extends QuestPracticeDeck {
 factories[330] = {
   creator: (p: UpdaterCtorParam) => new Quest330(p),
   formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+  isDeckMatch: Quest330.isDeckMatchS,
 };
 
 // 337:	「十八駆」演習！
 class Quest337 extends QuestPracticeDeck {
   max = [3];
   need_win_rank = 'S';
+  isDeckMatch = (ship_ids: number[]) => Quest337.isDeckMatchS(svdata, ship_ids);
 
-  isDeckMatch = (ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [
       svdata.shipMstIds(49),      
       svdata.shipMstIds(48),
@@ -1794,7 +1790,7 @@ class Quest337 extends QuestPracticeDeck {
       svdata.shipMstIds(18),
     ].flat();
     return 4 === shipCount(ships, check_ids);
-  };
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1803,6 +1799,7 @@ class Quest337 extends QuestPracticeDeck {
 factories[337] = {
   creator: (p: UpdaterCtorParam) => new Quest337(p),
   formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+  isDeckMatch: Quest337.isDeckMatchS,
 };
 
 // 339:	「十九駆」演習！
@@ -1810,8 +1807,9 @@ class Quest339 extends QuestPracticeDeck {
   max = [3];
   need_win_rank = 'S';
 
-  isDeckMatch = (ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  isDeckMatch = (ship_ids: number[]) => Quest339.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [
       svdata.shipMstIds(12),
       svdata.shipMstIds(486),
@@ -1819,7 +1817,7 @@ class Quest339 extends QuestPracticeDeck {
       svdata.shipMstIds(14),
     ].flat();
     return 4 === shipCount(ships, check_ids);
-  };
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1828,15 +1826,17 @@ class Quest339 extends QuestPracticeDeck {
 factories[339] = {
   creator: (p: UpdaterCtorParam) => new Quest339(p),
   formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+  isDeckMatch: Quest339.isDeckMatchS,
 };
 
 // 342:	小艦艇群演習強化任務
 class Quest342 extends QuestPracticeDeck {
   max = [4];
   need_win_rank = 'A';
+  isDeckMatch = (ship_ids: number[]) => Quest342.isDeckMatchS(svdata, ship_ids);
 
-  isDeckMatch = (ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const kutiku_kaibou = shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]);
     if (4 <= kutiku_kaibou) {
       return true;
@@ -1847,7 +1847,7 @@ class Quest342 extends QuestPracticeDeck {
     }
 
     return false;
-  };
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1856,15 +1856,17 @@ class Quest342 extends QuestPracticeDeck {
 factories[342] = {
   creator: (p: UpdaterCtorParam) => new Quest342(p),
   formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+  isDeckMatch: Quest342.isDeckMatchS,
 };
 
 // 345:	演習ティータイム！
 class Quest345 extends QuestPracticeDeck {
   max = [4];
   need_win_rank = 'A';
+  isDeckMatch = (ship_ids: number[]) => Quest345.isDeckMatchS(svdata, ship_ids);
 
-  isDeckMatch = (ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [
       svdata.shipMstIds(439),
       svdata.shipMstIds(78),
@@ -1874,7 +1876,7 @@ class Quest345 extends QuestPracticeDeck {
       svdata.shipMstIds(520),
     ].flat();
     return 4 === shipCount(ships, check_ids);
-  };
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1883,18 +1885,20 @@ class Quest345 extends QuestPracticeDeck {
 factories[345] = {
   creator: (p: UpdaterCtorParam) => new Quest345(p),
   formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+  isDeckMatch: Quest345.isDeckMatchS,
 };
 
 // 346:	最精鋭！主力オブ主力、演習開始！
 class Quest346 extends QuestPracticeDeck {
   max = [4];
   need_win_rank = 'A';
+  isDeckMatch = (ship_ids: number[]) => Quest346.isDeckMatchS(svdata, ship_ids);
 
-  isDeckMatch = (ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [ 542, 563, 564, 648 ];
     return 4 === shipCount(ships, check_ids);
-  };
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1903,25 +1907,29 @@ class Quest346 extends QuestPracticeDeck {
 factories[346] = {
   creator: (p: UpdaterCtorParam) => new Quest346(p),
   formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+  isDeckMatch: Quest346.isDeckMatchS,
 };
 
 // 347: 奇跡の駆逐艦
 class Quest347 extends QuestPracticeDeck {
   max = [4];
   need_win_rank = 'S';
-  ship_conds: ShipCond[] = [ 
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.kutikukan, 4, false] 
-  ];
 
-  isDeckMatch = (ship_ids: number[]) => {
+  isDeckMatch = (ship_ids: number[]) => Quest347.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
     const check_ids = svdata.shipMstIds(20);
-    console.log('deck flagship:', isShipIds(ship_ids[0], check_ids));
-    console.log('deck type:', isDeckShipType(ship_ids, this.ship_conds));
-    if (! isShipIds(ship_ids[0], check_ids)) {
+    console.log('deck flagship:', isShipIds(svdata, ship_ids[0], check_ids));
+    if (! isShipIds(svdata, ship_ids[0], check_ids)) {
       return false;     
     }
-    return isDeckShipType(ship_ids, this.ship_conds);
-  };
+
+    const ships = toShipMsts(svdata, ship_ids);
+    if (4 > shipTypeCount(ships, [ApiShipType.kutikukan])) {
+      return false;
+    }
+
+    return true;
+  }
 
   dateKey(): string {
     return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
@@ -1930,6 +1938,7 @@ class Quest347 extends QuestPracticeDeck {
 factories[347] = {
   creator: (p: UpdaterCtorParam) => new Quest347(p),
   formatter: (quest: Quest): string => detailFormat(['演習 S勝利: '], quest),
+  isDeckMatch: Quest347.isDeckMatchS,
 };
 
 // 402: 「遠征」を 3 回成功させよう！
@@ -2402,11 +2411,11 @@ class Quest840 extends QuestBattleMap {
   isDeckMatch = (ship_ids: number[]) => Quest840.isDeckMatchS(svdata, ship_ids);
 
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
-    if (! isShipTypeS(svdata, ship_ids[0], [ApiShipType.kei_kuubo, ApiShipType.keijyun, ApiShipType.raijyun, ApiShipType.renjyun])) {
+    if (! isShipType(svdata, ship_ids[0], [ApiShipType.kei_kuubo, ApiShipType.keijyun, ApiShipType.raijyun, ApiShipType.renjyun])) {
       return false;
     }
 
-    const ships = toShipMstsS(svdata, ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     if (3 <= shipTypeCount(ships, [ApiShipType.kaiboukan])) {
       return true;
     }
@@ -2419,7 +2428,7 @@ class Quest840 extends QuestBattleMap {
 factories[840] = {
   creator: (p: UpdaterCtorParam) => new Quest840(p),
   formatter: (quest: Quest): string => detailFormatOne(['2-1A:', '2-2A:', '2-3A:'], quest),
-  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest840.isDeckMatchS(svdata, ship_ids),
+  isDeckMatch: Quest840.isDeckMatchS,
 };
 
 // 841: 【節分任務】令和三年西方海域節分作戦
@@ -2429,11 +2438,11 @@ class Quest841 extends QuestBattleMap {
   isDeckMatch = (ship_ids: number[]) => Quest841.isDeckMatchS(svdata, ship_ids);
 
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
-    if (! isShipTypeS(svdata, ship_ids[0], [ApiShipType.suibo, ApiShipType.koujyun, ApiShipType.jyuujyun])) {
+    if (! isShipType(svdata, ship_ids[0], [ApiShipType.suibo, ApiShipType.koujyun, ApiShipType.jyuujyun])) {
       return false;
     }
 
-    const ships = toShipMstsS(svdata, ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     if (2 <= shipTypeCount(ships, [ships[0].mst.api_stype])) {
       return true;
     }
@@ -2443,7 +2452,7 @@ class Quest841 extends QuestBattleMap {
 factories[841] = {
   creator: (p: UpdaterCtorParam) => new Quest841(p),
   formatter: (quest: Quest): string => detailFormatOne(['4-1S:', '4-2S:', '4-3S:'], quest),
-  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest841.isDeckMatchS(svdata, ship_ids),
+  isDeckMatch: Quest841.isDeckMatchS,
 };
 
 // 843: 【節分拡張任務】令和三年節分作戦、全力出撃！
@@ -2453,13 +2462,13 @@ class Quest843 extends QuestBattleMap {
   isDeckMatch = (ship_ids: number[]) => Quest843.isDeckMatchS(svdata, ship_ids);
 
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
-    if (! isShipTypeS(svdata, ship_ids[0], [
+    if (! isShipType(svdata, ship_ids[0], [
       ApiShipType.kousoku_senkan, ApiShipType.teisoku_senkan, ApiShipType.koukuu_senkan,
       ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo,])) {
       return false;
     }
 
-    const ships = toShipMstsS(svdata, ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     if (2 <= shipTypeCount(ships, [ApiShipType.kutikukan])) {
       return true;
     }
@@ -2469,7 +2478,7 @@ class Quest843 extends QuestBattleMap {
 factories[843] = {
   creator: (p: UpdaterCtorParam) => new Quest843(p),
   formatter: (quest: Quest): string => detailFormatOne(['5-2S:', '5-5S:', '6-4S:'], quest),
-  isDeckMatch: (svdata: SvData, ship_ids: number[]): boolean => Quest843.isDeckMatchS(svdata, ship_ids),
+  isDeckMatch: Quest843.isDeckMatchS,
 };
 
 // 845:	発令！「西方海域作戦」
@@ -2498,30 +2507,44 @@ factories[854] = {
 class Quest861 extends QuestMapGoal {
   max = [2];
   area_and_rank: QuestMap[] = [ [ 1, 6, '' ] ];
-  ship_conds: ShipCond[] = [ 
-    [ (mst: MstShip): boolean => 
-      mst.api_stype === ApiShipType.koukuu_senkan || mst.api_stype === ApiShipType.hokyuukan, 2, false],
-  ];
-  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+  isDeckMatch = (ship_ids: number[]) => Quest861.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    const count = shipTypeCount(ships, [ApiShipType.koukuu_senkan, ApiShipType.hokyuukan]);
+    if (2 <= count) {
+      return true;
+    }
+    return false;
+  }
 }
 factories[861] = {
   creator: (p: UpdaterCtorParam) => new Quest861(p),
   formatter: (quest: Quest): string => detailFormat(['1-6 ゴール: '], quest),
+  isDeckMatch: Quest861.isDeckMatchS,
 };
 
 // 862: 前線の航空偵察を実施せよ！
 class Quest862 extends QuestBattleMapDeck {
   max = [2];
   area_and_rank: QuestMap[] = [ [ 6, 3, 'A' ] ];
-  ship_conds: ShipCond[] = [ 
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.suibo, 1, false] ,
-    [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.keijyun, 2, false] 
-  ];
-  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+  isDeckMatch = (ship_ids: number[]) => Quest862.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    if (1 > shipTypeCount(ships, [ApiShipType.suibo])) {
+      return false;
+    }
+    if (2 > shipTypeCount(ships, [ApiShipType.keijyun])) {
+      return false;
+    }
+    return true;
+  }
 }
 factories[862] = {
   creator: (p: UpdaterCtorParam) => new Quest862(p),
   formatter: (quest: Quest): string => detailFormat(['6-3A: '], quest),
+  isDeckMatch: Quest862.isDeckMatchS,
 };
 
 // 872:	戦果拡張任務！「Z 作戦」後段作戦
@@ -2542,20 +2565,30 @@ class Quest873 extends QuestBattleMapDeck {
   ship_conds: ShipCond[] = [ 
     [ (mst: MstShip): boolean => mst.api_stype === ApiShipType.keijyun, 1, false] 
   ];
-  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+  isDeckMatch = (ship_ids: number[]) => Quest873.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    if (1 > shipTypeCount(ships, [ApiShipType.keijyun])) {
+      return false;
+    }
+    return true;
+  }
 }
 factories[873] = {
   creator: (p: UpdaterCtorParam) => new Quest873(p),
   formatter: (quest: Quest): string => detailFormatOne(['3-1A:', '3-2A:', '3-3A:'], quest),
+  isDeckMatch: Quest873.isDeckMatchS,
 };
 
 // 875:	精鋭「三一駆」、鉄底海域に突入せよ！
 class Quest875 extends QuestBattleMapDeck {
   max = [2];
   area_and_rank: QuestMap[] = [ [ 5, 4, 'S' ] ];
-  isDeckMatch = ((ship_ids: number[]) => {
+  isDeckMatch = (ship_ids: number[]) => Quest875.isDeckMatchS(svdata, ship_ids);
 
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
 
     if (! shipCount(ships, [543])) {
       return false;
@@ -2567,20 +2600,22 @@ class Quest875 extends QuestBattleMapDeck {
       svdata.shipMstIds(344), 
     ].flat();
     return 1 <= shipCount(ships, check_ids);
-  });
+  }
 }
 factories[875] = {
   creator: (p: UpdaterCtorParam) => new Quest875(p),
   formatter: (quest: Quest): string => detailFormat(['5-4S: '], quest),
+  isDeckMatch: Quest875.isDeckMatchS,
 };
 
 // 888:	新編成「三川艦隊」、鉄底海峡に突入せよ！
 class Quest888 extends QuestBattleMapDeck {
   max = [1, 1, 1];
   area_and_rank: QuestMap[] = [ [ 5, 1, 'S' ], [ 5, 3, 'S' ], [ 5, 4, 'S' ] ];
-  isDeckMatch = ((ship_ids: number[]) => {
+  isDeckMatch = (ship_ids: number[]) => Quest888.isDeckMatchS(svdata, ship_ids);
 
-    const ships = toShipMsts(ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [
       svdata.shipMstIds(69), 
       svdata.shipMstIds(61), 
@@ -2591,11 +2626,12 @@ class Quest888 extends QuestBattleMapDeck {
       svdata.shipMstIds(115), 
     ].flat();
     return 4 <= shipCount(ships, check_ids);
-  });
+  }
 }
 factories[888] = {
   creator: (p: UpdaterCtorParam) => new Quest888(p),
   formatter: (quest: Quest): string => detailFormatOne(['5-1S:', '5-3S:', '5-4S:'], quest),
+  isDeckMatch: Quest888.isDeckMatchS,
 };
 
 // 893:	泊地周辺海域の安全確保を徹底せよ！
@@ -2616,7 +2652,7 @@ class Quest894 extends QuestBattleMapDeck {
   ship_conds: ShipCond[] = [ 
     [ (mst: MstShip): boolean => ApiShipType.soukou_kuubo === mst.api_stype || ApiShipType.kei_kuubo === mst.api_stype || ApiShipType.seiki_kuubo === mst.api_stype, 1, false] 
   ];
-  isDeckMatch = (ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds);
+  isDeckMatch = (ship_ids: number[]) => isDeckShipType(svdata, ship_ids, this.ship_conds);
 }
 factories[894] = {
   creator: (p: UpdaterCtorParam) => new Quest894(p),
@@ -2641,11 +2677,11 @@ class Quest903 extends QuestBattleMapDeck {
   isDeckMatch = ((ship_ids: number[]) => {
 
     const flag_check_ids = svdata.shipMstIds(622);
-    if (! isShipIds(ship_ids[0], flag_check_ids)) {
+    if (! isShipIds(svdata, ship_ids[0], flag_check_ids)) {
       return false;     
     }
 
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
 
     const check1 = (): boolean => {
       return 1 <= shipCount(ships, svdata.shipMstIds(23));
@@ -2675,7 +2711,7 @@ class Quest904 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1];
   area_and_rank: QuestMap[] = [ [ 2, 5, 'S' ], [ 3, 4, 'S' ], [ 4, 5, 'S' ], [ 5, 3, 'S' ] ];
   isDeckMatch = ((ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [195, 627];
     return 2 === shipCount(ships, check_ids);
   });
@@ -2696,7 +2732,7 @@ class Quest905 extends QuestBattleMapDeck {
     if (ship_ids.length > 5) {
       return false;
     }
-    return isDeckShipType(ship_ids, this.ship_conds);
+    return isDeckShipType(svdata, ship_ids, this.ship_conds);
   });
 }
 factories[905] = {
@@ -2713,10 +2749,10 @@ class Quest912 extends QuestBattleMapDeck {
   ];
   isDeckMatch = ((ship_ids: number[]) => {
     const flag_check_ids = svdata.shipMstIds(182);
-    if (! isShipIds(ship_ids[0], flag_check_ids)) {
+    if (! isShipIds(svdata, ship_ids[0], flag_check_ids)) {
       return false;     
     }
-    return isDeckShipType(ship_ids, this.ship_conds);
+    return isDeckShipType(svdata, ship_ids, this.ship_conds);
   });
 }
 factories[912] = {
@@ -2732,7 +2768,7 @@ class Quest914 extends QuestBattleMapDeck {
     [ (mst: MstShip): boolean => ApiShipType.jyuujyun === mst.api_stype, 3, false],
     [ (mst: MstShip): boolean => ApiShipType.kutikukan === mst.api_stype, 1, false] 
   ];
-  isDeckMatch = ((ship_ids: number[]) => isDeckShipType(ship_ids, this.ship_conds));
+  isDeckMatch = ((ship_ids: number[]) => isDeckShipType(svdata, ship_ids, this.ship_conds));
 }
 factories[914] = {
   creator: (p: UpdaterCtorParam) => new Quest914(p),
@@ -2743,8 +2779,10 @@ factories[914] = {
 class Quest928 extends QuestBattleMapDeck {
   max = [2, 2, 2];
   area_and_rank: QuestMapOrCell[] = [ [ 7, 3, 'S', [18, 23, 24 ,25] ], [ 7, 2, 'S', [15] ], [ 4, 2, 'S' ] ];
-  isDeckMatch = ((ship_ids: number[]) => {
-    const ships = toShipMsts(ship_ids);
+  isDeckMatch = (ship_ids: number[]) => Quest928.isDeckMatchS(svdata, ship_ids);
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
     const check_ids = [
       svdata.shipMstIds(65),
       svdata.shipMstIds(64),
@@ -2753,11 +2791,12 @@ class Quest928 extends QuestBattleMapDeck {
       svdata.shipMstIds(471),
     ].flat();
     return shipCount(ships, check_ids) >= 2;
-  });
+  }
 }
 factories[928] = {
   creator: (p: UpdaterCtorParam) => new Quest928(p),
   formatter: (quest: Quest): string => detailFormat(['7-3S(第2): ', '7-2S(第2): ', '4-2S: '], quest),
+  isDeckMatch: Quest928.isDeckMatchS,
 };
 
 // 931: 精鋭「二七駆」、回避運動は気をつけて
@@ -2769,7 +2808,7 @@ class Quest931 extends QuestBattleMapDeck {
       svdata.shipMstIds(471),
       svdata.shipMstIds(145),
     ].flat();
-    return shipCount(toShipMsts(ship_ids), check_ids) == 2;
+    return shipCount(toShipMsts(svdata, ship_ids), check_ids) == 2;
   });
 }
 factories[931] = {
@@ -2782,13 +2821,13 @@ class Quest933 extends QuestBattleMapDeck {
   max = [2, 2, 2, 2];
   area_and_rank: QuestMap[] = [ [ 1, 3, 'S' ], [ 1, 4, 'S' ], [ 2, 1, 'S' ], [ 2, 2, 'S' ] ];
   isDeckMatch = ((ship_ids: number[]) => {
-    const ooyodo = isShipIds(ship_ids[0], svdata.shipMstIds(183));
-    const danyang = isShipIds(ship_ids[0], [651]);
+    const ooyodo = isShipIds(svdata, ship_ids[0], svdata.shipMstIds(183));
+    const danyang = isShipIds(svdata, ship_ids[0], [651]);
     if (! (ooyodo || danyang)) {
       return false;
     }
 
-    const ships = toShipMsts(ship_ids);
+    const ships = toShipMsts(svdata, ship_ids);
     const kaibou = shipTypeCount(ships, [ApiShipType.kaiboukan]);
     if (kaibou >= 3) {
       return true;
@@ -2812,7 +2851,7 @@ factories[933] = {
 class Quest934 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
   area_and_rank: QuestMapOrCell[] = [ [ 2, 3, 'S' ], [ 2, 4, 'S' ], [ 2, 5, 'S' ], [ 3, 3, 'S' ], [ 7, 3, 'S', [18, 23, 24 ,25] ] ];
-  isDeckMatch = ((ship_ids: number[]) => isShipIds(ship_ids[0], [651, 656]));
+  isDeckMatch = ((ship_ids: number[]) => isShipIds(svdata, ship_ids[0], [651, 656]));
 }
 factories[934] = {
   creator: (p: UpdaterCtorParam) => new Quest934(p),
@@ -2823,7 +2862,7 @@ factories[934] = {
 class Quest935 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
   area_and_rank: QuestMap[] = [ [ 5, 3, 'S' ], [ 5, 5, 'S' ], [ 4, 5, 'S' ], [ 6, 4, 'S' ], [ 6, 5, 'S' ] ];
-  isDeckMatch = ((ship_ids: number[]) => 2 === shipCount(toShipMsts(ship_ids), [145, 656]));
+  isDeckMatch = ((ship_ids: number[]) => 2 === shipCount(toShipMsts(svdata, ship_ids), [145, 656]));
 }
 factories[935] = {
   creator: (p: UpdaterCtorParam) => new Quest935(p),
