@@ -649,7 +649,7 @@ const fullfillWinCond = (this_win_rank: string, need_win_rank: string): boolean 
   return this_rank <= need_rank;
 };
 
-const matchMap = (area_and_rank: (QuestMap | QuestMapCell)[], map: Pick<ApiMap, 'api_event_id' | 'api_bosscell_no'>, win_rank?: string): number => {
+const matchMap = (area_and_rank: (QuestMap | QuestMapCell)[], map: Pick<ApiMap, 'api_event_id' | 'api_no'>, win_rank?: string): number => {
 
   const map_start = svdata.mapStart;
   if (! map_start) {
@@ -667,7 +667,7 @@ const matchMap = (area_and_rank: (QuestMap | QuestMapCell)[], map: Pick<ApiMap, 
     //console.log('is target cell:', JSON.stringify(this.record));
     //console.log('is target cell map:', map, cells.includes(result.map.api_bosscell_no));
     //console.log('is target cell result:', result);
-    if (!cells.includes(map.api_bosscell_no)) {
+    if (!cells.includes(map.api_no)) {
       return -1;
     }
   }
