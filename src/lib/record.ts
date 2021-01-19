@@ -30,6 +30,7 @@ import {
 import moment, { now } from 'moment';
 import { isDeckMatch, questProgressDetailFormat } from '@/lib/kcquest';
 import { svdata } from '@/main/svdata';
+import { app } from 'electron';
 
 // port
 export interface PortRecord {
@@ -475,7 +476,14 @@ const enemyParamCombined = (arg: PrvBattleInfo): EnemyParam[] => {
 };
 */
 
-const orign = 'koubrowser/0.0.2' as const;
+let _orign = '';
+const getOrign = (): string => {
+  if (_orign.length === 0) {
+    _orign = 'koubrowser/'+app.getVersion();
+  }
+  return _orign;
+};
+
 const ApiItemIdsAdd = Object.entries(ApiItemId).map(ids => ids[1]).
   filter((id =>
     (id !== ApiItemId.fast_repair) &&
@@ -701,7 +709,7 @@ export class RecordUtil {
       firstClear: result.api_first_clear !== 0,
       enemyShips1: info.midday?.api_ship_ke ?? [],
       enemyShips2: enemyShips2,
-      origin: orign,
+      origin: getOrign(),
       itemId: result.api_get_useitem?.api_useitem_id ?? -1,
       itemCount: result.api_get_useitem?.api_useitem_count ?? 0,
       date: recordDate(false),
@@ -762,7 +770,7 @@ export class RecordUtil {
       middayJson: arg.middayJson ?? null,
       midnightJson: arg.midnightJson ?? null,
       drop: drop,
-      origin: orign,
+      origin: getOrign(),
       date: drop.date,
     };
   }
@@ -813,7 +821,7 @@ export class RecordUtil {
           itemCount: item.api_getcount,
           ships1: ships1,
           ships2: ships2,
-          origin: orign,
+          origin: getOrign(),
           date: date,
         }];
       }
@@ -831,7 +839,7 @@ export class RecordUtil {
           itemCount: item.api_getcount,
           ships1: ships1,
           ships2: ships2,
-          origin: orign,
+          origin: getOrign(),
           date: date,
         }
       });
@@ -853,7 +861,7 @@ export class RecordUtil {
         itemId: item?.api_slotitem_id ?? -1,
         teitokuLv: basic.api_level,
         successful: item.api_id !== -1,
-        origin: orign,
+        origin: getOrign(),
         date: recordDate(false),
       }
     });
@@ -875,7 +883,7 @@ export class RecordUtil {
       highspeed: arg.api_highspeed,
       teitokuLv: basic.api_level,
       largeFlag: 1 === arg.api_large_flag,
-      origin: orign,
+      origin: getOrign(),
       items: arg.api_items,
       date: recordDate(false)
     };
@@ -908,7 +916,7 @@ export class RecordUtil {
       consortCond: ship1.api_cond,
       teitokuLv: basic.api_level,
       certain: arg.api_certain_flag !== 0,
-      origin: orign,
+      origin: getOrign(),
       date: recordDate(false),
     };
   }
@@ -930,7 +938,7 @@ export class RecordUtil {
       ships: ships,
       getItem1: toGetItem(arg.api_get_item1, arg.api_useitem_flag, 0),
       getItem2: toGetItem(arg.api_get_item2, arg.api_useitem_flag, 1),
-      origin: orign,
+      origin: getOrign(),
       date: recordDate(false),
     };
   }
