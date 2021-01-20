@@ -656,22 +656,22 @@ const matchMap = (area_and_rank: (QuestMap | QuestMapCell)[], map: Pick<ApiMap, 
     return -1;
   }
 
-  const index = area_and_rank.findIndex((el) => el[0] === map_start.api_maparea_id && el[1] === map_start.api_mapinfo_no);
+  const index = area_and_rank.findIndex((el) => {
+    const map_match = (el[0] === map_start.api_maparea_id && el[1] === map_start.api_mapinfo_no);
+
+    // check cell no
+    if (map_match && Array.isArray(el[3])) {
+      return el[3].includes(map.api_no);
+    }
+
+    return map_match;
+  });
+  
   if (-1 === index) {
     return -1;
   }
 
   const area_and_map = area_and_rank[index];
-  if (Array.isArray(area_and_map[3])) {
-    const cells = area_and_map[3];
-    //console.log('is target cell:', JSON.stringify(this.record));
-    //console.log('is target cell map:', map, cells.includes(result.map.api_bosscell_no));
-    //console.log('is target cell result:', result);
-    if (!cells.includes(map.api_no)) {
-      return -1;
-    }
-  }
-
   if (fullfillWinCond(win_rank ?? '', area_and_map[2])) {
     return index;
   }
