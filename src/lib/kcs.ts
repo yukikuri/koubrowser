@@ -29,7 +29,7 @@ export const Api = {
   REQ_RANKING: '/api_req_ranking/',
   // 図鑑
   GET_MEMBER_PICTURE_BOOK: '/api_get_member/picture_book',
-  // アイテム - 家具コイン使用
+  // アイテム - 家具コイン使用、勲章使用
   REQ_MEMBER_ITEMUSE: '/api_req_member/itemuse',
   // アイテム - 家具コイン使用後
   // アイテム一覧取得
@@ -4274,7 +4274,7 @@ export const ApiItemId = {
   aircraft_build_material: 92,	// 新型噴進装備開発資材
   sardine: 93,	// 鰯
 
-  //
+  // private
   teitoku_lv: -1, // 提督レベル
   teitoku_exp: -2, // 提督経験値, Number.MAX_SAFE_INTEGER: 9007199254740991
   rank: -3, // ランク(元帥など)
@@ -4655,6 +4655,25 @@ const fixApiSlotitemMember = (slotitem: ApiSlotitem): ApiSlotitem => {
 export interface ApiUseItem {
   readonly api_id: ApiItemId;
   readonly api_count: number;
+}
+
+// res itemuse
+export const ApiItemUseMst = {
+  slotitem: 2,
+} as const;
+export type ApiItemUseMst = Unpacked<typeof ApiItemUseMst>;
+
+export interface ApiItemUse {
+  readonly api_caution_flag: number;
+  readonly api_flag: number;
+  readonly api_getitem: ApiItemUseGetitem[];
+}
+
+interface ApiItemUseGetitem {
+  readonly api_usemst: ApiItemUseMst;
+  readonly api_mst_id: number;
+  readonly api_getcount: number;
+  readonly api_slotitem: ApiSlotitem;
 }
 
 export interface ApiPayItem {
@@ -5092,7 +5111,9 @@ interface ApiMarrige extends ApiShip {
 }
 
 const ApiItemBonusType = {
-  material: 1,
+  material: 1, // 資材 
+  use_item: 13, // 豆 api_item:入手item
+  senka: 18, // 戦果 api_count:戦果
 } as const;
 export type ApiItemBonusType = Unpacked<typeof ApiItemBonusType>;
 
@@ -5100,8 +5121,8 @@ export type ApiItemBonusType = Unpacked<typeof ApiItemBonusType>;
 interface ApiItemBonus {
   readonly api_type: ApiItemBonusType;
   readonly api_count: number;
-  readonly api_item: {
-    readonly api_id: number;
+  readonly api_item?: {
+    readonly api_id: ApiItemId;
     readonly api_name: string;
   };
 }
@@ -6251,6 +6272,10 @@ export class SvData {
           this.getMemberMission(api_data as ApiMissionList);
           break;
 
+        case Api.REQ_MEMBER_ITEMUSE:
+          this.getMemberItemUse(api_data as ApiItemUse);
+          break;
+
         case Api.GET_MEMBER_USEITEM:
           this.getMemberUseItem(api_data as ApiUseItem[]);
           break;
@@ -6608,6 +6633,20 @@ export class SvData {
 
   private getMemberMission(api_data: ApiMissionList): void {
     assignSafeE(this.apiData.api_mission, api_data.api_list_items);
+  }
+  
+  private getMemberItemUse(api_data: ApiItemUse): void {
+    if (! Array.isArray(api_data.api_getitem)) {
+      return ;
+    }
+
+    api_data.api_getitem.forEach((getitem) => {
+      if (ApiItemUseMst.slotitem === getitem.api_usemst) {
+        for (let i = 0; i < getitem.api_getcount; ++i) {
+          this.apiData.api_slot_item.push(fixApiSlotitemMember(getitem.api_slotitem));
+        }  
+      }
+    });
   }
 
   private getMemberUseItem(api_data: ApiUseItem[]): void {
@@ -7335,9 +7374,11 @@ export class SvData {
       ];
       data.api_bounus.forEach((bonus) => {
         if (bonus.api_type === ApiItemBonusType.material) {
-          const id = bonus.api_item.api_id;
-          if ((ApiMaterialId.MIN <= id) && (id <= ApiMaterialId.MAX)) {
-            materials[id - 1] = bonus.api_count;
+          if (bonus.api_item) {
+            const id = bonus.api_item.api_id;
+            if ((ApiMaterialId.MIN <= id) && (id <= ApiMaterialId.MAX)) {
+              materials[id - 1] = bonus.api_count;
+            }
           }
         }
       });
