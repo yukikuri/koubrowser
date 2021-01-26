@@ -29,9 +29,9 @@ export const Api = {
   REQ_RANKING: '/api_req_ranking/',
   // 図鑑
   GET_MEMBER_PICTURE_BOOK: '/api_get_member/picture_book',
-  // アイテム - 家具コイン使用、勲章使用
+  // アイテム - 家具コイン使用、豆、勲章使用など
   REQ_MEMBER_ITEMUSE: '/api_req_member/itemuse',
-  // アイテム - 家具コイン使用後
+  // アイテム - 家具コインなど使用後、ただしスロットアイテムは全取得されない
   // アイテム一覧取得
   GET_MEMBER_USEITEM: '/api_get_member/useitem',
   // 購入アイテム一覧
@@ -4659,14 +4659,15 @@ export interface ApiUseItem {
 
 // res itemuse
 export const ApiItemUseMst = {
-  slotitem: 2,
+  slotitem: 2, // mst_id is mst slotitem id.
+  kaku_coin: 5, // mst_is is item id.
 } as const;
 export type ApiItemUseMst = Unpacked<typeof ApiItemUseMst>;
 
 export interface ApiItemUse {
   readonly api_caution_flag: number;
   readonly api_flag: number;
-  readonly api_getitem: ApiItemUseGetitem[];
+  readonly api_getitem: (ApiItemUseGetitem | null)[];
 }
 
 interface ApiItemUseGetitem {
@@ -6640,7 +6641,12 @@ export class SvData {
       return ;
     }
 
+    // 資材やアイテムは、この後全取得が行われる。
+    // スロットアイテムは、追加する必要がある。
     api_data.api_getitem.forEach((getitem) => {
+      if (getitem === null) {
+        return ;
+      }
       if (ApiItemUseMst.slotitem === getitem.api_usemst) {
         for (let i = 0; i < getitem.api_getcount; ++i) {
           this.apiData.api_slot_item.push(fixApiSlotitemMember(getitem.api_slotitem));
