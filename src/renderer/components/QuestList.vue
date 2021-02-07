@@ -27,8 +27,8 @@
           <b-progress-bar v-for="(state, state_index) in quest.states" :key="state_index" 
             slot="bar" :value="state.percent" :class="state.className"></b-progress-bar>
           <span v-if="quest.progressDetail" slot="bar" class="quest-progress-text">
-            <span v-if="quest.deckOk===true" class="deckOk">編成条件:OK</span>
-            <span v-if="quest.deckOk===false" class="deckNg">編成条件:NG</span>
+            <span v-if="quest.deckOk===true" class="deckOk">編成:OK</span>
+            <span v-if="quest.deckOk===false" class="deckNg">編成:NG</span>
             <span>{{quest.progressDetail}}</span></span>
         </b-progress>
       </div>
@@ -37,7 +37,6 @@
 </template>
 
 <script lang="ts">
-// {{state.percentText}}
 import { KcsUtil, ApiQuestState, ApiQuest, ApiQuestCategory } from '@/lib/kcs';
 import { svdata } from '@/renderer/store/svdata';
 import { quests } from '@/renderer/store/quests';
@@ -45,7 +44,6 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Quest, QuestCounter, questIsDeckMatch, questProgress, questProgressDetail } from '@/lib/record';
 import { RUtil } from '@/renderer/util';
 import { QuestCategoryText } from '@/lib/locale';
-import { AppStuff } from '@/lib/app';
 import { MathUtil } from '@/lib/math';
 
 interface QuestContent {
