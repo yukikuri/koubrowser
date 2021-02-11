@@ -2870,7 +2870,8 @@ class Quest905 extends QuestBattleMapDeck {
   area_and_rank: QuestMap[] = [ [ 1, 1, 'A' ], [ 1, 2, 'A' ], [ 1, 3, 'A' ], [ 1, 5, 'A' ], [ 1, 6, '' ] ];
   isDeckMatch = (ship_ids: number[]) => Quest905.isDeckMatchS(svdata, ship_ids);
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
-    if (ship_ids.length > 5) {
+    const ship_count = ship_ids.reduce((acc, el) => el > 0 ? acc + 1 : acc, 0);
+    if (ship_count > 5) {
       return false;
     }
     const ships = toShipMsts(svdata, ship_ids);
