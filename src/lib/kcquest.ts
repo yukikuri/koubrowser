@@ -1663,7 +1663,7 @@ class Quest280 extends QuestBattleMapDeck {
 
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
     const ships = toShipMsts(svdata, ship_ids);
-    if (1 > shipTypeCount(ships, [ApiShipType.kei_kuubo, ApiShipType.renjyun, ApiShipType.raijyun])) {
+    if (1 > shipTypeCount(ships, [ApiShipType.kei_kuubo, ApiShipType.renjyun, ApiShipType.raijyun, ApiShipType.keijyun])) {
       return false;
     }
     if (3 > shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan])) {
