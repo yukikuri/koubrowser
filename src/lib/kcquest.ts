@@ -2964,7 +2964,7 @@ class Quest931 extends QuestBattleMapDeck {
   isDeckMatch = (ship_ids: number[]) => Quest931.isDeckMatchS(svdata, ship_ids);
   public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
     const check_ids = [
-      svdata.shipMstIds(471),
+      svdata.shipMstIds(497),
       svdata.shipMstIds(145),
     ].flat();
     return shipCount(toShipMsts(svdata, ship_ids), check_ids) == 2;
