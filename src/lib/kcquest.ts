@@ -39,6 +39,7 @@ import {
 import NeDB from 'nedb';
 import { svdata } from '@/main/svdata';
 import moment from 'moment';
+import { defaultDecoder } from 'qs';
 
 interface UpdaterFactory {
   creator: (p: UpdaterCtorParam) => QuestUpdater,
@@ -1072,10 +1073,17 @@ abstract class QuestCreateItem extends QuestAnyCounter {
 /**
  * 
  */
+interface DestroyItemCondition {
+  readonly flagship_ids: number[];
+  readonly flagship_slotitem_id: number;
+  readonly flagship_slotitem_lvl_max: boolean;
+  readonly flagship_slotitem_alv_max?: boolean;
+}
+
 abstract class QuestDestroyItem extends QuestAnyCounter {
   cb: number = 0;
-  flagship_ids: number[] = [];
-  flagship_slotitem_id: number = 0;
+
+  abstract getCondition(svdata: SvData): DestroyItemCondition;
 
   setCallback(): void {
     this.cb = ApiCallback.set(
@@ -1091,12 +1099,12 @@ abstract class QuestDestroyItem extends QuestAnyCounter {
 
   abstract onDestroyItem(arg: ApiDestroyItem2WithParam): void;
 
-  protected checkFlagshId(): boolean {
-    if (this.flagship_ids.length === 0) {
+  protected static checkCondition(svdata: SvData, condition: DestroyItemCondition): boolean {
+    if (condition.flagship_ids.length === 0) {
       return true;
     }
 
-    if (this.flagship_slotitem_id === 0) {
+    if (condition.flagship_slotitem_id === 0) {
       return true;
     }
 
@@ -1105,11 +1113,11 @@ abstract class QuestDestroyItem extends QuestAnyCounter {
       return false;
     }
 
-    if (! isShipIds(svdata, deck.api_ship[0], this.flagship_ids)) {
+    if (! isShipIds(svdata, deck.api_ship[0], condition.flagship_ids)) {
       return false;
     }
 
-    if (this.flagship_slotitem_id === 0) {
+    if (condition.flagship_slotitem_id === 0) {
       return true;
     }
 
@@ -1123,7 +1131,18 @@ abstract class QuestDestroyItem extends QuestAnyCounter {
       return false;
     }
 
-    return slot.mst.api_id === this.flagship_slotitem_id;
+    const slotitem_ok = slot.mst.api_id === condition.flagship_slotitem_id;
+    if (! slotitem_ok) {
+      return false;
+    }
+
+    if (! condition.flagship_slotitem_lvl_max && condition.flagship_slotitem_alv_max === undefined) {
+      return slotitem_ok;
+    }
+
+    const is_lv_max_ok = condition.flagship_slotitem_lvl_max && slot.api.api_level === 10;
+    const is_alv_max_ok = (condition.flagship_slotitem_alv_max === undefined) || (slot.api.api_alv === 7);
+    return is_lv_max_ok && is_alv_max_ok;
   }
 }
 
@@ -1133,9 +1152,17 @@ abstract class QuestDestroyItem extends QuestAnyCounter {
 abstract class QuestDestroyItemA extends QuestDestroyItem {
   abstract types: SlotitemType[];
 
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [],
+      flagship_slotitem_id: 0,
+      flagship_slotitem_lvl_max: false,
+    }
+  }
+
   onDestroyItem(arg: ApiDestroyItem2WithParam): void {
 
-    if (! this.checkFlagshId()) {
+    if (! QuestDestroyItem.checkCondition(svdata, this.getCondition(svdata))) {
       return ;
     }
 
@@ -1165,9 +1192,17 @@ abstract class QuestDestroyItemA extends QuestDestroyItem {
 abstract class QuestDestroyItemT extends QuestDestroyItem {
   abstract types: SlotitemImgType[];
 
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return { 
+      flagship_ids: [],
+      flagship_slotitem_id: 0,
+      flagship_slotitem_lvl_max: false,
+    }
+  }
+
   onDestroyItem(arg: ApiDestroyItem2WithParam): void {
 
-    if (! this.checkFlagshId()) {
+    if (! QuestDestroyItem.checkCondition(svdata, this.getCondition(svdata))) {
       return ;
     }
 
@@ -1197,9 +1232,17 @@ abstract class QuestDestroyItemT extends QuestDestroyItem {
 abstract class QuestDestroyItemId extends QuestDestroyItem {
   abstract ids: number[];
 
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [],
+      flagship_slotitem_id: 0,
+      flagship_slotitem_lvl_max: false,
+    }
+  }
+
   onDestroyItem(arg: ApiDestroyItem2WithParam): void {
 
-    if (! this.checkFlagshId()) {
+    if (! QuestDestroyItem.checkCondition(svdata, this.getCondition(svdata))) {
       return ;
     }
 
@@ -2287,6 +2330,35 @@ factories[619] = {
   formatter: (quest: Quest): string => detailFormat(['改修: '], quest),
 };
 
+// 637: 「熟練搭乗員」養成
+class Quest637 extends QuestDestroyItemId {
+  max = [1];
+  ids = [];
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [89], // 鳳翔
+      flagship_slotitem_id: 19,
+      flagship_slotitem_lvl_max: true,
+      flagship_slotitem_alv_max: true,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest637.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest637.getConditionS(svdata));
+  }
+}
+factories[637] = {
+  creator: (p: UpdaterCtorParam) => new Quest637(p),
+  formatter: (quest: Quest): string => '旗艦鳳翔 九六式艦戦 改修・熟練度MAX装備',
+  isDeckMatch: Quest637.isDeckMatchS,
+};
+
+
 // 638:	対空機銃量産
 class Quest638 extends QuestDestroyItemA {
   max = [6];
@@ -2321,6 +2393,33 @@ class Quest653 extends QuestDestroyItemId {
 factories[653] = {
   creator: (p: UpdaterCtorParam) => new Quest653(p),
   formatter: (quest: Quest): string => detailFormat(['14cm単装砲破棄: '], quest),
+};
+
+// 654: 精鋭複葉機飛行隊の編成
+class Quest654 extends QuestDestroyItemId {
+  max = [1, 2];
+  ids = [242, 249];
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: svdata.shipMstIds(515) , // Ark Royal
+      flagship_slotitem_id: 242,
+      flagship_slotitem_lvl_max: true,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest654.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest654.getConditionS(svdata));
+  }
+}
+factories[654] = {
+  creator: (p: UpdaterCtorParam) => new Quest654(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 Swordfish:', 'Fulmar:'], quest),
+  isDeckMatch: Quest654.isDeckMatchS,
 };
 
 // 663:	新型艤装の継続研究
@@ -2446,6 +2545,94 @@ factories[681] = {
   formatter: (quest: Quest): string => detailFormat(['艦爆破棄: ', '艦攻破棄: '], quest),
 };
 
+// 686:	戦時改修A型高角砲の量産
+class Quest686 extends QuestDestroyItemId {
+  max = [4, 1];
+  ids = [3, 121];
+
+  private static flagship_ids: number[] | null = null;
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    if (! Quest686.flagship_ids) {
+      Quest686.flagship_ids = [
+        svdata.shipMstIds(9), // 吹雪
+        svdata.shipMstIds(10), // 白雪
+        svdata.shipMstIds(32), // 初雪
+        svdata.shipMstIds(11), // 深雪
+        svdata.shipMstIds(33), // 叢雲
+        svdata.shipMstIds(631), // 薄雲
+        svdata.shipMstIds(12), // 磯波
+        svdata.shipMstIds(486), // 浦波
+  
+        svdata.shipMstIds(13), // 綾波
+        svdata.shipMstIds(14), // 敷波
+        svdata.shipMstIds(479), // 天霧
+        svdata.shipMstIds(480), // 狭霧
+        svdata.shipMstIds(93), // 朧
+        svdata.shipMstIds(15), // 曙
+        svdata.shipMstIds(94), // 漣
+        svdata.shipMstIds(16), // 潮
+  
+        svdata.shipMstIds(34), // 暁
+        svdata.shipMstIds(35), // 響
+        svdata.shipMstIds(36), // 雷
+        svdata.shipMstIds(37), // 電
+      ].flat();  
+    }
+
+    return {
+      flagship_ids: Quest686.flagship_ids,
+      flagship_slotitem_id: 294,
+      flagship_slotitem_lvl_max: true,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest686.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest686.getConditionS(svdata));
+  }
+}
+factories[685] = {
+  creator: (p: UpdaterCtorParam) => new Quest686(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 10cm連装高角: ', '94式高射: '], quest),
+  isDeckMatch: Quest686.isDeckMatchS,
+};
+factories[686] = {
+  creator: (p: UpdaterCtorParam) => new Quest686(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 10cm連装高角: ', '94式高射: '], quest),
+  isDeckMatch: Quest686.isDeckMatchS,
+};
+
+// 687:	駆逐艦主砲兵装の戦時改修【II】
+class Quest687 extends QuestDestroyItemId {
+  max = [5, 1];
+  ids = [3, 121];
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [144, 145], //夕立改二, 時雨改二
+      flagship_slotitem_id: 63,
+      flagship_slotitem_lvl_max: true,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest687.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest687.getConditionS(svdata));
+  }
+}
+factories[687] = {
+  creator: (p: UpdaterCtorParam) => new Quest687(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 10cm連装高角: ', '94式高射: '], quest),
+  isDeckMatch: Quest687.isDeckMatchS,
+};
+
 // 688:	航空戦力の強化
 class Quest688 extends QuestDestroyItemA {
   max = [3, 3, 3, 3];
@@ -2456,19 +2643,58 @@ factories[688] = {
   formatter: (quest: Quest): string => detailFormat(['破棄 艦戦: ', '艦爆: ', '艦攻: ', '偵察機: '], quest),
 };
 
+// 696: 最精鋭「瑞雲」隊の編成
+class Quest696 extends QuestDestroyItemId {
+  max = [6, 3, 1];
+  ids = [26, 24, 22];
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [553, 554], // 伊勢改二, 日向改二
+      flagship_slotitem_id: 322,
+      flagship_slotitem_lvl_max: true,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest696.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest696.getConditionS(svdata));
+  }
+}
+factories[696] = {
+  creator: (p: UpdaterCtorParam) => new Quest696(p),
+  formatter: (quest: Quest): string => detailFormat(['破棄 瑞雲:', '彗星:', '試製烈風(後期型):'], quest),
+  isDeckMatch: Quest696.isDeckMatchS,
+};
+
 // 698: 新鋭対潜哨戒航空戦力の導入
 class Quest698 extends QuestDestroyItemId {
   max = [2, 1, 1];
   ids = [256, 18, 52];
-  flagship_ids = [646];
-  flagship_slotitem_id = 257;
-  fixState(quest: ApiQuest, state: QuestCounter): boolean {
-    return false;
+
+  private static getConditionS(svdata: SvData): DestroyItemCondition {
+    return {
+      flagship_ids: [646], // 加賀改二護
+      flagship_slotitem_id: 257,
+      flagship_slotitem_lvl_max: false,
+    };
+  }
+
+  getCondition(svdata: SvData): DestroyItemCondition {
+    return Quest698.getConditionS(svdata);
+  }
+
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return QuestDestroyItem.checkCondition(svdata, Quest698.getConditionS(svdata));
   }
 }
 factories[698] = {
   creator: (p: UpdaterCtorParam) => new Quest698(p),
   formatter: (quest: Quest): string => detailFormat(['加賀改二護旗艦 破棄 TBF: ', '流星: ', '流星改: '], quest),
+  isDeckMatch: Quest698.isDeckMatchS,
 };
 
 // 702:	艦の「近代化改修」を実施せよ！
