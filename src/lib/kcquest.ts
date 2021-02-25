@@ -2854,6 +2854,21 @@ factories[845] = {
   formatter: (quest: Quest): string => detailFormatOne(['4-1A:', '4-2A:', '4-3A:', '4-4S:', '4-5S:'], quest),
 };
 
+// 847: 球磨型軽巡一番艦、出撃だクマ！
+class Quest847 extends QuestBattleMapDeck {
+  max = [1, 1, 1, 1];
+  area_and_rank: QuestMapOrCell[] = [ [ 2, 2, 'S' ], [ 3, 2, 'S'], [ 7, 3, 'S', [18, 23, 24 ,25] ], [1, 6, ''] ];
+  isDeckMatch = (ship_ids: number[]) => Quest847.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    return isShipIds(svdata, ship_ids[0], [652, 657]);
+  }
+}
+factories[847] = {
+  creator: (p: UpdaterCtorParam) => new Quest847(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-2S:', '3-2S:', '7-3S(第2):', '1-6:'], quest),
+  isDeckMatch: Quest847.isDeckMatchS,
+};
+
 // 854:	戦果拡張任務！「Z 作戦」前段作戦
 class Quest854 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1];
