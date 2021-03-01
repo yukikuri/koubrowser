@@ -1916,7 +1916,7 @@ class Quest342 extends QuestPracticeDeck {
     if (4 <= kutiku_kaibou) {
       return true;
     }    
-    const keijyun = shipTypeCount(ships, [ApiShipType.keijyun]);
+    const keijyun = shipTypeCount(ships, [ApiShipType.keijyun, ApiShipType.renjyun, ApiShipType.raijyun]);
     if (3 <= kutiku_kaibou && 1 <= keijyun) {
       return true;
     }
