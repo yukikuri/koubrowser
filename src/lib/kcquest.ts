@@ -1791,10 +1791,26 @@ factories[311] = {
 class Quest314 extends QuestPractice {
   max = [8];
   need_win_rank = 'B';
+  dateKey(): string {
+    return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
+  }
 }
 factories[314] = {
   creator: (p: UpdaterCtorParam) => new Quest314(p),
-  formatter: (quest: Quest): string => detailFormat(['演習勝利: '], quest),
+  formatter: (quest: Quest): string => detailFormat(['演習B勝利以上: '], quest),
+};
+
+// 315: 春季大演習
+class Quest315 extends QuestPractice {
+  max = [8];
+  need_win_rank = 'B';
+  dateKey(): string {
+    return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
+  }
+}
+factories[315] = {
+  creator: (p: UpdaterCtorParam) => new Quest315(p),
+  formatter: (quest: Quest): string => detailFormat(['演習B勝利以上: '], quest),
 };
 
 // 329: 【節分任務】節分演習！
