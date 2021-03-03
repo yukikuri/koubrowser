@@ -3163,6 +3163,50 @@ factories[906] = {
   isDeckMatch: Quest906.isDeckMatchS,
 };
 
+// 907:【桃の節句】南西諸島海域、春の戦闘哨戒！
+class Quest907 extends QuestBattleMapDeck {
+  max = [2, 2, 2];
+  area_and_rank: QuestMap[] = [ [ 2, 1, 'S' ], [ 2, 2, 'S' ], [ 2, 3, 'S' ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest907.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    if (4 > shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan])) {
+      return false;
+    }
+    return true;
+  }
+}
+factories[907] = {
+  creator: (p: UpdaterCtorParam) => new Quest907(p),
+  formatter: (quest: Quest): string => detailFormat(['2-1S: ', '2-2S: ', '2-3S: '], quest),
+  isDeckMatch: Quest907.isDeckMatchS,
+};
+
+// 908:【桃の節句】春の決戦！敵機動部隊を叩け！
+class Quest908 extends QuestBattleMapDeck {
+  max = [2, 2, 2];
+  area_and_rank: QuestMapOrCell[] = [ [ 2, 4, 'S' ], [ 2, 5, 'S' ], [ 7, 2, 'S', [15] ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest908.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    if (1 > shipTypeCount(ships, [ApiShipType.seiki_kuubo, ApiShipType.kei_kuubo, ApiShipType.soukou_kuubo])) {
+      return false;
+    }
+    if (1 > shipTypeCount(ships, [ApiShipType.jyuujyun, ApiShipType.koujyun])) {
+      return false;
+    }
+    if (1 > shipTypeCount(ships, [ApiShipType.keijyun])) {
+      return false;
+    }
+    return true;
+  }
+}
+factories[908] = {
+  creator: (p: UpdaterCtorParam) => new Quest908(p),
+  formatter: (quest: Quest): string => detailFormat(['2-4S: ', '2-5S: ', '7-2S(第2): '], quest),
+  isDeckMatch: Quest908.isDeckMatchS,
+};
+
 // 912:	工作艦「明石」護衛任務
 class Quest912 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
