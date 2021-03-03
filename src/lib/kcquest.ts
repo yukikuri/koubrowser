@@ -2161,7 +2161,7 @@ class Quest424 extends QuestMissionA {
 }
 factories[424] = {
   creator: (p: UpdaterCtorParam) => new Quest424(p),
-  formatter: (quest: Quest): string => detailFormat(['海上護衛任務: '], quest),
+  formatter: (quest: Quest): string => detailFormat(['海上護衛任務(遠征05): '], quest),
 };
 
 // 426:	海上通商航路の警戒を厳とせよ！
@@ -2538,7 +2538,7 @@ class Quest678 extends QuestDestroyItemId {
 }
 factories[678] = {
   creator: (p: UpdaterCtorParam) => new Quest678(p),
-  formatter: (quest: Quest): string => detailFormat(['', ''], quest),
+  formatter: (quest: Quest): string => detailFormat(['破棄 九六式艦戦: ', '零式艦戦21型: '], quest),
 };
 
 // 680:	対空兵装の整備拡充
@@ -3142,6 +3142,25 @@ factories[905] = {
   creator: (p: UpdaterCtorParam) => new Quest905(p),
   formatter: (quest: Quest): string => detailFormatOne(['1-1A:', '1-2A:', '1-3A:', '1-5A:', '1-6:'], quest),
   isDeckMatch: Quest905.isDeckMatchS,
+};
+
+// 906:【桃の節句】鎮守府近海、春の安全確保作戦
+class Quest906 extends QuestBattleMapDeck {
+  max = [1, 1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 1, 2, 'A' ], [ 1, 3, 'A' ], [ 1, 5, 'A' ], [1, 6, '' ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest906.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    if (3 > shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan])) {
+      return false;
+    }
+    return true;
+  }
+}
+factories[906] = {
+  creator: (p: UpdaterCtorParam) => new Quest906(p),
+  formatter: (quest: Quest): string => detailFormatOne(['1-2A:', '1-3A:', '1-5A:', '1-6:'], quest),
+  isDeckMatch: Quest906.isDeckMatchS,
 };
 
 // 912:	工作艦「明石」護衛任務
