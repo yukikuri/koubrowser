@@ -3207,6 +3207,17 @@ factories[908] = {
   isDeckMatch: Quest908.isDeckMatchS,
 };
 
+// 909:【桃の節句：拡張作戦】春の攻勢作戦！
+class Quest909 extends QuestBattleMapDeck {
+  max = [1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 3, 5, 'S' ], [ 4, 5, 'S' ], [ 6, 4, 'S' ] ];
+  isDeckMatch = null;
+}
+factories[909] = {
+  creator: (p: UpdaterCtorParam) => new Quest909(p),
+  formatter: (quest: Quest): string => detailFormatOne(['3-5S:', '4-5S:', '6-4S:'], quest),
+};
+
 // 912:	工作艦「明石」護衛任務
 class Quest912 extends QuestBattleMapDeck {
   max = [1, 1, 1, 1, 1];
