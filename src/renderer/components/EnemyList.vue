@@ -178,13 +178,14 @@ const rateDmg = (d: number, hp: number, min: boolean): number => {
 }
 
 
-type capDmgLimit = 150 | 180 | 300;
+type capDmgLimit = 220 | 180 | 360 | 170;
 const HIT_MAX = 97.0;
 
 const capDmg = (fire: number, cap: capDmgLimit): number => {
-  // hiru hougeki: 180
-  // hiru hougeki igai: 150
-  // yasen: 300
+  // hiru hougeki: 220
+  // hiru hougeki igai: 180
+  // yasen: 360
+  // asw: 170
   if (fire <= cap) {
     return fire;
   }
@@ -206,7 +207,7 @@ const calcFire = (ship: ShipInfo, e: EShipInfo): DmgInfo => {
   if (hosei.length) {
     hoseiRate = HoseiConst[hosei[0]];
   }
-  const fire = capDmg(KcsUtil.shipFire(ship), 180) * hoseiRate;
+  const fire = capDmg(KcsUtil.shipFire(ship), 220) * hoseiRate;
   const fireHit = KcsUtil.shipHit(ship);
   const brate = bullRate(ship);
   return {
@@ -218,7 +219,7 @@ const calcFire = (ship: ShipInfo, e: EShipInfo): DmgInfo => {
 
 const calcTor = (ship: ShipInfo, e: EShipInfo): DmgInfo => {
   const mm = mmArmor(e.status.api_souk);
-  const tor = capDmg(KcsUtil.shipTor(ship), 150);
+  const tor = capDmg(KcsUtil.shipTor(ship), 180);
   const torHit = KcsUtil.shipTorHit(ship);
   const brate = bullRate(ship);
   return {
@@ -230,7 +231,7 @@ const calcTor = (ship: ShipInfo, e: EShipInfo): DmgInfo => {
 
 const calcAsw = (ship: ShipInfo, e: EShipInfo): DmgInfo => {
   const mm = mmArmor(e.status.api_souk);
-  const asw = capDmg(KcsUtil.shipAsw(ship), 150);
+  const asw = capDmg(KcsUtil.shipAsw(ship), 170);
   const hit = KcsUtil.shipAswHit(ship);
   const brate = bullRate(ship);
   return {
