@@ -5068,7 +5068,7 @@ export interface ApiPowerUp {
 
 // 
 export interface ApiPowerUpWothParam {
-  readonly ship_types: ApiShipType[];
+  readonly use_ships: MstShip[];
   readonly api_data: ApiPowerUp;
 }
 
@@ -6861,7 +6861,7 @@ export class SvData {
       const query = this.getReq(Api.REQ_KAISOU_POWERUP);
       if (query) {
         const req: ApiPowerUpParam = qsParse(query);
-        const ship_types: ApiShipType[] = [];
+        const use_ships: MstShip[] = [];
         if (req.api_id_items) {
           const ship_ids = req.api_id_items.split(',').map((v) => {
             return parseInt(v);
@@ -6872,7 +6872,7 @@ export class SvData {
               const ship = this.apiData.api_ship[index];
               const mst = this.mstShip(ship.api_ship_id);
               if (mst) {
-                ship_types.push(mst.api_stype);
+                use_ships.push(mst);
               }
               this.apiData.api_ship.splice(index, 1);
               this.shipCountUpdated = true;
@@ -6882,7 +6882,7 @@ export class SvData {
               }
             }
           });
-          ApiCallback.call(Api.REQ_KAISOU_POWERUP, { ship_types, api_data });
+          ApiCallback.call(Api.REQ_KAISOU_POWERUP, { use_ships, api_data });
         }
       }
     }

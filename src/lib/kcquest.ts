@@ -976,21 +976,24 @@ abstract class QuestKaisouUseType extends QuestKaisou {
   abstract use_ship_type: ShipTypeCount | null;
 
   onPowerUp(arg: ApiPowerUpWothParam): void {
-    if (arg.api_data.api_powerup_flag) {
-      if (this.powerup_ship_type !== null) {
-        const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id);
-        if (! mst) {
-          return ;
-        }
-        if (mst.api_stype !== this.powerup_ship_type) {
-          return ;
-        }
+    if (! arg.api_data.api_powerup_flag) {
+      return ;
+    }
+
+    if (this.powerup_ship_type !== null) {
+      const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id);
+      if (! mst) {
+        return ;
+      }
+      if (mst.api_stype !== this.powerup_ship_type) {
+        return ;
       }
     }
+
     if (this.use_ship_type !== null) {
-      if (arg.ship_types.length === this.use_ship_type[1]) {
-        const count = arg.ship_types.reduce((acc, el) => {
-          if (el === this.use_ship_type![0]) {
+      if (arg.use_ships.length === this.use_ship_type[1]) {
+        const count = arg.use_ships.reduce((acc, el) => {
+          if (el.api_stype === this.use_ship_type![0]) {
             ++acc;
           }
           return acc;
@@ -1003,6 +1006,72 @@ abstract class QuestKaisouUseType extends QuestKaisou {
   }
 }
 
+/**
+ * 
+ */
+const countUseIds = (use_ships: MstShip[], ids: number[]): number => {
+  return use_ships.reduce((acc, el) => {
+    if (ids.indexOf(el.api_id) !== -1) {
+      ++acc;
+    }
+    return acc;
+  }, 0);
+};
+
+abstract class QuestKaisouUseId extends QuestKaisou {
+  abstract powerup_ship_type: ApiShipType | null;
+  abstract use_ship_ids: number[];
+  abstract use_ship_count: number;
+
+  onPowerUp(arg: ApiPowerUpWothParam): void {
+    if (! arg.api_data.api_powerup_flag) {
+      return ;
+    }
+
+    if (this.powerup_ship_type !== null) {
+      const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id);
+      if (! mst) {
+        return ;
+      }
+      if (mst.api_stype !== this.powerup_ship_type) {
+        return ;
+      }
+    }
+
+    const count = countUseIds(arg.use_ships, this.use_ship_ids);
+    if (count == this.use_ship_count) {
+      this.increment();
+    }
+  }
+}
+
+/**
+ * 
+ */
+abstract class QuestKaisouUseIdToId extends QuestKaisou {
+  abstract powerup_ship_ids: number[];
+  abstract use_ship_ids: number[];
+  abstract use_ship_count: number;
+
+  onPowerUp(arg: ApiPowerUpWothParam): void {
+    if (! arg.api_data.api_powerup_flag) {
+      return ;
+    }
+
+    const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id);
+    if (! mst) {
+      return ;
+    }
+    if (! this.powerup_ship_ids.includes(mst.api_id)) {
+      return ;
+    }
+
+    const count = countUseIds(arg.use_ships, this.use_ship_ids);
+    if (count == this.use_ship_count) {
+      this.increment();
+    }
+  }
+}
 
 /**
  * 
@@ -2106,6 +2175,31 @@ factories[349] = {
   isDeckMatch: Quest349.isDeckMatchS,
 };
 
+// 350: 精鋭「第七駆逐隊」演習開始！
+class Quest350 extends QuestPracticeDeck {
+  max = [3];
+  need_win_rank = 'A';
+  isDeckMatch = (ship_ids: number[]) => Quest350.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const ships = toShipMsts(svdata, ship_ids);
+    const check_ids = [
+      svdata.shipMstIds(93),
+      svdata.shipMstIds(15),
+      svdata.shipMstIds(94),
+      svdata.shipMstIds(16),
+    ].flat();
+    return 4 === shipCount(ships, check_ids);
+  }
+
+  dateKey(): string {
+    return questDateKey(ApiQuestType.daily, this.quest.api_label_type);
+  }
+}
+factories[350] = {
+  creator: (p: UpdaterCtorParam) => new Quest350(p),
+  formatter: (quest: Quest): string => detailFormat(['演習 A勝利以上: '], quest),
+  isDeckMatch: Quest350.isDeckMatchS,
+};
 
 // 402: 「遠征」を 3 回成功させよう！
 class Quest402 extends QuestMission {
@@ -2262,6 +2356,16 @@ class Quest442 extends QuestMissionA {
 factories[442] = {
   creator: (p: UpdaterCtorParam) => new Quest442(p),
   formatter: (quest: Quest): string => detailFormatOne(['遠征D1:', '遠征29:', '遠征30:', '遠征D3:'], quest),
+};
+
+// 443:	西方連絡作戦による航空技術獲得
+class Quest443 extends QuestMissionA {
+  max = [2];
+  quest_names = [ ['潜水艦派遣作戦'] ];
+}
+factories[443] = {
+  creator: (p: UpdaterCtorParam) => new Quest443(p),
+  formatter: (quest: Quest): string => detailFormat(['遠征30: '], quest),
 };
 
 // 503: 艦隊大整備！
@@ -2731,6 +2835,71 @@ factories[703] = {
   formatter: (quest: Quest): string => detailFormat(['近代化改修成功: '], quest),
 };
 
+// 710: 【桃の節句】菱餅改修：2021序
+class Quest710 extends QuestKaisouUseId {
+  max = [1];
+  powerup_ship_type = ApiShipType.kutikukan;
+  use_ship_ids = [
+    1, 254, 434,  
+    2, 255, 435, 
+    164, 308, 
+    165, 309,  
+    28, 256, 
+    418, 481, 
+    366, 29, 
+    257, 548,  
+    30, 259,   
+    7, 260,
+    31, 261];
+  use_ship_count = 4;
+}
+factories[710] = {
+  creator: (p: UpdaterCtorParam) => new Quest710(p),
+  formatter: (quest: Quest): string => detailFormatOne(['駆逐艦へ睦月型4隻使用改修成功1回:'], quest),
+};
+
+// 711: 【桃の節句】菱餅改修：2021破
+class Quest711 extends QuestKaisouUseIdToId {
+  max = [2];
+  powerup_ship_ids = [
+    13, 207, 195,   3, 479, 390,
+    480, 391,  93, 230,  15, 231,
+    665,  94, 232,  16, 233, 407
+  ];
+  use_ship_ids = [
+    9, 201, 426,  10, 202,  32,
+    203,  11, 204,  33, 205, 420,
+    631, 700,  12, 206, 486, 368
+  ];
+  use_ship_count = 5;
+}
+factories[711] = {
+  creator: (p: UpdaterCtorParam) => new Quest711(p),
+  formatter: (quest: Quest): string => detailFormat(['綾波型への吹雪型駆逐艦5隻使用改修成功: '], quest),
+};
+
+// 712: 【桃の節句】菱餅改修：2021週
+class Quest712 extends QuestKaisouUseType {
+  max = [2];
+  powerup_ship_type = ApiShipType.jyuujyun;
+  use_ship_type: ShipTypeCount = [ ApiShipType.keijyun, 4];
+}
+factories[712] = {
+  creator: (p: UpdaterCtorParam) => new Quest712(p),
+  formatter: (quest: Quest): string => detailFormat(['重巡への軽巡4隻使用改修成功: '], quest),
+};
+
+// 713: 【桃の節句】菱餅改修：2021空
+class Quest713 extends QuestKaisouUseType {
+  max = [2];
+  powerup_ship_type = ApiShipType.seiki_kuubo;
+  use_ship_type: ShipTypeCount = [ ApiShipType.kei_kuubo, 5];
+}
+factories[713] = {
+  creator: (p: UpdaterCtorParam) => new Quest713(p),
+  formatter: (quest: Quest): string => detailFormat(['正規空母への軽空母5隻使用改修成功: '], quest),
+};
+
 // 714:	「駆逐艦」の改修工事を実施せよ！
 class Quest714 extends QuestKaisouUseType {
   max = [2];
@@ -3178,7 +3347,7 @@ class Quest907 extends QuestBattleMapDeck {
 }
 factories[907] = {
   creator: (p: UpdaterCtorParam) => new Quest907(p),
-  formatter: (quest: Quest): string => detailFormat(['2-1S: ', '2-2S: ', '2-3S: '], quest),
+  formatter: (quest: Quest): string => detailFormat(['2-1S:', '2-2S:', '2-3S:'], quest),
   isDeckMatch: Quest907.isDeckMatchS,
 };
 
@@ -3203,7 +3372,7 @@ class Quest908 extends QuestBattleMapDeck {
 }
 factories[908] = {
   creator: (p: UpdaterCtorParam) => new Quest908(p),
-  formatter: (quest: Quest): string => detailFormat(['2-4S: ', '2-5S: ', '7-2S(第2): '], quest),
+  formatter: (quest: Quest): string => detailFormat(['2-4S:', '2-5S:', '7-2S(第2):'], quest),
   isDeckMatch: Quest908.isDeckMatchS,
 };
 
@@ -3307,6 +3476,32 @@ factories[931] = {
   isDeckMatch: Quest931.isDeckMatchS,
 };
 
+// 932:【春限定】春の天津風！
+class Quest932 extends QuestBattleMapDeck {
+  max = [2, 2, 2];
+  area_and_rank: QuestMapOrCell[] = [ [ 2, 2, 'A' ], [ 2, 3, 'A' ], [ 7, 3, 'S', [18, 23, 24 ,25] ] ];
+  isDeckMatch = (ship_ids: number[]) => Quest931.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+
+    const flag_check_ids = svdata.shipMstIds(181);
+    if (! isShipIds(svdata, ship_ids[0], flag_check_ids)) {
+      return false;     
+    }
+
+    const check_ids = [
+      svdata.shipMstIds(20),
+      svdata.shipMstIds(186),
+      svdata.shipMstIds(190),
+    ].flat();
+    return isShipIds(svdata, ship_ids[1] ?? 0, check_ids);
+  }
+}
+factories[932] = {
+  creator: (p: UpdaterCtorParam) => new Quest932(p),
+  formatter: (quest: Quest): string => detailFormat(['2-2A: ', '2-3A: ', '7-3A(第2): '], quest),
+  isDeckMatch: Quest932.isDeckMatchS,
+};
+
 // 933:【艦隊司令部強化】艦隊旗艦、出撃せよ！
 class Quest933 extends QuestBattleMapDeck {
   max = [2, 2, 2, 2];
@@ -3393,6 +3588,22 @@ factories[936] = {
   creator: (p: UpdaterCtorParam) => new Quest936(p),
   formatter: (quest: Quest): string => detailFormatOne(['2-4S:', '3-2S:', '5-3S:', '7-1S:', '7-2S(第2):'], quest),
   isDeckMatch: Quest936.isDeckMatchS,
+};
+
+// 937: 精鋭「第七駆逐隊」、出撃せよ！
+class Quest937 extends QuestBattleMapDeck {
+  max = [1, 1, 1, 1];
+  area_and_rank: QuestMap[] = [ [ 2, 3, 'S' ], [ 3, 2, 'S' ], [ 4, 4, 'S' ], [ 5, 4, 'S' ], ];
+  isDeckMatch = (ship_ids: number[]) => Quest937.isDeckMatchS(svdata, ship_ids);
+  public static isDeckMatchS(svdata: SvData, ship_ids: number[]): boolean {
+    const check_ids = [665, 407];
+    return shipCount(toShipMsts(svdata, ship_ids), check_ids) == 2;
+  }
+}
+factories[937] = {
+  creator: (p: UpdaterCtorParam) => new Quest937(p),
+  formatter: (quest: Quest): string => detailFormatOne(['2-3S:', '3-2S:', '4-4S:', '5-4S:'], quest),
+  isDeckMatch: Quest937.isDeckMatchS,
 };
 
 /**
