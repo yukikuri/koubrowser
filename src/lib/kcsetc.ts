@@ -619,6 +619,7 @@ export const ShipEtcs: ShipEtc[] = [
   {api_id:659, api_onslot:[0,2,3,3], api_sakuteki: [18,62], api_taiku: [55,106], api_kaihi: [35,66], api_lucky: [38,108],},
   {api_id:656, api_onslot:[], api_sakuteki: [14,48], api_taiku: [32,85], api_kaihi: [66,100], api_lucky: [63,100],},
   {api_id:662, api_onslot:[1,1,4,2], api_sakuteki: [16,61], api_taiku: [26,82], api_kaihi: [43,83], api_lucky: [13,77],},
+  {api_id:665, api_onslot:[], api_sakuteki: [10,46], api_taiku: [22,80], api_kaihi: [62,91], api_lucky: [18,88],},
   {api_id:678, api_onslot:[], api_sakuteki: [6,29], api_taiku: [NaN,62], api_kaihi: [53,87], api_lucky: [9,59],},
   {api_id:679, api_onslot:[], api_sakuteki: [5,28], api_taiku: [NaN,61], api_kaihi: [54,90], api_lucky: [37,87],},
   {api_id:680, api_onslot:[], api_sakuteki: [12,56], api_taiku: [NaN,59], api_kaihi: [47,90], api_lucky: [12,58],},
