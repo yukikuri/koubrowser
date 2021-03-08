@@ -11,6 +11,7 @@ import { NotifyData } from '@/lib/kcs';
 import { svdata } from '@/renderer/store/svdata';
 import { quests } from '@/renderer/store/quests';
 import { replaceArray } from '@/lib/ts';
+import { ChartStuff } from '@/renderer/components/chart/stuff';
 import 'buefy/dist/buefy.min.css';
 import '@/renderer/assist.scss';
 
@@ -18,6 +19,8 @@ import '@/renderer/assist.scss';
 Vue.config.silent = AppStuff.isProduction;
 Vue.config.performance = AppStuff.isProduction;
 Vue.config.productionTip =  false;
+
+ChartStuff.initialize();
 
 console.log('assist main start');
 

@@ -3292,3 +3292,173 @@ $eship-col-height: ( 60px / (240px / $eship-col-width ) ) + 12px;
     border: 1px solid #000;
   }
 }
+
+///////////////////////////////////////////////////////////////
+// chart
+
+.chart {
+
+  &.top-line {
+    border-top: 1px solid #ccc;
+  }
+
+  .chart-image {
+    $size: 24px;
+    fill: #fff;
+    height: $size;
+    width: $size;
+    vertical-align: middle;
+  }
+
+  width: $assist-width;
+  height: 500px;
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+  }
+
+  .chart-content {
+    position: absolute;
+    width: $assist-width;
+    height: 500px;
+    top: 0;
+    left: 0;
+  }
+
+  $color-fuel: lighten(#7bd66f, 20%);
+  $color-bull: lighten(#b79249, 20%);
+  $color-steel: lighten(#b7b7b7, 20%);
+  $color-buxite: lighten(#f7a35c, 20%);
+
+  .line-word {
+    display: inline-block;
+    width: 16px;
+    height: 12px;
+    border-bottom: 1px solid transparent;
+    transform: translateY(-4px);
+  }
+
+  .chart-material-buttons {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+    height: 22px;
+
+    button {
+      border-radius: 0px;
+      font-size: 12px;
+      $bk-color: rgb(80,80,83);
+      height: 100%;
+      background-color: $bk-color;
+      //border-color: $bk-color !important;
+      border-width: 0px;
+      outline: unset;
+      border-radius: 3px;
+      //background-color: #2b908f;
+      margin-right: 5px;
+      cursor: pointer;
+      &.is-visible {
+        background-color: #000;
+      }
+  
+      &.fuel {
+        color: $color-fuel;
+        .line-word {
+          border-color: $color-fuel;
+        }
+      }
+
+      &.bull {
+        color: $color-bull;
+        .line-word {
+          border-color: $color-bull;
+        }
+      }
+
+      &.steel {
+        color: $color-steel;
+        .line-word {
+          border-color: $color-steel;
+        }
+      }
+
+      &.buxite {
+        color: $color-buxite;
+        .line-word {
+          border-color: $color-buxite;
+        }
+      }
+    }
+  }
+
+  $color-minus: orange;
+  $color-plus: lightgreen;
+
+  .chart-material-detail {
+    font-size: 14px;
+    position: absolute;
+    top: 36px;
+    left: 16px;
+    height: 16px;
+
+    > span {
+      display: none;
+    }
+
+    .is-visible {
+      display: inline;
+    }
+
+    .is-minus {
+      color: $color-minus;
+    }
+    .is-plus {
+      color: $color-plus;
+    }
+
+  }
+
+  .highcharts-tooltip {
+    > span {
+      border: 1px solid silver;
+    }
+
+    .s-icon::before {
+      transform: none;
+    }
+
+    .tip-text {
+      font-size: 13px;
+      .minus {
+        color: $color-minus;
+      }
+      .plus {
+        color: $color-plus;
+      }
+
+      &.date {
+        line-height: 13px;
+        padding-bottom: 6px;
+        text-align: center;
+      }
+
+      &.fuel, &.fast-repair {
+        color: $color-fuel;
+      }
+
+      &.bull, &.fast-build {
+        color: $color-bull;
+      }
+
+      &.steel, &.build-kit {
+        color: $color-steel;
+      }
+
+      &.buxite, &.remodel-kit {
+        color: $color-buxite;
+      }
+    }
+  }
+}

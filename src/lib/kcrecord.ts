@@ -16,7 +16,9 @@ import {
 import {
   RecordUtil, 
   BattleRecord, 
-  Quest, 
+  Quest,
+  PortRecord,
+  PortRecordQuery, 
 } from '@/lib/record'
 import { QuestUpdater } from '@/lib/kcquest';
 import NeDB from 'nedb';
@@ -392,6 +394,26 @@ export class KcRecord {
             resolve(docs);
           }
         });
+    });
+  }
+
+  /**
+   * 
+   */
+  public async lastPortRecord(query: PortRecordQuery): Promise<PortRecord[]> {
+    return new Promise<PortRecord[]>((resolve, reject) => {
+      const find = this.portDB.find<PortRecord>({}, query.projection as any);
+      if (query.limit) {
+        find.limit(query.limit);
+      }
+      find.sort({'date': -1});
+      find.exec((err, docs: PortRecord[]): void => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(docs);
+        }
+      });
     });
   }
 

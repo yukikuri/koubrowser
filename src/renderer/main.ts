@@ -12,6 +12,7 @@ import { AppStuff } from '@/lib/app';
 import { appState } from '@/global/appstate';
 import { NotifyData } from '@/lib/kcs';
 import { recorderStuff } from '@/renderer/stuff/recorder';
+import { ChartStuff } from '@/renderer/components/chart/stuff';
 import { replaceArray } from '@/lib/ts';
 import 'buefy/dist/buefy.min.css';
 import '@/renderer/main.scss'
@@ -24,6 +25,7 @@ Vue.config.performance = AppStuff.isProduction;
 Vue.config.productionTip =  false
 //console.log('process env', process.env);
 
+ChartStuff.initialize();
 
 ipcRenderer.on(AssistChannel.api_req, (event, data: NotifyData) => {
   console.log('AssistChannel', AssistChannel.api_req);

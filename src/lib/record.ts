@@ -38,6 +38,16 @@ export interface PortRecord {
   [id: number]: number | undefined;
 }
 
+export interface PortRecordQueryProjection {
+  date?: 0 | 1,
+  [id: number]: 0 | 1;
+}
+
+export interface PortRecordQuery {
+  limit?: number;
+  projection?: PortRecordQueryProjection;
+}
+
 // drop ship and item
 export interface DropRecord {
   mapId: number;

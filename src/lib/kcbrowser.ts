@@ -25,7 +25,7 @@ import { Api, ApiCallback, KcsUtil } from '@/lib/kcs';
 import { KcProxyStart } from '@/lib/kcproxy';
 import { appState } from '@/global/appstate'
 import path from 'path'
-import { BattleRecord } from '@/lib/record';
+import { BattleRecord, PortRecord, PortRecordQuery } from '@/lib/record';
 import { IpcObject } from '@/lib/ipc';
 import { airbaseSpotStore } from '@/main/store';
 import { PathStuff } from '@/main/path';
@@ -182,6 +182,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.set_airbase_spots, async(event, arg) => this.onChannelSetAirbaseSpots(arg));
     ipcMain.handle(MainChannel.open_url_by_external, async(event, url) => this.onChannelOpenUrlByExternal(url));
     ipcMain.handle(MainChannel.get_version, () => this.onChannelGetVersion());
+    ipcMain.handle(MainChannel.query_material, async (event, query) => this.onChannelQueryMaterial(query));
     powerMonitor.on('resume', () => this.onPowerResume());
     this.cbBasicFirst = ApiCallback.set([Api.GET_MEMBER_REQUIRE_INFO, () => this.onRequireInfo()]);  
   
@@ -622,6 +623,14 @@ export class KcApp {
    */
   private onChannelGetVersion(): string {
     return app.getVersion();
+  }
+
+  /**
+   * 
+   */
+  private async onChannelQueryMaterial(query: PortRecordQuery): Promise<PortRecord[]> {
+    console.log(MainChannel.query_material);
+    return this.kcrecord!.lastPortRecord(query);
   }
 
   /**
