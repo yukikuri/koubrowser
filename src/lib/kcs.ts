@@ -3222,7 +3222,7 @@ export class KcsUtil {
     }
 
     if (!ret.length) {
-      if (cnt.s >= 2 || cnt.f >= 2) {
+      if ((cnt.s+cnt.f) >= 2) {
         ret.push(YCutin.RENGEKI);
       }
     }
