@@ -1,14 +1,14 @@
 <template>
   <div class="ship-items-root">
-    <b-tabs type="is-toggle" size="is-small" class="ship-items-tabs" expanded v-model="index">
+    <b-tabs type="is-toggle" size="is-small" class="ship-items-tabs" expanded v-model="index" destroy-on-hide>
       <b-tab-item label="艦隊一覧">
         <ship-list />
       </b-tab-item>
       <b-tab-item label="装備一覧">
-        <slotitem-list v-if="index===1" />
+        <slotitem-list />
       </b-tab-item>
       <b-tab-item label="アイテム一覧">
-        <item-list  v-if="index===2" />
+        <item-list />
       </b-tab-item>
     </b-tabs>
   </div>

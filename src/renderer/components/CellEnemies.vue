@@ -1,6 +1,6 @@
 <template>
   <div class="cell-enemies">
-    <b-tabs size="is-small" expanded class="cell-enemy-tabs" @input="onChange" v-model="index">
+    <b-tabs size="is-small" expanded class="cell-enemy-tabs" @input="onChange" v-model="index" destroy-on-hide>
       <b-tab-item v-for="(item, idx) in items" :key="idx" :headerClass="{'cell-enemy-tab-item': true, 'no-padding': item.maxAA > 0, 'is-battle': item.isBattle}">
         <template slot="header">
           <span>{{item.label}}</span>
@@ -12,7 +12,7 @@
           </div>
         </template>
         <div>
-          <CellEnemy v-if="idx===index" :area_id="area_id" :area_no="area_no" :cell_no="item.no" :deck_index="deck_index"/>
+          <CellEnemy :area_id="area_id" :area_no="area_no" :cell_no="item.no" :deck_index="deck_index"/>
         </div>
       </b-tab-item>
     </b-tabs>

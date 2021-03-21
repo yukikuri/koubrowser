@@ -1,35 +1,35 @@
 <template>
   <div class="assist-root">
-    <b-tabs type="is-toggle" size="is-small" class="assist-tabs" expanded v-model="index">
+    <b-tabs type="is-toggle" size="is-small" class="assist-tabs" expanded v-model="index" destroy-on-hide>
       <b-tab-item label="編成">
-        <component v-if="index===0 && isDataOk" :is="'DeckPort'" />
-        <component v-else-if="index===0" :is="'Invalid'" />
+        <component v-if="isDataOk" :is="'DeckPort'" />
+        <component v-else :is="'Invalid'" />
       </b-tab-item>
       <b-tab-item label="海域">
-        <component v-if="index===1 && isDataOk" :is="'WorldTab'" />
-        <component v-else-if="index===1" :is="'Invalid'" />
+        <component v-if="isDataOk" :is="'WorldTab'" />
+        <component v-else :is="'Invalid'" />
       </b-tab-item>
       <b-tab-item label="艦隊/装備/アイテム">
-        <component v-if="index===2 && isDataOk" :is="'ShipItems'" />
-        <component v-else-if="index===2" :is="'Invalid'" />
+        <component v-if="isDataOk" :is="'ShipItems'" />
+        <component v-else :is="'Invalid'" />
       </b-tab-item>
       <b-tab-item label="任務/ドック">
-        <div v-if="index===3 && isDataOk">
+        <div v-if="isDataOk">
           <div class="assist-dock">
             <div><NDockList/></div>
             <div><KDockList/></div>
           </div>
           <div><QuestList/></div>
         </div>
-        <component v-else-if="index===3" :is="'Invalid'" />
+        <component v-else :is="'Invalid'" />
       </b-tab-item>
-      <b-tab-item label="記録"><router-link to="/record"></router-link>
-        <component v-if="index===4 && isDataOk" :is="'chart-material'" />
-        <component v-if="index===4 && isDataOk" :is="'chart-kit'" />
-        <component v-if="index===4 && !isDataOk" :is="'Invalid'" />
+      <b-tab-item label="資源記録">
+        <component v-if="isDataOk" :is="'chart-material'" />
+        <component v-if="isDataOk" :is="'chart-kit'" />
+        <component v-if="!isDataOk" :is="'Invalid'" />
       </b-tab-item>
       <b-tab-item label="情報">
-        <div class="assist-about" v-if="index===5">
+        <div class="assist-about">
           <about/>
         </div>
       </b-tab-item>

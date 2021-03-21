@@ -11,7 +11,7 @@
       <template slot="content">
         <component v-if="isTooltipShipShow" :is="'ShipTooltip'" :ship_id="tooltipShipId" />
       </template>
-      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index">
+      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" destroy-on-hide>
         <b-tab-item v-for="(deck, idx) in decks" :key="idx">
           <template slot="header">
             {{deck.name}}
@@ -24,7 +24,7 @@
             </div>
           </template>
           <div class="deckport">
-            <deck v-if="idx===index" :show_rate="show_rate" :deck="deck.deck" 
+            <deck :show_rate="show_rate" :deck="deck.deck" 
               :tooltip_ship_id.sync="tooltip_ship_id" :tooltip_ship_show.sync="tooltip_ship_show" />
           </div>
         </b-tab-item>

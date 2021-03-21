@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-tabs size="is-small" expanded class="enemy-list-tabs" @input="onChange" v-model="index">
+    <b-tabs size="is-small" expanded class="enemy-list-tabs" @input="onChange" v-model="index" destroy-on-hide>
       <b-tab-item v-for="(item, idx) in items" :key="idx" :headerClass="{ 'no-padding': item.info.aa > 0, 'is-battle': inMap && item.isBattle }">
         <template slot="header">
           <span>構成{{idx+1}}</span>
@@ -12,7 +12,7 @@
           </div>
         </template>
         <div>
-          <EnemyList v-if="idx===index" :info="item.info" :deck_index="deck_index" />
+          <EnemyList :info="item.info" :deck_index="deck_index" />
         </div>
       </b-tab-item>
     </b-tabs>

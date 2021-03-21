@@ -1,54 +1,54 @@
 <template>
   <section>
     <div class="world-root">
-      <b-tabs size="is-small" expanded class="world-tabs" @input="onChange" v-model="index">
+      <b-tabs size="is-small" expanded class="world-tabs" @input="onChange" v-model="index" destroy-on-hide>
         <b-tab-item :headerClass="{ 'is-battle': isWorld1 }">
           <template slot="header">
             <img class="world-img" title="1: 鎮守府海域" src="img/world/world1.png">
           </template>
-          <component v-if="index===0" :is="'Areas'" :area_id="1" />
+          <component :is="'Areas'" :area_id="1" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isWorld2 }">
           <template slot="header">
             <img class="world-img" title="2: 南西諸島海域" src="img/world/world2.png">
           </template>
-          <component v-if="index===1" :is="'Areas'" :area_id="2" />
+          <component :is="'Areas'" :area_id="2" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isWorld3 }">
           <template slot="header">
             <img class="world-img" title="3: 北方海域" src="img/world/world3.png">
           </template>
-          <component v-if="index===2" :is="'Areas'" :area_id="3" />
+          <component :is="'Areas'" :area_id="3" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isWorld7 }">
           <template slot="header">
             <img class="world-img" title="7: 南西海域" src="img/world/world7.png">
           </template>
-          <component v-if="index===3" :is="'Areas'" :area_id="7" />
+          <component :is="'Areas'" :area_id="7" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isBattle4 }">
           <template slot="header">
             <img class="world-img" title="4: 西方海域" src="img/world/world4.png">
           </template>
-          <component v-if="index===4" :is="'Areas'" :area_id="4" />
+          <component :is="'Areas'" :area_id="4" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isWorld5 }">
           <template slot="header">
             <img class="world-img" title="5: 南方海域" src="img/world/world5.png">
           </template>
-          <component v-if="index===5" :is="'Areas'" :area_id="5" />
+          <component :is="'Areas'" :area_id="5" />
         </b-tab-item>
         <b-tab-item :headerClass="{ 'is-battle': isWorld6 }">
           <template slot="header">
             <img class="world-img" title="6: 中部海域" src="img/world/world6.png">
           </template>
-          <component v-if="index===6" :is="'Areas'" :area_id="6" />
+          <component :is="'Areas'" :area_id="6" />
         </b-tab-item>
         <b-tab-item v-if="inEvent" :headerClass="{ 'is-battle': isWorldEvent, 'is-event': true }">
           <template slot="header">
             <span class="world-event" :title="eventName">{{eventName}}</span>
           </template>
-          <component v-if="index===7" :is="'Areas'" :area_id="eventAreaId" />
+          <component :is="'Areas'" :area_id="eventAreaId" />
         </b-tab-item>
       </b-tabs>
     </div>        

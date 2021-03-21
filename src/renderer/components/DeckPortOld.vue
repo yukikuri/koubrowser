@@ -1,13 +1,13 @@
 <template>
   <div>
     <div v-if="isDeckOk">
-      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index">
+      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" destroy-on-hide>
         <b-tab-item v-for="(deck, idx) in decks" :key="idx">
           <template slot="header">
             {{deck.name}}<MissionBadge v-if="deck.inMission" :deck="deck.deck" />
           </template>
           <div class="deckport">
-            <component v-if="idx===index" :is="'Deck'" :show_rate="show_rate" :deck="deck.deck"/>
+            <component :is="'Deck'" :show_rate="show_rate" :deck="deck.deck"/>
           </div>
         </b-tab-item>
       </b-tabs>
