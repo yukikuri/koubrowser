@@ -1,0 +1,28 @@
+name: 不具合報告
+description: アプリの不具合を報告する
+title: "[Bug]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        不具合報告ありがとうございます。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 不具合の内容
+      description: 発生している問題を記載してください。
+      placeholder: 例）設定画面で保存ボタンを押すとアプリが終了する
+    validations:
+      required: true
+
+  - type: upload
+    id: files
+    attributes:
+      label: 添付ファイル
+      description: スクリーンショットやログがあれば添付してください。
+    validations:
+      required: false
+      accept: ".png,.jpg,.jpeg,.gif,.webp,.log,.txt,.zip"
