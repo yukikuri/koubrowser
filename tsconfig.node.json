@@ -1,0 +1,28 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": [
+    "electron.vite.config.*", 
+    "src/common/**/*",
+    "src/global/**/*",
+    "src/main/**/*", 
+    "src/preload/**/*"
+  ],
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "composite": true,
+    "types": ["electron-vite/node"],
+    "paths": {
+      "@common/*": [
+        "./src/common/*"
+      ],
+      "@global/*": [
+        "./src/global/*"
+      ],
+      "@main/*": [
+        "./src/main/*"
+      ]
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": [
+    "src/renderer/src/env.d.ts",
+    "src/common/**/*",
+    "src/global/**/*",
+    "src/renderer/src/**/*",
+    "src/renderer/src/**/*.vue",
+    "src/preload/*.d.ts"
+  ],
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "composite": true,
+    "paths": {
+      "@common/*": [
+        "./src/common/*"
+      ],
+      "@global/*": [
+        "./src/global/*"
+      ],
+      "@renderer/*": [
+        "./src/renderer/src/*"
+      ],
+      "@assets/*": [
+        "./src/renderer/src/assets/*"
+      ],
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
+}

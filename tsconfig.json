@@ -1,47 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/@types"
-    ],
-    "types": [
-      "webpack-env",
-      "mocha",
-      "chai",
-      "qs",
-      "dom-mediacapture-record"
-    ],
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.node.json" }, 
+    { "path": "./tsconfig.web.json" }
   ],
-  "exclude": [
-    "node_modules"
-  ]
 }

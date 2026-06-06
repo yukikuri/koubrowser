@@ -1,2 +1,2 @@
-import { SvData } from '@/lib/kcs';
-export const svdata: SvData = new SvData();
+import { SvData, createSvDataRaw } from '@common/kcs'
+export const svdata: SvData = new SvData(createSvDataRaw())

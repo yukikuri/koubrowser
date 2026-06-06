@@ -1,0 +1,68 @@
+appId: com.koubrowser.app
+productName: 甲ブラウザ
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!scripts/*'
+  - '!openapi/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml}'
+  - '!{CHANGELOG.md,README.md,AGENTS.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{orval.config.ts}'
+  - '!{kou*.bat}'
+  - '!saved/*'
+  - '!coverage/*'
+  - '!vitest.config.ts'
+  - '!test/*'
+  - '!test-data*/*'
+  - '!**/__tests__/**'
+  - '!**/__snapshots__/**'
+  - '!**/*.{spec,test}.*'
+asarUnpack:
+  - resources/**
+win:
+  icon: build/icon.ico
+  executableName: KouBrowser
+nsis:
+  artifactName: KouBrowser-${version}-win-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+mac:
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  notarize: false
+dmg:
+  artifactName: KouBrowser-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: electronjs.org
+  category: Utility
+appImage:
+  artifactName: KouBrowser-${version}.${ext}
+npmRebuild: false
+# package.jsonでversionにBetaが含まれると更新情報メタ情報ファイルはbeta.ymlで作成される
+# 更新情報メタ情報ファイルをlatest.ymlで作成したい場合は
+# publish:
+#   channel: latest
+# の指定で可能である
+# 規定では指定しない、package.jsonでのversionから作成されるファイル名で決定させる
+publish:
+  provider: generic
+  url: https://download.koubrowser.app/releases
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/

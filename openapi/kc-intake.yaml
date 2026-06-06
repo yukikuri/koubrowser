@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: Kc Intake API
+  version: 1.0.0
+
+paths:
+  /drop:
+    post:
+      summary: Drop情報受付
+      operationId: drop
+      requestBody:
+        required: true
+        description: |
+          DropData の配列を受け付けます。
+          sid が -2 の要素はクライアント側で送信しない前提。
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/DropData'
+            examples:
+              sample:
+                value:
+                  - v: 1
+                    mid: 11
+                    cno: 1
+                    efm: 1
+                    mlv: 0
+                    sid: -1
+                    ocnt: 0
+                    rank: "S"
+                    es1: [1501]
+                    dt: "2026-01-02T12:34:56Z"
+                    srv: "19"
+                    its:
+                      - id: 68
+                        ocnt: 12
+                  - v: 1
+                    mid: 11
+                    cno: 3
+                    efm: 1
+                    mlv: 0
+                    sid: 28
+                    ocnt: 1
+                    rank: "A"
+                    es1: [1505,1502,1502]
+                    dt: "2026-01-03T12:35:12Z"
+                    srv: "19"
+      responses:
+        "204":
+          description: 正常に保存された（レスポンスボディなし）
+        "400":
+          description: JSON形式不正 / スキーマ不正
+        "411":
+          description: Content-Length 未指定
+        "413":
+          description: 受付不可
+        "415":
+          description: Content-Type が application/json 以外
+        "500":
+          description: サーバ内部エラー
+
+components:
+  schemas:
+    DropData:
+      type: object
+      additionalProperties: false
+      required:
+        - v
+        - mid
+        - cno
+        - efm
+        - mlv
+        - sid
+        - ocnt
+        - rank
+        - es1
+        - dt
+        - srv
+      properties:
+        v:
+          type: integer
+          description: バージョン
+          minimum: 1
+        mid:
+          type: integer
+          description: |
+            マップID。1-1なら11、2-5なら25。
+          minimum: 11
+        cno:
+          type: integer
+          description: セルNo
+          minimum: 1
+        efm:
+          type: integer
+          enum: [1, 2, 3, 4, 5, 6, 11, 12, 13, 14]
+          description: |
+            敵編成
+            1 単縦陣
+            2 複縦陣
+            3 輪形陣
+            4 梯形陣
+            5 単横陣
+            6 警戒陣
+            11 第一警戒航行序列(対潜警戒)
+            12 第二警戒航行序列(前方警戒)
+            13 第三警戒航行序列(輪形陣)
+            14 第四警戒航行序列(戦闘隊形)
+        mlv:
+          type: integer
+          enum: [0, 1, 2, 3, 4]
+          description: |
+            0 通常海域
+            1 丁
+            2 丙
+            3 乙
+            4 甲
+        sid:
+          type: integer
+          description: |
+            drop ship mst id。
+            ドロップ無しは -1。
+            必ずドロップするマスで drop 無しは -2（-2 はサーバに送らない前提）。
+          minimum: -2
+        ocnt:
+          type: integer
+          description: ドロップ時の改装込みで保持数。ドロップ無しは0指定
+          minimum: 0
+        rank:
+          type: string
+          description: 勝利ランク
+          enum: ["S","A","B","C","D","E"]
+        es1:
+          type: array
+          description: 敵編成 mst ship id（1列目）
+          items:
+            type: integer
+          minItems: 1
+        es2:
+          type: array
+          description: 敵編成 mst ship id（連合艦隊2列目）
+          items:
+            type: integer
+          minItems: 1
+        dt:
+          type: string
+          description: 日時（UTC、Z表記のRFC3339）formatでdate-timeを使用せずpatternの固定形式で受け取る
+          format: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+        srv:
+          type: string
+          description: サーバID
+          pattern: '^(?:[0-9]|1[0-9]|20)$'
+        its:
+          type: array
+          description: 秋刀魚等のドロップ情報（items）
+          items:
+            $ref: '#/components/schemas/DropItem'
+
+    DropItem:
+      type: object
+      additionalProperties: false
+      required: [id, ocnt]
+      properties:
+        id:
+          type: integer
+          description: アイテムID（例：秋刀魚=68）
+          minimum: 1
+        ocnt:
+          type: integer
+          description: ドロップ時の保持数
+          minimum: 0
+        cnt:
+          type: integer
+          description: ドロップ数、指定なしは1として扱う
+          minimum: 1

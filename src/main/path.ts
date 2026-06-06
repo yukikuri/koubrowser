@@ -1,57 +1,105 @@
-import path from 'path';
-import fs from 'fs';
-import { svdata } from '@/main/svdata';
+import path from 'path'
+import fs from 'fs'
+import { svdata } from '@main/svdata'
 
-const store_dirname = 'store';
-const capture_dirname = 'capture'; 
+const app_dirname = 'koubrowser'
+const store_dirname = 'store'
+const capture_dirname = 'capture'
+
+let _mainDir: string | undefined
+let _userDataDir: string | undefined
+
+export function setMainDir(appDir: string) {
+  _mainDir = appDir
+}
+
+export function getMainDir(): string {
+  if (! _mainDir) {
+    throw new Error('MainDir not set')
+  }
+  return _mainDir
+}
+
+export function setUserDataDir(userData: string) {
+  _userDataDir = path.join(userData, app_dirname)
+  if (!fs.existsSync(_userDataDir)) {
+    fs.mkdirSync(_userDataDir, { recursive: true })
+  }
+}
+
+export function getUserDataDir(): string {
+  if (! _userDataDir) {
+    throw new Error('UserDataDir not set')
+  }
+  return _userDataDir
+}
+
+export const AppMapImgDrawState = {
+  nodraw: 0,
+  drawed: 1
+} as const
+export type AppMapImgDrawState = (typeof AppMapImgDrawState)[keyof typeof AppMapImgDrawState]
+
+export interface AppMapImgDraw {
+  no: number
+  drawed: AppMapImgDrawState
+}
+
+export interface AppMapDrawed {
+  cells: AppMapImgDraw[]
+}
 
 /**
- * 
+ *
  */
-export class PathStuff {
-
+class PathStuffImpl {
   /**
-   * 
+   *
    */
-  public static createStoreDir(): void {
-    const store = this.storePathExe;
-    if (!fs.existsSync(store)) {
-      fs.mkdirSync(store);
-    }
-
-    const user = this.storePathUser;
-    if (!fs.existsSync(user)) {
-      fs.mkdirSync(user);
-    }
-
+  createStoreDir(): void {
+    const dirs = [
+      this.storeApp,
+      this.storeUser,
+    ]
+    dirs.forEach((dir) => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+    })
   }
 
   /**
-   * 
+   *
    */
-  public static get storePathExe(): string {
-    //return path.join(__dirname, dirname);
-    return path.join(__dirname, '..', store_dirname);
+  get storeApp(): string {
+    return path.join(getUserDataDir(), store_dirname)
   }
 
   /**
-   * 
+   *
    */
-  public static capturePathExe(createIf: boolean): string {
-    //return path.join(__dirname, dirname);
-    const ret = path.join(__dirname, '..', capture_dirname);
+  get storeGlobal(): string {
+    return getUserDataDir()
+  }
+
+  /**
+   *
+   */
+  capturePathExe(createIf: boolean): string {
+    const ret = path.join(getUserDataDir(), capture_dirname)
     if (createIf && !fs.existsSync(ret)) {
-      fs.mkdirSync(ret);
+      fs.mkdirSync(ret)
     }
 
-    return ret;
+    return ret
   }
 
   /**
-   * 
+   *
    */
-  public static get storePathUser(): string {
-    return path.join(this.storePathExe, svdata.serverId + '_' + svdata.basic.api_member_id);
+  get storeUser(): string {
+    return path.join(this.storeApp, svdata.serverId + '_' + svdata.basic.api_member_id)
   }
-
 }
+
+export const PathStuff = new PathStuffImpl()

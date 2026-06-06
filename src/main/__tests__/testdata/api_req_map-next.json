@@ -1,0 +1,35 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_rashin_flg": 0,
+  "api_rashin_id": 0,
+  "api_maparea_id": 1,
+  "api_mapinfo_no": 6,
+  "api_no": 14,
+  "api_color_no": 8,
+  "api_event_id": 8,
+  "api_event_kind": 0,
+  "api_next": 0,
+  "api_bosscell_no": 0,
+  "api_bosscomp": 0,
+  "api_comment_kind": 0,
+  "api_production_kind": 0,
+  "api_airsearch": {
+   "api_plane_type": 0,
+   "api_result": 0
+  },
+  "api_limit_state": 0,
+  "api_get_eo_rate": 75,
+  "api_itemget_eo_result": {
+   "api_usemst": 5,
+   "api_id": 60,
+   "api_getcount": 1
+  },
+  "api_itemget_eo_comment": {
+   "api_usemst": 4,
+   "api_id": 1,
+   "api_getcount": 1000
+  }
+ }
+}
