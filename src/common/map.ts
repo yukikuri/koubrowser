@@ -173,6 +173,7 @@ const AlwaysDropCellNos: AlwaysDropCellNo[] = [
   { mapId: 53, cellNos: [17] },
   { mapId: 54, cellNos: [16, 22] },
   { mapId: 55, cellNos: [19, 28] },
+  { mapId: 56, cellNos: [43] },
   { mapId: 61, cellNos: [11] },
   { mapId: 62, cellNos: [11, 17, 18] },
   { mapId: 63, cellNos: [10] },
