@@ -149,6 +149,30 @@ npm run gen:licenses
 - Do not add new production dependencies without explaining why they are needed.
 - Do not add console logging to production code unless it is intentional and safe.
 
+## Agent commit / PR policy
+
+When an automated agent such as Codex creates commits or pull requests, prefer using the repository's configured agent identity if one is available.
+
+For commits, use the agent-specific Git author/committer configured for the current environment, such as `user.name` and `user.email`, or explicit per-command config such as `git -c user.name=... -c user.email=... commit`.
+
+Do not include issue numbers in commit messages, to avoid accidental auto-closing or other issue automation.
+
+Do not overwrite global Git configuration.
+
+For pull requests, use the GitHub account authenticated in the current agent environment. If the requested agent identity differs from the authenticated GitHub account, explain that before creating the PR.
+
+When a pull request addresses a specific issue, include the issue reference in the pull request body using `#<number>`, such as `#11`. Use this `#<number>` style for issue references regardless of the Git hosting service; do not use full issue URLs for this purpose.
+
+Do not use issue-closing keywords such as `fixes`, `fixed`, `closes`, or `resolves` unless the user explicitly asks the agent to close the issue when the pull request is merged. When the user explicitly asks for issue closure on merge, include a closing keyword such as `Closes #<number>` in the pull request body.
+
+For pull request branches created by automated agents, use `<agent-name>/<short-description>`, where `<agent-name>` is the agent's general name and `<short-description>` is a concise kebab-case summary of the change. For example, use `codex/update-readme-note` for Codex-created branches, and apply the same pattern for other agents.
+
+## AGENTS.md editing policy
+
+Automated agents must not edit `AGENTS.md` by default.
+
+Only edit `AGENTS.md` when the user explicitly requests a change to this file in the current task. Do not include `AGENTS.md` changes opportunistically in unrelated work.
+
 ## UI / Japanese text guidelines
 
 - Keep Japanese UI text natural and concise.
