@@ -63,6 +63,7 @@ import { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
+import { restoreMainWindowPosition, saveMainWindowPosition } from '@main/app_setting'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -71,8 +72,6 @@ const DEBUG = false;
 const debug = (...args: any[]) => {
   if (DEBUG) console.info("[KcBrowser]", ...args);
 };
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 
 const setUseragent = (): void => {
@@ -202,6 +201,10 @@ export class KcApp {
     return this.assist_window
   }
 
+  public saveMainWindowPosition(): void {
+    saveMainWindowPosition(this.mainWindow)
+  }
+
   constructor() { 
     kcapp = this
 
@@ -223,9 +226,9 @@ export class KcApp {
     // Create the browser window.
     const withAssistSize = calcAssistWindowSize()
     const gameOnlySize = calcGameOnlySize()
+    const mainWindowPosition = restoreMainWindowPosition()
+    const mainWindowPlacement = mainWindowPosition ?? { center: true }
 
-    const x = 20
-    const y = 40
     this.frame_ratio = AppStuff.calcFrameRatio(gameOnlySize.width, gameOnlySize.height)
     const minWidth = 600
     const minHeight = AppStuff.calcFrameHeight(this.frame_ratio, minWidth)
@@ -350,12 +353,11 @@ export class KcApp {
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }
-    this.main_window = new BrowserWindow({
+    const mainWindowOptions: BrowserWindowConstructorOptions = {
       useContentSize: true,
       width: withAssistSize.width,
       height: withAssistSize.height,
-      x: x,
-      y: y,
+      ...mainWindowPlacement,
       minWidth: minWidth,
       minHeight: minHeight,
       fullscreenable: false,
@@ -375,7 +377,8 @@ export class KcApp {
         sandbox: false
         //sandbox: true
       }
-    })
+    }
+    this.main_window = new BrowserWindow(mainWindowOptions)
 
     this.main_window.webContents.on('will-attach-webview', (_event, webPreferences, params) => {
       debug('will-attach-webview:', params, webPreferences)
@@ -416,6 +419,7 @@ export class KcApp {
     // open app html
     openAppHtml(this.mainWindow)
 
+    this.mainWindow.on('close', () => this.saveMainWindowPosition())
     this.mainWindow.on('closed', () => this.onClosed())
     this.mainWindow.on('resize', () => this.onResize())
     this.mainWindow.on('will-resize', (event, newBounds, _details) =>
@@ -720,6 +724,7 @@ export class KcApp {
    */
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
+    this.saveMainWindowPosition()
     // no effect
     //mainWindow.close();
     this.mainWindow.destroy()
