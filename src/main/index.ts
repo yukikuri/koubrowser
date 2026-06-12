@@ -84,6 +84,7 @@ app.on('before-quit', async (event) => {
     beforeQuitHandled = true
     const kcapp = getKcApp()
     if (kcapp) {
+      kcapp.saveMainWindowPosition()
       event.preventDefault()
       try {
         console.time('intakedrop and shutdown worker driver tid:'+ threadId)
