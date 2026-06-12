@@ -1,7 +1,5 @@
 name: 不具合報告
 description: アプリの不具合を報告する
-title: "[Bug]: "
-labels: ["bug"]
 
 body:
   - type: markdown
@@ -22,7 +20,7 @@ body:
     id: files
     attributes:
       label: 添付ファイル
-      description: スクリーンショットやログがあれば添付してください。
+      description: スクリーンショットなどあれば添付してください。
     validations:
       required: false
       accept: ".png,.jpg,.jpeg,.gif,.webp,.log,.txt,.zip"
