@@ -72,22 +72,8 @@ function isPositionInBounds(position: { x: number; y: number }, bounds: Rectangl
   )
 }
 
-function getAllDisplayBounds(): Rectangle | undefined {
-  const displays = screen.getAllDisplays()
-  if (displays.length === 0) {
-    return undefined
-  }
-
-  const minX = Math.min(...displays.map((display) => display.bounds.x))
-  const minY = Math.min(...displays.map((display) => display.bounds.y))
-  const maxX = Math.max(...displays.map((display) => display.bounds.x + display.bounds.width))
-  const maxY = Math.max(...displays.map((display) => display.bounds.y + display.bounds.height))
-  return {
-    x: minX,
-    y: minY,
-    width: maxX - minX,
-    height: maxY - minY
-  }
+function isPositionInAnyDisplay(position: { x: number; y: number }): boolean {
+  return screen.getAllDisplays().some((display) => isPositionInBounds(position, display.bounds))
 }
 
 export function restoreMainWindowPosition(): { x: number; y: number } | undefined {
@@ -96,9 +82,7 @@ export function restoreMainWindowPosition(): { x: number; y: number } | undefine
     return undefined
   }
 
-  const displayBounds = getAllDisplayBounds()
-  //console.log('Saved main window bounds:', savedBounds, 'all Display bounds:', displayBounds)
-  if (!displayBounds || !isPositionInBounds(savedBounds, displayBounds)) {
+  if (!isPositionInAnyDisplay(savedBounds)) {
     //console.warn('Saved main window position is out of display bounds. Using default position.')
     return undefined
   }
