@@ -63,7 +63,7 @@ import { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
-import { restoreMainWindowPosition, saveMainWindowPosition } from '@main/app_setting'
+import { loadAppJsonSetting, restoreAssistInGame, restoreGameOnlySize, restoreMainWindowBounds, saveMainWindowPosition } from '@main/app_setting'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -202,7 +202,10 @@ export class KcApp {
   }
 
   public saveMainWindowPosition(): void {
-    saveMainWindowPosition(this.mainWindow)
+    saveMainWindowPosition(this.mainWindow, gameSetting.assistInGame, {
+      width: appState.game_only_width,
+      height: appState.game_only_height
+    })
   }
 
   constructor() { 
@@ -216,6 +219,7 @@ export class KcApp {
 
     // set user data dir
     setUserDataDir(app.getPath('userData'))
+    loadAppJsonSetting()
 
     // check assist stuff
     gameSetting.assist_ok = screen
@@ -223,10 +227,19 @@ export class KcApp {
       .some((el) => el.bounds.height >= 960 && el.bounds.width >= 1800)
     //screen.getAllDisplays().forEach(el => console.log(el));
 
+    const restoredAssistInGame = restoreAssistInGame()
+    if (restoredAssistInGame !== undefined) {
+      gameSetting.setAssistInGame(restoredAssistInGame)
+    }
+    const restoredGameOnlySize = restoreGameOnlySize()
+
     // Create the browser window.
-    const withAssistSize = calcAssistWindowSize()
+    const restoredMainWindowBounds = restoreMainWindowBounds(gameSetting.isAssistInGame)
+    const withAssistSize = restoredMainWindowBounds ?? calcAssistWindowSize()
     const gameOnlySize = calcGameOnlySize()
-    const mainWindowPosition = restoreMainWindowPosition()
+    const mainWindowPosition = restoredMainWindowBounds
+      ? { x: restoredMainWindowBounds.x, y: restoredMainWindowBounds.y }
+      : undefined
     const mainWindowPlacement = mainWindowPosition ?? { center: true }
 
     this.frame_ratio = AppStuff.calcFrameRatio(gameOnlySize.width, gameOnlySize.height)
@@ -379,6 +392,10 @@ export class KcApp {
       }
     }
     this.main_window = new BrowserWindow(mainWindowOptions)
+    if (restoredGameOnlySize) {
+      appState.game_only_width = restoredGameOnlySize.width
+      appState.game_only_height = restoredGameOnlySize.height
+    }
 
     this.main_window.webContents.on('will-attach-webview', (_event, webPreferences, params) => {
       debug('will-attach-webview:', params, webPreferences)
@@ -404,6 +421,9 @@ export class KcApp {
     )
 
     gameSettingProxy.webContents = this.main_window.webContents
+    if (!gameSetting.isAssistInGame) {
+      this.updateGameOnlyZoomFactor()
+    }
     this.main_window.setAlwaysOnTop(gameSetting.topmost)
 
     debug(
@@ -669,6 +689,21 @@ export class KcApp {
       gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(size.width)
     }
     this.nohandle_resize = false
+  }
+
+  /**
+   *
+   */
+  private updateGameOnlyZoomFactor(): void {
+    if (gameSetting.isAssistInGame) {
+      return
+    }
+
+    const size = this.mainWindow.getContentSize()
+    appState.game_only_width = size[0]
+    appState.game_only_height = size[1]
+    const calcSize = calcAssistWindowSize()
+    gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(calcSize.width)
   }
 
   /**
