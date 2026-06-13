@@ -11,11 +11,16 @@ interface StoredMainWindowBounds {
 
 interface AppJsonSetting {
   window?: {
+    assist_in_game?: boolean
+    game_only_width?: number
+    game_only_height?: number
     main?: StoredMainWindowBounds
+    gameOnly?: StoredMainWindowBounds
   }
 }
 
 const appJsonPath = (): string => path.join(app.getPath('userData'), 'koubrowser.json')
+let appJsonSetting: AppJsonSetting | null = null
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -40,7 +45,21 @@ function readAppJsonSetting(): AppJsonSetting {
   }
 }
 
+export function loadAppJsonSetting(): void {
+  if (appJsonSetting !== null) {
+    return
+  }
+
+  appJsonSetting = readAppJsonSetting()
+}
+
+function getAppJsonSetting(): AppJsonSetting {
+  loadAppJsonSetting()
+  return appJsonSetting ?? {}
+}
+
 function writeAppJsonSetting(setting: AppJsonSetting): void {
+  appJsonSetting = setting
   try {
     fs.writeFileSync(appJsonPath(), JSON.stringify(setting, undefined, ' '), 'utf8')
   } catch (err: unknown) {
@@ -76,8 +95,7 @@ function isPositionInAnyDisplay(position: { x: number; y: number }): boolean {
   return screen.getAllDisplays().some((display) => isPositionInBounds(position, display.bounds))
 }
 
-export function restoreMainWindowPosition(): { x: number; y: number } | undefined {
-  const savedBounds = readAppJsonSetting().window?.main
+function restoreWindowBounds(savedBounds: unknown): StoredMainWindowBounds | undefined {
   if (!isStoredMainWindowBounds(savedBounds)) {
     return undefined
   }
@@ -87,20 +105,49 @@ export function restoreMainWindowPosition(): { x: number; y: number } | undefine
     return undefined
   }
 
-  return { x: savedBounds.x, y: savedBounds.y }
+  return savedBounds
 }
 
-export function saveMainWindowPosition(window: BrowserWindow): void {
+export function restoreAssistInGame(): boolean | undefined {
+  const assistInGame = getAppJsonSetting().window?.assist_in_game
+  return typeof assistInGame === 'boolean' ? assistInGame : undefined
+}
+
+export function restoreMainWindowBounds(assistInGame: boolean): StoredMainWindowBounds | undefined {
+  const windowSetting = getAppJsonSetting().window
+  const savedBounds = assistInGame ? windowSetting?.main : windowSetting?.gameOnly
+  return restoreWindowBounds(savedBounds)
+}
+
+export function restoreGameOnlySize(): { width: number; height: number } | undefined {
+  const windowSetting = getAppJsonSetting().window
+  const width = windowSetting?.game_only_width
+  const height = windowSetting?.game_only_height
+  if (!isFiniteNumber(width) || !isFiniteNumber(height) || width <= 0 || height <= 0) {
+    return undefined
+  }
+
+  return { width, height }
+}
+
+export function saveMainWindowPosition(
+  window: BrowserWindow,
+  assistInGame: boolean,
+  gameOnlySize: { width: number; height: number }
+): void {
   if (window.isDestroyed()) {
     return
   }
 
   const bounds = window.getBounds()
-  const setting = readAppJsonSetting()
+  const setting = getAppJsonSetting()
   const windowSetting = isPlainObject(setting.window) ? setting.window : {}
   setting.window = {
     ...windowSetting,
-    main: {
+    assist_in_game: assistInGame,
+    game_only_width: gameOnlySize.width,
+    game_only_height: gameOnlySize.height,
+    [assistInGame ? 'main' : 'gameOnly']: {
       x: bounds.x,
       y: bounds.y,
       width: bounds.width,
