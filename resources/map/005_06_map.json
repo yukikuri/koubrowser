@@ -1263,5 +1263,43 @@
       "x": 834,
       "y": 383
     }
+  ],
+  "checks": [
+    {
+      "no": 9,
+      "label": "E",
+      "x": 160,
+      "y": 442,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 65,
+        "max": 65
+      }
+    },
+    {
+      "no": 27,
+      "label": "N",
+      "x": 729,
+      "y": 511,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 80,
+        "max": 80
+      }
+    },
+    {
+      "no": 43,
+      "label": "Z",
+      "x": 1025,
+      "y": 278,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 88,
+        "max": 88
+      }
+    }
   ]
 }
