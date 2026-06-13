@@ -10668,7 +10668,7 @@ register(
     }
     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
       const ships = toShipMsts(svdata, ship_ids)
-      if (!shipCount(ships, [543])) {
+      if (!shipCount(ships, svdata.shipMstIds(543))) {
         return false
       }
       const check_ids = [
