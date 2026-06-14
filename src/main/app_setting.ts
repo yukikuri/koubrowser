@@ -9,6 +9,19 @@ interface StoredMainWindowBounds {
   readonly height: number
 }
 
+interface StoredAssistWindowState {
+  readonly visible?: true
+  readonly x: number
+  readonly y: number
+}
+
+export interface RestoredAssistWindowState {
+  readonly position?: {
+    readonly x: number
+    readonly y: number
+  }
+}
+
 interface AppJsonSetting {
   window?: {
     assist_in_game?: boolean
@@ -18,6 +31,7 @@ interface AppJsonSetting {
     game_only_height?: number
     main?: StoredMainWindowBounds
     gameOnly?: StoredMainWindowBounds
+    assistWindow?: StoredAssistWindowState
   }
 }
 
@@ -110,6 +124,21 @@ function restoreWindowBounds(savedBounds: unknown): StoredMainWindowBounds | und
   return savedBounds
 }
 
+function getAssistWindowState(
+  window: BrowserWindow,
+  isClosed: boolean
+): StoredAssistWindowState | undefined {
+  if (!window.isDestroyed()) {
+    const normalBounds = window.getNormalBounds()
+    return {
+      visible: isClosed ? undefined : (window.isVisible() ? true : undefined),
+      x: normalBounds.x,
+      y: normalBounds.y
+    }
+  }
+  return undefined
+}
+
 export function restoreAssistInGame(): boolean | undefined {
   const assistInGame = getAppJsonSetting().window?.assist_in_game
   return typeof assistInGame === 'boolean' ? assistInGame : undefined
@@ -142,6 +171,41 @@ export function restoreGameOnlySize(): { width: number; height: number } | undef
   return { width, height }
 }
 
+export function restoreAssistWindowState(visibleOnly: boolean): RestoredAssistWindowState | undefined {
+  const assistWindow = getAppJsonSetting().window?.assistWindow
+  if (!isPlainObject(assistWindow)) {
+    return undefined
+  }
+
+  if (visibleOnly && assistWindow.visible !== true) {
+    return undefined
+  }
+
+  if (!isFiniteNumber(assistWindow.x) || !isFiniteNumber(assistWindow.y)) {
+    return {}
+  }
+
+  const position = { x: assistWindow.x, y: assistWindow.y }
+  return isPositionInAnyDisplay(position) ? { position } : {}
+}
+
+export function updateAssistWindowState(
+  assistWindow: BrowserWindow,
+  isClosed: boolean
+): void {
+  const assistWindowState = getAssistWindowState(assistWindow, isClosed)
+  console.log('updateAssistWindowState:', assistWindowState, 'isClosed:', isClosed)
+  if (!assistWindowState) {
+    return
+  }
+  const setting = getAppJsonSetting()
+  const windowSetting = isPlainObject(setting.window) ? setting.window : {}
+  setting.window = {
+    ...windowSetting,
+    assistWindow: assistWindowState
+  }
+}
+
 export function saveAppState(
   window: BrowserWindow,
   assistInGame: boolean,
@@ -150,6 +214,7 @@ export function saveAppState(
   muted: boolean
 ): void {
   if (window.isDestroyed()) {
+    console.log('Main window is destroyed. Skipping saveAppState.')
     return
   }
 
