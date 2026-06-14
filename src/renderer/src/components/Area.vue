@@ -898,7 +898,7 @@ const fixMapLosPosAreaMap: FixMapLosPosAreaMap = new Map([
     [10, { modX: 1, modY: -10 }],
   ])],
   [72, new Map([
-    [5, { modX: -80, modY: -10 }],
+    [5, { modX: -90, modY: -20 }],
     [11, { modX: 0, modY: -7 }],
   ])],
   [74, new Map([
