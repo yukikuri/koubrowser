@@ -108,7 +108,7 @@ function setZoomFactor(_event: IpcRendererEvent, factor: number): void {
 }
 
 function domReady(_event: Event): void {
-  debugLog('domReady domRady')
+  debugLog('domReady')
 
   // apply muted state if needed
   if (!mutedStateApplied) {
