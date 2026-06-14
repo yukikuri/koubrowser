@@ -194,7 +194,6 @@ export function updateAssistWindowState(
   isClosed: boolean
 ): void {
   const assistWindowState = getAssistWindowState(assistWindow, isClosed)
-  console.log('updateAssistWindowState:', assistWindowState, 'isClosed:', isClosed)
   if (!assistWindowState) {
     return
   }
