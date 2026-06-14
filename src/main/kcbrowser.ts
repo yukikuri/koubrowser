@@ -817,7 +817,7 @@ export class KcApp {
   }
 
   /**
-   * 
+   * Keep the main-process mute state in sync with the renderer.
    */
   private onChannelNotifyMuteState(muted: boolean) {
     debug(MainChannel.notify_mute_state, 'muted:', muted)
