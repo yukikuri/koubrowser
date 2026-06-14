@@ -12,6 +12,16 @@ import {
 import { MathUtil } from '@common/math'
 import { computed, onMounted, toRaw } from 'vue'
 
+/////////////////////////////////////////////////////////////////////////////////////
+// デバッグログ
+const DEBUG = 0;
+
+const debug = (...args: any[]) => {
+  if (DEBUG) console.debug("[QuestList]", ...args);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 const questProgressDetail = (quest: Quest): string => {
   return questProgressDetailFormat(quest)
 }
@@ -110,7 +120,7 @@ const questStates = (quest: Quest, countTotal: number, countTotalMax: number): Q
 const questLen = computed<number>(() => questsStore.list.length)
 
 const quests = computed<QuestContent[]>(() => {
-  console.log('quest list:', toRaw(questsStore.list))
+  debug('quest list:', toRaw(questsStore.list))
 
   return questsStore.list.map((el) => {
     const countTotal =
@@ -139,7 +149,7 @@ const quests = computed<QuestContent[]>(() => {
       is_stext = true
     }
 
-    console.log('no:', el.no, 'ismatch:', deckOk, 'progressDetail:', progressDetail, el)
+    debug('no:', el.no, 'ismatch:', deckOk, 'progressDetail:', progressDetail, el)
 
     const ret = {
       completed: progress >= 100,
@@ -160,7 +170,7 @@ const quests = computed<QuestContent[]>(() => {
       countTotalMax,
       states: questStates(el, countTotal, countTotalMax)
     }
-    console.log(ret)
+    debug(ret)
     return ret
   })
 })
@@ -168,7 +178,7 @@ const quests = computed<QuestContent[]>(() => {
 const maxQuest = computed<number>(() => svdata.parallelQuestCount)
 
 onMounted(() => {
-  console.log('QuestList mounted')
+  debug('QuestList mounted')
 })
 </script>
 

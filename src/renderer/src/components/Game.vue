@@ -1,12 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'
-
-const DEBUG = 0;
-
-const debugLog = (...args: any[]) => {
-  if (DEBUG) console.debug("[game webview]", ...args);
-};
-
 // webview
 // https://www.electronjs.org/ja/docs/latest/api/webview-tag
 import { WebviewTag, DidFrameFinishLoadEvent, LoadCommitEvent, IpcRendererEvent } from 'electron'
@@ -17,6 +10,17 @@ import { gameState } from '@renderer/store/gamestate'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 const ipcRenderer = window.electron.ipcRenderer
 const el = ref<HTMLElement | null>(null)
+
+/////////////////////////////////////////////////////////////////////////////////////
+// デバッグログ
+const DEBUG = 0;
+
+const debug = (...args: any[]) => {
+  if (DEBUG) console.debug("[game webview]", ...args);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 
 // mute状態はDOM-READY後ではないと設定できないことに注意
 let mutedStateApplied = false
@@ -32,10 +36,10 @@ const stage = ref<StageType>(StageType.None)
 watch(
   () => gameSetting.zoom_factor,
   (newVal, oldVal) => {
-    console.log('zoom factor changed', gameSetting.zoom_factor)
+    debug('zoom factor changed', gameSetting.zoom_factor)
     getWebviewUnsafe().setZoomFactor(gameSetting.zoom_factor)
 
-    console.log('zoom factor changed', newVal, oldVal)
+    debug('zoom factor changed', newVal, oldVal)
     if (newVal !== oldVal) {
       const webview = getWebview()
       if (webview) {
@@ -71,7 +75,7 @@ function getWebviewUnsafe(): WebviewTag {
 
 onMounted(() => {
   const webview = getWebview()
-  debugLog('game mounted >> webview', webview)
+  debug('game mounted >> webview', webview)
   if (webview) {
     webview.addEventListener('dom-ready', domReady)
     webview.addEventListener('load-commit', loadCommit)
@@ -83,13 +87,13 @@ onMounted(() => {
   }
 
   ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
-  debugLog('game mounted <<')
+  debug('game mounted <<')
 })
 
 onUnmounted(() => {
   const webview = getWebview()
-  debugLog('game destroyed webview:', webview)
-  debugLog('game unmounted >>')
+  debug('game destroyed webview:', webview)
+  debug('game unmounted >>')
   if (webview) {
     webview.removeEventListener('dom-ready', domReady)
     webview.removeEventListener('load-commit', loadCommit)
@@ -99,27 +103,27 @@ onUnmounted(() => {
     webview.removeEventListener('media-started-playing', mediaStartedPlaying)
     webview.removeEventListener('media-paused', mediaPaused)
   }
-  debugLog('game unmounted <<')
+  debug('game unmounted <<')
 })
 
 function setZoomFactor(_event: IpcRendererEvent, factor: number): void {
-  debugLog(GameChannel.set_zoom_factor, factor)
+  debug(GameChannel.set_zoom_factor, factor)
   getWebviewUnsafe().setZoomFactor(factor)
 }
 
 function domReady(_event: Event): void {
-  debugLog('domReady')
+  debug('domReady')
 
   // apply muted state if needed
   if (!mutedStateApplied) {
     mutedStateApplied = true
-    debugLog('apply muted state in domReady, muted:', gameState.muted)
+    debug('apply muted state in domReady, muted:', gameState.muted)
 
     if (EnvRenderer.isInitMuted) {
       // mute状態では無ければmuteに設定
       const webview = getWebview()
       if (webview) {
-        debugLog('initially muted. check webview muted state:', webview.isAudioMuted())
+        debug('initially muted. check webview muted state:', webview.isAudioMuted())
         if (!webview.isAudioMuted()) {
           setMute(true, false)
         }
@@ -142,37 +146,37 @@ const isOrigin = (url: string, checkOrigin: string): boolean => {
 
 function loadCommit(event: LoadCommitEvent): void {
   if (!event.isMainFrame) {
-    debugLog('loadCommit', 'mainframe:', event.isMainFrame, 'url:', event.url, event);
+    debug('loadCommit', 'mainframe:', event.isMainFrame, 'url:', event.url, event);
   }
   if (
     isStage(StageType.GameStartLoading) &&
     !event.isMainFrame &&
     isOrigin(event.url, 'https://osapi.dmm.com')
   ) {
-    debugLog('loadCommit: game start loading detected', event.url)
+    debug('loadCommit: game start loading detected', event.url)
     insertModCss()
     gameFrameScrollOff()
   }
 }
 
 function didStartLoading(_event: Event): void {
-  debugLog('did-start-loading')
+  debug('did-start-loading')
 }
 
 function didFinishLoading(_event: Event): void {
-  debugLog('did-finish-loading')
+  debug('did-finish-loading')
 }
 
 function didFrameFinishLoad(event: DidFrameFinishLoadEvent): void {
 
   if (event.isMainFrame) {
     const url = getWebviewUnsafe().getURL()
-    debugLog('didFrameFinishLoad', event, url);
+    debug('didFrameFinishLoad', event, url);
     if (url !== Const.GamePageUrl) {
       return 
     }
 
-    debugLog('didFrameFinishLoad game top loaded, try click sortie button')
+    debug('didFrameFinishLoad game top loaded, try click sortie button')
     stage.value = StageType.GameStartLoading
 
     const code = `(function(){
@@ -184,7 +188,7 @@ function didFrameFinishLoad(event: DidFrameFinishLoadEvent): void {
       return false;
     })()`
     getWebviewUnsafe().executeJavaScript(code).then((any) => {
-      console.log('clicked', any)
+      debug('clicked', any)
     })
   }
 }
@@ -206,7 +210,7 @@ width: 1200px !important;
 }
 `
   getWebviewUnsafe().insertCSS(css).then((key) => {
-    debugLog('css inserted', key)
+    debug('css inserted', key)
   })
 }
 
@@ -222,28 +226,28 @@ function gameFrameScrollOff() {
   getWebviewUnsafe()
     .executeJavaScript(code)
     .then((any) => {
-      debugLog('scrolling set:', any)
+      debug('scrolling set:', any)
     })
 }
 
 function mediaStartedPlaying(_event: Event): void {
-  debugLog('mediaStartedPlaying')
+  debug('mediaStartedPlaying')
 }
 
 function mediaPaused(_event: Event): void {
-  debugLog('mediaPaused')
+  debug('mediaPaused')
 }
 
 function setMute(mute: boolean, notifyCheck: boolean): void {
   const webview = getWebview()
   if (webview) {
     const oldMuted = gameState.muted
-    debugLog('now webview muted:', webview.isAudioMuted(), 'muted state:', oldMuted, 'notifyCheck:', notifyCheck)
+    debug('now webview muted:', webview.isAudioMuted(), 'muted state:', oldMuted, 'notifyCheck:', notifyCheck)
     webview.setAudioMuted(mute)
     gameState.muted = webview.isAudioMuted()
-    debugLog('set muted:', gameState.muted)
+    debug('set muted:', gameState.muted)
     if (notifyCheck && oldMuted !== gameState.muted) {
-      debugLog('notify mute state changed:', gameState.muted)
+      debug('notify mute state changed:', gameState.muted)
       window.api.notifyMuteState(gameState.muted)
     }
   }
