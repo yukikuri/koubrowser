@@ -457,6 +457,14 @@ export class KcApp {
       this.openAssistWindow(restoredAssistWindowState.position)
     }
 
+    // Persist window state before any child windows are closed by the main window shutdown path.
+    this.mainWindow.on('close', () => {
+      if (this.assist_window && !this.assist_window.isDestroyed()) {
+        updateAssistWindowState(this.assist_window, false)
+      }
+      this.saveAppState()
+    })
+
     this.mainWindow.on('closed', () => this.onClosed())
     this.mainWindow.on('resize', () => this.onResize())
     this.mainWindow.on('will-resize', (event, newBounds, _details) =>
