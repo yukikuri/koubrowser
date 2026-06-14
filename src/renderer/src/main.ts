@@ -1,6 +1,7 @@
 import { GameChannel } from '@common/channel'
 import { GameSetting } from '@common/setting'
 import { AppState } from '@common/state'
+import { gameState } from '@renderer/store/gamestate'
 import { gameSetting } from '@renderer/store/gamesetting'
 import { createApp } from 'vue'
 import Buefy from 'buefy'
@@ -21,6 +22,11 @@ import { EnvRenderer } from './common/env-renderer'
 // if assist window change title
 if (EnvRenderer.isAssist) {
   document.title = '甲ブラウザ アシストウィンドウ';
+}
+
+// ボタン状態はアプリコンポ表示前に反映させておく
+if (EnvRenderer.isInitMuted) {
+  gameState.muted = true
 }
 
 streamInitialize(async () => {

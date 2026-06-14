@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 
-const DEBUG = false;
+const DEBUG = 0;
 
 const debugLog = (...args: any[]) => {
   if (DEBUG) console.debug("[game webview]", ...args);
@@ -17,6 +17,9 @@ import { gameState } from '@renderer/store/gamestate'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 const ipcRenderer = window.electron.ipcRenderer
 const el = ref<HTMLElement | null>(null)
+
+// mute状態はDOM-READY後ではないと設定できないことに注意
+let mutedStateApplied = false
 
 const StageType = {
   None: 0,
@@ -78,6 +81,7 @@ onMounted(() => {
     webview.addEventListener('media-started-playing', mediaStartedPlaying)
     webview.addEventListener('media-paused', mediaPaused)
   }
+
   ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
   debugLog('game mounted <<')
 })
@@ -105,6 +109,24 @@ function setZoomFactor(_event: IpcRendererEvent, factor: number): void {
 
 function domReady(_event: Event): void {
   debugLog('domReady domRady')
+
+  // apply muted state if needed
+  if (!mutedStateApplied) {
+    mutedStateApplied = true
+    debugLog('apply muted state in domReady, muted:', gameState.muted)
+
+    if (EnvRenderer.isInitMuted) {
+      // mute状態では無ければmuteに設定
+      const wevbview = getWebview()
+      if (wevbview) {
+        debugLog('initially muted. check webview muted state:', wevbview?.isAudioMuted())
+        if (!wevbview.isAudioMuted()) {
+          setMute(true, false)
+        }
+      }
+    }
+  }
+
   getWebviewUnsafe().setZoomFactor(gameSetting.zoom_factor)
 }
 
@@ -212,13 +234,18 @@ function mediaPaused(_event: Event): void {
   debugLog('mediaPaused')
 }
 
-function setMute(mute: boolean): void {
+function setMute(mute: boolean, notifyCheck: boolean): void {
   const webview = getWebview()
   if (webview) {
-    debugLog('now muted:', webview.isAudioMuted())
+    const oldMuted = gameState.muted
+    debugLog('now webview muted:', webview.isAudioMuted(), 'muted state:', oldMuted, 'notifyCheck:', notifyCheck)
     webview.setAudioMuted(mute)
     gameState.muted = webview.isAudioMuted()
     debugLog('set muted:', gameState.muted)
+    if (notifyCheck && oldMuted !== gameState.muted) {
+      debugLog('notify mute state changed:', gameState.muted)
+      window.api.notifyMuteState(gameState.muted)
+    }
   }
 }
 

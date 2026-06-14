@@ -43,6 +43,8 @@ const originalSetting = {
     },
     game_only_width: 1541,
     game_only_height: 1007,
+    topmost: true,
+    muted: true,
     abc: 10,
     aaa: 0,
     anyobj: {
@@ -91,8 +93,10 @@ describe('app_setting', () => {
       width: 1541,
       height: 1007
     })
+    expect(appSetting.restoreTopmost()).toBe(true)
+    expect(appSetting.restoreMuted()).toBe(true)
 
-    appSetting.saveMainWindowPosition(
+    appSetting.saveAppState(
       {
         isDestroyed: () => false,
         getBounds: () => ({
@@ -106,7 +110,9 @@ describe('app_setting', () => {
       {
         width: 1200,
         height: 900
-      }
+      },
+      false,
+      false
     )
 
     const saved = JSON.parse(
@@ -118,6 +124,8 @@ describe('app_setting', () => {
     expect(saved.window.anyobj).toEqual({ key1: 100 })
     expect(saved.window.main).toEqual(originalSetting.window.main)
     expect(saved.window.assist_in_game).toBe(false)
+    expect(saved.window.topmost).toBe(false)
+    expect(saved.window.muted).toBe(false)
     expect(saved.window.game_only_width).toBe(1200)
     expect(saved.window.game_only_height).toBe(900)
     expect(saved.window.gameOnly).toEqual({
