@@ -585,8 +585,13 @@ export class KcApp {
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }
+
+    const iconPath = app.isPackaged 
+      ? path.join(process.resourcesPath, 'resources/app.ico') : path.join(__dirname, '../../resources/app.ico')
+
     this.assist_window = new BrowserWindow({
       title: '甲ブラウザ',
+      icon: iconPath,
       parent: this.main_window,
       useContentSize: true,
       width: Const.AssistWidth,
