@@ -117,10 +117,10 @@ function domReady(_event: Event): void {
 
     if (EnvRenderer.isInitMuted) {
       // mute状態では無ければmuteに設定
-      const wevbview = getWebview()
-      if (wevbview) {
-        debugLog('initially muted. check webview muted state:', wevbview?.isAudioMuted())
-        if (!wevbview.isAudioMuted()) {
+      const webview = getWebview()
+      if (webview) {
+        debugLog('initially muted. check webview muted state:', webview.isAudioMuted())
+        if (!webview.isAudioMuted()) {
           setMute(true, false)
         }
       }
