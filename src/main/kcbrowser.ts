@@ -53,7 +53,7 @@ import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
 import type { ApiReqMessage, ApiResMessage, QuestsMessage, RequiredMessage } from '@common/message'
-import { gameSetting, gameSettingProxy } from '@main/settings'
+import { gameSetting, gameSettingProxy, gameState } from '@main/settings'
 import path from 'node:path'
 import { getWorkerDriver, start as WorkersStart } from '@main/stuff/wrokers'
 import { AppSetting, defaultAppSetting, defaultInheritScoreList, InheritScoreList } from '@common/store'
@@ -63,11 +63,11 @@ import { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
-import { loadAppJsonSetting, restoreAssistInGame, restoreGameOnlySize, restoreMainWindowBounds, saveMainWindowPosition } from '@main/app_setting'
+import { loadAppJsonSetting, restoreAssistInGame, restoreGameOnlySize, restoreMainWindowBounds, restoreMuted, restoreTopmost, saveAppState } from '@main/app_setting'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = false;
+const DEBUG = 0;
 
 const debug = (...args: any[]) => {
   if (DEBUG) console.info("[KcBrowser]", ...args);
@@ -201,11 +201,11 @@ export class KcApp {
     return this.assist_window
   }
 
-  public saveMainWindowPosition(): void {
-    saveMainWindowPosition(this.mainWindow, gameSetting.assistInGame, {
+  public saveAppState(): void {
+    saveAppState(this.mainWindow, gameSetting.assistInGame, {
       width: appState.game_only_width,
       height: appState.game_only_height
-    })
+    }, gameSetting.topmost, gameState.muted)
   }
 
   constructor() { 
@@ -230,6 +230,14 @@ export class KcApp {
     const restoredAssistInGame = restoreAssistInGame()
     if (restoredAssistInGame !== undefined) {
       gameSetting.setAssistInGame(restoredAssistInGame)
+    }
+    const restoredTopmost = restoreTopmost()
+    if (restoredTopmost !== undefined) {
+      gameSetting.topmost = restoredTopmost
+    }
+    const restoredMuted = restoreMuted()
+    if (restoredMuted !== undefined) {
+      gameState.muted = restoredMuted
     }
     const restoredGameOnlySize = restoreGameOnlySize()
 
@@ -280,6 +288,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.reload, async (_event, arg) => this.onChannelReload(arg))
     ipcMain.handle(MainChannel.openAssist, async () => this.onChannelOpenAssist())
     ipcMain.handle(MainChannel.topmost, async () => this.onChannelTopmost())
+    ipcMain.handle(MainChannel.notify_mute_state, async (_event, arg) => this.onChannelNotifyMuteState(arg))
     ipcMain.handle(MainChannel.open_capture_folder, async () => this.onChannelOpenCaptureFolder())
     ipcMain.handle(MainChannel.save_capture, async (_event, date, buffer) =>
       this.onChannelSaveCapture(date, buffer)
@@ -366,6 +375,9 @@ export class KcApp {
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }
+    if (gameState.muted) {
+      additionalArguments.push(Const.ArgIsInitMuted);
+    }
     const mainWindowOptions: BrowserWindowConstructorOptions = {
       useContentSize: true,
       width: withAssistSize.width,
@@ -439,7 +451,7 @@ export class KcApp {
     // open app html
     openAppHtml(this.mainWindow)
 
-    this.mainWindow.on('close', () => this.saveMainWindowPosition())
+    this.mainWindow.on('close', () => this.saveAppState())
     this.mainWindow.on('closed', () => this.onClosed())
     this.mainWindow.on('resize', () => this.onResize())
     this.mainWindow.on('will-resize', (event, newBounds, _details) =>
@@ -759,7 +771,7 @@ export class KcApp {
    */
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
-    this.saveMainWindowPosition()
+    this.saveAppState()
     // no effect
     //mainWindow.close();
     this.mainWindow.destroy()
@@ -802,6 +814,14 @@ export class KcApp {
     debug(MainChannel.topmost)
     this.main_window.setAlwaysOnTop(!gameSetting.topmost)
     gameSetting.topmost = !gameSetting.topmost
+  }
+
+  /**
+   * Keep the main-process mute state in sync with the renderer.
+   */
+  private onChannelNotifyMuteState(muted: boolean) {
+    debug(MainChannel.notify_mute_state, 'muted:', muted)
+    gameState.muted = muted
   }
 
   /**

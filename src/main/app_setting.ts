@@ -12,6 +12,8 @@ interface StoredMainWindowBounds {
 interface AppJsonSetting {
   window?: {
     assist_in_game?: boolean
+    topmost?: boolean
+    muted?: boolean
     game_only_width?: number
     game_only_height?: number
     main?: StoredMainWindowBounds
@@ -113,6 +115,16 @@ export function restoreAssistInGame(): boolean | undefined {
   return typeof assistInGame === 'boolean' ? assistInGame : undefined
 }
 
+export function restoreTopmost(): boolean | undefined {
+  const topmost = getAppJsonSetting().window?.topmost
+  return typeof topmost === 'boolean' ? topmost : undefined
+}
+
+export function restoreMuted(): boolean | undefined {
+  const muted = getAppJsonSetting().window?.muted
+  return typeof muted === 'boolean' ? muted : undefined
+}
+
 export function restoreMainWindowBounds(assistInGame: boolean): StoredMainWindowBounds | undefined {
   const windowSetting = getAppJsonSetting().window
   const savedBounds = assistInGame ? windowSetting?.main : windowSetting?.gameOnly
@@ -130,10 +142,12 @@ export function restoreGameOnlySize(): { width: number; height: number } | undef
   return { width, height }
 }
 
-export function saveMainWindowPosition(
+export function saveAppState(
   window: BrowserWindow,
   assistInGame: boolean,
-  gameOnlySize: { width: number; height: number }
+  gameOnlySize: { width: number; height: number },
+  topmost: boolean,
+  muted: boolean
 ): void {
   if (window.isDestroyed()) {
     return
@@ -145,6 +159,8 @@ export function saveMainWindowPosition(
   setting.window = {
     ...windowSetting,
     assist_in_game: assistInGame,
+    topmost,
+    muted,
     game_only_width: gameOnlySize.width,
     game_only_height: gameOnlySize.height,
     [assistInGame ? 'main' : 'gameOnly']: {

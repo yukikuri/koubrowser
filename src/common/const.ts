@@ -25,5 +25,6 @@ export class Const {
   public static readonly AppUserModelId = 'com.koubrowser.app'
   public static readonly ArgIsAssist = '--is-assist'
   public static readonly ArgIsTestMode = '--is-test-mode'
+  public static readonly ArgIsInitMuted = '--is-init-muted'
   public static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
 }

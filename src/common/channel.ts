@@ -13,6 +13,7 @@ export const MainChannel = {
   save_capture: 'save_capture',
   openAssist: 'openAssist',
   topmost: 'topmost',
+  notify_mute_state: 'notify_mute_state',
   refresh_assist: 'refresh_assist',
   store_rec: 'store-rec',
   request_required_data: 'request_required_data',

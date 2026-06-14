@@ -57,6 +57,10 @@ const api: Api = {
     ipcRenderer.invoke(MainChannel.topmost)
   },
 
+  notifyMuteState(muted: boolean): void {
+    ipcRenderer.invoke(MainChannel.notify_mute_state, muted)
+  },
+
   storeRec(buffer: Buffer, isEnd: boolean) {
     ipcRenderer.invoke(MainChannel.store_rec, buffer, isEnd)
   },

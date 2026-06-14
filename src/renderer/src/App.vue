@@ -161,7 +161,7 @@ const onGameDevTool = (): void => {
 }
 
 const onMute = (): void => {
-  getGame()?.setMute(!gameState.muted)
+  getGame()?.setMute(!gameState.muted, true)
 }
 </script>
 
