@@ -213,7 +213,6 @@ export function saveAppState(
   muted: boolean
 ): void {
   if (window.isDestroyed()) {
-    console.log('Main window is destroyed. Skipping saveAppState.')
     return
   }
 
