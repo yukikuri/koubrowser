@@ -539,6 +539,12 @@ function detailFormat(prefixs: string[], quest: Quest): string {
 
 function getMapSufix(map: QuestMap | QuestMapCell): string {
   let sufix_txt = ''
+  if (map[0] === 5 && map[1] === 6) {
+    const map3 = map[3]
+    if (Array.isArray(map3) && map3[0] === 43) {
+      sufix_txt = '(第3)'
+    }
+  }
   if (map[0] === 7 && map[1] === 2) {
     const map3 = map[3]
     sufix_txt = '(第1)'
