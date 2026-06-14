@@ -1044,7 +1044,7 @@ const mepGaugeText = computed<string>(() => {
       // 5-6-1
       if (mi.api_gauge_type === ApiGaugeType.yusou && 
         (typeof mi.api_defeat_count === 'number' && typeof mi.api_required_defeat_count === 'number')) {
-        const remainingLimit = 100
+        const remainingLimit = 999999
         const gauge_name = '輸送'
         const remainingValue = mi.api_required_defeat_count - mi.api_defeat_count
         const remainingValueText = remainingValue < remainingLimit ? ` 残: ${remainingValue} ` : ''
