@@ -63,7 +63,7 @@ import { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
-import { loadAppJsonSetting, restoreAssistInGame, restoreGameOnlySize, restoreMainWindowBounds, restoreMuted, restoreTopmost, saveAppState } from '@main/app_setting'
+import { loadAppJsonSetting, restoreAssistInGame, restoreAssistWindowState, restoreGameOnlySize, restoreMainWindowBounds, restoreMuted, restoreTopmost, saveAppState, updateAssistWindowState } from '@main/app_setting'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -202,6 +202,7 @@ export class KcApp {
   }
 
   public saveAppState(): void {
+    debug('saveAppState called')
     saveAppState(this.mainWindow, gameSetting.assistInGame, {
       width: appState.game_only_width,
       height: appState.game_only_height
@@ -240,6 +241,7 @@ export class KcApp {
       gameState.muted = restoredMuted
     }
     const restoredGameOnlySize = restoreGameOnlySize()
+    const restoredAssistWindowState = restoreAssistWindowState(true)
 
     // Create the browser window.
     const restoredMainWindowBounds = restoreMainWindowBounds(gameSetting.isAssistInGame)
@@ -451,7 +453,18 @@ export class KcApp {
     // open app html
     openAppHtml(this.mainWindow)
 
-    this.mainWindow.on('close', () => this.saveAppState())
+    if (restoredAssistWindowState) {
+      this.openAssistWindow(restoredAssistWindowState.position)
+    }
+
+    // Persist window state before any child windows are closed by the main window shutdown path.
+    this.mainWindow.on('close', () => {
+      if (this.assist_window && !this.assist_window.isDestroyed()) {
+        updateAssistWindowState(this.assist_window, false)
+      }
+      this.saveAppState()
+    })
+
     this.mainWindow.on('closed', () => this.onClosed())
     this.mainWindow.on('resize', () => this.onResize())
     this.mainWindow.on('will-resize', (event, newBounds, _details) =>
@@ -554,7 +567,7 @@ export class KcApp {
   /**
    *
    */
-  private openAssistWindow(): void {
+  private openAssistWindow(position?: { x: number; y: number }): void {
     if (this.assist_window) {
       // noop
       return
@@ -563,6 +576,11 @@ export class KcApp {
     //
     const pos = this.main_window.getPosition()
     const size = this.main_window.getSize()
+    const defaultPosition = {
+      x: pos[0] + size[0] - 100,
+      y: pos[1]
+    }
+    const assistWindowPosition = position ?? defaultPosition
     const additionalArguments: string[] = [Const.ArgIsAssist];
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
@@ -573,8 +591,8 @@ export class KcApp {
       useContentSize: true,
       width: Const.AssistWidth,
       height: size[1] - Const.TitleBarHeight,
-      x: pos[0] + size[0] - 100,
-      y: pos[1],
+      x: assistWindowPosition.x,
+      y: assistWindowPosition.y,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -589,6 +607,12 @@ export class KcApp {
     this.assist_window.setMenu(null)
 
     debug('assist window id', this.assist_window.id)
+    this.assist_window.addListener('close', () => {
+      // 閉じた位置を保存
+      if (this.assist_window) {
+        updateAssistWindowState(this.assist_window!, true)
+      }
+    })
     this.assist_window.addListener('closed', () => {
       this.assist_window = null
     })
@@ -771,6 +795,12 @@ export class KcApp {
    */
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
+
+    // update assist windows pos
+    if (this.assist_window?.isVisible()) {
+      updateAssistWindowState(this.assist_window, false)
+    }
+
     this.saveAppState()
     // no effect
     //mainWindow.close();
@@ -833,7 +863,8 @@ export class KcApp {
       this.assist_window.show()
       this.assist_window.focus()
     } else {
-      this.openAssistWindow()
+      const state = restoreAssistWindowState(false)
+      this.openAssistWindow(state?.position)
     }
   }
 
