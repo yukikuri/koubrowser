@@ -41,7 +41,7 @@ import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
 import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@common/record'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
-import { requestAssistTab } from '@renderer/store/assist-tab'
+import { AssistUIState } from '@renderer/store/ui_state'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -501,7 +501,7 @@ const onUpdateAvailableClick = (event: MouseEvent): void => {
   if (gameSetting.assist_ok && !gameSetting.assistInGame) {
     window.api.showAssist()
   }
-  requestAssistTab('about')
+  AssistUIState.requestAssistTab('about')
 }
 
 const onTopMost = (): void => {
