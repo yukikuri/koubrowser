@@ -20,8 +20,8 @@ import { AssistTabName, AssistUIState as us } from '@renderer/store/ui_state'
 import { watch } from 'vue'
 
 // Vue のテンプレートで v-model するため、namespace import から top-level ref として受け直す。
-const assistTabIndex = us.assistTabIndex
-const assistTabRequest = us.assistTabRequest
+const assistTabIndex = us.tabIndex
+const assistTabRequest = us.tabRequest
 const chartMaterial = ref<InstanceType<typeof ChartMaterial> | null>(null)
 const chartKit = ref<InstanceType<typeof ChartKit> | null>(null)
 let chartRecordFetching = false;

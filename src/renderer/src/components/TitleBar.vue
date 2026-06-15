@@ -501,7 +501,7 @@ const onUpdateAvailableClick = (event: MouseEvent): void => {
   if (gameSetting.assist_ok && !gameSetting.assistInGame) {
     window.api.showAssist()
   }
-  AssistUIState.requestAssistTab('about')
+  AssistUIState.requestTab('about')
 }
 
 const onTopMost = (): void => {
