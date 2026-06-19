@@ -14,6 +14,7 @@ import * as sesStorage from '@renderer/store/ses-storage'
 import ShipBanner from '@renderer/components/ShipBanner.vue'
 import SlotItemForRecord from './SlotItemForRecord.vue'
 import ReportsImage from '@assets/img/reports.svg'
+import { SessionStorageKeyName } from '@renderer/store/storage_key'
 const abortController = new AbortController();
 const ROW_ID_PREFIX = 'row-'
 const DETAIL_ROW_ID_PREFIX = 'detailRow-'
@@ -96,7 +97,7 @@ const datas = ref<BattleTableData[]>([])
 const selected = ref<BattleTableData | null>(null)
 const battleAreaInfo = ref<BattleAreaInfo | null>(null);
 const showReports = ref(
-  sesStorage.getBoolean(sesStorage.StorageKeyName.BattleHistoryShowReports) ?? true
+  sesStorage.getBoolean(SessionStorageKeyName.BattleHistoryShowReports) ?? true
 );
 const openDetailedDatas = computed(() => {
   return datas.value.map((data => data.header.uuid))
@@ -446,7 +447,7 @@ async function fetchCellInfo(datas: BattleTableData[]): Promise<CellInfo[]> {
 
 async function fetchFirstBattleDate(): Promise<string | null> {
   return new Promise((resolve, reject) => {
-    const startDate = sesStorage.getString(sesStorage.StorageKeyName.BattleHistoryFilter);
+    const startDate = sesStorage.getString(SessionStorageKeyName.BattleHistoryFilter);
     if (startDate) {
       resolve(startDate);
       return ;
@@ -467,7 +468,7 @@ async function fetchFirstBattleDate(): Promise<string | null> {
         resolve(null);
         return;
       }
-      sesStorage.setString(sesStorage.StorageKeyName.BattleHistoryFilter, records[0].date);
+      sesStorage.setString(SessionStorageKeyName.BattleHistoryFilter, records[0].date);
       resolve(records[0].date);
     }).catch((err) => {
       console.error('fetchLastPortRecord error:', err);
@@ -865,7 +866,7 @@ const helpText = computed<string>(() => {
           outlined 
           @click="() => {
             showReports = !showReports; 
-            sesStorage.setBoolean(sesStorage.StorageKeyName.BattleHistoryShowReports, showReports)
+            sesStorage.setBoolean(SessionStorageKeyName.BattleHistoryShowReports, showReports)
           }" 
           :class="{ 'is-active': showReports }">
           <ReportsImage /><span class="button-text">セル状況表示</span></b-button>

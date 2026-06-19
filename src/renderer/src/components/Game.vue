@@ -8,6 +8,7 @@ import { GameChannel } from '@common/channel'
 import { Const } from '@common/const'
 import { gameState } from '@renderer/store/gamestate'
 import { EnvRenderer } from '@renderer/common/env-renderer'
+import { MainRendererState } from '@renderer/store/renderer_state'
 const ipcRenderer = window.electron.ipcRenderer
 const el = ref<HTMLElement | null>(null)
 
@@ -75,7 +76,7 @@ function getWebviewUnsafe(): WebviewTag {
 
 onMounted(() => {
   const webview = getWebview()
-  debug('game mounted >> webview', webview)
+  debug('game mounted >> webview', webview, 'appLaunchId:', EnvRenderer.appLaunchId)
   if (webview) {
     webview.addEventListener('dom-ready', domReady)
     webview.addEventListener('load-commit', loadCommit)
@@ -119,7 +120,7 @@ function domReady(_event: Event): void {
     mutedStateApplied = true
     debug('apply muted state in domReady, muted:', gameState.muted)
 
-    if (EnvRenderer.isInitMuted) {
+    if (gameState.muted) {
       // mute状態では無ければmuteに設定
       const webview = getWebview()
       if (webview) {
@@ -245,6 +246,7 @@ function setMute(mute: boolean, notifyCheck: boolean): void {
     debug('now webview muted:', webview.isAudioMuted(), 'muted state:', oldMuted, 'notifyCheck:', notifyCheck)
     webview.setAudioMuted(mute)
     gameState.muted = webview.isAudioMuted()
+    MainRendererState.updateRendererState(gameState.muted)
     debug('set muted:', gameState.muted)
     if (notifyCheck && oldMuted !== gameState.muted) {
       debug('notify mute state changed:', gameState.muted)

@@ -64,6 +64,7 @@ import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import { loadAppJsonSetting, restoreAssistInGame, restoreAssistWindowState, restoreGameOnlySize, restoreMainWindowBounds, restoreMuted, restoreTopmost, saveAppState, updateAssistWindowState } from '@main/app_setting'
+import crypto from 'node:crypto'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -212,8 +213,11 @@ export class KcApp {
   constructor() { 
     kcapp = this
 
+    const appLaunchId = crypto.randomUUID()
+
     debug('app dir(dirname):', __dirname)
     debug('app dir(user data):', app.getPath('userData'))
+    debug('app launch id:', appLaunchId)
 
     // start worker driver
     WorkersStart(getMainDir());
@@ -374,6 +378,7 @@ export class KcApp {
 
     // create main frame
     const additionalArguments: string[] = [];
+    additionalArguments.push(`--${Const.ArgAppLaunchId}=${appLaunchId}`);
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }

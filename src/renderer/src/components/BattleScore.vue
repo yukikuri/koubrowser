@@ -24,6 +24,7 @@ import { questList } from '@renderer/store/questList'
 import * as bs from '@renderer/common/battle-score'
 import ForecastChartImage from '@assets/img/forecast-chart.svg'
 import CheckImage from '@assets/img/check-only.svg'
+import { SessionStorageKeyName } from '@renderer/store/storage_key'
 
 noDataToDisplay(Highcharts)
 
@@ -75,13 +76,13 @@ const isCurrentMonthDataAvailable = ref(false)
 /////////////////////////////////////////////////////////////////////////////////////
 // 戦果予測関連
 const isForecastScore = ref(
-  sesStorage.getBoolean(sesStorage.StorageKeyName.BattleScoreIsForecast) ?? false
+  sesStorage.getBoolean(SessionStorageKeyName.BattleScoreIsForecast) ?? false
 );
 
 function toggleForecastScore() {
   isForecastScore.value = ! isForecastScore.value
   sesStorage.setBoolean(
-    sesStorage.StorageKeyName.BattleScoreIsForecast,
+    SessionStorageKeyName.BattleScoreIsForecast,
     isForecastScore.value
   );
 
@@ -150,7 +151,7 @@ const DEF_TEMP_CLEAR_STATE = true
 const questClearStateList = () : QuestClearState[] => {
   const ret: QuestClearState[] = []
   const sesValue = sesStorage.getValue<ForecastableSesValue>(
-    sesStorage.StorageKeyName.BattleScoreForecastableClears
+    SessionStorageKeyName.BattleScoreForecastableClears
   );
 
   bs.quarterlyQuests.reduce((acc, q) => {
@@ -251,7 +252,7 @@ interface EoClearState extends bs.EoInfo, ForecastableTask {
 const eoClearStateList = () : EoClearState[] => {
   const ret: EoClearState[] = []
   const sesValue = sesStorage.getValue<ForecastableSesValue>(
-    sesStorage.StorageKeyName.BattleScoreForecastableClears
+    SessionStorageKeyName.BattleScoreForecastableClears
   );
 
   bs.eoRates.reduce((acc, er) => {
@@ -2166,7 +2167,7 @@ function tempClearChanged() {
       value.tempClears[q.no] = true;
     }
   });
-  sesStorage.setValue(sesStorage.StorageKeyName.BattleScoreForecastableClears, value);
+  sesStorage.setValue(SessionStorageKeyName.BattleScoreForecastableClears, value);
 
   // update view
   applyPeriod(false);

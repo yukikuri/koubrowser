@@ -15,16 +15,17 @@ export type SupportCodecs =
 //console.log(navigator.mediaDevices.getSupportedConstraints());
 
 export class Const {
-  public static readonly GameWidth = 1200
-  public static readonly GameHeight = 720
-  public static readonly GameBarHeight = 40
-  public static readonly TitleBarHeight = 32
-  public static readonly MaxMedals = 33
-  public static readonly AssistHeight = 202 - 34
-  public static readonly AssistWidth = 600
-  public static readonly AppUserModelId = 'com.koubrowser.app'
-  public static readonly ArgIsAssist = '--is-assist'
-  public static readonly ArgIsTestMode = '--is-test-mode'
-  public static readonly ArgIsInitMuted = '--is-init-muted'
-  public static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
+  static readonly GameWidth = 1200
+  static readonly GameHeight = 720
+  static readonly GameBarHeight = 40
+  static readonly TitleBarHeight = 32
+  static readonly MaxMedals = 33
+  static readonly AssistHeight = 202 - 34
+  static readonly AssistWidth = 600
+  static readonly AppUserModelId = 'com.koubrowser.app'
+  static readonly ArgIsAssist = '--is-assist'
+  static readonly ArgIsTestMode = '--is-test-mode'
+  static readonly ArgIsInitMuted = '--is-init-muted'
+  static readonly ArgAppLaunchId = '--app-launch-id' 
+  static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
 }

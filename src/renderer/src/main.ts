@@ -17,7 +17,8 @@ import '@assets/assist.scss'
 //import '@mdi/font/css/materialdesignicons.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { streamInitialize } from '@renderer/stream'
-import { EnvRenderer } from './common/env-renderer'
+import { EnvRenderer } from '@renderer/common/env-renderer'
+import { MainRendererState } from '@renderer/store/renderer_state'
 
 // if assist window change title
 if (EnvRenderer.isAssist) {
@@ -25,8 +26,14 @@ if (EnvRenderer.isAssist) {
 }
 
 // ボタン状態はアプリコンポ表示前に反映させておく
-if (EnvRenderer.isInitMuted) {
-  gameState.muted = true
+if (! EnvRenderer.isAssist) {
+  if (MainRendererState.isCurrentAppLaunch()) {
+    // 最新の状態に更新時は以前の状態を取得
+    gameState.muted = MainRendererState.getMuted()
+  } else {
+    // 新規レンダラー起動時はEnvRendererの状態を反映
+    gameState.muted = EnvRenderer.isInitMuted
+  }
 }
 
 streamInitialize(async () => {

@@ -1,5 +1,6 @@
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { ref } from 'vue'
+import { getLocalStoragePrefixKey, LocalStorageKeyName } from '@renderer/store/storage_key';
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -77,10 +78,9 @@ const defaultUIState = (): UIState => {
   }
 }
 
-const LocalStorageKey = ((): string => {
-  const subkey = EnvRenderer.isAssist ? 'assist' : 'main'
-  return 'uiState:' + subkey
-})();
+const LocalStorageKey = ((): string => 
+  getLocalStoragePrefixKey(LocalStorageKeyName.prefix.uiStatePrefix)
+)();
 
 function load(): UIState {
   debug('loading state')
