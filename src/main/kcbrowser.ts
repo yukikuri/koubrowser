@@ -388,8 +388,7 @@ export class KcApp {
 
     // create main frame
     const additionalArguments: string[] = [];
-    additionalArguments.push(`--${Const.ArgAppLaunchId}=${appLaunchId}`);
-    if (Env.isTestMode) {
+    additionalArguments.push(`${Const.ArgAppLaunchId}=${appLaunchId}`);
       additionalArguments.push(Const.ArgIsTestMode);
     }
     if (gameState.muted) {
