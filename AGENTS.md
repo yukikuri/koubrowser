@@ -90,10 +90,13 @@ npm run build:win
 When changing TypeScript, Vue, Electron main/preload code, or shared logic, prefer running:
 
 ```bash
-npm run lint
 npm run typecheck
 npm run test
 ```
+
+Do not run `npm run lint` by default. The repository currently reports many existing lint errors, so running the full lint command is usually noisy and not useful for ordinary agent tasks.
+
+Run `npm run lint` only when the task is specifically about lint cleanup, ESLint configuration, formatting, or style validation.
 
 If the change is small and tests are not relevant, explain why tests were not run.
 
