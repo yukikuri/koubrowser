@@ -14,10 +14,10 @@ export class GameSetting {
   public capture_codec: SupportCodecs = 'video/webm;codecs=vp9,opus'
 
   private assist_in_game: boolean = true
-  public assist_ok: boolean = true
+  private assist_restricted: boolean = false
 
   public get isAssistInGame(): boolean {
-    return this.assist_ok && this.assist_in_game
+    return !this.assist_restricted && this.assist_in_game
   }
 
   public get assistInGame(): boolean {
@@ -26,5 +26,13 @@ export class GameSetting {
 
   public setAssistInGame(inGame: boolean): void {
     this.assist_in_game = inGame
+  }
+
+  public get assistRestricted(): boolean {
+    return this.assist_restricted
+  }
+  
+  public setAssistRestricted(restricted: boolean): void {
+    this.assist_restricted = restricted
   }
 }
