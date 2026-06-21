@@ -1227,10 +1227,10 @@ if (EnvRenderer.isTestMode) {
         <div class="titlebar-button" title="スクリーンショット" @click="onScreenshot">
           <CaptureImage />
         </div>
-        <div class="titlebar-button" :title="muteTitle" @click="onMute">
+        <div class="titlebar-button soundonoff" :title="muteTitle" @click="onMute">
           <SoundOffImage v-if="isMute" /><SoundOnImage v-if="!isMute" />
         </div>
-        <div class="titlebar-button" title="ページを再読み込みします" @click="onReload">
+        <div class="titlebar-button reload" title="ページを再読み込みします" @click="onReload">
           <ReloadImage />
         </div>
         <div

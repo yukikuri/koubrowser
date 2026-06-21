@@ -651,6 +651,30 @@ body {
   .titlebar-button.devtool-button {
     display: none;
   }
+
+  .titlebar-buttons {
+    .titlebar-button {
+      width: 22px;
+      min-width: 22px;
+      font-size: 10pt;
+  
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      &.soundonoff {
+        svg {
+          transform: translateX(-2px) translateY(-2px);
+        }
+      }
+      &.reload {
+        svg {
+          transform: translateX(-2.5px) translateY(-2px);
+        }
+      }
+    }
+  }
 }
 
 .timeline-root {
