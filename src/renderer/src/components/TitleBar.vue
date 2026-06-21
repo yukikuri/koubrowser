@@ -416,11 +416,11 @@ const isAssistShown = computed((): boolean => {
 })
 
 const isAssistOk = computed((): boolean => {
-  return gameSetting.assist_ok
+  return !gameSetting.assistRestricted
 })
 
 const onAssist = (): void => {
-  if (!gameSetting.assist_ok) {
+  if (gameSetting.assistRestricted) {
     return
   }
   if (gameSetting.assistInGame) {
@@ -498,7 +498,7 @@ const updateAvailableTitle = computed((): string => {
 
 const onUpdateAvailableClick = (event: MouseEvent): void => {
   event.stopPropagation()
-  if (gameSetting.assist_ok && !gameSetting.assistInGame) {
+  if (! gameSetting.assistRestricted && !gameSetting.assistInGame) {
     window.api.showAssist()
   }
   AssistUIState.requestTab('about')

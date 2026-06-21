@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Rectangle, screen } from 'electron'
+import { app, BrowserWindow, Display, Rectangle, screen } from 'electron'
 import * as fs from 'fs'
 import path from 'node:path'
 
@@ -107,8 +107,8 @@ function isPositionInBounds(position: { x: number; y: number }, bounds: Rectangl
   )
 }
 
-function isPositionInAnyDisplay(position: { x: number; y: number }): boolean {
-  return screen.getAllDisplays().some((display) => isPositionInBounds(position, display.bounds))
+function isPositionInAnyDisplay(position: { x: number; y: number }): Display | undefined {
+  return screen.getAllDisplays().find((display) => isPositionInBounds(position, display.bounds))
 }
 
 function restoreWindowBounds(savedBounds: unknown): StoredMainWindowBounds | undefined {
@@ -171,7 +171,7 @@ export function restoreGameOnlySize(): { width: number; height: number } | undef
   return { width, height }
 }
 
-export function restoreAssistWindowState(visibleOnly: boolean): RestoredAssistWindowState | undefined {
+export function restoreAssistWindowState(visibleOnly: boolean): RestoredAssistWindowState & { display: Display} | undefined {
   const assistWindow = getAppJsonSetting().window?.assistWindow
   if (!isPlainObject(assistWindow)) {
     return undefined
@@ -182,11 +182,12 @@ export function restoreAssistWindowState(visibleOnly: boolean): RestoredAssistWi
   }
 
   if (!isFiniteNumber(assistWindow.x) || !isFiniteNumber(assistWindow.y)) {
-    return {}
+    return undefined
   }
 
   const position = { x: assistWindow.x, y: assistWindow.y }
-  return isPositionInAnyDisplay(position) ? { position } : {}
+  const display = isPositionInAnyDisplay(position)
+  return display ? { position, display } : undefined
 }
 
 export function updateAssistWindowState(
@@ -234,5 +235,24 @@ export function saveAppState(
     }
   }
 
+  writeAppJsonSetting(setting)
+}
+
+export function saveAppStateRestricted(
+  window: BrowserWindow,
+  topmost: boolean,
+  muted: boolean
+): void {
+  if (window.isDestroyed()) {
+    return
+  }
+
+  const setting = getAppJsonSetting()
+  const windowSetting = isPlainObject(setting.window) ? setting.window : {}
+  setting.window = {
+    ...windowSetting,
+    topmost,
+    muted
+  }
   writeAppJsonSetting(setting)
 }

@@ -15,12 +15,14 @@ export type SupportCodecs =
 //console.log(navigator.mediaDevices.getSupportedConstraints());
 
 export class Const {
+  static readonly InGameAssistDisplayRequirementWidth = 1800
+  static readonly InGameAssistDisplayRequirementHeight = 960
   static readonly GameWidth = 1200
   static readonly GameHeight = 720
   static readonly GameBarHeight = 40
   static readonly TitleBarHeight = 32
   static readonly MaxMedals = 33
-  static readonly AssistHeight = 202 - 34
+  static readonly AssistBottomHeight = 202 - 34
   static readonly AssistWidth = 600
   static readonly AppUserModelId = 'com.koubrowser.app'
   static readonly ArgIsAssist = '--is-assist'
