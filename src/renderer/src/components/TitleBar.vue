@@ -41,7 +41,7 @@ import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
 import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@common/record'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
-import { requestAssistTab } from '@renderer/store/assist-tab'
+import { AssistUIState } from '@renderer/store/ui_state'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -416,11 +416,15 @@ const isAssistShown = computed((): boolean => {
 })
 
 const isAssistOk = computed((): boolean => {
-  return gameSetting.assist_ok
+  return !gameSetting.assistRestricted
+})
+
+const isAssistControlOk = computed((): boolean => {
+  return !gameSetting.assistRestricted
 })
 
 const onAssist = (): void => {
-  if (!gameSetting.assist_ok) {
+  if (gameSetting.assistRestricted) {
     return
   }
   if (gameSetting.assistInGame) {
@@ -498,10 +502,10 @@ const updateAvailableTitle = computed((): string => {
 
 const onUpdateAvailableClick = (event: MouseEvent): void => {
   event.stopPropagation()
-  if (gameSetting.assist_ok && !gameSetting.assistInGame) {
+  if (! gameSetting.assistRestricted && !gameSetting.assistInGame) {
     window.api.showAssist()
   }
-  requestAssistTab('about')
+  AssistUIState.requestTab('about')
 }
 
 const onTopMost = (): void => {
@@ -1062,6 +1066,7 @@ if (EnvRenderer.isTestMode) {
     <div class="titlebar-buttons head" :class="{ dragable: isDragable }">
       <div>
         <div
+          v-if="isAssistControlOk"
           class="titlebar-button assist"
           :class="{ checked: isAssistShown, disabled: !isAssistOk }"
           title="アシストを表示"
@@ -1222,22 +1227,22 @@ if (EnvRenderer.isTestMode) {
         <div class="titlebar-button" title="スクリーンショット" @click="onScreenshot">
           <CaptureImage />
         </div>
-        <div class="titlebar-button" :title="muteTitle" @click="onMute">
+        <div class="titlebar-button soundonoff" :title="muteTitle" @click="onMute">
           <SoundOffImage v-if="isMute" /><SoundOnImage v-if="!isMute" />
         </div>
-        <div class="titlebar-button" title="ページを再読み込みします" @click="onReload">
+        <div class="titlebar-button reload" title="ページを再読み込みします" @click="onReload">
           <ReloadImage />
         </div>
         <div
           v-if="isDevelopment"
-          class="titlebar-button"
+          class="titlebar-button devtool-button"
           title="デベロッパー ツール"
           @click="onDevTool"
         >
           <DevToolImage />
         </div>
         <div
-          class="titlebar-button"
+          class="titlebar-button devtool-button"
           title="Game側デベロッパー ツール"
           @click="onGameDevTool"
         >

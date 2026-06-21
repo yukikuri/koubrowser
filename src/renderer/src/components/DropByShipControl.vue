@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ApiShipType, ApiShipTypeHojoClasses, ApiShipTypeJyujyunClasses, ApiShipTypeKaiboukanClasses, ApiShipTypeKeijyunClasses, ApiShipTypeKuboClasses, ApiShipTypeKutikukanClasses, ApiShipTypeSenkanClasses, ApiShipTypeSensuikanClasses, MstShip, MstShipIdBeginEnemy } from '@common/kcs';
 import { svdata } from '@renderer/store/svdata';
-import { onMounted, onUnmounted, computed, ref, toRaw, isProxy, nextTick } from 'vue';
-import ShipBanner from './ShipBanner.vue';
-const tabIndex = ref<number>(0);
+import { onMounted, onUnmounted, computed, ref, toRaw, nextTick } from 'vue';
+import ShipBanner from '@renderer/components/ShipBanner.vue';
+import { DropByShipTabUIState as us } from '@renderer/store/ui_state'
+
+const tabIndex = us.tabIndex
 const el = ref<HTMLElement | null>(null);
 let selectedId = 0;
 
@@ -189,13 +191,19 @@ function shipSelected(mst_id: number): void {
   emit('update:selected_ship_id', mst_id);
 }
 
-function onTabChange(_value: number): void {
-  console.log('ship type tab changed:', _value, 'selectedId:', selectedId);
+function onTabChange(valueNew: number): void {
+  console.log('ship type tab changed:', valueNew, 'selectedId:', selectedId);
   nextTick(() => {
     if (selectedId > 0) {
       setSelectedStyle(selectedId, true);
     }
   });
+
+  // 
+  const tabName = us.getTabName(valueNew)
+  if (tabName) {
+    us.saveTabName(tabName)
+  }
 }
 
 // -----------------------------------------------------------------

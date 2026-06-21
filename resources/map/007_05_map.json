@@ -703,5 +703,31 @@
       "x": 178,
       "y": 244
     }
+  ],
+  "checks": [
+    {
+      "no": 9,
+      "label": "I",
+      "x": 657,
+      "y": 461,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 53,
+        "max": 59
+      }
+    },
+    {
+      "no": 24,
+      "label": "T",
+      "x": 178,
+      "y": 244,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 58,
+        "max": 63
+      }
+    }
   ]
 }

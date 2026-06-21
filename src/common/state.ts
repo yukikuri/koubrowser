@@ -1,5 +1,3 @@
-import { UpdateCheckResult } from "@common/type"
-
 export class GameState {
   public record_ready: 'not_initialized' | 'in_initialize' | 'initialized' = 'not_initialized'
   public recording_state: RecordingState = 'inactive'

@@ -21,8 +21,10 @@ import { InheritScoreList, MonthScores } from '@common/store'
 import { replaceArray } from '@common/ts'
 import * as sesStorage from '@renderer/store/ses-storage'
 import { questList } from '@renderer/store/questList'
+import * as bs from '@renderer/common/battle-score'
 import ForecastChartImage from '@assets/img/forecast-chart.svg'
 import CheckImage from '@assets/img/check-only.svg'
+import { SessionStorageKeyName } from '@renderer/store/storage_key'
 
 noDataToDisplay(Highcharts)
 
@@ -74,13 +76,13 @@ const isCurrentMonthDataAvailable = ref(false)
 /////////////////////////////////////////////////////////////////////////////////////
 // 戦果予測関連
 const isForecastScore = ref(
-  sesStorage.getBoolean(sesStorage.StorageKeyName.BattleScoreIsForecast) ?? false
+  sesStorage.getBoolean(SessionStorageKeyName.BattleScoreIsForecast) ?? false
 );
 
 function toggleForecastScore() {
   isForecastScore.value = ! isForecastScore.value
   sesStorage.setBoolean(
-    sesStorage.StorageKeyName.BattleScoreIsForecast,
+    SessionStorageKeyName.BattleScoreIsForecast,
     isForecastScore.value
   );
 
@@ -134,44 +136,8 @@ function distributeTasks<T>(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-//
-interface QuestInfo {
-  no: number;
-  name: string;
-}
-const quarterlyQuests: QuestInfo[] = [
-  { no: 284, name: '南西諸島方面「海上警備行動」発令！' },
-  { no: 845, name: '発令！「西方海域作戦」' },
-  { no: 854, name: '戦果拡張任務！「Z作戦」前段作戦' },
-  { no: 872, name: '戦果拡張任務！「Z作戦」後段作戦' },
-  { no: 888, name: '新編成「三川艦隊」、鉄底海峡に突入せよ！' },
-  { no: 893, name: '泊地周辺海域の安全確保を徹底せよ！' },
-  { no: 903, name: '拡張「六水戦」、最前線へ！' },
-];
-const yearlyQuests: QuestInfo[] = [
-  { no: 947, name: 'AL作戦' },
-  { no: 948, name: '機動部隊決戦' },
-];
-
-const eventQuests: QuestInfo[] = [
-  { no: 955, name: '【梅雨任務拡張作戦】南方反攻望楼作戦を叩け！' },
-]
-
-const isQuarterlyQuest = (questNo: number): boolean => {
-  return !!quarterlyQuests.find((e) => e.no === questNo);
-}
-
-const isYearlyQuest = (questNo: number): boolean => {
-  return !!yearlyQuests.find((e) => e.no === questNo);
-}
-
-const isEventQuest = (questNo: number): boolean => {
-  return !!eventQuests.find((e) => e.no === questNo);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
 // quest clear state
-interface QuestClearState extends QuestInfo, ForecastableTask {
+interface QuestClearState extends bs.QuestInfo, ForecastableTask {
   isCleared: boolean;
   rate: number;
   clearDate?: string;
@@ -185,10 +151,10 @@ const DEF_TEMP_CLEAR_STATE = true
 const questClearStateList = () : QuestClearState[] => {
   const ret: QuestClearState[] = []
   const sesValue = sesStorage.getValue<ForecastableSesValue>(
-    sesStorage.StorageKeyName.BattleScoreForecastableClears
+    SessionStorageKeyName.BattleScoreForecastableClears
   );
 
-  quarterlyQuests.reduce((acc, q) => {
+  bs.quarterlyQuests.reduce((acc, q) => {
     ret.push({
       no: q.no,
       name: q.name,
@@ -200,7 +166,7 @@ const questClearStateList = () : QuestClearState[] => {
     return acc;
   }, ret);
 
-  yearlyQuests.reduce((acc, q) => {
+  bs.yearlyQuests.reduce((acc, q) => {
     ret.push({
       no: q.no,
       name: q.name,
@@ -214,7 +180,7 @@ const questClearStateList = () : QuestClearState[] => {
 
   // イベント任務も追加
   // クエスト一覧で該当する戦果任務があれば追加する
-  eventQuests.forEach((q) => {
+  bs.eventQuests.forEach((q) => {
     // API応答からチェック
     let exist = svdata.questlist?.api_list.find((e) => e.api_no === q.no);
     if (! exist) {
@@ -273,33 +239,11 @@ function updateQuestClearState(clears: QuestClears, states: { quarterly: Quest[]
   });
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// eo 
-interface EoInfo {
-  mapId: number;
-  name: string;
-  rate: number;
-}
-const eoRates: EoInfo[] = [
-  { mapId: 15, name: '1-5 鎮守府近海', rate: 75 },
-  { mapId: 16, name: '1-6 鎮守府近海航路', rate: 75 },
-  { mapId: 25, name: '2-5 沖ノ島沖', rate: 100 },
-  { mapId: 35, name: '3-5 北方AL海域', rate: 150 },
-  { mapId: 75, name: '7-5 ジャワ島沖', rate: 170 },
-  { mapId: 45, name: '4-5 カレー洋リランカ島沖', rate: 180 },
-  { mapId: 55, name: '5-5 サーモン海域北方', rate: 200 },
-  { mapId: 56, name: '5-6 ラバウル方面海域', rate: 225 },
-  { mapId: 65, name: '6-5 KW環礁沖海域', rate: 250 },
-];
 
-function getEoRateByMapId(mapId: number): number {
-  const rate = eoRates.find((er) => er.mapId === mapId);
-  return rate?.rate ?? 0;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // eo clear state
-interface EoClearState extends EoInfo, ForecastableTask {
+interface EoClearState extends bs.EoInfo, ForecastableTask {
   isCleared: boolean;
   clearDate?: string;
   clearDateDisplay?: string;
@@ -308,10 +252,10 @@ interface EoClearState extends EoInfo, ForecastableTask {
 const eoClearStateList = () : EoClearState[] => {
   const ret: EoClearState[] = []
   const sesValue = sesStorage.getValue<ForecastableSesValue>(
-    sesStorage.StorageKeyName.BattleScoreForecastableClears
+    SessionStorageKeyName.BattleScoreForecastableClears
   );
 
-  eoRates.reduce((acc, er) => {
+  bs.eoRates.reduce((acc, er) => {
     ret.push({
       mapId: er.mapId,
       name: er.name,
@@ -869,7 +813,7 @@ function flagTooltipFormatter(
     tags.push('<tr><td colspan="2" style="color:#fae54b;font-size:12.5px;padding-bottom:4px;">EO攻略報酬</td></tr>');
     eoRecords.sort((a, b) => a.mapId - b.mapId);
     eoRecords.forEach((rec) => {
-      const name = eoRates.find((er) => er.mapId === rec.mapId)?.name ?? `EO Map.${rec.mapId}`;
+      const name = bs.eoRates.find((er) => er.mapId === rec.mapId)?.name ?? `EO Map.${rec.mapId}`;
       tags.push(`<tr>
         <td style="padding-right:6px;">・${name}</td>
         <td style="text-align:right;">+${rec.rate}</td>
@@ -885,14 +829,14 @@ function flagTooltipFormatter(
       tags.push(`<tr><td colspan="2" style="color:#e54bfa;font-size:12.5px;padding-top:8px;padding-bottom:4px;">`+
       `${prefix}任務達成報酬</td></tr>`);
       records.forEach((rec) => {
-        if (isQuarterlyQuest(rec.no) !== isQuarterly) {
+        if (bs.isQuarterlyQuest(rec.no) !== isQuarterly) {
           return;
         }
-        if (isYearlyQuest(rec.no) !== !isQuarterly) {
+        if (bs.isYearlyQuest(rec.no) !== !isQuarterly) {
           return;
         }
 
-        const questInfo = quarterlyQuests.find((q) => q.no === rec.no);
+        const questInfo = bs.quarterlyQuests.find((q) => q.no === rec.no);
         const questName = questInfo ? questInfo.name : `任務No.${rec.no}`;
         tags.push(`<tr>
           <td style="padding-right:6px;">・${questName}</td>
@@ -913,10 +857,10 @@ function flagTooltipFormatter(
       });
     }
 
-    const quarterlyExist = questRecords.some((rec) => isQuarterlyQuest(rec.no));
-    const yearlyExist = questRecords.some((rec) => isYearlyQuest(rec.no));
+    const quarterlyExist = questRecords.some((rec) => bs.isQuarterlyQuest(rec.no));
+    const yearlyExist = questRecords.some((rec) => bs.isYearlyQuest(rec.no));
     const dailyExist = questRecords.some((rec) => {
-      return !isQuarterlyQuest(rec.no) && !isYearlyQuest(rec.no);
+      return !bs.isQuarterlyQuest(rec.no) && !bs.isYearlyQuest(rec.no);
     });
     questRecords.sort((a, b) => a.rate - b.rate);
     if (dailyExist) {
@@ -1526,7 +1470,7 @@ async function fetchEoClearRecord(year: number, month: number):Promise<EoClearRe
         dbName: DbName.battle, 
         find: { 
           mapId: {
-            $in: [15, 25, 35, 45, 55, 56, 65, 75]
+            $in: bs.eoRates.map((er) => er.mapId)
           },
           isBoss: true,
           firstClear: true,
@@ -1553,7 +1497,7 @@ async function fetchEoClearRecord(year: number, month: number):Promise<EoClearRe
           return {
             mapId: r.mapId,
             date: r.date,
-            rate: getEoRateByMapId(r.mapId)
+            rate: bs.getEoRateByMapId(r.mapId)
           }
         });
         resolve(eoClears);
@@ -1728,9 +1672,9 @@ async function fetchQuestClearRecord(year: number, month: number): Promise<Quest
           };
 
           // 対象月以外でのクリアの場合、すでに達成済みの任務として記録する
-          if (isQuarterlyQuest(r.questNo) && dateInRange(r.date, quarterDateRange)) {
+          if (bs.isQuarterlyQuest(r.questNo) && dateInRange(r.date, quarterDateRange)) {
             acc.alreadyCompleted.push(clearRecord);
-          } else if (isYearlyQuest(r.questNo) && dateInRange(r.date, yearlyDateRange)) {
+          } else if (bs.isYearlyQuest(r.questNo) && dateInRange(r.date, yearlyDateRange)) {
             acc.alreadyCompleted.push(clearRecord);
           } else {
             debug('skip quest clear by month-to-month:', r.questNo, r.date);
@@ -1807,7 +1751,7 @@ async function fetchQuestStateRecord(year: number, month: number, isQuarterly: b
     const query = {
       dbName: DbName.quest, 
       find: { 
-        no: { $in: isQuarterly ? quarterlyQuests.map(q => q.no) : yearlyQuests.map(q => q.no) },
+        no: { $in: isQuarterly ? bs.quarterlyQuests.map(q => q.no) : bs.yearlyQuests.map(q => q.no) },
         date: { 
           $gte: toRecordDate(start),
           $lt: toRecordDate(end),
@@ -2223,7 +2167,7 @@ function tempClearChanged() {
       value.tempClears[q.no] = true;
     }
   });
-  sesStorage.setValue(sesStorage.StorageKeyName.BattleScoreForecastableClears, value);
+  sesStorage.setValue(SessionStorageKeyName.BattleScoreForecastableClears, value);
 
   // update view
   applyPeriod(false);

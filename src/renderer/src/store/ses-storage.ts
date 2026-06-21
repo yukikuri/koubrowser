@@ -1,25 +1,15 @@
-export const StorageKeyName = {
+import { SessionStorageKeyName } from '@renderer/store/storage_key';
 
-  // battle score
-  BattleScoreIsForecast: 'battle-score-is-forecast',
-  BattleScoreForecastableClears: 'battle-score-forecastable-clears',
-
-  // battle history
-  BattleHistoryFilter: 'battle-history-filter-start-date',
-  BattleHistoryShowReports: 'battle-history-show-reports',
-} as const
-export type StorageKeyName = (typeof StorageKeyName)[keyof typeof StorageKeyName]
-
-export function setString(key: StorageKeyName, value: string): void {
+export function setString(key: SessionStorageKeyName, value: string): void {
   sessionStorage.setItem(key, value)
 }
 
-export function getString(key: StorageKeyName): string | null {
+export function getString(key: SessionStorageKeyName): string | null {
   return sessionStorage.getItem(key)
 }
 
 // 汎用 JSON 保存／取得
-export function setValue(key: StorageKeyName, value: unknown): void {
+export function setValue(key: SessionStorageKeyName, value: unknown): void {
   try {
     sessionStorage.setItem(key, JSON.stringify(value))
   } catch {
@@ -27,7 +17,7 @@ export function setValue(key: StorageKeyName, value: unknown): void {
   }
 }
 
-export function getValue<T = unknown>(key: StorageKeyName): T | null {
+export function getValue<T = unknown>(key: SessionStorageKeyName): T | null {
   const v = sessionStorage.getItem(key)
   if (v === null) return null
   try {
@@ -38,21 +28,21 @@ export function getValue<T = unknown>(key: StorageKeyName): T | null {
 }
 
 // 便利ラッパー：数値・真偽値
-export function setNumber(key: StorageKeyName, value: number): void {
+export function setNumber(key: SessionStorageKeyName, value: number): void {
   setValue(key, value)
 }
 
-export function getNumber(key: StorageKeyName, fallback?: number): number | null {
+export function getNumber(key: SessionStorageKeyName, fallback?: number): number | null {
   const v = getValue<number>(key)
   if (v === null) return fallback ?? null
   return Number(v)
 }
 
-export function setBoolean(key: StorageKeyName, value: boolean): void {
+export function setBoolean(key: SessionStorageKeyName, value: boolean): void {
   setValue(key, value)
 }
 
-export function getBoolean(key: StorageKeyName, fallback?: boolean): boolean | null {
+export function getBoolean(key: SessionStorageKeyName, fallback?: boolean): boolean | null {
   const v = getValue<boolean>(key)
   if (v === null) return fallback ?? null
   return Boolean(v)

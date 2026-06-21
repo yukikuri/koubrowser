@@ -10,6 +10,16 @@ import LockImage from '@renderer/assets/img/lock.svg'
 type Props = { deck_index?: number }
 const props = withDefaults(defineProps<Props>(), { deck_index: 0 })
 
+/////////////////////////////////////////////////////////////////////////////////////
+// デバッグログ
+const DEBUG = 0;
+
+const debug = (...args: any[]) => {
+  if (DEBUG) console.debug("[World]", ...args);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
 const getBattleTabIndex = (): number => {
   if (!svdata.inMap) return 0
   const map_start = svdata.mapStart
@@ -40,12 +50,12 @@ const selectBattleTab = (): void => {
   if (svdata.inEvent) indexs.push(eventAreaId.value)
   const i = indexs.findIndex((el) => el === map_start.api_maparea_id)
   if (i !== -1) index.value = i
-  console.log('world selectBattleTab set index:', index.value)
+  debug('world selectBattleTab set index:', index.value)
 }
 
 const onChange = (valueNew: number): void => {
   // debug log if needed
-  console.log('world tab changed', 'old world:', index.value, 'new world:', valueNew)
+  debug('world tab changed', 'old world:', index.value, 'new world:', valueNew)
 }
 
 const inEvent = (): boolean => {
@@ -53,7 +63,7 @@ const inEvent = (): boolean => {
 }
 
 const isWorldBattle = (areaId: number): boolean => {
-  console.log('call is world', areaId, svdata.inMap, svdata.mapStart?.api_maparea_id)
+  debug('call is world', areaId, svdata.inMap, svdata.mapStart?.api_maparea_id)
   if (!svdata.inMap) return false
   return svdata.mapStart?.api_maparea_id === areaId
 }
@@ -106,7 +116,7 @@ const eventName = computed<string>(
 const eventAreaId = computed<number>(() => svdata.mstMapareaType(ApiMapAreaType.event)?.api_id ?? 0)
 
 onMounted(() => {
-  console.log('world mounted')
+  debug('world mounted')
   cb_map_start = ApiCallback.set([Api.REQ_MAP_START, () => onMapStart()])
 })
 

@@ -18,6 +18,16 @@ import {
 } from 'vue'
 import { mapInfoCache } from '@renderer/common/mapinfo'
 
+/////////////////////////////////////////////////////////////////////////////////////
+// 
+const DEBUG = 0;
+
+const debug = (...args: any[]) => {
+  if (DEBUG) console.debug("[CellEnemy]", ...args);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 const props = withDefaults(
   defineProps<{
     area_id: number
@@ -50,7 +60,7 @@ watch(
   ([area_id, area_no]) => {
     mapInfoCache.get(area_id, area_no).then((info) => {
       cell_info.value = info
-      console.log(
+      debug(
         'cell enemy watch area_no change. cell info updated.',
         area_id,
         area_no,
@@ -60,7 +70,7 @@ watch(
       selectBattleTab()
       updateItems()
     }).catch(() => {
-      console.log(
+      debug(
         'cell enemy watch area_no change. cell info not found.',
         area_id,
         area_no,
@@ -74,7 +84,7 @@ watch(
 watch(
   () => svdata.inMap,
   (inMap) => {
-    console.log('cell enemy watch inMap change', inMap)
+    debug('cell enemy watch inMap change', inMap)
     if (!inMap) {
       battle_index.value = -1
     }
@@ -85,7 +95,7 @@ watch(
 const inMap = computed<boolean>(() => svdata.inMap)
 
 const items = computed<EnemyInfo[]>(() => {
-  console.log(
+  debug(
     'cell enemy compute items',
     'battle_index:',
     battle_index.value,
@@ -135,7 +145,7 @@ function updateItems() {
     return info
   })
   replaceArray(items_.value, list)
-  console.log(
+  debug(
     'cell enemy update items. inBattle:',
     inBattle,
     'battle_index:',
@@ -148,7 +158,7 @@ function updateItems() {
 }
 
 function onBattleStart(arg: ApiBattleStartType) {
-  console.log(
+  debug(
     'cell enemy on battle start',
     props.area_id,
     props.area_no,
@@ -162,7 +172,7 @@ function onBattleStart(arg: ApiBattleStartType) {
 
 function setShipKe() {
   const battle = svdata.lastBattle
-  console.log('cell enemy set ship ke. battle:', toRaw(battle))
+  debug('cell enemy set ship ke. battle:', toRaw(battle))
 
   if (battle) {
     if (
@@ -216,15 +226,15 @@ function selectBattleTab() {
     return
   }
   index.value = i
-  console.log('select battle tab index:', index.value)
+  debug('select battle tab index:', index.value)
 }
 
 onBeforeMount(() => {
-  console.log('cell enemy before mount. ship ke set.', props.area_id, props.area_no, ship_ke.value)
+  debug('cell enemy before mount. ship ke set.', props.area_id, props.area_no, ship_ke.value)
 })
 
 onMounted(() => {
-  console.log('cell enemy mounted', props.area_id, props.area_no, 'deck_index:', props.deck_index)
+  debug('cell enemy mounted', props.area_id, props.area_no, 'deck_index:', props.deck_index)
   cb_battle_start = ApiCallback.set([
     'battle-start',
     (arg: ApiBattleStartType) => onBattleStart(arg)
@@ -235,12 +245,12 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  console.log('cell enemy destroyed', props.area_id, props.area_no, props.cell_no)
+  debug('cell enemy destroyed', props.area_id, props.area_no, props.cell_no)
   ApiCallback.unset(cb_battle_start)
 })
 
 onBeforeUpdate(() => {
-  console.log(
+  debug(
     'cell enemy before update',
     props.area_id,
     props.area_no,
@@ -255,7 +265,7 @@ onBeforeUpdate(() => {
 })
 
 onUpdated(() => {
-  console.log(
+  debug(
     'cell enemy updated',
     props.area_id,
     props.area_no,

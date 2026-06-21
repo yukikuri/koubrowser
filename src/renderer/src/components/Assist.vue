@@ -16,37 +16,19 @@ import Invalid from '@renderer/components/Invalid.vue'
 import { EnvRenderer } from '@renderer/common/env-renderer';
 import type { PortChartData } from '@common/record'
 import { isAppReady } from '@renderer/stuff/app_ready';
-import { assistTabIndex, assistTabRequest, type AssistTabName } from '@renderer/store/assist-tab'
+import { AssistTabName, AssistUIState as us } from '@renderer/store/ui_state'
 import { watch } from 'vue'
 
-const tabOrder: AssistTabName[] = []
-
-const buildTabOrder = (): void => {
-  tabOrder.push('deckport')
-  tabOrder.push('missioncheck')
-  tabOrder.push('battletab')
-  tabOrder.push('shipitems')
-  tabOrder.push('dropbymap')
-  tabOrder.push('dropbyship')
-  if (EnvRenderer.isAssist) {
-    tabOrder.push('dockquestlist')
-  }
-  tabOrder.push('chart')
-  tabOrder.push('about')
-}
-buildTabOrder()
-
-const isTabVisibleByName = (tabName: AssistTabName): boolean => {
-  const tabIndex = tabOrder.indexOf(tabName)
-  return assistTabIndex.value === tabIndex
-}
-
+// Vue のテンプレートで v-model するため、namespace import から top-level ref として受け直す。
+const assistTabIndex = us.tabIndex
+const assistTabRequest = us.tabRequest
 const chartMaterial = ref<InstanceType<typeof ChartMaterial> | null>(null)
 const chartKit = ref<InstanceType<typeof ChartKit> | null>(null)
 let chartRecordFetching = false;
 
 onMounted(() => {
-  console.log('assist root mounted href:', window.location.href)
+  console.log('assist root mounted href:', 
+    window.location.href, 'EnvIsAssist:', EnvRenderer.isAssist, assistTabIndex.value)
 })
 
 const isDockQuestlistTabVisible = computed<boolean>(() => {
@@ -54,11 +36,20 @@ const isDockQuestlistTabVisible = computed<boolean>(() => {
   return EnvRenderer.isAssist
 })
 
+const isTabVisibleByName = (tabName: AssistTabName): boolean => {
+  return us.isTabVisibleByName(tabName)
+}
+
 function onTabChange(valueNew: number): void {
   console.log('assist tab index updated:', 'old:', assistTabIndex.value, 'new:',valueNew);
 
+  const tabName = us.getTabName(valueNew)
+  if (tabName) {
+    us.saveTabName(tabName)
+  }
+
   // if chart tab is selected, get record
-  if (isTabVisibleByName('chart')) {
+  if (us.isTabVisibleByName('chart')) {
     console.log('fetch port record for chart');
     fetchPortRecordForChart()
     return
@@ -69,7 +60,7 @@ watch(assistTabRequest, (tabName) => {
   if (!tabName) {
     return
   }
-  const tabIndex = tabOrder.indexOf(tabName)
+  const tabIndex = us.tabOrder.indexOf(tabName)
   if (tabIndex !== -1) {
     assistTabIndex.value = tabIndex
     onTabChange(tabIndex)
@@ -84,9 +75,9 @@ function fetchPortRecordForChart(): void {
   }
   chartRecordFetching = true;
   window.api.calcPortChartData().then((data: PortChartData) => {
-    console.log('port record for chart fetched. chart tab visible:', isTabVisibleByName('chart'));
+    console.log('port record for chart fetched. chart tab visible:', us.isTabVisibleByName('chart'));
     chartRecordFetching = false;
-    if (isTabVisibleByName('chart')) {
+    if (us.isTabVisibleByName('chart')) {
       chartMaterial.value?.drawChart(data.materials)
       chartKit.value?.drawChart(data.kits)
     }

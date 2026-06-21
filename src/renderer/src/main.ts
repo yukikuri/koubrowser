@@ -1,6 +1,7 @@
 import { GameChannel } from '@common/channel'
 import { GameSetting } from '@common/setting'
 import { AppState } from '@common/state'
+import { gameState } from '@renderer/store/gamestate'
 import { gameSetting } from '@renderer/store/gamesetting'
 import { createApp } from 'vue'
 import Buefy from 'buefy'
@@ -16,11 +17,23 @@ import '@assets/assist.scss'
 //import '@mdi/font/css/materialdesignicons.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { streamInitialize } from '@renderer/stream'
-import { EnvRenderer } from './common/env-renderer'
+import { EnvRenderer } from '@renderer/common/env-renderer'
+import { MainRendererState } from '@renderer/store/renderer_state'
 
 // if assist window change title
 if (EnvRenderer.isAssist) {
   document.title = '甲ブラウザ アシストウィンドウ';
+}
+
+// ボタン状態はアプリコンポ表示前に反映させておく
+if (! EnvRenderer.isAssist) {
+  if (MainRendererState.isCurrentAppLaunch()) {
+    // 最新の状態に更新時は以前の状態を取得
+    gameState.muted = MainRendererState.getMuted()
+  } else {
+    // 新規レンダラー起動時はEnvRendererの状態を反映
+    gameState.muted = EnvRenderer.isInitMuted
+  }
 }
 
 streamInitialize(async () => {

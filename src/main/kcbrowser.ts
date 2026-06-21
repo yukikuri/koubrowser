@@ -16,6 +16,7 @@ import {
   IpcMainInvokeEvent,
   MenuItem,
   Menu,
+  Display,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { is } from '@electron-toolkit/utils'
@@ -53,7 +54,7 @@ import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
 import type { ApiReqMessage, ApiResMessage, QuestsMessage, RequiredMessage } from '@common/message'
-import { gameSetting, gameSettingProxy } from '@main/settings'
+import { gameSetting, gameSettingProxy, gameState } from '@main/settings'
 import path from 'node:path'
 import { getWorkerDriver, start as WorkersStart } from '@main/stuff/wrokers'
 import { AppSetting, defaultAppSetting, defaultInheritScoreList, InheritScoreList } from '@common/store'
@@ -63,16 +64,17 @@ import { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import { Intaker } from '@main/stuff/intaker'
 import { setTestData } from '@main/debug-data'
 import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
+import * as appSetting from '@main/app_setting'
+import * as RectUtil from '@common/rect_util'
+import crypto from 'node:crypto'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = false;
+const DEBUG = 0;
 
 const debug = (...args: any[]) => {
   if (DEBUG) console.info("[KcBrowser]", ...args);
 };
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 
 const setUseragent = (): void => {
@@ -125,11 +127,11 @@ type UpdateChannel = 'beta' | 'latest'
 /**
  *
  */
-const calcAssistWindowSize = (): { width: number; height: number } => {
-  if (gameSetting.isAssistInGame) {
+const calcMainWindowSize = (isAssistInGame: boolean): { width: number; height: number } => {
+  if (isAssistInGame) {
     const width = Const.GameWidth + Const.AssistWidth
     const height =
-      Const.GameHeight + Const.GameBarHeight + Const.TitleBarHeight + Const.AssistHeight
+      Const.GameHeight + Const.GameBarHeight + Const.TitleBarHeight + Const.AssistBottomHeight
     return { width, height }
   }
 
@@ -143,10 +145,64 @@ const calcAssistWindowSize = (): { width: number; height: number } => {
 /**
  *
  */
-const calcGameOnlySize = (): { width: number; height: number } => {
+const defaultGameOnlySize = (): { width: number; height: number } => {
   const width = Const.GameWidth
   const height = Const.GameHeight + Const.GameBarHeight + Const.TitleBarHeight
   return { width, height }
+}
+
+/**
+ * 
+ */
+const calcMainWindowMinSize = (): { minWidth: number; minHeight: number, frame_ratio: number } => {
+  const defGameOnlySize = defaultGameOnlySize()
+  const frame_ratio = AppStuff.calcFrameRatio(defGameOnlySize.width, defGameOnlySize.height)
+  const minWidth = 600
+  const minHeight = AppStuff.calcFrameHeight(frame_ratio, minWidth)
+  gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(defGameOnlySize.width)
+  return { minWidth, minHeight, frame_ratio }
+}
+
+
+/**
+ * 
+ */
+const isAssistRestricted = (): boolean => {
+  //screen.getAllDisplays().forEach(el => console.log(el));
+  // const pdisp = screen.getPrimaryDisplay()
+  // const ok = [pdisp].some((el) => {
+  //   return el.bounds.height >= Const.InGameAssistDisplayRequirementHeight && 
+  //   el.bounds.width >= Const.InGameAssistDisplayRequirementWidth
+  // })
+  //debug('primary display:', pdisp, 'has required size:', ok)
+  const ok = screen
+    .getAllDisplays()
+    .some((el) => {
+      return el.bounds.height >= Const.InGameAssistDisplayRequirementHeight && 
+      el.bounds.width >= Const.InGameAssistDisplayRequirementWidth}
+    )
+  return !ok;
+}
+
+/**
+ * 
+ */
+const installVueDevtoolsIfDev = (): void => {
+  if (Env.isDevelopment) {
+    const path =
+      process.env.LOCALAPPDATA +
+      '/Google/Chrome/User Data/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0'
+    if (fs.existsSync(path)) {
+      session.defaultSession.extensions
+        .loadExtension(path, { allowFileAccess: true })
+        .then(() => {
+          debug('Vue Devtools loaded')
+        })
+        .catch((err) => {
+          debug('Vue Devtools load failed:', err)
+        })
+    }
+  }
 }
 
 /**
@@ -177,7 +233,7 @@ export class KcApp {
   private assist_window: BrowserWindow | null = null
   private frame_ratio: number
   private kcrecord: KcRecord | null = null
-  private cbBasicFirst: number
+  private cbBasicFirst: number = 0
   private nohandle_resize: boolean = false
   private wsRecording: fs.WriteStream | null = null
   private questUpdated_called: boolean = false
@@ -202,55 +258,401 @@ export class KcApp {
     return this.assist_window
   }
 
+  public saveAppState(): void {
+    debug('saveAppState called isRestricted:', gameSetting.assistRestricted)
+
+    // ディスプレイ要件を満たすディスプレイがない場合は
+    // ・ミュート状態
+    // ・topmost状態
+    // のみ保存する
+    if (gameSetting.assistRestricted) {
+      appSetting.saveAppStateRestricted(this.mainWindow, gameSetting.topmost, gameState.muted)
+    } else {
+      appSetting.saveAppState(this.mainWindow, gameSetting.assistInGame, {
+        width: appState.game_only_width,
+        height: appState.game_only_height
+      }, gameSetting.topmost, gameState.muted)
+    }
+  }
+
   constructor() { 
     kcapp = this
 
+    const appLaunchId = crypto.randomUUID()
+
     debug('app dir(dirname):', __dirname)
     debug('app dir(user data):', app.getPath('userData'))
+    debug('app launch id:', appLaunchId)
 
     // start worker driver
     WorkersStart(getMainDir());
 
     // set user data dir
     setUserDataDir(app.getPath('userData'))
-
-    // check assist stuff
-    gameSetting.assist_ok = screen
-      .getAllDisplays()
-      .some((el) => el.bounds.height >= 960 && el.bounds.width >= 1800)
-    //screen.getAllDisplays().forEach(el => console.log(el));
-
-    // Create the browser window.
-    const withAssistSize = calcAssistWindowSize()
-    const gameOnlySize = calcGameOnlySize()
-
-    const x = 20
-    const y = 40
-    this.frame_ratio = AppStuff.calcFrameRatio(gameOnlySize.width, gameOnlySize.height)
-    const minWidth = 600
-    const minHeight = AppStuff.calcFrameHeight(this.frame_ratio, minWidth)
-    gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(gameOnlySize.width)
+    appSetting.loadAppJsonSetting()
 
     // set useragent
     setUseragent()
 
     // install Vue.js devtools
-    if (Env.isDevelopment) {
-      const path =
-        process.env.LOCALAPPDATA +
-        '/Google/Chrome/User Data/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0'
-      if (fs.existsSync(path)) {
-        session.defaultSession.extensions
-          .loadExtension(path, { allowFileAccess: true })
-          .then(() => {
-            debug('Vue Devtools loaded')
-          })
-          .catch((err) => {
-            debug('Vue Devtools load failed:', err)
-          })
+    installVueDevtoolsIfDev()
+
+    // イベントやIPCハンドラ設定
+    this.setupHandlers()
+
+    // detect restricted assist
+    gameSetting.setAssistRestricted(isAssistRestricted())
+
+    // calc main window min size
+    const { minWidth, minHeight, frame_ratio } = calcMainWindowMinSize();
+    this.frame_ratio = frame_ratio
+
+    // メインウインドウにアシストを表示するか？
+    // ディスプレイ要件を満たすディスプレイがない場合は、アシストをゲームと別ウインドウで表示する
+    if (gameSetting.assistRestricted) {
+      gameSetting.setAssistInGame(false)
+    } else {
+      const restoredAssistInGame = appSetting.restoreAssistInGame()
+      if (restoredAssistInGame !== undefined) {
+        gameSetting.setAssistInGame(restoredAssistInGame)
       }
     }
 
+    const restoredTopmost = appSetting.restoreTopmost()
+    if (restoredTopmost !== undefined) {
+      gameSetting.topmost = restoredTopmost
+    }
+    const restoredMuted = appSetting.restoreMuted()
+    if (restoredMuted !== undefined) {
+      gameState.muted = restoredMuted
+    }
+
+    // Create the browser window.
+
+    // 前回終了ウインドウ位置で現環境のdisplayに表示できる場合の座標取得
+    // 取得できない場合、undef
+    const restoredMainWindowBounds = appSetting.restoreMainWindowBounds(gameSetting.isAssistInGame)
+
+    // メインウインドウ表示サイズ
+    const mainWindowSize = ((): { width: number, height: number, resizable: boolean } => {
+
+      // 推奨サイズの要件を満たすディスプレイがない場合はゲーム画面と別ウインドウアシストを表示する
+      // プライマリディスプレイに表示する
+      if (gameSetting.assistRestricted) {
+        const primaryDisplay = screen.getPrimaryDisplay()
+        const bounds = primaryDisplay.workArea
+        const width = Math.max(bounds.width - Const.AssistWidth, minWidth)
+        const height = AppStuff.calcFrameHeight(frame_ratio, width)
+        return { width, height, resizable: true }
+      }
+
+      // 前回起動座標が無効
+      if (! restoredMainWindowBounds) {
+        // デフォルト初期サイズで表示
+        return { ...calcMainWindowSize(gameSetting.isAssistInGame), resizable: !gameSetting.isAssistInGame }
+      }
+
+      // 前回起動座標が有効
+      if (gameSetting.isAssistInGame) {
+        // サイズは固定
+        return { ...calcMainWindowSize(true), resizable: false }
+      }
+
+      // ゲームのみ表示、保存されているサイズを返却
+      return { width: restoredMainWindowBounds.width, height: restoredMainWindowBounds.height, resizable: true }
+    })()
+
+    // メインウインドウ表示位置
+    const mainWindowPos = ((): { x: number, y: number } | undefined => {
+
+      // 推奨サイズの要件を満たすディスプレイがない場合
+      if (gameSetting.assistRestricted) {
+        // 表示位置保存が無い場合、プライマリディスプレイに表示する
+        const primaryDisplay = screen.getPrimaryDisplay()
+        const bounds = primaryDisplay.workArea
+        return { x: bounds.x, y: bounds.y + (bounds.height - mainWindowSize.height)/2 }
+      }
+
+      // 前回起動座標が無効
+      if (! restoredMainWindowBounds) {
+        // 表示位置を指定しない
+        return undefined
+      }
+
+      // 前回起動座標が有効
+      return { x: restoredMainWindowBounds.x, y: restoredMainWindowBounds.y }
+    })()
+
+    // 表示座標を指定しない場合、中央表示
+    const mainWindowPlacement = mainWindowPos ?? { center: true }
+
+    // create main frame
+    const additionalArguments: string[] = [];
+    additionalArguments.push(`${Const.ArgAppLaunchId}=${appLaunchId}`);
+      additionalArguments.push(Const.ArgIsTestMode);
+    }
+    if (gameState.muted) {
+      additionalArguments.push(Const.ArgIsInitMuted);
+    }
+    const mainWindowOptions: BrowserWindowConstructorOptions = {
+      useContentSize: true,
+      width: mainWindowSize.width,
+      height: mainWindowSize.height,
+      ...mainWindowPlacement,
+      minWidth: minWidth,
+      minHeight: minHeight,
+      fullscreenable: false,
+      maximizable: false,
+      titleBarStyle: 'hidden',
+      frame: false,
+      resizable: !gameSetting.isAssistInGame,
+      backgroundColor: '#000',
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        nodeIntegrationInSubFrames: true,
+        webviewTag: true,
+        spellcheck: false,
+        preload: path.join(__dirname, '../preload/index.js'),
+        additionalArguments,
+        sandbox: false
+        //sandbox: true
+      }
+    }
+    this.main_window = new BrowserWindow(mainWindowOptions)
+
+    // ゲームのみ表示で保存されていたサイズを復元
+    const restoredGameOnlySize = appSetting.restoreGameOnlySize()
+    if (restoredGameOnlySize) {
+      appState.game_only_width = restoredGameOnlySize.width
+      appState.game_only_height = restoredGameOnlySize.height
+    }
+
+    // ゲームページの場合にプリロード指定
+    this.main_window.webContents.on('will-attach-webview', (_event, webPreferences, params) => {
+      debug('will-attach-webview:', params, webPreferences)
+      if (params.src === Const.GamePageUrl) {
+        webPreferences.preload = path.join(getMainDir(), '../preload/xhr-hook.js')
+      }
+    })
+
+    if (Env.isDevelopment) {
+      this.main_window.webContents.openDevTools()
+    }
+
+    appState.media_source_id = this.main_window.getMediaSourceId()
+    debug({
+      'assistRestricted': gameSetting.assistRestricted,
+      main_window_id: this.main_window.id,
+      media_source_id: appState.media_source_id,
+      mainWindowSize: mainWindowSize,
+      mainWindowPos: mainWindowPos,
+      frame_ratio: this.frame_ratio,
+      minWidth,
+      minHeight,
+      'calcFrameRatio:': AppStuff.calcFrameRatio(minWidth, minHeight)
+    })
+
+    debug(
+      'mainWindow pos info', {
+        'getPosition': this.main_window.getPosition(),
+        'getBounds': this.main_window.getBounds(),
+        'getContentBounds': this.main_window.getContentBounds(),
+        'getSize': this.main_window.getSize()
+      }
+    )
+
+    gameSettingProxy.webContents = this.main_window.webContents
+    if (!gameSetting.isAssistInGame) {
+      this.updateGameOnlyZoomFactor()
+    }
+    this.main_window.setAlwaysOnTop(gameSetting.topmost)
+
+    // open app html
+    openAppHtml(this.mainWindow)
+
+    // アシストウインドウを別画面で表示する場合
+    // display要件を満たすディスプレイがない場合はアシストウインドウを別画面で表示する
+    const restoredAssistWindowState = appSetting.restoreAssistWindowState(true)
+    if (restoredAssistWindowState || gameSetting.assistRestricted) {
+      const state = gameSetting.assistRestricted ? undefined : restoredAssistWindowState
+      this.openAssistWindow(state?.position ? { ...state.position, display: state.display } : undefined)
+    }
+
+    // Persist window state before any child windows are closed by the main window shutdown path.
+    this.mainWindow.on('close', () => {
+      if (this.assist_window && !this.assist_window.isDestroyed()) {
+        if (! gameSetting.assistRestricted) {
+          appSetting.updateAssistWindowState(this.assist_window, false)
+        }
+      }
+      this.saveAppState()
+    })
+
+    this.mainWindow.on('closed', () => this.onClosed())
+    this.mainWindow.on('resize', () => this.onResize())
+    this.mainWindow.on('will-resize', (event, newBounds, _details) =>
+      this.onWillResize(event, newBounds)
+    )
+
+    // set intake schedule
+    Intaker.setIntakeSchedule();
+  }
+
+  /**
+   *
+   */
+  private openAssistWindow(position?: { x: number; y: number, display: Display }): void {
+    if (this.assist_window) {
+      // noop
+      return
+    }
+
+    // 表示位置計算
+    const assistWindowPosition = ((): { x: number; y: number, display: Display } => {
+
+      // 位置情報が有効
+      if (position) {
+        return position
+      }
+
+      // 推奨サイズの要件を満たすディスプレイがない場合
+      if (gameSetting.assistRestricted) {
+        // 表示位置保存が無い場合、プライマリディスプレイに表示する
+        // ウインドウはcontentsizeでの作成で実際はフレームサイズ分補正が必要
+        // 補正はウインドウ非表示で作成後に行う
+        const primaryDisplay = screen.getPrimaryDisplay()
+        const bounds = primaryDisplay.workArea
+        const y = Math.max(bounds.y, bounds.y + (bounds.height-Const.InGameAssistDisplayRequirementHeight)/2)
+        // debug('assist window position for restricted:', 
+        //   { x: bounds.x + bounds.width - Const.AssistWidth, y, display: primaryDisplay,
+        //     assistWindowWidth: Const.AssistWidth,
+        //     bounds: bounds
+        //   })
+        return { 
+          x: bounds.x + bounds.width - Const.AssistWidth, 
+          y, 
+          display: primaryDisplay }
+      }
+
+      // 位置情報が無効、メインウインドウの表示位置から空いている領域に表示
+      const mainRect = this.main_window.getNormalBounds();
+      const display = screen.getDisplayMatching(this.main_window.getBounds());
+      const bounds = display.workArea
+      const y = Math.max(bounds.y, bounds.y + (bounds.height-Const.InGameAssistDisplayRequirementHeight)/2)
+
+      // 空き領域判定
+      const intersectRect = RectUtil.intersect(mainRect, bounds)
+      if (! intersectRect) {
+        return { x: mainRect.x + mainRect.width - 100, y, display }
+      }
+
+      const leftSpace = intersectRect.x - bounds.x
+      const rightSpace = bounds.x + bounds.width - (intersectRect.x + intersectRect.width)
+      if (rightSpace >= leftSpace) {
+        return { x: intersectRect.x + intersectRect.width, y, display }
+      } else {
+        return { x: intersectRect.x - Const.AssistWidth, y, display }
+      }
+    })()
+
+    // 表示サイズ計算
+    const assistWindowSize = ((): { width: number; height: number } => {
+      return {
+        width: Const.AssistWidth, 
+        height: Math.min(
+          Const.InGameAssistDisplayRequirementHeight - Const.TitleBarHeight, 
+          assistWindowPosition.display.workArea.height)
+      }
+    })()
+
+    const additionalArguments: string[] = [Const.ArgIsAssist];
+    if (Env.isTestMode) {
+      additionalArguments.push(Const.ArgIsTestMode);
+    }
+
+    debug('assist window info', {
+      assistRestricted: gameSetting.assistRestricted,
+      assistWindowPosition,
+      assistWindowSize,
+      display: assistWindowPosition.display,
+    })
+
+    const iconPath = app.isPackaged 
+      ? path.join(process.resourcesPath, 'resources/app.ico') : path.join(__dirname, '../../resources/app.ico')
+    this.assist_window = new BrowserWindow({
+      title: '甲ブラウザ',
+      icon: iconPath,
+      parent: this.main_window,
+      useContentSize: true,
+      width: assistWindowSize.width,
+      height: assistWindowSize.height,
+      x: assistWindowPosition.x,
+      y: assistWindowPosition.y,
+      show: false,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        nodeIntegrationInSubFrames: true,
+        spellcheck: false,
+        preload: path.join(getMainDir(), '../preload/index.js'),
+        additionalArguments,
+        sandbox: false
+        //sandbox: true
+      }
+    })
+    this.assist_window.setMenu(null)
+
+    // ウインドウ位置とサイズをフレームサイズで補正
+    if (gameSetting.assistRestricted) {
+
+      // 位置補正
+      const contentBounds = this.assist_window.getContentBounds()
+      const windowBounds = this.assist_window.getBounds()
+      const fixX = windowBounds.width - contentBounds.width
+      const fixX2 = Math.trunc(fixX/assistWindowPosition.display.scaleFactor)
+      this.assist_window.setPosition(
+        assistWindowPosition.x - fixX2,
+        assistWindowPosition.y);
+
+      // サイズ補正
+      const workArea = assistWindowPosition.display.workArea
+      if (workArea.height < windowBounds.height) {
+        this.assist_window.setSize(
+          windowBounds.width,
+          workArea.height+Math.max(0, fixX2-2),
+          false
+        )
+      }
+    }
+
+    // 補正後に表示
+    this.assist_window.show()
+
+    this.assist_window.addListener('close', () => {
+      if (! gameSetting.assistRestricted) {
+        // 閉じた位置を保存
+        if (this.assist_window) {
+          appSetting.updateAssistWindowState(this.assist_window, true)
+        }
+      }
+    })
+    this.assist_window.addListener('closed', () => {
+      this.assist_window = null
+    })
+
+    // open app html
+    openAppHtml(this.assist_window)
+
+    if (Env.isDevelopment) {
+      this.assist_window.webContents.openDevTools()
+    }
+  }
+
+  /**
+   * 
+   */
+  private setupHandlers() {
     app.on('web-contents-created', (event, webContents) =>
       this.onWebContentsCreated(event, webContents)
     )
@@ -264,6 +666,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.reload, async (_event, arg) => this.onChannelReload(arg))
     ipcMain.handle(MainChannel.openAssist, async () => this.onChannelOpenAssist())
     ipcMain.handle(MainChannel.topmost, async () => this.onChannelTopmost())
+    ipcMain.handle(MainChannel.notify_mute_state, async (_event, arg) => this.onChannelNotifyMuteState(arg))
     ipcMain.handle(MainChannel.open_capture_folder, async () => this.onChannelOpenCaptureFolder())
     ipcMain.handle(MainChannel.save_capture, async (_event, date, buffer) =>
       this.onChannelSaveCapture(date, buffer)
@@ -344,87 +747,6 @@ export class KcApp {
       ipcMain.on(kcsapi_hook.HookedType.unk_loadstart, (_event, data) => this.onApiHookUnknownLoadStart(data));
       ipcMain.on(kcsapi_hook.HookedType.unk_loadend, (_event, data) => this.onApiHookUnknownLoadEnd(data));
     }
-
-    // create main frame
-    const additionalArguments: string[] = [];
-    if (Env.isTestMode) {
-      additionalArguments.push(Const.ArgIsTestMode);
-    }
-    this.main_window = new BrowserWindow({
-      useContentSize: true,
-      width: withAssistSize.width,
-      height: withAssistSize.height,
-      x: x,
-      y: y,
-      minWidth: minWidth,
-      minHeight: minHeight,
-      fullscreenable: false,
-      maximizable: false,
-      titleBarStyle: 'hidden',
-      frame: false,
-      resizable: !gameSetting.isAssistInGame,
-      backgroundColor: '#000',
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        nodeIntegrationInSubFrames: true,
-        webviewTag: true,
-        spellcheck: false,
-        preload: path.join(__dirname, '../preload/index.js'),
-        additionalArguments,
-        sandbox: false
-        //sandbox: true
-      }
-    })
-
-    this.main_window.webContents.on('will-attach-webview', (_event, webPreferences, params) => {
-      debug('will-attach-webview:', params, webPreferences)
-      if (params.src === Const.GamePageUrl) {
-        webPreferences.preload = path.join(getMainDir(), '../preload/xhr-hook.js')
-      }
-    })
-
-    if (Env.isDevelopment) {
-      this.main_window.webContents.openDevTools()
-    }
-
-    appState.media_source_id = this.main_window.getMediaSourceId()
-    debug(
-      'id, media_source_id, w, h, ratio, minW, minH, minR',
-      this.main_window.id,
-      appState.media_source_id,
-      withAssistSize,
-      this.frame_ratio,
-      minWidth,
-      minHeight,
-      AppStuff.calcFrameRatio(minWidth, minHeight)
-    )
-
-    gameSettingProxy.webContents = this.main_window.webContents
-    this.main_window.setAlwaysOnTop(gameSetting.topmost)
-
-    debug(
-      'mainWindow.getPosition()',
-      this.main_window.getPosition(),
-      this.main_window.getSize()
-    )
-
-    //if (! gameSetting.assist_in_game) {
-    //this.openAssistWindow();
-    //}
-
-    // open app html
-    openAppHtml(this.mainWindow)
-
-    this.mainWindow.on('closed', () => this.onClosed())
-    this.mainWindow.on('resize', () => this.onResize())
-    this.mainWindow.on('will-resize', (event, newBounds, _details) =>
-      this.onWillResize(event, newBounds)
-    )
-
-
-    // set intake schedule
-    Intaker.setIntakeSchedule();
   }
 
   /**
@@ -513,56 +835,6 @@ export class KcApp {
    */
   private static setCustomMenu(window: BrowserWindow): void {
     window.setMenu(KcApp.buildCustomMenu())
-  }
-
-  /**
-   *
-   */
-  private openAssistWindow(): void {
-    if (this.assist_window) {
-      // noop
-      return
-    }
-
-    //
-    const pos = this.main_window.getPosition()
-    const size = this.main_window.getSize()
-    const additionalArguments: string[] = [Const.ArgIsAssist];
-    if (Env.isTestMode) {
-      additionalArguments.push(Const.ArgIsTestMode);
-    }
-    this.assist_window = new BrowserWindow({
-      title: '甲ブラウザ',
-      parent: this.main_window,
-      useContentSize: true,
-      width: Const.AssistWidth,
-      height: size[1] - Const.TitleBarHeight,
-      x: pos[0] + size[0] - 100,
-      y: pos[1],
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        nodeIntegrationInSubFrames: true,
-        spellcheck: false,
-        preload: path.join(getMainDir(), '../preload/index.js'),
-        additionalArguments,
-        sandbox: false
-        //sandbox: true
-      }
-    })
-    this.assist_window.setMenu(null)
-
-    debug('assist window id', this.assist_window.id)
-    this.assist_window.addListener('closed', () => {
-      this.assist_window = null
-    })
-
-    // open app html
-    openAppHtml(this.assist_window)
-
-    if (Env.isDevelopment) {
-      this.assist_window.webContents.openDevTools()
-    }
   }
 
   // private closeAssistWindow(): void {
@@ -658,13 +930,34 @@ export class KcApp {
     gameSetting.setAssistInGame(show)
     this.mainWindow.setResizable(!gameSetting.isAssistInGame)
 
-    const size = calcAssistWindowSize()
+    const size = calcMainWindowSize(gameSetting.isAssistInGame)
+    debug('resize main window for assist show change', size)
     this.nohandle_resize = true
-    this.mainWindow.setSize(size.width, size.height, false)
+    this.mainWindow.setContentSize(size.width, size.height, false)
+    if (!gameSetting.isAssistInGame) {
+      const { minWidth, minHeight } = calcMainWindowMinSize();
+      this.mainWindow.setMinimumSize(minWidth, minHeight)
+    }
+    debug('resize main window contents size', this.mainWindow.getContentSize())
     if (!gameSetting.isAssistInGame) {
       gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(size.width)
     }
     this.nohandle_resize = false
+  }
+
+  /**
+   *
+   */
+  private updateGameOnlyZoomFactor(): void {
+    if (gameSetting.isAssistInGame) {
+      return
+    }
+
+    const size = this.mainWindow.getContentSize()
+    appState.game_only_width = size[0]
+    appState.game_only_height = size[1]
+    const calcSize = calcMainWindowSize(gameSetting.isAssistInGame)
+    gameSetting.zoom_factor = AppStuff.calcGameZoomFactor(calcSize.width)
   }
 
   /**
@@ -720,6 +1013,13 @@ export class KcApp {
    */
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
+
+    // update assist windows pos
+    if (this.assist_window?.isVisible()) {
+      appSetting.updateAssistWindowState(this.assist_window, false)
+    }
+
+    this.saveAppState()
     // no effect
     //mainWindow.close();
     this.mainWindow.destroy()
@@ -765,6 +1065,14 @@ export class KcApp {
   }
 
   /**
+   * Keep the main-process mute state in sync with the renderer.
+   */
+  private onChannelNotifyMuteState(muted: boolean) {
+    debug(MainChannel.notify_mute_state, 'muted:', muted)
+    gameState.muted = muted
+  }
+
+  /**
    *
    */
   private onChannelOpenAssist() {
@@ -773,7 +1081,8 @@ export class KcApp {
       this.assist_window.show()
       this.assist_window.focus()
     } else {
-      this.openAssistWindow()
+      const state = appSetting.restoreAssistWindowState(false)
+      this.openAssistWindow(state?.position ? { ...state.position, display: state.display } : undefined)
     }
   }
 

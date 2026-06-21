@@ -8991,16 +8991,35 @@ export class SvData {
 
       const flagCheck = this.apiData.api_event_object.api_m_flag > 0;
       const flag2Check = (this.apiData.api_event_object.api_m_flag2 ?? 0) > 0;
-      this.svdata.gimmickFlagDetected = (flagCheck || flag2Check)
+      const gimmickFlagDetected = (flagCheck || flag2Check)
 
+      let isEventMap = false
       let mapChangeDetected = false;
       const lastBattle = this.lastBattle;
       if (lastBattle) {
+        isEventMap = KcsUtil.isEventAreaId(lastBattle.map.api_maparea_id)
         const api_m1 = lastBattle.result?.api_m1 ?? 0;
         const api_m2 = lastBattle.result?.api_m2 ?? 0;
-        mapChangeDetected =(api_m1 > 0 || api_m2 > 0)
+        mapChangeDetected = (api_m1 > 0 || api_m2 > 0)
       }
-      this.svdata.mapChangeDetected = mapChangeDetected
+
+      // イベントマップの場合は両方表示
+      // 通常海域はMAP変更を優先でどちらか表示
+      if (isEventMap) {
+        this.svdata.gimmickFlagDetected = gimmickFlagDetected
+        this.svdata.mapChangeDetected = mapChangeDetected
+      } else {
+        if (mapChangeDetected) {
+          this.svdata.mapChangeDetected = true
+          this.svdata.gimmickFlagDetected = false
+        } else if (gimmickFlagDetected) {
+          this.svdata.gimmickFlagDetected = true
+          this.svdata.mapChangeDetected = false
+        } else {
+          this.svdata.gimmickFlagDetected = false
+          this.svdata.mapChangeDetected = false
+        }
+      }
 
       // clear if map start
       this.svdata.gimmickFlagDetectedClear = true

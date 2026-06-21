@@ -19,6 +19,7 @@ export interface Api {
   saveCapture(date: Date, buffer: Buffer): void
   openAssist(): void
   topmost(): void
+  notifyMuteState(muted: boolean): void
   refreshAssist(): void
   storeRec(buffer: Buffer, isEnd: boolean): void
   requestRequiredData(): void

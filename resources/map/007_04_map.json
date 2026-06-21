@@ -654,5 +654,31 @@
       "x": 933,
       "y": 331
     }
+  ],
+  "checks": [
+    {
+      "no": 10,
+      "label": "J",
+      "x": 710,
+      "y": 324,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 33,
+        "max": 37
+      }
+    },
+    {
+      "no": 13,
+      "label": "M",
+      "x": 911,
+      "y": 462,
+      "type": "maplos",
+      "info": {
+        "value": 4,
+        "min": 45,
+        "max": 47
+      }
+    }
   ]
 }

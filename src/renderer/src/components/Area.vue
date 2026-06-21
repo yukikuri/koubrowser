@@ -879,6 +879,11 @@ const fixMapLosPosAreaMap: FixMapLosPosAreaMap = new Map([
     [15, { modX: 10, modY: -5 }],
     [16, { modX: 15, modY: -5 }],
   ])],
+  [56, new Map([
+    [9, { modX: -20, modY: 45 }],
+    [27, { modX: 20, modY: -18 }],
+    [43, { modX: -45, modY: -2 }],
+  ])],
   [61, new Map([
     [6, { modX: -20, modY: -5 }],
     [8, { modX: 20, modY: -60 }],
@@ -893,8 +898,16 @@ const fixMapLosPosAreaMap: FixMapLosPosAreaMap = new Map([
     [10, { modX: 1, modY: -10 }],
   ])],
   [72, new Map([
-    [5, { modX: -80, modY: -10 }],
+    [5, { modX: -90, modY: -20 }],
     [11, { modX: 0, modY: -7 }],
+  ])],
+  [74, new Map([
+    [10, { modX: 7, modY: -47 }],
+    [13, { modX: 12, modY: -15 }],
+  ])],
+  [75, new Map([
+    [9, { modX: -70, modY: 15 }],
+    [24, { modX: -40, modY: -33 }],
   ])],
 ])
 
@@ -1031,7 +1044,7 @@ const mepGaugeText = computed<string>(() => {
       // 5-6-1
       if (mi.api_gauge_type === ApiGaugeType.yusou && 
         (typeof mi.api_defeat_count === 'number' && typeof mi.api_required_defeat_count === 'number')) {
-        const remainingLimit = 100
+        const remainingLimit = 999999
         const gauge_name = '輸送'
         const remainingValue = mi.api_required_defeat_count - mi.api_defeat_count
         const remainingValueText = remainingValue < remainingLimit ? ` 残: ${remainingValue} ` : ''

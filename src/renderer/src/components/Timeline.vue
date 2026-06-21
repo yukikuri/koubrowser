@@ -36,6 +36,7 @@ import { mapInfoCache } from '@renderer/common/mapinfo'
 import { CommonMap } from '@common/map'
 import { svdata } from '@renderer/store/svdata'
 import type { InheritScoreList } from '@common/store'
+import * as bs from '@renderer/common/battle-score'
 import { gameSetting } from '@renderer/store/gamesetting'
 import { ShipImg } from '@renderer/stuff/imgs/ship'
 import { RUtil } from '@renderer/util'
@@ -236,38 +237,6 @@ interface QuestClearRecord {
   date: string
   rate: number
 }
-interface QuestInfo {
-  no: number
-  name: string
-}
-
-const eoRates: { mapId: number; name: string; rate: number }[] = [
-  { mapId: 15, name: '1-5 鎮守府近海', rate: 75 },
-  { mapId: 16, name: '1-6 鎮守府近海航路', rate: 75 },
-  { mapId: 25, name: '2-5 沖ノ島沖', rate: 100 },
-  { mapId: 35, name: '3-5 北方AL海域', rate: 150 },
-  { mapId: 75, name: '7-5 ジャワ島沖', rate: 170 },
-  { mapId: 45, name: '4-5 カレー洋リランカ島沖', rate: 180 },
-  { mapId: 55, name: '5-5 サーモン海域北方', rate: 200 },
-  { mapId: 65, name: '6-5 KW環礁沖海域', rate: 250 }
-]
-const quarterlyQuests: QuestInfo[] = [
-  { no: 284, name: '南西諸島方面「海上警備行動」発令！' },
-  { no: 845, name: '発令！「西方海域作戦」' },
-  { no: 854, name: '戦果拡張任務！「Z作戦」前段作戦' },
-  { no: 872, name: '戦果拡張任務！「Z作戦」後段作戦' },
-  { no: 888, name: '新編成「三川艦隊」、鉄底海峡に突入せよ！' },
-  { no: 893, name: '泊地周辺海域の安全確保を徹底せよ！' },
-  { no: 903, name: '拡張「六水戦」、最前線へ！' }
-]
-
-function getEoRateByMapId(mapId: number): number {
-  return eoRates.find((er) => er.mapId === mapId)?.rate ?? 0
-}
-
-function isQuarterlyQuest(questNo: number): boolean {
-  return !!quarterlyQuests.find((e) => e.no === questNo)
-}
 
 const dailyScoreChartEl = ref<HTMLElement | null>(null)
 const hasDailyScore = ref(false)
@@ -330,7 +299,9 @@ async function fetchEoClearRecord(year: number, month: number): Promise<EoClearR
     const query = {
       dbName: DbName.battle,
       find: {
-        mapId: { $in: [15, 25, 35, 45, 55, 65, 75] },
+        mapId: {
+          $in: bs.eoRates.map((er) => er.mapId)
+        },
         isBoss: true,
         firstClear: true,
         date: { $gte: fromStr, $lt: toStr }
@@ -342,7 +313,8 @@ async function fetchEoClearRecord(year: number, month: number): Promise<EoClearR
       }
     }
     const records = await window.api.queryDb(query) as BattleRecord[]
-    return records.map((r) => ({ mapId: r.mapId, date: r.date, rate: getEoRateByMapId(r.mapId) }))
+    return records.map((r) => (
+      { mapId: r.mapId, date: r.date, rate: bs.getEoRateByMapId(r.mapId) }))
   }
 
   const fetchItemGetEoClear = async (): Promise<EoClearRecord[]> => {
@@ -404,7 +376,7 @@ async function fetchQuestClearRecord(year: number, month: number): Promise<Quest
   const records = await window.api.queryDb(query) as ClearItemGetRecord[]
   return records.map((r) => {
     const rate = (r.bonuses ?? []).reduce((acc, el) => {
-      if (isQuarterlyQuest(r.questNo) && r.date < quarterlyFromStr) {
+      if (bs.isQuarterlyQuest(r.questNo) && r.date < quarterlyFromStr) {
         return acc
       }
       if (el.api_type === ApiItemBonusType.senka) {
