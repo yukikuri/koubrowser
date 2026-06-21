@@ -3,8 +3,8 @@ const isAssist = !!process.argv.find((a) => a.startsWith(Const.ArgIsAssist))
 const isInitMuted = !!process.argv.find((a) => a.startsWith(Const.ArgIsInitMuted))
 const isTestMode = !!process.argv.find((a) => a.startsWith(Const.ArgIsTestMode))
 const appLaunchId = process.argv
-  .find((a) => a.startsWith(`--${Const.ArgAppLaunchId}=`))
-  ?.slice(`--${Const.ArgAppLaunchId}=`.length)
+  .find((a) => a.startsWith(`${Const.ArgAppLaunchId}=`))
+  ?.slice(`${Const.ArgAppLaunchId}=`.length)
 
 export class EnvRenderer {
   static get isAssist(): boolean {
