@@ -111,6 +111,7 @@ describe('app_setting', () => {
     expect(appSetting.restoreTopmost()).toBe(true)
     expect(appSetting.restoreMuted()).toBe(true)
     expect(appSetting.restoreAssistWindowState(true)).toEqual({
+      display: mockState.displays[0],
       position: {
         x: 100,
         y: 120
@@ -242,6 +243,7 @@ describe('app_setting', () => {
       y: 320
     })
     expect(appSetting.restoreAssistWindowState(false)).toEqual({
+      display: mockState.displays[0],
       position: {
         x: 300,
         y: 320
@@ -265,6 +267,6 @@ describe('app_setting', () => {
 
     appSetting.loadAppJsonSetting()
 
-    expect(appSetting.restoreAssistWindowState(true)).toEqual({})
+    expect(appSetting.restoreAssistWindowState(true)).toBeUndefined()
   })
 })
