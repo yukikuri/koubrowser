@@ -647,6 +647,12 @@ body {
   }
 }
 
+@media (max-width: 1000px) {
+  .titlebar-button.devtool-button {
+    display: none;
+  }
+}
+
 .timeline-root {
   caret-color: transparent;
   outline: none;

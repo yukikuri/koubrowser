@@ -1235,14 +1235,14 @@ if (EnvRenderer.isTestMode) {
         </div>
         <div
           v-if="isDevelopment"
-          class="titlebar-button"
+          class="titlebar-button devtool-button"
           title="デベロッパー ツール"
           @click="onDevTool"
         >
           <DevToolImage />
         </div>
         <div
-          class="titlebar-button"
+          class="titlebar-button devtool-button"
           title="Game側デベロッパー ツール"
           @click="onGameDevTool"
         >
