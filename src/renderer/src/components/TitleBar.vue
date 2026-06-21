@@ -419,6 +419,10 @@ const isAssistOk = computed((): boolean => {
   return !gameSetting.assistRestricted
 })
 
+const isAssistControlOk = computed((): boolean => {
+  return !gameSetting.assistRestricted
+})
+
 const onAssist = (): void => {
   if (gameSetting.assistRestricted) {
     return
@@ -1062,6 +1066,7 @@ if (EnvRenderer.isTestMode) {
     <div class="titlebar-buttons head" :class="{ dragable: isDragable }">
       <div>
         <div
+          v-if="isAssistControlOk"
           class="titlebar-button assist"
           :class="{ checked: isAssistShown, disabled: !isAssistOk }"
           title="アシストを表示"
