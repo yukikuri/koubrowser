@@ -50,12 +50,16 @@ const remodelText = (slots: Slot[], func: (mst: MstSlotitem, level: number) => n
 const api = computed<ApiShip>(() => svdata.ship(props.ship_id)!)
 const mst = computed<MstShip>(() => svdata.mstShip(api.value.api_ship_id)!)
 const slots = computed<Slot[]>(() => svdata.slots(api.value))
-const shipInfo = computed<ShipInfo>(() => ({
-  api: api.value,
-  mst: mst.value,
-  slots: slots.value,
-  onslotMax: mst.value.api_maxeq.filter((el) => el > 0)
-}))
+const shipInfo = computed<ShipInfo>(() => {
+  const onslotMax = api.value.api_onslot_max ? [...api.value.api_onslot_max] : [...mst.value.api_maxeq]
+  return {
+    api: api.value,
+    mst: mst.value,
+    slots: slots.value,
+    onslotMax
+  }
+})
+
 const deckShipIds = computed<number[]>(() => {
   const deck = svdata.deckPorts.find((d) => d.api_ship.includes(props.ship_id))
   return deck ? deck.api_ship : [props.ship_id]
