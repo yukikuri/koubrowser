@@ -3204,6 +3204,48 @@ register(
   }
 )
 
+// 199:【期間限定任務】第三十一戦隊 特務編成！
+register(
+  199,
+  class {
+    static readonly questType = QuestType.hensei
+    static max = [1]
+    static key = QuestKey.infer
+    static formatter(_quest: Quest): string {
+      return ''
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      if (deckShipCount(ship_ids) < 5) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds1 = [
+        svdata.shipMstIds(994), // kaya
+        svdata.shipMstIds(992), // sugi
+        svdata.shipMstIds(993), // kasi
+        svdata.shipMstIds(642), // take
+        svdata.shipMstIds(16), // usio
+        svdata.shipMstIds(35), // hibiki
+      ].flat()
+      // 6月
+      const shipIdsMonth6 = [
+        svdata.shipMstIds(41), // hatusimo
+        svdata.shipMstIds(20), // yukikaze
+        svdata.shipMstIds(533), // fuyutuki
+        svdata.shipMstIds(532), // sudutuki
+      ].flat()
+
+      const shipIds = [...shipIds1]
+      const now = new Date()
+      if (now.getMonth() === 5) {
+        shipIds.push(...shipIdsMonth6)
+      }
+      return shipCount(msts, shipIds) >= 5
+    }
+  }
+)
+
 // 201: 敵艦隊を撃破せよ！
 register(
   201,
@@ -7340,6 +7382,50 @@ register(
         return true
       }
       return akizuki + shipCount(ships, ids) >= 3
+    }
+  }
+)
+
+// 382: 【期間限定任務】第三十一戦隊 緊急演習！
+register(
+  382,
+  class {
+    static readonly questType = QuestType.practiceDeck
+    static max = [3]
+    static key = QuestKey.daily
+    static need_win_rank: PracticeWinRank = 'A'
+    static formatter(quest: Quest): string {
+      return detailFormat(['演習A勝利：'], quest)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 5) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds1 = [
+        svdata.shipMstIds(994), // kaya
+        svdata.shipMstIds(992), // sugi
+        svdata.shipMstIds(993), // kasi
+        svdata.shipMstIds(642), // take
+        svdata.shipMstIds(16), // usio
+        svdata.shipMstIds(35), // hibiki
+      ].flat()
+      // 6月
+      const shipIdsMonth6 = [
+        svdata.shipMstIds(41), // hatusimo
+        svdata.shipMstIds(20), // yukikaze
+        svdata.shipMstIds(533), // fuyutuki
+        svdata.shipMstIds(532), // sudutuki
+      ].flat()
+
+      const shipIds = [...shipIds1]
+      const now = new Date()
+      if (now.getMonth() === 5) {
+        shipIds.push(...shipIdsMonth6)
+      }
+      return shipCount(msts, shipIds) >= 5
     }
   }
 )
