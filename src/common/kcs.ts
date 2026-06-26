@@ -5957,6 +5957,7 @@ export interface MstStype {
   readonly api_name: string
   readonly api_scnt: number
   readonly api_kcnt: number
+  readonly api_max_slotplus: number
   readonly api_equip_type: number[]
 }
 
@@ -6254,6 +6255,7 @@ export const ApiItemId = {
   latest_overseas_warship_technology: 100, // 海外艦最新技術
   night_skilled_crew_member: 101, // 夜戦熟練搭乗員
   special_aviation_ration: 102, // 特別航空戦食
+  hangar_expansion: 105, // 格納庫増設
 
   // private
   teitoku_lv: -1, // 提督レベル
