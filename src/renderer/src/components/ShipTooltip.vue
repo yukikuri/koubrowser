@@ -118,10 +118,16 @@ const bouku = computed<number>(() => KcsUtil.shipBouku(shipInfo.value).ktb)
 
 const slotTypeImg = (slot: Slot): string => RUtil.slotTypeImg(slot)
 const slotAlvImg = (slot: Slot): string => RUtil.slotALevelImg(slot!.api.api_alv!)
-const slotOnSlotText = (slot: Slot, index: number): string => {
+const slotOnSlotText = (index: number): string => {
   if (tousai.value === 0) return ''
+  const slotnum = api.value.api_slotnum
+
+  // 拡張スロットでは空表示
+  if (index >= slotnum) return ''
+
   const onslot = api.value.api_onslot[index] ?? -1
-  const maxslot = shipInfo.value.onslotMax[index] ?? -1
+  const onslotMax = api.value.api_onslot_max ? api.value.api_onslot_max : shipInfo.value.mst.api_maxeq
+  const maxslot = onslotMax[index] ?? -1
   if (onslot >= 0 && maxslot > -1) return `${onslot}/${maxslot}`
   if (onslot > 0) return `${onslot}`
   return ''
@@ -418,7 +424,7 @@ onMounted(() => {
     </div>
     <hr class="hr" />
     <div class="slot" v-for="(slot, index) in slots" :key="index">
-      <span class="slot-onslot mr-1">{{ slotOnSlotText(slot, index) }}</span>
+      <span class="slot-onslot mr-1">{{ slotOnSlotText(index) }}</span>
       <span class="slot-img"><img v-if="slot !== undefined" :src="slotTypeImg(slot)" /></span>
       <span class="slot-text" v-if="slot !== undefined"
         >{{ slot.mst.api_name }}

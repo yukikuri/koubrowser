@@ -685,7 +685,6 @@ export interface ShipInfo {
   readonly api: ApiShip
   readonly mst: MstShip
   readonly slots: Slot[]
-  readonly onslotMax: number[]
 }
 
 export interface SlotWithOnSlot {
@@ -11034,15 +11033,11 @@ export class SvData {
     const api = this.ship(id)
     if (api) {
       const mst = this.mstShip(api.api_ship_id)
-      if (mst) {
-        // check api_onslot_max
-        const onslotMax = 
-          api.api_onslot_max ? [...api.api_onslot_max] : [...mst.api_maxeq]
+      if (mst) {        
         return {
           api: api,
           mst: mst,
           slots: this.slots(api),
-          onslotMax
         }
       }
     }
@@ -11067,7 +11062,6 @@ export class SvData {
       slots: ship.slots,
       bouku: KcsUtil.shipBouku(ship),
       sp: KcsUtil.spAll(ship, ships),
-      onslotMax: ship.onslotMax
     }))
   }
 
