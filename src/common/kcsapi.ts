@@ -91,6 +91,10 @@ export const Api = {
   REQ_KAISOU_REMODELING: '/api_req_kaisou/remodeling',
   // 改装 - 結婚
   REQ_KAISOU_MARRIGE: '/kcsapi/api_req_kaisou/marriage',
+  // 改装 - 格納庫増設
+  REQ_KAISOU_CAN_PRESET_SLOT_SELECT: '/api_req_kaisou/can_preset_slot_select',
+  // 改装 - 搭載スロット拡張実施
+  REQ_KAISOU_HANGAR_EXPAND: '/api_req_kaisou/hangar_expand',
 
   // 入渠 - 表示
   GET_MEMBER_NDOCK: '/api_get_member/ndock',

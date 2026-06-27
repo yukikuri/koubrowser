@@ -54,8 +54,8 @@ const shipInfo = computed<ShipInfo>(() => ({
   api: api.value,
   mst: mst.value,
   slots: slots.value,
-  onslotMax: mst.value.api_maxeq.filter((el) => el > 0)
 }))
+
 const deckShipIds = computed<number[]>(() => {
   const deck = svdata.deckPorts.find((d) => d.api_ship.includes(props.ship_id))
   return deck ? deck.api_ship : [props.ship_id]
@@ -114,11 +114,26 @@ const bouku = computed<number>(() => KcsUtil.shipBouku(shipInfo.value).ktb)
 
 const slotTypeImg = (slot: Slot): string => RUtil.slotTypeImg(slot)
 const slotAlvImg = (slot: Slot): string => RUtil.slotALevelImg(slot!.api.api_alv!)
-const slotOnSlotText = (slot: Slot, index: number): string => {
+const slotOnSlotHtml = (index: number): string => {
   if (tousai.value === 0) return ''
-  const onslot = api.value.api_onslot[index] ?? -1
-  const maxslot = shipInfo.value.onslotMax[index] ?? -1
-  if (onslot >= 0 && maxslot > -1) return `${onslot}/${maxslot}`
+  const slotnum = api.value.api_slotnum
+
+  // 拡張スロットでは空表示
+  if (index >= slotnum) return ''
+  const onslotsMaxMst = shipInfo.value.mst.api_maxeq
+  const onslotsMax = api.value.api_onslot_max ? api.value.api_onslot_max : onslotsMaxMst
+
+  const onslot = api.value.api_onslot[index] ?? -1 // 現搭載数
+  const maxslot = onslotsMax[index] ?? -1 // 最大搭載数
+
+  // スロット数増加での強調表示
+  if (onslot >= 0 && maxslot > -1) {
+    const msxslotMst = onslotsMaxMst[index] ?? -1 // 拡張なしでの最大搭載数
+    if (maxslot > msxslotMst) {
+      return `${onslot}/<span class="slotplus">${msxslotMst}+${maxslot - msxslotMst}</span>`
+    }
+    return `${onslot}/${maxslot}`
+  }
   if (onslot > 0) return `${onslot}`
   return ''
 }
@@ -414,7 +429,7 @@ onMounted(() => {
     </div>
     <hr class="hr" />
     <div class="slot" v-for="(slot, index) in slots" :key="index">
-      <span class="slot-onslot mr-1">{{ slotOnSlotText(slot, index) }}</span>
+      <span class="slot-onslot mr-1"><span v-html="slotOnSlotHtml(index)"></span></span>
       <span class="slot-img"><img v-if="slot !== undefined" :src="slotTypeImg(slot)" /></span>
       <span class="slot-text" v-if="slot !== undefined"
         >{{ slot.mst.api_name }}

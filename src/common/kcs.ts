@@ -685,7 +685,6 @@ export interface ShipInfo {
   readonly api: ApiShip
   readonly mst: MstShip
   readonly slots: Slot[]
-  readonly onslotMax: number[]
 }
 
 export interface SlotWithOnSlot {
@@ -693,6 +692,7 @@ export interface SlotWithOnSlot {
   readonly mst: MstSlotitem | null
   readonly onslot: number
   readonly onslotMax: number
+  readonly onslotMaxMst: number
 }
 
 export interface ShipInfoSp extends ShipInfo {
@@ -2376,14 +2376,19 @@ export class KcsUtil {
     const slotNum = ship.api.api_slotnum
     return ship.slots.map((el, index) => {
       let onslotMax = -1;
+      let onslotMaxMst = -1;
       if (onslotEnable && index < slotNum) {
-        onslotMax = ship.mst.api_maxeq[index] ?? -1
+        const mst_maxeq = ship.mst.api_maxeq
+        const api_maxeq = ship.api.api_onslot_max ?? mst_maxeq
+        onslotMax = api_maxeq[index] ?? -1
+        onslotMaxMst = mst_maxeq[index] ?? -1
       }
       return {
         api: el ? el.api : null,
         mst: el ? el.mst : null,
         onslot: ship.api.api_onslot[index],
-        onslotMax
+        onslotMax,
+        onslotMaxMst
       }
     })
   }
@@ -5957,6 +5962,7 @@ export interface MstStype {
   readonly api_name: string
   readonly api_scnt: number
   readonly api_kcnt: number
+  readonly api_max_slotplus: number
   readonly api_equip_type: number[]
 }
 
@@ -6254,6 +6260,7 @@ export const ApiItemId = {
   latest_overseas_warship_technology: 100, // 海外艦最新技術
   night_skilled_crew_member: 101, // 夜戦熟練搭乗員
   special_aviation_ration: 102, // 特別航空戦食
+  hangar_expansion: 105, // 格納庫増設
 
   // private
   teitoku_lv: -1, // 提督レベル
@@ -6571,6 +6578,7 @@ export interface ApiShip {
   readonly api_leng: ApiRange
   readonly api_slot: number[]
   readonly api_onslot: number[]
+  readonly api_onslot_max?: number[]
   readonly api_slot_ex: number // 0: no open ex slot, -1: open ex slot, not set,  > 0 ex slot set.
   readonly api_kyouka: [number, number, number, number, number, number, number] // 0:火力 1:雷装 2:対空 3:装甲 4:運 5:耐久 6:対潜
   readonly api_backs: ApiShipBacks
@@ -7190,6 +7198,23 @@ interface ApiSlotDeprive {
 
 // req marrige
 interface ApiMarrige extends ApiShip {}
+
+// req can preset slot select
+interface ApiCanPresetSlotSelect {
+  readonly api_flag: number
+}
+
+// req hangar expand param
+interface ApiHangarExpandParam {
+  readonly api_verno: string
+  readonly api_ship_id: string
+  readonly api_slot_pos: string
+}
+
+// req hangar expand res
+interface ApiHangarExpand {
+  readonly api_onslot_max: number[]
+}
 
 export const ApiItemBonusType = {
   material: 1, // 資材 api_item:入手資材
@@ -8683,6 +8708,13 @@ export class SvData {
           this.reqKaisouMarrige(api_data as ApiMarrige)
           break
 
+        case KcsApi.Api.REQ_KAISOU_CAN_PRESET_SLOT_SELECT:
+          break
+
+        case KcsApi.Api.REQ_KAISOU_HANGAR_EXPAND:
+          this.reqKaisouHangarExpand(api_data as ApiHangarExpand)
+          break
+
         case KcsApi.Api.GET_MEMBER_REQUIRE_INFO:
           this.getMemberRequireInfo(api_data)
           break
@@ -9339,6 +9371,18 @@ export class SvData {
   private reqKaisouMarrige(api_data: ApiMarrige): void {
     this.updateShip([api_data])
     this.useitemAdd(ApiItemId.kekkonn_kakkokari, -1)
+  }
+
+  private reqKaisouHangarExpand(api_data: ApiHangarExpand) {
+    // 搭載機上昇は対象艦情報の api_onslot_max が配列で来る
+    const query = this.getReq(KcsApi.Api.REQ_KAISOU_HANGAR_EXPAND)
+    if (query) {
+      const req: ApiHangarExpandParam = qsParse(query)
+      const ship = this.ship(parseInt(req.api_ship_id))
+      if (ship) {
+        Object.assign(ship, { api_onslot_max: api_data.api_onslot_max })
+      }
+    }
   }
 
   private reqHokyuCharge(api_data: ApiHokyuCharge): void {
@@ -10994,13 +11038,11 @@ export class SvData {
     const api = this.ship(id)
     if (api) {
       const mst = this.mstShip(api.api_ship_id)
-      if (mst) {
-        const onslotMax = mst.api_maxeq.filter((eq) => eq > 0);
+      if (mst) {        
         return {
           api: api,
           mst: mst,
           slots: this.slots(api),
-          onslotMax
         }
       }
     }
@@ -11025,7 +11067,6 @@ export class SvData {
       slots: ship.slots,
       bouku: KcsUtil.shipBouku(ship),
       sp: KcsUtil.spAll(ship, ships),
-      onslotMax: ship.onslotMax
     }))
   }
 
