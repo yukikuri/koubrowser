@@ -103,6 +103,10 @@ const QuestMapCell_7_3_2 = (rank: WinRank): QuestMapCell => {
   return [7, 3, rank, [18, 23, 24, 25]]
 }
 
+const QuestMapCell_7_5_2 = (rank: WinRank): QuestMapCell => {
+  return [7, 5, rank, [19]]
+}
+
 const QuestMapCell_7_5_3 = (rank: WinRank): QuestMapCell => {
   return [7, 5, rank, [24, 25]]
 }
@@ -560,11 +564,11 @@ function getMapSufix(map: QuestMap | QuestMapCell): string {
     }
   }
   if (map[0] === 7 && map[1] === 5) {
-    //const map3 = map[3];
+    const map3 = map[3];
     sufix_txt = '(第3)'
-    //if (Array.isArray(map3) && (map3.length === 2)) {
-    //  sufix_txt = '(第3)';
-    //}
+    if (Array.isArray(map3) && map3[0] === 19) {
+      sufix_txt = '(第2)'
+    }
   }
   return sufix_txt
 }
@@ -7426,6 +7430,33 @@ register(
         shipIds.push(...shipIdsMonth6)
       }
       return shipCount(msts, shipIds) >= 5
+    }
+  }
+)
+
+// 383:【期間限定任務】フランス艦隊、特別演習！
+register(
+  383,
+  class {
+    static readonly questType = QuestType.practiceDeck
+    static max = [3]
+    static key = QuestKey.daily
+    static need_win_rank: PracticeWinRank = 'A'
+    static formatter(quest: Quest): string {
+      return detailFormat(['演習A勝利：'], quest)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      if (deckShipCount(ship_ids) < 3) {
+        return false
+      }
+      const ships = toShipMsts(svdata, ship_ids)
+      const cats: ApiShipCategory[] = [
+        ApiShipCategory.richelieu,
+        ApiShipCategory.commandantTeste,
+        ApiShipCategory.la_galissonniere,
+        ApiShipCategory.mogador
+      ]
+      return shipCategoryCount(ships, cats) >= 3
     }
   }
 )
@@ -14399,6 +14430,60 @@ register(
         svdata.shipMstIds(528), // hayanami
       ].flat()
       return shipCount(msts.slice(1), ids2) >= 2
+    }
+  }
+)
+
+// 1048:【期間限定任務】戦略兵站物資、緊急輸送！
+register(
+  1048,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 3, 'A'],
+      [1, 4, 'A'],
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+      if (! shipTypeCount([msts[0]], [
+        ApiShipType.hokyuukan, 
+        ApiShipType.yourikukan,
+        ApiShipType.suibo,
+        ApiShipType.koukuu_senkan])) {
+        return false
+      }
+      return shipTypeCount(msts.slice(1), [ApiShipType.kaiboukan, ApiShipType.kutikukan]) >= 4
+    }
+  }
+)
+
+// 1049:【期間限定拡張作戦】戦略兵站物資、拡張輸送！
+register(
+  1049,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMapOrCell[] = [
+      [2, 3, 'A'],
+      QuestMapCell_7_5_2('A')
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+      if (! shipTypeCount([msts[0]], [
+        ApiShipType.hokyuukan, 
+        ApiShipType.yourikukan])) {
+        return false
+      }
+      return shipTypeCount(msts.slice(1), [ApiShipType.kaiboukan, ApiShipType.kutikukan]) >= 3
     }
   }
 )
