@@ -474,6 +474,10 @@ body {
 .state-max {
   text-decoration: underline;
 }
+.slotplus {
+  color: $state-plus-color;
+  text-decoration: underline;
+}
 .cond-minus1 {
   color: $cond-minus1-color;
 }
@@ -1919,6 +1923,11 @@ weapon-img {
     color: #fff;
     text-align: center;
 
+    &.slotplus {
+      color: $state-plus-color;
+      text-decoration: underline;
+    }
+
     &.has-alv {
       text-align: left;
       //right: 0;
@@ -2786,7 +2795,7 @@ $tkbar-width: 445px; //$assist-width - $tkbar-title-width;
     justify-content: center;
     align-items: center;
     //height: 26px;
-    width: 36px;
+    width: 38px;
     //vertical-align: middle;
   }
 

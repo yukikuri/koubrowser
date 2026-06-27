@@ -21,7 +21,15 @@ const hasOnSlot = computed<boolean>(() => {
   return KcsUtil.hasOnSlot(KcsUtil.slotitemType(slot.mst!))
 })
 
-const onslot = computed<number>(() => props.slotitem.onslot)
+// 最大搭載数側を出す
+const onslot = computed<number>(() => props.slotitem.onslotMax)
+
+//  搭載数が拡張されている場合true
+const isSlotPlus = computed<boolean>(() => {
+  const slot = props.slotitem
+  if (slot.onslotMaxMst <= 0) return false
+  return slot.onslotMax > slot.onslotMaxMst
+})
 
 const hasAlv = computed<boolean>(() => {
   const slot = props.slotitem
@@ -43,7 +51,8 @@ const level = computed<string>(() => {
     <img class="slot-img" src="../assets/img/slot/slot.png" />
     <span class="slot-border"></span>
     <img loading="lazy" class="slot-type-img" v-if="hasSlot" :src="typeImg" />
-    <span class="slot-onslot" v-if="hasOnSlot" :class="{ 'has-alv': hasAlv }">{{ onslot }}</span>
+    <span class="slot-onslot" v-if="hasOnSlot" :class="{ 'has-alv': hasAlv }"><span 
+      :class="{ slotplus: isSlotPlus }">{{ onslot }}</span></span>
     <img class="slot-alv-img" v-if="hasAlv" :src="alvImg" />
     <span class="slot-level" v-if="hasLevel" :class="{ max: isLevelMax }">{{ level }}</span>
   </span>

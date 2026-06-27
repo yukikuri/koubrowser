@@ -252,6 +252,15 @@ const onslotHtml = (ship: ShipInfo, index: number, slot: Slot): string => {
       if (!onslot) {
         // red
         cls += ' red'
+      } else {
+        // 搭載数増加強調表示
+        if (ship.api.api_onslot_max) {
+          const maxslot = ship.api.api_onslot_max[index] ?? 0
+          const maxslotMst = ship.mst.api_maxeq[index] ?? 0
+          if (maxslotMst > 0 && maxslot > maxslotMst) {
+            cls += ' slotplus'
+          }
+        }
       }
       const alv = slot.api.api_alv ?? 0
       if (alv) {

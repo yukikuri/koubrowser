@@ -692,6 +692,7 @@ export interface SlotWithOnSlot {
   readonly mst: MstSlotitem | null
   readonly onslot: number
   readonly onslotMax: number
+  readonly onslotMaxMst: number
 }
 
 export interface ShipInfoSp extends ShipInfo {
@@ -2375,15 +2376,19 @@ export class KcsUtil {
     const slotNum = ship.api.api_slotnum
     return ship.slots.map((el, index) => {
       let onslotMax = -1;
+      let onslotMaxMst = -1;
       if (onslotEnable && index < slotNum) {
-        const api_maxeq = ship.api.api_onslot_max ?? ship.mst.api_maxeq
+        const mst_maxeq = ship.mst.api_maxeq
+        const api_maxeq = ship.api.api_onslot_max ?? mst_maxeq
         onslotMax = api_maxeq[index] ?? -1
+        onslotMaxMst = mst_maxeq[index] ?? -1
       }
       return {
         api: el ? el.api : null,
         mst: el ? el.mst : null,
         onslot: ship.api.api_onslot[index],
-        onslotMax
+        onslotMax,
+        onslotMaxMst
       }
     })
   }
