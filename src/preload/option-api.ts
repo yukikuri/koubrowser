@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { MainChannel } from '@common/channel'
+import { OptionChannel } from '@common/channel'
 
 export interface OptionApi {
   callMain(): Promise<string>
@@ -9,13 +9,13 @@ export interface OptionApi {
 
 const optionApi: OptionApi = {
   callMain(): Promise<string> {
-    return ipcRenderer.invoke(MainChannel.option_call_main)
+    return ipcRenderer.invoke(OptionChannel.option_call_main)
   },
   minimize(): void {
-    ipcRenderer.invoke(MainChannel.option_minimize)
+    ipcRenderer.invoke(OptionChannel.option_minimize)
   },
   close(): void {
-    ipcRenderer.invoke(MainChannel.option_close)
+    ipcRenderer.invoke(OptionChannel.option_close)
   }
 }
 

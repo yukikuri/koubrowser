@@ -12,9 +12,6 @@ export const MainChannel = {
   open_capture_folder: 'open_capture_folder',
   save_capture: 'save_capture',
   openOption: 'openOption',
-  option_call_main: 'option_call_main',
-  option_minimize: 'option_minimize',
-  option_close: 'option_close',
   openAssist: 'openAssist',
   topmost: 'topmost',
   notify_mute_state: 'notify_mute_state',
@@ -91,3 +88,12 @@ export const InvalidQuestContext = (): QuestContext => ({
 })
 
 export type TimelineResult = [QuestContext, BattleRecord[]]
+
+/**
+ * from option to main
+ */
+export const OptionChannel = {
+  option_call_main: 'option_call_main',
+  option_minimize: 'option_minimize',
+  option_close: 'option_close',  
+}

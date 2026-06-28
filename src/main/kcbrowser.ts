@@ -32,6 +32,7 @@ import {
   GameChannel,
   QuestContext,
   AirbaseSpot,
+  OptionChannel,
 } from '@common/channel'
 import moment from 'moment'
 import { KcRecord } from '@main/kcrecord'
@@ -747,9 +748,6 @@ export class KcApp {
       this.onChannelSaveCapture(date, buffer)
     )
     ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
-    ipcMain.handle(MainChannel.option_call_main, async () => this.onChannelOptionCallMain())
-    ipcMain.handle(MainChannel.option_minimize, async () => this.onChannelOptionMinimize())
-    ipcMain.handle(MainChannel.option_close, async () => this.onChannelOptionClose())
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -826,6 +824,11 @@ export class KcApp {
       ipcMain.on(kcsapi_hook.HookedType.unk_loadstart, (_event, data) => this.onApiHookUnknownLoadStart(data));
       ipcMain.on(kcsapi_hook.HookedType.unk_loadend, (_event, data) => this.onApiHookUnknownLoadEnd(data));
     }
+
+    // option
+    ipcMain.handle(OptionChannel.option_call_main, async () => this.onChannelOptionCallMain())
+    ipcMain.handle(OptionChannel.option_minimize, async () => this.onChannelOptionMinimize())
+    ipcMain.handle(OptionChannel.option_close, async () => this.onChannelOptionClose())
   }
 
   /**
@@ -1173,7 +1176,7 @@ export class KcApp {
    *
    */
   private onChannelOptionCallMain(): string {
-    debug(MainChannel.option_call_main)
+    debug(OptionChannel.option_call_main)
     return 'main process called'
   }
 
@@ -1181,7 +1184,7 @@ export class KcApp {
    *
    */
   private onChannelOptionMinimize(): void {
-    debug(MainChannel.option_minimize)
+    debug(OptionChannel.option_minimize)
     this.option_window?.minimize()
   }
 
@@ -1189,7 +1192,7 @@ export class KcApp {
    *
    */
   private onChannelOptionClose(): void {
-    debug(MainChannel.option_close)
+    debug(OptionChannel.option_close)
     this.option_window?.close()
   }
 
