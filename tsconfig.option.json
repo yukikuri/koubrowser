@@ -4,13 +4,8 @@
     "src/renderer/src/env.d.ts",
     "src/common/**/*",
     "src/global/**/*",
-    "src/renderer/src/**/*",
-    "src/renderer/src/**/*.vue",
-    "src/preload/index.d.ts"
-  ],
-  "exclude": [
     "src/renderer/src/option.ts",
-    "src/renderer/src/components/option/**/*",
+    "src/renderer/src/components/option/**/*.vue",
     "src/preload/option-api.d.ts"
   ],
   "compilerOptions": {
@@ -28,7 +23,7 @@
       ],
       "@assets/*": [
         "./src/renderer/src/assets/*"
-      ],
+      ]
     },
     "noUnusedLocals": false,
     "noUnusedParameters": false

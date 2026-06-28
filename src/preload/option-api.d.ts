@@ -1,4 +1,4 @@
-import type { OptionApi } from './option'
+import type { OptionApi } from './option-api'
 
 declare global {
   interface Window {
