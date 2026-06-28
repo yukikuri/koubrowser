@@ -692,7 +692,7 @@ export class KcApp {
         nodeIntegration: false,
         contextIsolation: true,
         spellcheck: false,
-        preload: path.join(getMainDir(), '../preload/option.js'),
+        preload: path.join(getMainDir(), '../preload/option-api.js'),
         sandbox: false
       }
     })

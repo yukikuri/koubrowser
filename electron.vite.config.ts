@@ -47,7 +47,7 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
-          option: resolve(__dirname, 'src/preload/option.ts'),
+          'option-api': resolve(__dirname, 'src/preload/option-api.ts'),
           'xhr-hook': resolve(__dirname, 'src/preload/xhr-hook.ts')
         }
       }
