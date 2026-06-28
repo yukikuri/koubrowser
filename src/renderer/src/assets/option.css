@@ -1,0 +1,172 @@
+html,
+body {
+  min-width: 720px;
+  min-height: 480px;
+  margin: 0;
+  color: #d9dee7;
+  background: #111318;
+  font-family:
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+.option-shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.option-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 14px;
+  background: #171b23;
+  border-right: 1px solid #2b3140;
+}
+
+.option-brand {
+  padding: 0 6px 10px;
+}
+
+.option-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.option-subtitle {
+  margin-top: 4px;
+  color: #8f9bad;
+  font-size: 12px;
+}
+
+.option-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.option-category {
+  width: 100%;
+  padding: 9px 10px;
+  color: #b8c0cf;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+
+.option-category:hover,
+.option-category.is-active {
+  color: #f5f7fb;
+  background: #263142;
+}
+
+.option-content {
+  min-width: 0;
+  padding: 24px 28px;
+}
+
+.option-content-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.option-content-header h1 {
+  margin: 0;
+  color: #f5f7fb;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.option-content-header p {
+  margin: 6px 0 0;
+  color: #9aa5b5;
+  font-size: 13px;
+}
+
+.option-save-button {
+  min-width: 76px;
+  padding: 7px 14px;
+  color: #8f9bad;
+  background: #202633;
+  border: 1px solid #343c4d;
+  border-radius: 6px;
+}
+
+.option-test-button {
+  min-width: 72px;
+  padding: 7px 14px;
+  color: #e6ebf3;
+  background: #2f5f95;
+  border: 1px solid #4474aa;
+  border-radius: 6px;
+}
+
+.option-test-button:hover {
+  background: #386fae;
+}
+
+.option-panel {
+  max-width: 820px;
+}
+
+.option-section {
+  padding: 18px 0;
+  border-top: 1px solid #2b3140;
+}
+
+.option-section h2 {
+  margin: 0 0 12px;
+  color: #eef2f7;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 52px;
+  padding: 10px 0;
+}
+
+.option-row + .option-row {
+  border-top: 1px solid #252b38;
+}
+
+.option-row-title,
+.option-row-description {
+  display: block;
+}
+
+.option-row-title {
+  color: #e6ebf3;
+  font-size: 14px;
+}
+
+.option-row-description {
+  margin-top: 3px;
+  color: #8f9bad;
+  font-size: 12px;
+}
+
+.option-row select {
+  min-width: 140px;
+  color: #c5ccda;
+  background: #1c2230;
+  border: 1px solid #343c4d;
+  border-radius: 5px;
+}

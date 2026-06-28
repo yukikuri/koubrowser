@@ -49,6 +49,10 @@ const api: Api = {
     ipcRenderer.invoke(MainChannel.save_capture, date, buffer)
   },
 
+  openOption(): void {
+    ipcRenderer.invoke(MainChannel.openOption)
+  },
+
   openAssist(): void {
     ipcRenderer.invoke(MainChannel.openAssist)
   },

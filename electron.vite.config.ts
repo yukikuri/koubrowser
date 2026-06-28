@@ -47,6 +47,7 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
+          option: resolve(__dirname, 'src/preload/option.ts'),
           'xhr-hook': resolve(__dirname, 'src/preload/xhr-hook.ts')
         }
       }
@@ -81,6 +82,12 @@ export default defineConfig({
       // 5MB以上のチャンクが生成される場合に警告を表示する
       // Electronアプリでは大きなチャンクが生成されたとしても、ローカルでの動作のため影響は無い
       chunkSizeWarningLimit: 5000,
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          option: resolve(__dirname, 'src/renderer/option.html')
+        }
+      }
     }
   }
 })

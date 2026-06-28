@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src  'self' data: https://fonts.gstatic.com;
+        img-src 'self' data:"
+    />
+    <title>甲ブラウザ 設定</title>
+  </head>
+  <body>
+    <main class="option-shell">
+      <aside class="option-sidebar" aria-label="設定カテゴリ">
+        <div class="option-brand">
+          <div class="option-title">設定</div>
+          <div class="option-subtitle">甲ブラウザ</div>
+        </div>
+        <nav class="option-categories">
+          <button class="option-category is-active" type="button" data-category="general">
+            一般
+          </button>
+          <button class="option-category" type="button" data-category="window">
+            ウインドウ
+          </button>
+          <button class="option-category" type="button" data-category="assist">
+            アシスト
+          </button>
+          <button class="option-category" type="button" data-category="record">
+            記録
+          </button>
+        </nav>
+      </aside>
+
+      <section class="option-content">
+        <header class="option-content-header">
+          <div>
+            <h1 id="option-heading">一般</h1>
+            <p id="option-description">基本的な動作に関する設定です。</p>
+          </div>
+          <button class="option-save-button" type="button" disabled>保存</button>
+        </header>
+
+        <div class="option-panel">
+          <section class="option-section">
+            <h2>表示</h2>
+            <label class="option-row">
+              <span>
+                <span class="option-row-title">起動時の表示状態</span>
+                <span class="option-row-description">前回終了時の状態を復元します。</span>
+              </span>
+              <select disabled>
+                <option>前回の状態</option>
+              </select>
+            </label>
+            <label class="option-row">
+              <span>
+                <span class="option-row-title">常に最前面</span>
+                <span class="option-row-description">メインウインドウを他のウインドウより前に表示します。</span>
+              </span>
+              <input type="checkbox" disabled />
+            </label>
+          </section>
+
+          <section class="option-section">
+            <h2>通知</h2>
+            <label class="option-row">
+              <span>
+                <span class="option-row-title">更新通知</span>
+                <span class="option-row-description">利用可能な更新を起動時に確認します。</span>
+              </span>
+              <input type="checkbox" checked disabled />
+            </label>
+          </section>
+
+          <section class="option-section">
+            <h2>接続テスト</h2>
+            <div class="option-row">
+              <span>
+                <span class="option-row-title">main process 呼び出し</span>
+                <span class="option-row-description" id="call-main-result">
+                  未実行
+                </span>
+              </span>
+              <button class="option-test-button" id="call-main-button" type="button">
+                実行
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/option.ts"></script>
+  </body>
+</html>

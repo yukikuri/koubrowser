@@ -11,6 +11,8 @@ export const MainChannel = {
   reload: 'reload',
   open_capture_folder: 'open_capture_folder',
   save_capture: 'save_capture',
+  openOption: 'openOption',
+  option_call_main: 'option_call_main',
   openAssist: 'openAssist',
   topmost: 'topmost',
   notify_mute_state: 'notify_mute_state',

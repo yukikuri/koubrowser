@@ -220,6 +220,15 @@ const openAppHtml = (win: BrowserWindow): void => {
   }
 }
 
+const openOptionHtml = (win: BrowserWindow): void => {
+  debug('open option renderer url:', process.env['ELECTRON_RENDERER_URL'])
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/option.html`)
+  } else {
+    win.loadFile(path.join(getMainDir(), '../renderer/option.html'))
+  }
+}
+
 let kcapp: KcApp
 export const getKcApp = (): KcApp | undefined => {
   return kcapp
@@ -231,6 +240,7 @@ export const getKcApp = (): KcApp | undefined => {
 export class KcApp {
   private main_window: BrowserWindow
   private assist_window: BrowserWindow | null = null
+  private option_window: BrowserWindow | null = null
   private frame_ratio: number
   private kcrecord: KcRecord | null = null
   private cbBasicFirst: number = 0
@@ -482,11 +492,7 @@ export class KcApp {
 
     // Persist window state before any child windows are closed by the main window shutdown path.
     this.mainWindow.on('close', () => {
-      if (this.assist_window && !this.assist_window.isDestroyed()) {
-        if (! gameSetting.assistRestricted) {
-          appSetting.updateAssistWindowState(this.assist_window, false)
-        }
-      }
+      this.closeRelatedWindows()
       this.saveAppState()
     })
 
@@ -651,6 +657,73 @@ export class KcApp {
   }
 
   /**
+   *
+   */
+  private openOptionWindow(): void {
+    if (this.option_window) {
+      this.option_window.show()
+      this.option_window.focus()
+      return
+    }
+
+    const mainBounds = this.main_window.getBounds()
+    const targetDisplay = screen.getDisplayMatching(mainBounds)
+    const area = targetDisplay.workArea
+    const width = Math.min(960, area.width)
+    const height = Math.min(680, area.height)
+    const x = area.x + Math.floor((area.width - width) / 2)
+    const y = area.y + Math.floor((area.height - height) / 2)
+    const iconPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'resources/app.ico')
+      : path.join(__dirname, '../../resources/app.ico')
+
+    this.option_window = new BrowserWindow({
+      title: '甲ブラウザ 設定',
+      icon: iconPath,
+      useContentSize: true,
+      width,
+      height,
+      x,
+      y,
+      minWidth: 720,
+      minHeight: 480,
+      backgroundColor: '#111318',
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        spellcheck: false,
+        preload: path.join(getMainDir(), '../preload/option.js'),
+        sandbox: false
+      }
+    })
+    this.option_window.setMenu(null)
+    this.option_window.addListener('closed', () => {
+      this.option_window = null
+    })
+
+    openOptionHtml(this.option_window)
+
+    if (Env.isDevelopment) {
+      this.option_window.webContents.openDevTools()
+    }
+  }
+
+  /**
+   *
+   */
+  private closeRelatedWindows(): void {
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.close()
+    }
+
+    if (this.assist_window && !this.assist_window.isDestroyed()) {
+      if (! gameSetting.assistRestricted) {
+        appSetting.updateAssistWindowState(this.assist_window, false)
+      }
+    }
+  }
+
+  /**
    * 
    */
   private setupHandlers() {
@@ -672,6 +745,8 @@ export class KcApp {
     ipcMain.handle(MainChannel.save_capture, async (_event, date, buffer) =>
       this.onChannelSaveCapture(date, buffer)
     )
+    ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
+    ipcMain.handle(MainChannel.option_call_main, async () => this.onChannelOptionCallMain())
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -1015,11 +1090,7 @@ export class KcApp {
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
 
-    // update assist windows pos
-    if (this.assist_window?.isVisible()) {
-      appSetting.updateAssistWindowState(this.assist_window, false)
-    }
-
+    this.closeRelatedWindows()
     this.saveAppState()
     // no effect
     //mainWindow.close();
@@ -1085,6 +1156,22 @@ export class KcApp {
       const state = appSetting.restoreAssistWindowState(false)
       this.openAssistWindow(state?.position ? { ...state.position, display: state.display } : undefined)
     }
+  }
+
+  /**
+   *
+   */
+  private onChannelOpenOption(): void {
+    debug(MainChannel.openOption, 'option_window:', this.option_window !== null)
+    this.openOptionWindow()
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionCallMain(): string {
+    debug(MainChannel.option_call_main)
+    return 'main process called'
   }
 
   /**
