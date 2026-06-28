@@ -11,16 +11,70 @@ body {
     sans-serif;
 }
 
+.option-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #111318;
+}
+
 button,
 select,
 input {
   font: inherit;
 }
 
+.option-titlebar {
+  display: flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 32px;
+  background: #111318;
+  -webkit-app-region: drag;
+}
+
+.option-titlebar-sidebar {
+  flex: 0 0 220px;
+  height: 100%;
+  background: #171b23;
+  border-right: 1px solid #2b3140;
+}
+
+.option-titlebar-drag-area {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.option-titlebar-buttons {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.option-titlebar-button {
+  width: 44px;
+  height: 100%;
+  padding: 0;
+  color: #d9dee7;
+  background: transparent;
+  border: 0;
+}
+
+.option-titlebar-button:hover {
+  background: #263142;
+}
+
+.option-titlebar-button.close:hover {
+  color: #fff;
+  background: #c42b1c;
+}
+
 .option-shell {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
-  min-height: 100vh;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .option-sidebar {

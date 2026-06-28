@@ -680,6 +680,7 @@ export class KcApp {
     this.option_window = new BrowserWindow({
       title: '甲ブラウザ 設定',
       icon: iconPath,
+      frame: false,
       useContentSize: true,
       width,
       height,
@@ -747,6 +748,8 @@ export class KcApp {
     )
     ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
     ipcMain.handle(MainChannel.option_call_main, async () => this.onChannelOptionCallMain())
+    ipcMain.handle(MainChannel.option_minimize, async () => this.onChannelOptionMinimize())
+    ipcMain.handle(MainChannel.option_close, async () => this.onChannelOptionClose())
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -1172,6 +1175,22 @@ export class KcApp {
   private onChannelOptionCallMain(): string {
     debug(MainChannel.option_call_main)
     return 'main process called'
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionMinimize(): void {
+    debug(MainChannel.option_minimize)
+    this.option_window?.minimize()
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionClose(): void {
+    debug(MainChannel.option_close)
+    this.option_window?.close()
   }
 
   /**

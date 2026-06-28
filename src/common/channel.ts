@@ -13,6 +13,8 @@ export const MainChannel = {
   save_capture: 'save_capture',
   openOption: 'openOption',
   option_call_main: 'option_call_main',
+  option_minimize: 'option_minimize',
+  option_close: 'option_close',
   openAssist: 'openAssist',
   topmost: 'topmost',
   notify_mute_state: 'notify_mute_state',
