@@ -1188,6 +1188,7 @@ export class KcApp {
   /**
    * 
    */
+  private getCurrentOptionSetting(): OptionSetting {
     return {
       captureSavePath: PathStuff.capturePath(false),
       defaultCaptureSavePath: PathStuff.defaultCapturePath,
