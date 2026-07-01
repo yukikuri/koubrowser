@@ -7,17 +7,17 @@ const optionApi: OptionApi = {
   getCurrentSetting(): Promise<OptionSetting> {
     return ipcRenderer.invoke(OptionChannel.getCurrentSetting)
   },
-  readyToShow(): void {
-    ipcRenderer.invoke(OptionChannel.readyToShow)
+  readyToShow(): Promise<void> {
+    return ipcRenderer.invoke(OptionChannel.readyToShow)
   },
   selectCaptureSavePath(): Promise<string | null> {
     return ipcRenderer.invoke(OptionChannel.selectCaptureSavePath)
   },
-  minimize(): void {
-    ipcRenderer.invoke(OptionChannel.minimize)
+  minimize(): Promise<void> {
+    return ipcRenderer.invoke(OptionChannel.minimize)
   },
-  close(): void {
-    ipcRenderer.invoke(OptionChannel.close)
+  close(): Promise<void> {
+    return ipcRenderer.invoke(OptionChannel.close)
   }
 }
 
