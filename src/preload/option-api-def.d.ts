@@ -1,9 +1,9 @@
 export interface OptionApi {
   getCurrentSetting(): Promise<OptionSetting>
-  readyToShow(): void
+  readyToShow(): Promise<void>
   selectCaptureSavePath(): Promise<string | null>
-  minimize(): void
-  close(): void
+  minimize(): Promise<void>
+  close(): Promise<void>
 }
 
 declare global {
