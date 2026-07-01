@@ -3241,10 +3241,7 @@ register(
       ].flat()
 
       const shipIds = [...shipIds1]
-      const now = new Date()
-      if (now.getMonth() === 5) {
-        shipIds.push(...shipIdsMonth6)
-      }
+      shipIds.push(...shipIdsMonth6)
       return shipCount(msts, shipIds) >= 5
     }
   }
@@ -7425,10 +7422,7 @@ register(
       ].flat()
 
       const shipIds = [...shipIds1]
-      const now = new Date()
-      if (now.getMonth() === 5) {
-        shipIds.push(...shipIdsMonth6)
-      }
+      shipIds.push(...shipIdsMonth6)
       return shipCount(msts, shipIds) >= 5
     }
   }
