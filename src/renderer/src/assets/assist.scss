@@ -249,6 +249,8 @@ $tyuuha-color: orange;
 $taiha-color: #ff6232; //orangered;
 $tokuhou-color: yellow;
 
+$slotplus-color: #90EE90;
+
 $active-background: #1e8eff;
 $transition-duration: 0.8s;
 $transition-timing-function: cubic-bezier(0.23, 0.86, 0.23, 0.86);
@@ -475,7 +477,7 @@ body {
   text-decoration: underline;
 }
 .slotplus {
-  color: $state-plus-color;
+  color: $slotplus-color;
   text-decoration: underline;
 }
 .cond-minus1 {
@@ -1924,7 +1926,7 @@ weapon-img {
     text-align: center;
 
     &.slotplus {
-      color: $state-plus-color;
+      color: $slotplus-color;
       text-decoration: underline;
     }
 
