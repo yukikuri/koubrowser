@@ -61,7 +61,7 @@ const close = (): void => {
 ///////////////////////////////////////////////////////////////
 // option - path
 const captureSavePath = ref(optionSetting.captureSavePath)
-const defaultCaptureSavePath = ref(optionSetting.captureSavePath)
+const defaultCaptureSavePath = ref(optionSetting.defaultCaptureSavePath)
 const selectCaptureSavePath = (): void => {
   window.optionApi.selectCaptureSavePath().then((path => {
     if (path) {
