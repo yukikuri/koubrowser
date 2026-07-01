@@ -4,9 +4,9 @@
     "src/renderer/src/env.d.ts",
     "src/common/**/*",
     "src/global/**/*",
-    "src/renderer/src/option.ts",
-    "src/renderer/src/components/option/**/*.vue",
-    "src/preload/option-api.d.ts"
+    "src/renderer/src/option/**/*.ts",
+    "src/renderer/src/option/**/*.vue",
+    "src/preload/option-api-def.d.ts"
   ],
   "compilerOptions": {
     "moduleResolution": "bundler",
@@ -18,8 +18,8 @@
       "@global/*": [
         "./src/global/*"
       ],
-      "@renderer/*": [
-        "./src/renderer/src/*"
+      "@option/*": [
+        "./src/renderer/src/option/*"
       ],
       "@assets/*": [
         "./src/renderer/src/assets/*"

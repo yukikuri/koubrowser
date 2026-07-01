@@ -1,21 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { OptionChannel } from '@common/channel'
-
-export interface OptionApi {
-  callMain(): Promise<string>
-  minimize(): void
-  close(): void
-}
+import { OptionSetting } from '@common/option'
+import { type OptionApi } from './option-api-def'
 
 const optionApi: OptionApi = {
-  callMain(): Promise<string> {
-    return ipcRenderer.invoke(OptionChannel.option_call_main)
+  getCurrentSetting(): Promise<OptionSetting> {
+    return ipcRenderer.invoke(OptionChannel.getCurrentSetting)
+  },
+  readyToShow(): void {
+    ipcRenderer.invoke(OptionChannel.readyToShow)
+  },
+  selectCaptureSavePath(): Promise<string | null> {
+    return ipcRenderer.invoke(OptionChannel.selectCaptureSavePath)
   },
   minimize(): void {
-    ipcRenderer.invoke(OptionChannel.option_minimize)
+    ipcRenderer.invoke(OptionChannel.minimize)
   },
   close(): void {
-    ipcRenderer.invoke(OptionChannel.option_close)
+    ipcRenderer.invoke(OptionChannel.close)
   }
 }
 

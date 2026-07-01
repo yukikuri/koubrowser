@@ -93,7 +93,9 @@ export type TimelineResult = [QuestContext, BattleRecord[]]
  * from option to main
  */
 export const OptionChannel = {
-  option_call_main: 'option_call_main',
-  option_minimize: 'option_minimize',
-  option_close: 'option_close',  
+  getCurrentSetting: 'option:get-current-setting',
+  readyToShow: 'option:ready-to-show',
+  selectCaptureSavePath: 'option:select-capture-save-path', 
+  minimize: 'option:minimize',
+  close: 'option:close',
 }

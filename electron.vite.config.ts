@@ -59,6 +59,7 @@ export default defineConfig({
         '@common': resolve('src/common'),
         '@global': resolve('src/global'),
         '@renderer': resolve('src/renderer/src'),
+        '@option': resolve('src/renderer/src/option'),
         '@assets': resolve('src/renderer/src/assets')
       }
     },

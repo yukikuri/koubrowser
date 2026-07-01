@@ -68,6 +68,7 @@ import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import * as appSetting from '@main/app_setting'
 import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
+import { OptionSetting } from '@common/option'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -678,8 +679,16 @@ export class KcApp {
       ? path.join(process.resourcesPath, 'resources/app.ico')
       : path.join(__dirname, '../../resources/app.ico')
 
+    const additionalArguments: string[] = [];
+    if (Env.isTestMode) {
+      additionalArguments.push(Const.ArgIsTestMode);
+    }
+
+    // 非表示で作成
+    // 現オプション設定内容を取得後に表示
     this.option_window = new BrowserWindow({
       title: '甲ブラウザ 設定',
+      show: false,
       icon: iconPath,
       frame: false,
       useContentSize: true,
@@ -691,10 +700,12 @@ export class KcApp {
       minHeight: 480,
       backgroundColor: '#111318',
       webPreferences: {
+        additionalArguments,
         nodeIntegration: false,
         contextIsolation: true,
         spellcheck: false,
         preload: path.join(getMainDir(), '../preload/option-api.js'),
+        // preload指定ではsandboxを無効にする必要がある
         sandbox: false
       }
     })
@@ -826,9 +837,11 @@ export class KcApp {
     }
 
     // option
-    ipcMain.handle(OptionChannel.option_call_main, async () => this.onChannelOptionCallMain())
-    ipcMain.handle(OptionChannel.option_minimize, async () => this.onChannelOptionMinimize())
-    ipcMain.handle(OptionChannel.option_close, async () => this.onChannelOptionClose())
+    ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
+    ipcMain.handle(OptionChannel.readyToShow, async () => this.onChannelOptionReadyToShow())
+    ipcMain.handle(OptionChannel.selectCaptureSavePath, async () => this.onChannelOptionSelectCaptureSavePath())
+    ipcMain.handle(OptionChannel.minimize, async () => this.onChannelOptionMinimize())
+    ipcMain.handle(OptionChannel.close, async () => this.onChannelOptionClose())
   }
 
   /**
@@ -1173,27 +1186,78 @@ export class KcApp {
   }
 
   /**
-   *
+   * 
    */
-  private onChannelOptionCallMain(): string {
-    debug(OptionChannel.option_call_main)
-    return 'main process called'
+  private getCurrentOptionSetting(): OptionSetting {
+    return {
+      captureSavePath: PathStuff.capturePath(false),
+      defaultCaptureSavePath: PathStuff.defaultCpturePath,
+      proxyMode: 'system',
+      proxyPacScript: null,
+      proxyFixedServers: null,
+    }
+  }
+
+  /**
+   * 
+   */
+  private async onChannelOptionGetCurrentSetting(): Promise<OptionSetting> {
+    debug(OptionChannel.getCurrentSetting)
+    return this.getCurrentOptionSetting()
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionReadyToShow(): void {
+    debug(OptionChannel.readyToShow)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return
+    }
+    this.option_window.show()
+    this.option_window.focus()
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionSelectCaptureSavePath(): string | null {
+    debug(OptionChannel.selectCaptureSavePath)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return null
+    }
+
+    const result = dialog.showOpenDialogSync(
+      this.option_window, {
+      title: 'キャプチャ保存先フォルダを選択',
+      properties: ['openDirectory', 'createDirectory']
+    })
+    if (result && result.length > 0) {
+      return result[0]
+    }
+    return null
   }
 
   /**
    *
    */
   private onChannelOptionMinimize(): void {
-    debug(OptionChannel.option_minimize)
-    this.option_window?.minimize()
+    debug(OptionChannel.minimize)
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.minimize()
+    }
   }
 
   /**
    *
    */
   private onChannelOptionClose(): void {
-    debug(OptionChannel.option_close)
-    this.option_window?.close()
+    debug(OptionChannel.close)
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.close()
+    }
   }
 
   /**
@@ -1201,7 +1265,7 @@ export class KcApp {
    */
   private onChannelOpenCaptureFolder() {
     debug(MainChannel.open_capture_folder)
-    shell.openPath(PathStuff.capturePathExe(true))
+    shell.openPath(PathStuff.capturePath(true))
   }
 
   /**
@@ -1210,7 +1274,7 @@ export class KcApp {
    * @param buffer
    */
   private onChannelSaveCapture(date: Date, buffer: Buffer) {
-    const capture_dir = PathStuff.capturePathExe(true)
+    const capture_dir = PathStuff.capturePath(true)
     const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.png`
     debug(MainChannel.save_capture, 'date:', date, filename, capture_dir)
     fs.writeFile(path.join(capture_dir, filename), buffer, {}, (err) => {
@@ -1249,7 +1313,7 @@ export class KcApp {
     }
 
     if (!this.wsRecording) {
-      const capture_dir = PathStuff.capturePathExe(true)
+      const capture_dir = PathStuff.capturePath(true)
       const date = new Date()
       const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.webm`
       const filepath = path.join(capture_dir, filename)
