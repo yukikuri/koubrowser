@@ -1188,10 +1188,9 @@ export class KcApp {
   /**
    * 
    */
-  private getCurrentOptionSetting(): OptionSetting {
     return {
       captureSavePath: PathStuff.capturePath(false),
-      defaultCaptureSavePath: PathStuff.defaultCpturePath,
+      defaultCaptureSavePath: PathStuff.defaultCapturePath,
       proxyMode: 'system',
       proxyPacScript: null,
       proxyFixedServers: null,
