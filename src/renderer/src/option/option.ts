@@ -4,12 +4,11 @@ import 'bulma/css/bulma.min.css'
 import OptionApp from '@option/components/OptionApp.vue'
 import '@assets/option.scss'
 import { setOptionSetting } from '@option/store/optionSetting'
-import { defaultOptionSetting } from '@common/option'
+import { type OptionSetting, defaultOptionSetting } from '@common/option'
 
 async function main(): Promise<void> {
-  let setting
+  let setting: OptionSetting
   let isError = false
-  //isError = true
   try {
     setting = await window.optionApi.getCurrentSetting()
   } catch (error) {
