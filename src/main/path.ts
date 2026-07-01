@@ -85,7 +85,7 @@ class PathStuffImpl {
   /**
    *
    */
-  get defaultCpturePath(): string {
+  get defaultCapturePath(): string {
     return path.join(getUserDataDir(), capture_dirname)
   }
 
