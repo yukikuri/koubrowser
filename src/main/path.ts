@@ -85,7 +85,14 @@ class PathStuffImpl {
   /**
    *
    */
-  capturePathExe(createIf: boolean): string {
+  get defaultCapturePath(): string {
+    return path.join(getUserDataDir(), capture_dirname)
+  }
+
+  /**
+   *
+   */
+  capturePath(createIf: boolean): string {
     const ret = path.join(getUserDataDir(), capture_dirname)
     if (createIf && !fs.existsSync(ret)) {
       fs.mkdirSync(ret)
