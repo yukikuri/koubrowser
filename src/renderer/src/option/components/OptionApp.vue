@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
-import { optionSetting } from '@option/store/optionSetting.js';
+import { optionSetting } from '@option/store/optionSetting'
 
 // 何らかの要因で設定が読み取れないときはエラー状態とし閉じるのみ可能とする
 const props = withDefaults(
