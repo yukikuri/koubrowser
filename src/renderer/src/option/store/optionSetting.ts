@@ -67,5 +67,5 @@ export function setOptionSettingWithPreventSave(data: OptionData) {
   // set view info
   Object.assign(optionViewInfo, data.viewInfo)
 
-  console.log('set prevent save << preventSave:', preventSave, data)
+  debug('set prevent save << preventSave:', preventSave, data)
 }
