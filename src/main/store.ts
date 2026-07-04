@@ -6,7 +6,7 @@ import { CommonMap } from '@common/map'
 import { AppSetting, defaultAppSetting, InheritScoreList } from '@common/store'
 import { GlobalSetting } from '@common/global_setting'
 import { ApiMapInfoList, ApiMissionList, ApiQuestList } from '@common/kcs'
-import { OptionSetting } from '@common/option'
+import { type OptionSetting } from '@common/option'
 
 /**
  *

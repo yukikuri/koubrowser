@@ -1,5 +1,5 @@
 import { reactive, toRaw, watch, ref } from 'vue'
-import { OptionData, type OptionSetting, type OptionViewInfo, defaultOptionSetting } from '@common/option'
+import { type OptionData, type OptionSetting, type OptionViewInfo, defaultOptionSetting } from '@common/option'
 export const optionSetting: OptionSetting = reactive(
   defaultOptionSetting()
 )
