@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
-import { optionSetting } from '@option/store/optionSetting'
+import { optionSetting, optionViewInfo } from '@option/store/optionSetting'
+import type { NullableStringOptionKey } from '@common/option'
 
 // 何らかの要因で設定が読み取れないときはエラー状態とし閉じるのみ可能とする
 const props = withDefaults(
@@ -60,25 +61,71 @@ const close = (): void => {
 
 ///////////////////////////////////////////////////////////////
 // option - path
-const captureSavePath = ref(optionSetting.captureSavePath)
-const defaultCaptureSavePath = ref(optionSetting.defaultCaptureSavePath)
 const selectCaptureSavePath = (): void => {
   window.optionApi.selectCaptureSavePath().then((path => {
     if (path) {
-      captureSavePath.value = path
+      optionSetting.captureSavePath = path
     }
   }))
 }
 
 const resetCaptureSavePath = (): void => {
-  captureSavePath.value = defaultCaptureSavePath.value
+  optionSetting.captureSavePath = null
 }
+
+const isCaptureSavePathDefault = computed(() => {
+  return ! optionSetting.captureSavePath
+})
 
 ///////////////////////////////////////////////////////////////
 // option - proxy
-const proxyMode = ref(optionSetting.proxyMode)
-const proxyPacScript = ref(optionSetting.proxyPacScript ?? '')
-const proxyFixedServers = ref(optionSetting.proxyFixedServers ?? '')
+function nullableStringInput(key: NullableStringOptionKey) {
+  return computed({
+    get: () => optionSetting[key] ?? '',
+    set: (value: string) => {
+      const trimmed = value.trim()
+      optionSetting[key] = trimmed === '' ? null : trimmed
+    }
+  })
+}
+const proxyPacScriptInput = nullableStringInput('proxyPacScript')
+const proxyFixedServersInput = nullableStringInput('proxyFixedServers')
+const proxyPacScriptInputRef = ref<HTMLInputElement | null>(null)
+const proxyFixedServersInputRef = ref<HTMLInputElement | null>(null)
+
+watch(
+  () => optionSetting.proxyMode,
+  async (mode) => {
+    await nextTick()
+
+    if (mode === 'pac_script') {
+      proxyPacScriptInputRef.value?.focus()
+    } else if (mode === 'fixed_servers') {
+      proxyFixedServersInputRef.value?.focus()
+    }
+  }
+)
+
+const hasProxyPacScriptInput = ref(Boolean(optionSetting.proxyPacScript))
+const hasProxyFixedServersInput = ref(Boolean(optionSetting.proxyFixedServers))
+
+const onProxyPacScriptInput = (event: Event): void => {
+  hasProxyPacScriptInput.value = (event.target as HTMLInputElement).value !== ''
+}
+
+const clearProxyPacScriptInput = (): void => {
+  optionSetting.proxyPacScript = null
+  hasProxyPacScriptInput.value = false
+}
+
+const onProxyFixedServersInput = (event: Event): void => {
+  hasProxyFixedServersInput.value = (event.target as HTMLInputElement).value !== ''
+}
+
+const clearProxyFixedServersInput = (): void => {
+  optionSetting.proxyFixedServers = null
+  hasProxyFixedServersInput.value = false
+}
 
 </script>
 
@@ -135,14 +182,14 @@ const proxyFixedServers = ref(optionSetting.proxyFixedServers ?? '')
                 <span class="option-row-title">スクリーンショット・録画保存フォルダ</span>
                 <span class="option-row-description">スクリーンショットと録画の保存先フォルダを指定します。</span>
                 <span class="option-row-subdescription">
-                  既定値: <span class="selectable">{{ defaultCaptureSavePath }}</span>
+                  既定値: <span class="selectable">{{ optionViewInfo.defaultCaptureSavePath }}</span>
                 </span>
               </span>
               <div class="option-path-control">
                 <input
                   class="option-path-input"
                   type="text"
-                  :value="captureSavePath"
+                  :value="optionSetting.captureSavePath ?? ''"
                   readonly
                   aria-label="スクリーンショットと録画の保存先フォルダ"
                   placeholder="保存先フォルダを選択"
@@ -150,7 +197,10 @@ const proxyFixedServers = ref(optionSetting.proxyFixedServers ?? '')
                 <button class="option-path-button" type="button" @click="selectCaptureSavePath">
                   参照
                 </button>
-                <button class="option-path-button secondary" type="button" @click="resetCaptureSavePath">
+                <button class="option-path-button secondary" 
+                  type="button" 
+                  :disabled="isCaptureSavePathDefault"
+                  @click="resetCaptureSavePath">
                   既定値に戻す
                 </button>
               </div>
@@ -165,54 +215,93 @@ const proxyFixedServers = ref(optionSetting.proxyFixedServers ?? '')
               <div>
                 <div class="option-row-title">プロキシの使用方法</div>
                 <div class="option-row-description">
-                  アプリ内通信に使用するプロキシ設定を指定します。
+                  アプリ内通信に使用するプロキシ設定を指定します。変更は甲ブラウザ再起動後に反映されます。
                 </div>
               </div>
 
               <div class="option-radio-group">
                 <label class="option-radio">
-                  <input v-model="proxyMode" type="radio" value="system" />
+                  <input v-model="optionSetting.proxyMode" type="radio" value="system" />
                   <span>システム設定を使用 (規定値)</span>
                 </label>
 
                 <label class="option-radio">
-                  <input v-model="proxyMode" type="radio" value="direct" />
+                  <input v-model="optionSetting.proxyMode" type="radio" value="direct" />
                   <span>プロキシを使用しない</span>
                 </label>
 
                 <label class="option-radio">
-                  <input v-model="proxyMode" type="radio" value="auto_detect" />
+                  <input v-model="optionSetting.proxyMode" type="radio" value="auto_detect" />
                   <span>自動検出</span>
                 </label>
 
-                <label class="option-radio">
-                  <input v-model="proxyMode" type="radio" value="pac_script" />
-                  <span>PAC スクリプトを使用</span>
+                <label class="option-radio option-radio-with-description">
+                  <input v-model="optionSetting.proxyMode" type="radio" value="pac_script" />
+
+                  <span class="option-radio-body">
+                    <span class="option-radio-title">PAC スクリプトを使用</span>
+                    <span class="option-radio-description">
+                      <span>サポートプロトコル: http, https, data 未サポートプロトコル: file</span>
+                    </span>
+                    <span class="option-radio-description">
+                      設定例(http): <span class="selectable">http://localhost:8080/proxy.pac</span>
+                    </span>
+                    <span class="option-radio-description">
+                      設定例(data): <span class="selectable">data:application/x-ns-proxy-autoconfig,xxxxx</span>
+                    </span>
+                  </span>
+
                 </label>
 
-                <div class="option-sub-control">
+                <div class="option-input-clearable">
                   <input
-                    v-model="proxyPacScript"
+                    ref="proxyPacScriptInputRef"
+                    v-model.lazy="proxyPacScriptInput"
                     class="option-text-input"
                     type="url"
-                    placeholder="例: http://localhost:8191/proxy.pac"
+                    placeholder="例: http://localhost:8080/proxy.pac"
                     aria-label="PAC スクリプト URL"
+                    :disabled="optionSetting.proxyMode !== 'pac_script'"
+                    @input="onProxyPacScriptInput"
                   />
+                  <button
+                    v-if="hasProxyPacScriptInput"
+                    class="option-input-clear-button"
+                    type="button"
+                    aria-label="PAC スクリプト URL をクリア"
+                    @click="clearProxyPacScriptInput"
+                  >&#10005;</button>
                 </div>
 
-                <label class="option-radio">
-                  <input v-model="proxyMode" type="radio" value="fixed_servers" />
-                  <span>固定プロキシサーバーを使用</span>
+                <label class="option-radio option-radio-with-description">
+                  <input v-model="optionSetting.proxyMode" type="radio" value="fixed_servers" />
+
+                  <span class="option-radio-body">
+                    <span class="option-radio-title">固定プロキシサーバーを使用</span>
+                    <span class="option-radio-description">
+                      設定例: <span class="selectable">http=localhost:40620;https=localhost:40620</span>
+                    </span>
+                  </span>
                 </label>
 
-                <div class="option-sub-control">
+                <div class="option-input-clearable">
                   <input
-                    v-model="proxyFixedServers"
+                    ref="proxyFixedServersInputRef"
+                    v-model.lazy="proxyFixedServersInput"
                     class="option-text-input"
                     type="text"
-                    placeholder="例: http=host:8080;https=host:8080"
+                    placeholder="例: http=localhost:40620;https=localhost:40620"
                     aria-label="固定プロキシサーバー"
+                    :disabled="optionSetting.proxyMode !== 'fixed_servers'"
+                    @input="onProxyFixedServersInput"
                   />
+                  <button
+                    v-if="hasProxyFixedServersInput"
+                    class="option-input-clear-button"
+                    type="button"
+                    aria-label="固定プロキシサーバーをクリア"
+                    @click="clearProxyFixedServersInput"
+                  >&#10005;</button>
                 </div>
               </div>
             </div>

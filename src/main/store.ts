@@ -6,6 +6,7 @@ import { CommonMap } from '@common/map'
 import { AppSetting, defaultAppSetting, InheritScoreList } from '@common/store'
 import { GlobalSetting } from '@common/global_setting'
 import { ApiMapInfoList, ApiMissionList, ApiQuestList } from '@common/kcs'
+import { OptionSetting } from '@common/option'
 
 /**
  *
@@ -101,7 +102,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function mergeStoredData<T>(defaults: T, loaded: unknown): T {
+export function mergeStoredData<T>(defaults: T, loaded: unknown): T {
   if (!isPlainObject(defaults) || !isPlainObject(loaded)) {
     return (loaded ?? defaults) as T
   }
@@ -162,6 +163,22 @@ class JsonStoreLoader<T extends Object> {
     } else {
       // call loaded callback with def value
       cb(def)
+    }
+  }
+
+  async loadAsync(def: T): Promise<T> {
+    const filepath = this.storePath
+
+    if (!fs.existsSync(filepath)) {
+      return def
+    }
+
+    try {
+      const fileContents = await fs.promises.readFile(filepath, 'utf8')
+      return mergeStoredData(def, JSON.parse(fileContents))
+    } catch (err: any) {
+      console.error(err)
+      throw err
     }
   }
 
@@ -267,6 +284,9 @@ export const appSettingStore = new JsonStore<AppSetting>(
 
 export const globalSettingStore = new JsonStoreLoader<GlobalSetting>(
   'global.json', () => PathStuff.storeGlobal);
+
+export const optionSettingStore = new JsonStoreLoader<OptionSetting>(
+  'option.json', () => PathStuff.storeGlobal);
 
 export const inheritScoreStoreLoader = new JsonStoreLoader<InheritScoreList>(
   'inherit_score.json');

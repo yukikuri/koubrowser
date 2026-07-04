@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { OptionChannel } from '@common/channel'
-import { OptionSetting } from '@common/option'
+import { type OptionSetting, type OptionData } from '@common/option'
 import { type OptionApi } from './option-api-def'
 
 const optionApi: OptionApi = {
-  getCurrentSetting(): Promise<OptionSetting> {
+  getCurrentSetting(): Promise<OptionData> {
     return ipcRenderer.invoke(OptionChannel.getCurrentSetting)
   },
   readyToShow(): Promise<void> {
@@ -18,6 +18,9 @@ const optionApi: OptionApi = {
   },
   close(): Promise<void> {
     return ipcRenderer.invoke(OptionChannel.close)
+  },
+  saveSetting(setting: OptionSetting): Promise<void> {
+    return ipcRenderer.invoke(OptionChannel.saveSetting, setting)
   }
 }
 

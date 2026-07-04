@@ -98,4 +98,5 @@ export const OptionChannel = {
   selectCaptureSavePath: 'option:select-capture-save-path', 
   minimize: 'option:minimize',
   close: 'option:close',
+  saveSetting: 'option:save-setting'
 }
