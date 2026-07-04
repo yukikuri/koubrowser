@@ -1,5 +1,5 @@
 export interface OptionApi {
-  getCurrentSetting(): Promise<OptionInitialData>
+  getCurrentSetting(): Promise<OptionData>
   readyToShow(): Promise<void>
   selectCaptureSavePath(): Promise<string | null>
   minimize(): Promise<void>
