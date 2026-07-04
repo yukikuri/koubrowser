@@ -120,7 +120,12 @@ if (!gotTheLock) {
     PathStuff.setCapturePath(optionSetting.captureSavePath)
 
     // set proxy
-    await setProxy(optionSetting)
+    try {
+      await setProxy(optionSetting)
+    } catch (err) {
+      console.error('Failed to apply proxy setting. Falling back to system proxy.', err)
+      await session.defaultSession.setProxy({ mode: 'system' })
+    }
 
     // create main window
     createWindow()
