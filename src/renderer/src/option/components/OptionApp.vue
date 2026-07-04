@@ -341,6 +341,9 @@ const clearProxyFixedServersInput = (): void => {
                 <span class="option-row-description">
                   読み込むパッケージ化されていない拡張機能のフォルダを指定します。変更は甲ブラウザ再起動後に反映されます。
                 </span>
+                <span class="option-row-description">
+                  信頼できる拡張機能のみを指定してください。拡張機能によってはWeb表示や通信内容を監視・変更できる可能性があるため、ゲーム通信へ影響する拡張機能は使用しないでください。
+                </span>
               </span>
               <div class="option-path-control">
                 <input
