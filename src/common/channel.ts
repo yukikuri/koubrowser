@@ -96,6 +96,7 @@ export const OptionChannel = {
   getCurrentSetting: 'option:get-current-setting',
   readyToShow: 'option:ready-to-show',
   selectCaptureSavePath: 'option:select-capture-save-path', 
+  selectExtensionPath: 'option:select-extension-path',
   minimize: 'option:minimize',
   close: 'option:close',
   saveSetting: 'option:save-setting'

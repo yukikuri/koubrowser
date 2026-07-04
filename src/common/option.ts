@@ -18,6 +18,16 @@ export interface OptionSetting {
 
   // proxy fixed servers, default null
   proxyFixedServers: string | null
+
+  // unpacked extension information, default empty
+  extensions: ExtensionInfo[]
+}
+
+/**
+ * パッケージ化されていない拡張機能の情報
+ */
+export interface ExtensionInfo {
+  path: string
 }
 
 /**
@@ -43,7 +53,8 @@ export function defaultOptionSetting(): OptionSetting {
     captureSavePath: null,
     proxyMode: 'system',
     proxyPacScript: null,
-    proxyFixedServers: null
+    proxyFixedServers: null,
+    extensions: []
   }
 }
 

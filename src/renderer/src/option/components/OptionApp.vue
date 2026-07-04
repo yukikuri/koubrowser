@@ -14,7 +14,7 @@ const props = withDefaults(
   }
 )
 
-type CategoryKey = 'general' | 'network';
+type CategoryKey = 'general' | 'network' | 'extension';
 interface CategoryInfo {
   readonly key: CategoryKey
   readonly title: string
@@ -31,6 +31,11 @@ const categories: CategoryInfo[] = [
     key: 'network',
     title: '通信設定',
     description: 'プロキシや通信動作に関する設定'
+  },
+  {
+    key: 'extension',
+    title: '拡張機能',
+    description: '拡張機能に関する設定'
   },
   // {
   //   key: 'assist',
@@ -75,6 +80,26 @@ const resetCaptureSavePath = (): void => {
 
 const isCaptureSavePathDefault = computed(() => {
   return ! optionSetting.captureSavePath
+})
+
+///////////////////////////////////////////////////////////////
+// option - extension
+const extensionPath = computed(() => optionSetting.extensions[0]?.path ?? '')
+
+const selectExtensionPath = (): void => {
+  window.optionApi.selectExtensionPath().then((path => {
+    if (path) {
+      optionSetting.extensions = [{ path }]
+    }
+  }))
+}
+
+const resetExtensionPath = (): void => {
+  optionSetting.extensions = []
+}
+
+const isExtensionPathDefault = computed(() => {
+  return optionSetting.extensions.length === 0
 })
 
 ///////////////////////////////////////////////////////////////
@@ -303,6 +328,38 @@ const clearProxyFixedServersInput = (): void => {
                     @click="clearProxyFixedServersInput"
                   >&#10005;</button>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 拡張機能 -->
+          <section v-if="isCurrentCategory('extension')" class="option-section">
+            <div class="section-title">読み込み設定</div>
+            <div class="option-row option-row-vertical">
+              <span>
+                <span class="option-row-title">拡張機能フォルダ</span>
+                <span class="option-row-description">
+                  読み込むパッケージ化されていない拡張機能のフォルダを指定します。変更は甲ブラウザ再起動後に反映されます。
+                </span>
+              </span>
+              <div class="option-path-control">
+                <input
+                  class="option-path-input"
+                  type="text"
+                  :value="extensionPath"
+                  readonly
+                  aria-label="読み込む拡張機能フォルダ"
+                  placeholder="拡張機能フォルダを選択"
+                />
+                <button class="option-path-button" type="button" @click="selectExtensionPath">
+                  参照
+                </button>
+                <button class="option-path-button secondary"
+                  type="button"
+                  :disabled="isExtensionPathDefault"
+                  @click="resetExtensionPath">
+                  クリア
+                </button>
               </div>
             </div>
           </section>

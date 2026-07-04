@@ -13,6 +13,9 @@ const optionApi: OptionApi = {
   selectCaptureSavePath(): Promise<string | null> {
     return ipcRenderer.invoke(OptionChannel.selectCaptureSavePath)
   },
+  selectExtensionPath(): Promise<string | null> {
+    return ipcRenderer.invoke(OptionChannel.selectExtensionPath)
+  },
   minimize(): Promise<void> {
     return ipcRenderer.invoke(OptionChannel.minimize)
   },
