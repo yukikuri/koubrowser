@@ -113,7 +113,7 @@ class PathStuffImpl {
   capturePath(createIf: boolean): string {
     const ret = this.getCapturePath()
     if (createIf && !fs.existsSync(ret)) {
-      fs.mkdirSync(ret)
+      fs.mkdirSync(ret, { recursive: true })
     }
 
     return ret
