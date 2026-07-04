@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
 import { optionSetting, optionViewInfo } from '@option/store/optionSetting'
-import { NullableStringOptionKey } from '@common/option.js';
+import type { NullableStringOptionKey } from '@common/option'
 
 // 何らかの要因で設定が読み取れないときはエラー状態とし閉じるのみ可能とする
 const props = withDefaults(
