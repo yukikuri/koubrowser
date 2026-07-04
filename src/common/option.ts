@@ -7,7 +7,7 @@ export type ProxyMode = 'direct' | 'auto_detect' | 'pac_script' | 'fixed_servers
  */
 export interface OptionSetting {
 
-  // capture save path, defult null, if null use defaultCaptureSavePath
+  // capture save path (default: null). When null, use the app's default capture path.
   captureSavePath: string | null
 
   // proxy mode, default 'system'
