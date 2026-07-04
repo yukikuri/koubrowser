@@ -49,7 +49,7 @@ import {
 } from '@common/record'
 import { type Spot, type CellInfo, CommonMap } from '@common/map'
 import { Env } from '@common/env'
-import { airbaseSpotStore, appSettingStore, inheritScoreStoreLoader, mapInfoStoreLoader, missionListStoreLoader, questListStoreLoader } from '@main/store'
+import { airbaseSpotStore, appSettingStore, inheritScoreStoreLoader, mapInfoStoreLoader, missionListStoreLoader, optionSettingStore, questListStoreLoader } from '@main/store'
 import { globalSettingStore } from '@main/store'
 import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
 import iconv from 'iconv-lite'
@@ -68,7 +68,7 @@ import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import * as appSetting from '@main/app_setting'
 import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
-import { OptionSetting } from '@common/option'
+import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -299,8 +299,7 @@ export class KcApp {
     // start worker driver
     WorkersStart(getMainDir());
 
-    // set user data dir
-    setUserDataDir(app.getPath('userData'))
+    // load app setting
     appSetting.loadAppJsonSetting()
 
     // set useragent
@@ -838,10 +837,11 @@ export class KcApp {
 
     // option
     ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
-    ipcMain.handle(OptionChannel.readyToShow, async () => this.onChannelOptionReadyToShow())
-    ipcMain.handle(OptionChannel.selectCaptureSavePath, async () => this.onChannelOptionSelectCaptureSavePath())
-    ipcMain.handle(OptionChannel.minimize, async () => this.onChannelOptionMinimize())
-    ipcMain.handle(OptionChannel.close, async () => this.onChannelOptionClose())
+    ipcMain.handle(OptionChannel.readyToShow, () => this.onChannelOptionReadyToShow())
+    ipcMain.handle(OptionChannel.selectCaptureSavePath, () => this.onChannelOptionSelectCaptureSavePath())
+    ipcMain.handle(OptionChannel.minimize, () => this.onChannelOptionMinimize())
+    ipcMain.handle(OptionChannel.close, () => this.onChannelOptionClose())
+    ipcMain.handle(OptionChannel.saveSetting, (_event, data) => this.onChannelOptionSaveSetting(data))
   }
 
   /**
@@ -1188,22 +1188,18 @@ export class KcApp {
   /**
    * 
    */
-  private getCurrentOptionSetting(): OptionSetting {
-    return {
-      captureSavePath: PathStuff.capturePath(false),
-      defaultCaptureSavePath: PathStuff.defaultCapturePath,
-      proxyMode: 'system',
-      proxyPacScript: null,
-      proxyFixedServers: null,
-    }
-  }
-
-  /**
-   * 
-   */
-  private async onChannelOptionGetCurrentSetting(): Promise<OptionSetting> {
+  private onChannelOptionGetCurrentSetting(): Promise<OptionData> {
     debug(OptionChannel.getCurrentSetting)
-    return this.getCurrentOptionSetting()
+    return new Promise<OptionData>((resolve, reject) => {
+      optionSettingStore.load(defaultOptionSetting(), (data) => {
+        resolve({
+          setting: data,
+          viewInfo: {
+            defaultCaptureSavePath: PathStuff.defaultCapturePath
+          }
+        })
+      }, (err) => reject(err))
+    });
   }
 
   /**
@@ -1258,6 +1254,17 @@ export class KcApp {
     if (this.option_window && !this.option_window.isDestroyed()) {
       this.option_window.close()
     }
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionSaveSetting(setting: OptionSetting): void {
+    debug(OptionChannel.saveSetting, setting)
+    optionSettingStore.save(setting)
+
+    // キャプチャ保存先更新する
+    PathStuff.setCapturePath(setting.captureSavePath)
   }
 
   /**

@@ -2,13 +2,13 @@
 // electron default 'system'
 export type ProxyMode = 'direct' | 'auto_detect' | 'pac_script' | 'fixed_servers' | 'system';
 
+/**
+ * オプション画面で設定可能な項目
+ */
 export interface OptionSetting {
 
-  // capture save path
-  captureSavePath: string
-
-  // default capture save path
-  defaultCaptureSavePath: string
+  // capture save path, defult null, if null use defaultCaptureSavePath
+  captureSavePath: string | null
 
   // proxy mode, default 'system'
   proxyMode: ProxyMode
@@ -20,13 +20,36 @@ export interface OptionSetting {
   proxyFixedServers: string | null
 }
 
+/**
+ * オプション画面で設定可能ではなく表示のみの値
+ */
+export interface OptionViewInfo {
+
+  // default capture save path
+  defaultCaptureSavePath: string
+}
+
+/**
+ * オプション画面に渡す情報
+ */
+export interface OptionData {
+  setting: OptionSetting
+  viewInfo: OptionViewInfo
+}
+
 // def or init value
 export function defaultOptionSetting(): OptionSetting {
   return {
-    captureSavePath: '',
-    defaultCaptureSavePath: '',
+    captureSavePath: null,
     proxyMode: 'system',
     proxyPacScript: null,
     proxyFixedServers: null
   }
 }
+
+export const NullableStringOptionKeys = [
+  'proxyPacScript',
+  'proxyFixedServers'
+] as const satisfies readonly (keyof OptionSetting)[]
+
+export type NullableStringOptionKey = (typeof NullableStringOptionKeys)[number]

@@ -53,6 +53,13 @@ export interface AppMapDrawed {
  *
  */
 class PathStuffImpl {
+
+  /**
+   * ユーザ指定キャプチャパス
+   * 設定なしの時null
+   */
+  private capturePath_: string | null = null
+
   /**
    *
    */
@@ -90,15 +97,30 @@ class PathStuffImpl {
   }
 
   /**
+   * 
+   */
+  private getCapturePath(): string {
+    if (this.capturePath_) {
+      return this.capturePath_
+    } else {
+      return this.defaultCapturePath
+    }
+  }
+
+  /**
    *
    */
   capturePath(createIf: boolean): string {
-    const ret = path.join(getUserDataDir(), capture_dirname)
+    const ret = this.getCapturePath()
     if (createIf && !fs.existsSync(ret)) {
       fs.mkdirSync(ret)
     }
 
     return ret
+  }
+
+  public setCapturePath(path: string | null): void {
+    this.capturePath_ = path
   }
 
   /**

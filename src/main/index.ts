@@ -1,14 +1,69 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, session } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { Const } from '@common/const'
 import { KcApp, getKcApp } from '@main/kcbrowser'
 import *  as workers from '@main/stuff/wrokers'
 import { threadId } from 'worker_threads'
-import { setMainDir } from '@main/path'
+import { PathStuff, setMainDir, setUserDataDir } from '@main/path'
 import { Intaker } from '@main/stuff/intaker'
+import { optionSettingStore } from './store'
+import { defaultOptionSetting, OptionSetting } from '@common/option'
 
 console.log('main index.ts __dirname:', __dirname)
 setMainDir(__dirname)
+
+// set user data dir
+console.log('app dir(user data):', app.getPath('userData'))
+setUserDataDir(app.getPath('userData'))
+
+/**
+ * 
+ * @param setting 
+ */
+async function setProxy(setting: OptionSetting): Promise<void> {
+
+  if (setting.proxyMode === 'system') {
+    await session.defaultSession.setProxy({
+      mode: 'system'
+    })
+  }
+
+  if (setting.proxyMode === 'direct') {
+    await session.defaultSession.setProxy({
+      mode: 'direct'
+    })
+  }
+  
+  if (setting.proxyMode === 'auto_detect') {
+    await session.defaultSession.setProxy({
+      mode: 'auto_detect'
+    })
+  }
+
+  if (setting.proxyMode === 'pac_script') {
+    if (setting.proxyPacScript) {
+      await session.defaultSession.setProxy({
+        mode: 'pac_script',
+        pacScript: setting.proxyPacScript
+      })
+    } else {
+      console.warn('PAC script mode selected but no PAC script URL provided.')
+    }
+  }
+
+  if (setting.proxyMode === 'fixed_servers') {
+    if (setting.proxyFixedServers) {
+      await session.defaultSession.setProxy({
+        mode: 'fixed_servers',
+        proxyRules: setting.proxyFixedServers
+      })
+    } else {
+      console.warn('Fixed servers mode selected but no proxy rules provided.')
+    }
+  }
+
+  await session.defaultSession.closeAllConnections()
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -41,7 +96,7 @@ if (!gotTheLock) {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     // Set app user model id for windows
     electronApp.setAppUserModelId(Const.AppUserModelId)
 
@@ -51,7 +106,23 @@ if (!gotTheLock) {
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)
     })
-    
+
+    // load option setting
+    let optionSetting = defaultOptionSetting()
+
+    try {
+      optionSetting = await optionSettingStore.loadAsync(defaultOptionSetting())
+    } catch (err) {
+      console.error('Failed to load option setting. Falling back to default setting.', err)
+    }
+
+    // set capture path
+    PathStuff.setCapturePath(optionSetting.captureSavePath)
+
+    // set proxy
+    await setProxy(optionSetting)
+
+    // create main window
     createWindow()
   })
 }
