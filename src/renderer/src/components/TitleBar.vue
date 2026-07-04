@@ -8,6 +8,7 @@ import { gameSetting } from '@renderer/store/gamesetting'
 import MapInOutImage from '@assets/img/titlebar/map-in-out.svg'
 import TimelineImage from '@assets/img/titlebar/timeline.svg'
 import ShowAssistImage from '@assets/img/titlebar/show-assist.svg'
+import OptionImage from '@assets/img/titlebar/option.svg'
 import RecImage from '@assets/img/titlebar/rec.svg'
 import RefreshAssistImage from '@assets/img/titlebar/refresh-assist.svg'
 import OpenCaptureFolderImage from '@assets/img/titlebar/open-capture-folder.svg'
@@ -464,6 +465,10 @@ const onRefreshAssist = (): void => {
 
 const onOpenCaptureFolder = (): void => {
   window.api.openCaptureFolder()
+}
+
+const onOpenOption = (): void => {
+  window.api.openOption()
 }
 
 const onScreenshot = (): void => {
@@ -1205,6 +1210,14 @@ if (EnvRenderer.isTestMode) {
     </div>
     <div class="titlebar-buttons" :class="{ dragable: isDragable, 'in-assist-main': inAssistMain }">
       <div>
+        <div
+          class="titlebar-button option"
+          title="設定"
+          aria-label="設定"
+          @click="onOpenOption"
+        >
+        <OptionImage />
+      </div>
         <div
           class="titlebar-button rec"
           :class="{ checked: isRecording }"

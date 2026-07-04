@@ -34,25 +34,17 @@ export function getUserDataDir(): string {
   return _userDataDir
 }
 
-export const AppMapImgDrawState = {
-  nodraw: 0,
-  drawed: 1
-} as const
-export type AppMapImgDrawState = (typeof AppMapImgDrawState)[keyof typeof AppMapImgDrawState]
-
-export interface AppMapImgDraw {
-  no: number
-  drawed: AppMapImgDrawState
-}
-
-export interface AppMapDrawed {
-  cells: AppMapImgDraw[]
-}
-
 /**
  *
  */
 class PathStuffImpl {
+
+  /**
+   * ユーザ指定キャプチャパス
+   * 設定なしの時null
+   */
+  private capturePath_: string | null = null
+
   /**
    *
    */
@@ -85,13 +77,35 @@ class PathStuffImpl {
   /**
    *
    */
-  capturePathExe(createIf: boolean): string {
-    const ret = path.join(getUserDataDir(), capture_dirname)
+  get defaultCapturePath(): string {
+    return path.join(getUserDataDir(), capture_dirname)
+  }
+
+  /**
+   * 
+   */
+  private getCapturePath(): string {
+    if (this.capturePath_) {
+      return this.capturePath_
+    } else {
+      return this.defaultCapturePath
+    }
+  }
+
+  /**
+   *
+   */
+  capturePath(createIf: boolean): string {
+    const ret = this.getCapturePath()
     if (createIf && !fs.existsSync(ret)) {
-      fs.mkdirSync(ret)
+      fs.mkdirSync(ret, { recursive: true })
     }
 
     return ret
+  }
+
+  public setCapturePath(path: string | null): void {
+    this.capturePath_ = path
   }
 
   /**

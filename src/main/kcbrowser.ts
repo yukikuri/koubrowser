@@ -32,6 +32,7 @@ import {
   GameChannel,
   QuestContext,
   AirbaseSpot,
+  OptionChannel,
 } from '@common/channel'
 import moment from 'moment'
 import { KcRecord } from '@main/kcrecord'
@@ -48,7 +49,7 @@ import {
 } from '@common/record'
 import { type Spot, type CellInfo, CommonMap } from '@common/map'
 import { Env } from '@common/env'
-import { airbaseSpotStore, appSettingStore, inheritScoreStoreLoader, mapInfoStoreLoader, missionListStoreLoader, questListStoreLoader } from '@main/store'
+import { airbaseSpotStore, appSettingStore, inheritScoreStoreLoader, mapInfoStoreLoader, missionListStoreLoader, optionSettingStore, questListStoreLoader } from '@main/store'
 import { globalSettingStore } from '@main/store'
 import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
 import iconv from 'iconv-lite'
@@ -67,6 +68,7 @@ import { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import * as appSetting from '@main/app_setting'
 import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
+import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -220,6 +222,15 @@ const openAppHtml = (win: BrowserWindow): void => {
   }
 }
 
+const openOptionHtml = (win: BrowserWindow): void => {
+  debug('open option renderer url:', process.env['ELECTRON_RENDERER_URL'])
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/option.html`)
+  } else {
+    win.loadFile(path.join(getMainDir(), '../renderer/option.html'))
+  }
+}
+
 let kcapp: KcApp
 export const getKcApp = (): KcApp | undefined => {
   return kcapp
@@ -231,6 +242,7 @@ export const getKcApp = (): KcApp | undefined => {
 export class KcApp {
   private main_window: BrowserWindow
   private assist_window: BrowserWindow | null = null
+  private option_window: BrowserWindow | null = null
   private frame_ratio: number
   private kcrecord: KcRecord | null = null
   private cbBasicFirst: number = 0
@@ -287,8 +299,7 @@ export class KcApp {
     // start worker driver
     WorkersStart(getMainDir());
 
-    // set user data dir
-    setUserDataDir(app.getPath('userData'))
+    // load app setting
     appSetting.loadAppJsonSetting()
 
     // set useragent
@@ -482,11 +493,7 @@ export class KcApp {
 
     // Persist window state before any child windows are closed by the main window shutdown path.
     this.mainWindow.on('close', () => {
-      if (this.assist_window && !this.assist_window.isDestroyed()) {
-        if (! gameSetting.assistRestricted) {
-          appSetting.updateAssistWindowState(this.assist_window, false)
-        }
-      }
+      this.closeRelatedWindows()
       this.saveAppState()
     })
 
@@ -651,6 +658,84 @@ export class KcApp {
   }
 
   /**
+   *
+   */
+  private openOptionWindow(): void {
+    if (this.option_window) {
+      this.option_window.show()
+      this.option_window.focus()
+      return
+    }
+
+    const mainBounds = this.main_window.getBounds()
+    const targetDisplay = screen.getDisplayMatching(mainBounds)
+    const area = targetDisplay.workArea
+    const width = Math.min(960, area.width)
+    const height = Math.min(680, area.height)
+    const x = area.x + Math.floor((area.width - width) / 2)
+    const y = area.y + Math.floor((area.height - height) / 2)
+    const iconPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'resources/app.ico')
+      : path.join(__dirname, '../../resources/app.ico')
+
+    const additionalArguments: string[] = [];
+    if (Env.isTestMode) {
+      additionalArguments.push(Const.ArgIsTestMode);
+    }
+
+    // 非表示で作成
+    // 現オプション設定内容を取得後に表示
+    this.option_window = new BrowserWindow({
+      title: '甲ブラウザ 設定',
+      show: false,
+      icon: iconPath,
+      frame: false,
+      useContentSize: true,
+      width,
+      height,
+      x,
+      y,
+      minWidth: 720,
+      minHeight: 480,
+      backgroundColor: '#111318',
+      webPreferences: {
+        additionalArguments,
+        nodeIntegration: false,
+        contextIsolation: true,
+        spellcheck: false,
+        preload: path.join(getMainDir(), '../preload/option-api.js'),
+        // preload指定ではsandboxを無効にする必要がある
+        sandbox: false
+      }
+    })
+    this.option_window.setMenu(null)
+    this.option_window.addListener('closed', () => {
+      this.option_window = null
+    })
+
+    openOptionHtml(this.option_window)
+
+    if (Env.isDevelopment) {
+      this.option_window.webContents.openDevTools()
+    }
+  }
+
+  /**
+   *
+   */
+  private closeRelatedWindows(): void {
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.close()
+    }
+
+    if (this.assist_window && !this.assist_window.isDestroyed()) {
+      if (! gameSetting.assistRestricted) {
+        appSetting.updateAssistWindowState(this.assist_window, false)
+      }
+    }
+  }
+
+  /**
    * 
    */
   private setupHandlers() {
@@ -672,6 +757,7 @@ export class KcApp {
     ipcMain.handle(MainChannel.save_capture, async (_event, date, buffer) =>
       this.onChannelSaveCapture(date, buffer)
     )
+    ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -748,6 +834,15 @@ export class KcApp {
       ipcMain.on(kcsapi_hook.HookedType.unk_loadstart, (_event, data) => this.onApiHookUnknownLoadStart(data));
       ipcMain.on(kcsapi_hook.HookedType.unk_loadend, (_event, data) => this.onApiHookUnknownLoadEnd(data));
     }
+
+    // option
+    ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
+    ipcMain.handle(OptionChannel.readyToShow, () => this.onChannelOptionReadyToShow())
+    ipcMain.handle(OptionChannel.selectCaptureSavePath, () => this.onChannelOptionSelectCaptureSavePath())
+    ipcMain.handle(OptionChannel.selectExtensionPath, () => this.onChannelOptionSelectExtensionPath())
+    ipcMain.handle(OptionChannel.minimize, () => this.onChannelOptionMinimize())
+    ipcMain.handle(OptionChannel.close, () => this.onChannelOptionClose())
+    ipcMain.handle(OptionChannel.saveSetting, (_event, data) => this.onChannelOptionSaveSetting(data))
   }
 
   /**
@@ -1015,11 +1110,7 @@ export class KcApp {
   private async onChannelClose() {
     debug('on channel msg', MainChannel.close)
 
-    // update assist windows pos
-    if (this.assist_window?.isVisible()) {
-      appSetting.updateAssistWindowState(this.assist_window, false)
-    }
-
+    this.closeRelatedWindows()
     this.saveAppState()
     // no effect
     //mainWindow.close();
@@ -1090,9 +1181,120 @@ export class KcApp {
   /**
    *
    */
+  private onChannelOpenOption(): void {
+    debug(MainChannel.openOption, 'option_window:', this.option_window !== null)
+    this.openOptionWindow()
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionGetCurrentSetting(): Promise<OptionData> {
+    debug(OptionChannel.getCurrentSetting)
+    return new Promise<OptionData>((resolve, reject) => {
+      optionSettingStore.load(defaultOptionSetting(), (data) => {
+        resolve({
+          setting: data,
+          viewInfo: {
+            defaultCaptureSavePath: PathStuff.defaultCapturePath
+          }
+        })
+      }, (err) => reject(err))
+    });
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionReadyToShow(): void {
+    debug(OptionChannel.readyToShow)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return
+    }
+    this.option_window.show()
+    this.option_window.focus()
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionSelectCaptureSavePath(): string | null {
+    debug(OptionChannel.selectCaptureSavePath)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return null
+    }
+
+    const result = dialog.showOpenDialogSync(
+      this.option_window, {
+      title: 'キャプチャ保存先フォルダを選択',
+      properties: ['openDirectory', 'createDirectory']
+    })
+    if (result && result.length > 0) {
+      return result[0]
+    }
+    return null
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionSelectExtensionPath(): string | null {
+    debug(OptionChannel.selectExtensionPath)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return null
+    }
+
+    const result = dialog.showOpenDialogSync(
+      this.option_window, {
+      title: '読み込む拡張機能フォルダを選択',
+      properties: ['openDirectory']
+    })
+    if (result && result.length > 0) {
+      return result[0]
+    }
+    return null
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionMinimize(): void {
+    debug(OptionChannel.minimize)
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.minimize()
+    }
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionClose(): void {
+    debug(OptionChannel.close)
+    if (this.option_window && !this.option_window.isDestroyed()) {
+      this.option_window.close()
+    }
+  }
+
+  /**
+   * 
+   */
+  private onChannelOptionSaveSetting(setting: OptionSetting): void {
+    debug(OptionChannel.saveSetting, setting)
+    optionSettingStore.save(setting)
+
+    // キャプチャ保存先更新する
+    PathStuff.setCapturePath(setting.captureSavePath)
+  }
+
+  /**
+   *
+   */
   private onChannelOpenCaptureFolder() {
     debug(MainChannel.open_capture_folder)
-    shell.openPath(PathStuff.capturePathExe(true))
+    shell.openPath(PathStuff.capturePath(true))
   }
 
   /**
@@ -1101,7 +1303,7 @@ export class KcApp {
    * @param buffer
    */
   private onChannelSaveCapture(date: Date, buffer: Buffer) {
-    const capture_dir = PathStuff.capturePathExe(true)
+    const capture_dir = PathStuff.capturePath(true)
     const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.png`
     debug(MainChannel.save_capture, 'date:', date, filename, capture_dir)
     fs.writeFile(path.join(capture_dir, filename), buffer, {}, (err) => {
@@ -1140,7 +1342,7 @@ export class KcApp {
     }
 
     if (!this.wsRecording) {
-      const capture_dir = PathStuff.capturePathExe(true)
+      const capture_dir = PathStuff.capturePath(true)
       const date = new Date()
       const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.webm`
       const filepath = path.join(capture_dir, filename)

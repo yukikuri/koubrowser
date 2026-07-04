@@ -17,6 +17,7 @@ export interface Api {
   reload(): void
   openCaptureFolder(): void
   saveCapture(date: Date, buffer: Buffer): void
+  openOption(): void
   openAssist(): void
   topmost(): void
   notifyMuteState(muted: boolean): void
