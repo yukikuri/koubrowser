@@ -839,6 +839,7 @@ export class KcApp {
     ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
     ipcMain.handle(OptionChannel.readyToShow, () => this.onChannelOptionReadyToShow())
     ipcMain.handle(OptionChannel.selectCaptureSavePath, () => this.onChannelOptionSelectCaptureSavePath())
+    ipcMain.handle(OptionChannel.selectExtensionPath, () => this.onChannelOptionSelectExtensionPath())
     ipcMain.handle(OptionChannel.minimize, () => this.onChannelOptionMinimize())
     ipcMain.handle(OptionChannel.close, () => this.onChannelOptionClose())
     ipcMain.handle(OptionChannel.saveSetting, (_event, data) => this.onChannelOptionSaveSetting(data))
@@ -1229,6 +1230,27 @@ export class KcApp {
       this.option_window, {
       title: 'キャプチャ保存先フォルダを選択',
       properties: ['openDirectory', 'createDirectory']
+    })
+    if (result && result.length > 0) {
+      return result[0]
+    }
+    return null
+  }
+
+  /**
+   *
+   */
+  private onChannelOptionSelectExtensionPath(): string | null {
+    debug(OptionChannel.selectExtensionPath)
+    if (!this.option_window || this.option_window.isDestroyed()) {
+      // noop
+      return null
+    }
+
+    const result = dialog.showOpenDialogSync(
+      this.option_window, {
+      title: '読み込む拡張機能フォルダを選択',
+      properties: ['openDirectory']
     })
     if (result && result.length > 0) {
       return result[0]

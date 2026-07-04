@@ -65,6 +65,22 @@ async function setProxy(setting: OptionSetting): Promise<void> {
   await session.defaultSession.closeAllConnections()
 }
 
+/**
+ *
+ * @param setting
+ */
+async function loadUnpackedExtension(setting: OptionSetting): Promise<void> {
+  for (const extension of setting.extensions) {
+    try {
+      await session.defaultSession.extensions.loadExtension(extension.path, {
+        allowFileAccess: true
+      })
+    } catch (err) {
+      console.error('Failed to load unpacked extension.', extension.path, err)
+    }
+  }
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null
@@ -126,6 +142,9 @@ if (!gotTheLock) {
       console.error('Failed to apply proxy setting. Falling back to system proxy.', err)
       await session.defaultSession.setProxy({ mode: 'system' })
     }
+
+    // load unpacked extension
+    await loadUnpackedExtension(optionSetting)
 
     // create main window
     createWindow()
