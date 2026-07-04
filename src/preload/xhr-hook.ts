@@ -104,5 +104,5 @@ if (serverId) {
   }
 
   window.XMLHttpRequest = MyXHR as any;
-  console.log('xhr-hook set <<', window.location.href, 'serverId:', serverId);
+  //console.log('xhr-hook set <<', window.location.href, 'serverId:', serverId);
 }
