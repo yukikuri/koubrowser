@@ -34,21 +34,6 @@ export function getUserDataDir(): string {
   return _userDataDir
 }
 
-export const AppMapImgDrawState = {
-  nodraw: 0,
-  drawed: 1
-} as const
-export type AppMapImgDrawState = (typeof AppMapImgDrawState)[keyof typeof AppMapImgDrawState]
-
-export interface AppMapImgDraw {
-  no: number
-  drawed: AppMapImgDrawState
-}
-
-export interface AppMapDrawed {
-  cells: AppMapImgDraw[]
-}
-
 /**
  *
  */
