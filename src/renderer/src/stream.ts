@@ -53,19 +53,19 @@ function onRequired(msg: RequiredMessage) {
 }
 
 function onApiReq(msg: ApiReqMessage) {
-  console.log('stream got api req >> ')
+  console.log('stream got api req >> ', 'api:', msg.api)
   svdata.setReq(msg.api, msg.data)
-  console.log('stream got api req << ')
+  console.log('stream got api req << ', 'api:', msg.api)
 }
 
 function onApiRes(msg: ApiResMessage) {
-  console.log('stream got api res >> ')
+  console.log('stream got api res >> ', 'api:', msg.api)
   svdata.update(msg.api, msg.data)
   if (msg.uuid && svdata.prvBattleMapInfo) {
     svdata.prvBattleMapInfo.uuid = msg.uuid;
     console.log('map start uuid set in renderer:', msg.uuid);
   }
-  console.log('stream got api res << ')
+  console.log('stream got api res << ', 'api:', msg.api)
 }
 
 function onQuests(list: Quest[]) {
