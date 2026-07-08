@@ -220,8 +220,11 @@ const lastBattleInfo = computed<string>(() => {
   return `${ record.rank }: ${battleMapText(record) } Cell:${ record.cellId } ${ record.enemyDeckName }`
 })
 
-const { computed: isGimmickFlagDetected  } = kcs_stuff.isGimmickFlagDetected()
-const { computed: isMapChangeDetected  } = kcs_stuff.isMapChangeDetected()
+// todo fix detect gimmick clear
+//const { computed: isGimmickFlagDetected  } = kcs_stuff.isGimmickFlagDetected()
+//const { computed: isMapChangeDetected  } = kcs_stuff.isMapChangeDetected()
+const isGimmickFlagDetected = computed(() => false )
+const isMapChangeDetected = computed(() => false )
 
 interface ExpRecord {
   date: string
