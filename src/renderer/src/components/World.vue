@@ -18,6 +18,11 @@ const debug = (...args: any[]) => {
   if (DEBUG) console.debug("[World]", ...args);
 };
 
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+const eventAreaId = computed<number>(() => svdata.mstMapareaType(ApiMapAreaType.event)?.api_id ?? 0)
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 const getBattleTabIndex = (): number => {
@@ -113,7 +118,6 @@ const classWorldEvent = computed((): object => {
 const eventName = computed<string>(
   () => svdata.mstMapareaType(ApiMapAreaType.event)?.api_name ?? '????'
 )
-const eventAreaId = computed<number>(() => svdata.mstMapareaType(ApiMapAreaType.event)?.api_id ?? 0)
 
 onMounted(() => {
   debug('world mounted')
