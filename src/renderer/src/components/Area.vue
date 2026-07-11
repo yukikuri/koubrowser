@@ -1085,6 +1085,32 @@ const isShowDebugCellInfo = computed<boolean>(() => {
   //return Env.isDevelopment
 })
 
+const isShowEventMapLos = computed<boolean>(() => {
+  return isEventMap.value
+})
+
+const getDeckMapLos = (deckId: ApiDeckPortId): string => {
+  const deck = svdata.deckPort(deckId)
+  if (!deck) return ''
+
+  const los1 = Math.trunc(svdata.deckMapLos(deck, 1))
+  const los2 = Math.trunc(svdata.deckMapLos(deck, 2))
+  const los3 = Math.trunc(svdata.deckMapLos(deck, 3))
+  const los4 = Math.trunc(svdata.deckMapLos(deck, 4))
+  return `${los1}/${los2}/${los3}/${los4}`
+}
+
+const deck1MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck1st)
+})
+const deck2MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck2st)
+})
+const deck3MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck3st)
+})
+
+
 function onChangeAirbaseSpot(value: boolean): void {
   debug('onChangeAirbaseSpot', value, target_label.value)
   const arg: AirbaseSpot = {
@@ -1245,6 +1271,11 @@ function onChangeAirbaseSpot(value: boolean): void {
         :x1="currentLine.x1" :y1="currentLine.y1" :x2="currentLine.x2" :y2="currentLine.y2" :is-animate="true"
         :color="lineColor" :dashed="false"
       />
+      <div v-if="isShowEventMapLos" class="event-losinfo">
+        <div>索敵値(第一)：{{ deck1MapLos }}</div>
+        <div>索敵値(第二)：{{ deck2MapLos }}</div>
+        <div>索敵値(第三)：{{ deck3MapLos }}</div>
+      </div>
       <div v-if="isShowDebugCellInfo" class="debug-info">
         <span>cell count:{{ spots.length }}</span>
         <div>

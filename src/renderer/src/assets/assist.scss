@@ -918,7 +918,7 @@ $world-event-tab-width: 150px;
   //height: 40px;
   //font-size: 11px;
   //background-color: rgba(red, 0.3);
-  
+
   $shadow-color: rgba(red, 1);
 
   width: 100%;
@@ -1375,6 +1375,15 @@ $world-event-tab-width: 150px;
     position: absolute;
     top: 50px;
     left: 0;
+  }
+
+  .event-losinfo {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    font-size: 11px;
+    line-height: 11px;
+    color: #05ff9f;
   }
 
   .spot {
