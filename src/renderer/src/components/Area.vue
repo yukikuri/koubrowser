@@ -266,11 +266,16 @@ const enemySpots = computed<AreaSpot[]>(() => {
       aa = airb[airb.length - 1].afterAA
       hasAirbase = true
     }
+
     const state = KcsUtil.seikuState(deckSeiku, aa)
+
+    // 制空権状態は敵データが無い場合無効な表示となるため表示しない
+    const seikuText = aa !== undefined ? seikuStateText(state, deckSeiku, aa, el) : '';
+
     return {
       spot: el,
       seikuClass: seikuClass(state, aa, hasAirbase),
-      seikuStateText: seikuStateText(state, deckSeiku, aa, el),
+      seikuStateText: seikuText,
       spotXY: spotXY(el),
       seikubarStyle: seikubarStyle(deckSeiku, aa),
       cellClass: cellClass(el.type),
@@ -693,6 +698,10 @@ watch(
 )
 
 function spotAirBase(spot: Spot): AirBaseSeiku[] | undefined {
+
+  // イベントエリアでは情報が無いときエラーとなるため、一旦基地航空隊情報は表示しない
+  if (isEventMap.value) return undefined
+
   if (!hasAirbase.value) return undefined
   const bases = airbases.value
     .filter((airbase, index) => {
@@ -973,6 +982,10 @@ const isCombined = computed<boolean>(() => svdata.isCombined)
 const combinedFlag = computed<CombinedFlag>(() => svdata.combinedFlag)
 
 const hasAirbase = computed<boolean>(() => {
+
+  // イベントエリアでは基地航空隊情報でマップが隠れることから一旦基地航空隊情報は表示しない
+  if (isEventMap.value) return false
+
   const ret = svdata.hasAirbase(props.area_id, props.area_no)
   debug(
     'hasAirbase:',

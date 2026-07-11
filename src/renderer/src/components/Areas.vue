@@ -7,6 +7,7 @@ import { svdata } from '@renderer/store/svdata'
 import * as mapInfoStore from '@renderer/store/mapinfo'
 import LockImage from '@renderer/assets/img/lock.svg'
 import { computed, onMounted, onUnmounted, ref, toRaw } from 'vue'
+import { Env } from '@common/env'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -111,6 +112,10 @@ function isBattleArea(index: number): boolean {
 }
 
 function isAreaLocked(index: number): boolean {
+  if (Env.isTestMode) {
+    return false
+  }
+
   if (props.area_id === 1 && index === 0) {
     return false
   }
