@@ -227,7 +227,11 @@ const getMapTitle = (): string => {
   const isEvent = KcsUtil.isEventAreaId(props.info.area_id)
   const mapLvText = isEvent ? (MapLvText[props.info.map_lv] ?? '') : ''
   const areaName = getAreaName(props.info.area_id, props.info.area_no) || 'Unknown Area';
-  const namePrefix = isEvent ? getEventPeriodName(props.info.area_id) +
+
+  // イベント名が不明な場合は空表示とする
+  const eventName = isEvent ? getEventPeriodName(props.info.area_id) : ''
+
+  const namePrefix = isEvent ? (eventName ?? '') +
     'E'+props.info.area_no : props.info.area_id + '-' + props.info.area_no
   const bossText = props.info.is_boss ? '(Boss)' : '';
   return `${namePrefix}${mapLvText} ${areaName} ${noOrLabel}${bossText}`;

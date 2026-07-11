@@ -548,7 +548,22 @@ export const areaNames: AreaName[] =
     "areaId": 61,
     "areaNo": 5,
     "areaName": "銚子沖/北海道沖/三陸沖太平洋"
-  }
+  },
+  {
+    "areaId": 62,
+    "areaNo": 1,
+    "areaName": "九州沖/南西諸島沖"
+  },
+  {
+    "areaId": 62,
+    "areaNo": 2,
+    "areaName": "南沙諸島沖/オルモック沖/サンベルナルジノ海峡沖"
+  },
+  {
+    "areaId": 62,
+    "areaNo": 3,
+    "areaName": "パラオ沖/ウルシー泊地沖/中部太平洋"
+  },
 ]
 
 export function getAreaName(areaId: number, areaNo: number): string | null {
@@ -633,6 +648,11 @@ export const eventNames: EventName[] =
     "areaId": 61,
     "title": '逆転！ナルヴィク攻防戦',
     "periodName": '2025年秋イベント',
+  },
+  {
+    "areaId": 62,
+    "title": '反撃！第三十一戦隊の戦い',
+    "periodName": '2026年夏イベント',
   }
 ]
 
