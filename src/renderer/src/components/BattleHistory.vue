@@ -590,10 +590,13 @@ function getAreaOptions(): AreaOption[] {
     value:  toRecordMapId(area.areaId, area.areaNo),
     label: `${area.areaId} - ${area.areaNo} ${area.areaName}`,
   }))
-  const event61Name = getEventPeriodName(61);
-  ret.push(...areaNames.filter((area) => area.areaId === 61).map((area) => ({
+
+  // todo: イベント海域の表示は暫定的に62のみ
+  // 履歴に存在するイベントを選択可能とする
+  const eventName = getEventPeriodName(62);
+  ret.push(...areaNames.filter((area) => area.areaId === 62).map((area) => ({
     value:  toRecordMapId(area.areaId, area.areaNo),
-    label: `${event61Name} E${area.areaNo} ${area.areaName}`,
+    label: `${eventName} E${area.areaNo} ${area.areaName}`,
   })))
   return ret
 }
@@ -701,7 +704,11 @@ function areaNoText(data: BattleTableData): string {
   const { areaId, areaNo } = recordMapIdToIdNo(record.mapId)
   const isEvent = KcsUtil.isEventAreaId(areaId)
   const mapLvText = isEvent ? (MapLvText[record.mapLv] ?? '') : ''
-  const prefix = isEvent ? `${getEventPeriodName(areaId)}E${areaNo}` : `${areaId}-${areaNo}`
+
+  // イベント名が不明な場合は空表示とする
+  const eventName = isEvent ? getEventPeriodName(areaId) : ''
+  const prefix = isEvent ? `${eventName ?? ''}E${areaNo}` : `${areaId}-${areaNo}`
+
   return `${prefix}${mapLvText}`
 }
 

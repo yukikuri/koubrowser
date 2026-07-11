@@ -314,7 +314,11 @@ const getAreaCellText = (data: ShipDropTableData): string => {
   const noOrLabel = data.cellLabel ?? 'cell'+data.cellNo;
   const isEvent = KcsUtil.isEventAreaId(data.areaId)
   const mapLvText = isEvent ? (MapLvText[data.mapLv] ?? '') : ''
-  const namePrefix = isEvent ? getEventPeriodName(data.areaId) +
+
+  // イベント名が不明な場合は空表示とする
+  const eventName = isEvent ? getEventPeriodName(data.areaId) : ''
+
+  const namePrefix = isEvent ? (eventName ?? '') +
     'E'+data.areaNo : data.areaId + '-' + data.areaNo
   const bossText = data.isBoss ? '(Boss)' : '';
     return `${namePrefix}${mapLvText} ${noOrLabel}${bossText}`;

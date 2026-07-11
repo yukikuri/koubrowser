@@ -266,11 +266,16 @@ const enemySpots = computed<AreaSpot[]>(() => {
       aa = airb[airb.length - 1].afterAA
       hasAirbase = true
     }
+
     const state = KcsUtil.seikuState(deckSeiku, aa)
+
+    // 制空権状態は敵データが無い場合無効な表示となるため表示しない
+    const seikuText = aa !== undefined ? seikuStateText(state, deckSeiku, aa, el) : '';
+
     return {
       spot: el,
       seikuClass: seikuClass(state, aa, hasAirbase),
-      seikuStateText: seikuStateText(state, deckSeiku, aa, el),
+      seikuStateText: seikuText,
       spotXY: spotXY(el),
       seikubarStyle: seikubarStyle(deckSeiku, aa),
       cellClass: cellClass(el.type),
@@ -693,6 +698,10 @@ watch(
 )
 
 function spotAirBase(spot: Spot): AirBaseSeiku[] | undefined {
+
+  // イベントエリアでは情報が無いときエラーとなるため、一旦基地航空隊情報は表示しない
+  if (isEventMap.value) return undefined
+
   if (!hasAirbase.value) return undefined
   const bases = airbases.value
     .filter((airbase, index) => {
@@ -973,6 +982,10 @@ const isCombined = computed<boolean>(() => svdata.isCombined)
 const combinedFlag = computed<CombinedFlag>(() => svdata.combinedFlag)
 
 const hasAirbase = computed<boolean>(() => {
+
+  // イベントエリアでは基地航空隊情報でマップが隠れることから一旦基地航空隊情報は表示しない
+  if (isEventMap.value) return false
+
   const ret = svdata.hasAirbase(props.area_id, props.area_no)
   debug(
     'hasAirbase:',
@@ -1071,6 +1084,32 @@ const isShowDebugCellInfo = computed<boolean>(() => {
   return false;
   //return Env.isDevelopment
 })
+
+const isShowEventMapLos = computed<boolean>(() => {
+  return isEventMap.value
+})
+
+const getDeckMapLos = (deckId: ApiDeckPortId): string => {
+  const deck = svdata.deckPort(deckId)
+  if (!deck) return ''
+
+  const los1 = Math.trunc(svdata.deckMapLos(deck, 1))
+  const los2 = Math.trunc(svdata.deckMapLos(deck, 2))
+  const los3 = Math.trunc(svdata.deckMapLos(deck, 3))
+  const los4 = Math.trunc(svdata.deckMapLos(deck, 4))
+  return `${los1}/${los2}/${los3}/${los4}`
+}
+
+const deck1MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck1st)
+})
+const deck2MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck2st)
+})
+const deck3MapLos = computed<string>(() => {
+  return getDeckMapLos(ApiDeckPortId.deck3st)
+})
+
 
 function onChangeAirbaseSpot(value: boolean): void {
   debug('onChangeAirbaseSpot', value, target_label.value)
@@ -1232,6 +1271,11 @@ function onChangeAirbaseSpot(value: boolean): void {
         :x1="currentLine.x1" :y1="currentLine.y1" :x2="currentLine.x2" :y2="currentLine.y2" :is-animate="true"
         :color="lineColor" :dashed="false"
       />
+      <div v-if="isShowEventMapLos" class="event-losinfo">
+        <div>索敵値(第一)：{{ deck1MapLos }}</div>
+        <div>索敵値(第二)：{{ deck2MapLos }}</div>
+        <div>索敵値(第三)：{{ deck3MapLos }}</div>
+      </div>
       <div v-if="isShowDebugCellInfo" class="debug-info">
         <span>cell count:{{ spots.length }}</span>
         <div>
