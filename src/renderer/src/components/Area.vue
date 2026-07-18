@@ -1056,9 +1056,7 @@ const mepGaugeText = computed<string>(() => {
       } else if (isYusou) {
         gauge_name = '輸送'
       }
-      const remainingValue = eventmap.api_max_maphp - eventmap.api_now_maphp
-      const remainingValueText = isYusou ? ` 残: ${remainingValue} ` : ''
-      return `${rank}${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp}${remainingValueText}`
+      return `${rank}${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp}`
     } else {
       // 5-6-1
       if (mi.api_gauge_type === ApiGaugeType.yusou && 
