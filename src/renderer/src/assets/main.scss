@@ -435,6 +435,13 @@ body {
         }
       }
     }
+    .map-area-route {
+      display: inline-block;
+      min-width: 150px;
+      &.no-map-start {
+        transform: translateY(8px);
+      }
+    }
 
     .timeline-button {
       grid-row: span 2;
