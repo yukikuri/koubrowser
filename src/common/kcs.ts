@@ -2521,24 +2521,30 @@ export class KcsUtil {
    */
   public static yusouFromSlotitem(mst: MstSlotitem): number {
     switch (mst.api_id) {
-      case 75:
+      case 75:  // ドラム缶(輸送用)
         return 5.0
-      case 68:
-      case 193:
-      case 166:
-      case 230:
-      case 355:
-      case 408:
-      case 409:
-      case 436:
-      case 449:
-      case 482:
+      case 68:  // 大発動艇
+      case 193: // 特大発動艇
+      case 166: // 大発動艇(八九式中戦車&陸戦隊)
+      case 230: // 特大発動艇+戦車第11連隊
+      case 355: // M4A1 DD
+      case 408: // 装甲艇(AB艇)
+      case 409: // 武装大発
+      case 436: // 大発動艇(II号戦車/北アフリカ仕様)
+      case 449: // 特大発動艇＋一式砲戦車
+      case 482: // 特大発動艇+III号戦車(北アフリカ仕様)
+      case 494: // 特大発動艇＋チハ
+      case 495: // 特大発動艇＋チハ改
+      case 514: // 特大発動艇＋III号戦車J型
+      case 576: // 大発動艇(R35＆フランス兵)
         return 8.0
-      case 167:
+      case 167: // 特二式内火艇
+      case 525: // 特四式内火艇
+      case 526: // 特四式内火艇改
         return 2.0
-      case 145:
-      case 150:
-      case 241:
+      case 145: // 戦闘糧食
+      case 150: // 秋刀魚の缶詰
+      case 241: // 戦闘糧食(特別なおにぎり)
         return 1.0
       default:
         break
