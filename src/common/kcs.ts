@@ -6775,6 +6775,14 @@ interface ApiAirBaseCorpsSupply {
 
 type ApiBattleMap = ApiMapStart | ApiMapNext
 
+export function isApiMapStart(map: ApiBattleMap): map is ApiMapStart {
+  return 'api_cell_data' in map
+}
+
+export function isApiMapNext(map: ApiBattleMap): map is ApiMapNext {
+  return 'api_comment_kind' in map
+}
+
 // api data
 export interface ApiData {
   readonly api_mst_ship: MstShip[]
@@ -7787,6 +7795,7 @@ export interface ApiMapNext extends ApiMap {
   readonly api_production_kind: number
   readonly api_get_eo_rate?: number
   readonly api_itemget_eo_result?: ApiItemGetEo
+  readonly api_m1?: number // 2026夏イベでのE1H到達でのマップ変化で4が設定
 }
 
 export const ApiItemGetUseMst = {
@@ -9031,14 +9040,23 @@ export class SvData {
       const gimmickFlagDetected = flag2Check
 
       let isEventMap = false
-      let mapChangeDetected = false;
+      let mapChangeDetectedMapNext = false;
+      let mapChangeDetectedBattle = false;
+      const lastMap = this.lastMap;
+      if (lastMap) {
+        isEventMap = KcsUtil.isEventAreaId(lastMap.api_maparea_id)
+        if (isApiMapNext(lastMap)) {
+          mapChangeDetectedMapNext = (lastMap.api_m1 ?? 0) >= 4
+        }
+      }
+
       const lastBattle = this.lastBattle;
       if (lastBattle) {
-        isEventMap = KcsUtil.isEventAreaId(lastBattle.map.api_maparea_id)
         const api_m1 = lastBattle.result?.api_m1 ?? 0;
         const api_m2 = lastBattle.result?.api_m2 ?? 0;
-        mapChangeDetected = (api_m1 > 0 || api_m2 > 0)
+        mapChangeDetectedBattle = (api_m1 > 0 || api_m2 > 0)
       }
+      const mapChangeDetected = mapChangeDetectedMapNext || mapChangeDetectedBattle
 
       // イベントマップの場合は両方表示
       // 通常海域はMAP変更を優先でどちらか表示
@@ -10071,7 +10089,7 @@ export class SvData {
     return this.apiData.api_req_map
   }
 
-  public get lastMap(): ApiMap | undefined {
+  public get lastMap(): ApiBattleMap | undefined {
     if (this.mapNextOk) {
       const ar = this.apiData.api_req_map
       return ar[ar.length - 1]
