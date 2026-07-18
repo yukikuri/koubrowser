@@ -7520,7 +7520,7 @@ export const EmptyApiMapInfoList = (): ApiMapInfoList => {
 
 export const ApiGaugeType = {
   counter: 1,
-  event: 2,
+  bossHp: 2,
   yusou: 3
 } as const
 export type ApiGaugeType = (typeof ApiGaugeType)[keyof typeof ApiGaugeType]
