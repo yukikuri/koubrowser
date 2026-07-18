@@ -602,9 +602,7 @@ const isGimmickClear = computed((): boolean => {
     //debug('isGimmickClear called before initialized');
     return false;
   }
-  // todo fix detect gimmick clear
-  //return isGimmickFlagDetected.value || isMapChangeDetected.value
-  return false;
+  return isGimmickFlagDetected.value || isMapChangeDetected.value
 })
 
 

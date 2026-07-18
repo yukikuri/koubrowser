@@ -9027,9 +9027,8 @@ export class SvData {
     // check gimmick flag
     if (! this.svdata.gimmickFlagDetectedClear) {
 
-      const flagCheck = this.apiData.api_event_object.api_m_flag > 0;
       const flag2Check = (this.apiData.api_event_object.api_m_flag2 ?? 0) > 0;
-      const gimmickFlagDetected = (flagCheck || flag2Check)
+      const gimmickFlagDetected = flag2Check
 
       let isEventMap = false
       let mapChangeDetected = false;
@@ -9059,7 +9058,7 @@ export class SvData {
         }
       }
 
-      // clear if map start
+      // clear gimmic detected state if map start
       this.svdata.gimmickFlagDetectedClear = true
     }
 
