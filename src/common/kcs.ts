@@ -8641,6 +8641,9 @@ export class SvData {
           this.portPort(api_data)
           break
 
+        case KcsApi.Api.PORT_AIR_CORPS_COND_RECOVERY_WITH_TIMER:
+          break
+
         case KcsApi.Api.GET_MEMBER_MISSION:
           this.getMemberMission(api_data as ApiMissionList)
           break
