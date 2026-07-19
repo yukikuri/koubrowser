@@ -13,7 +13,8 @@ import {
   ShipInfo,
   ShipInfoSp,
   Slot,
-  YCutin
+  YCutin,
+  ApiDeckPortId
 } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
 import {
@@ -332,7 +333,17 @@ const FunsindanmakuTag = (ship: ShipInfoSp): string => {
 }
 
 const YateiTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
-  const rate = KcsUtil.rateYatei(ship, ships)
+
+  // 第2艦隊で連合艦隊の場合は発動条件判定で第一艦隊の情報も渡す
+  let deck1Ships: ShipInfo[] = []
+  if (props.deck.api_id === ApiDeckPortId.deck2st && svdata.isCombined) {
+    const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+    if (deck1) {
+      deck1Ships = svdata.shipInfos(deck1.api_ship)
+    }
+  }
+
+  const rate = KcsUtil.rateYatei(ship, ships, deck1Ships)
   let rate_txt = '?'
   if (rate) {
     rate_txt = toNaNTxt(MathUtil.floor(rate.rate * 100, 1))

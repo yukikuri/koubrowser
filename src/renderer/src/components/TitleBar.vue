@@ -77,6 +77,7 @@ let cb_map_next: number = 0
 let cb_battle_start = 0
 const taiha_singeki = ref(false)
 const mapcell_labels = reactive<string[]>([])
+const inBattle = ref<boolean>(false)
 const disp_seiku = ref<ApiDispSeiku | null>(null)
 const deck_formation = ref<ApiFormation | null>(null)
 const enemy_formation = ref<ApiFormation | null>(null)
@@ -184,9 +185,13 @@ const iconContainerStyle = computed(() => {
   }
 })
 
-const inMap = (): boolean => {
+const inMap = computed((): boolean => {
   return svdata.inMap
-}
+})
+
+const mapStartOnce = computed((): boolean => {
+  return svdata.mapStartOk
+})
 
 const mapAreaText = computed((): string => {
   const mapinfo = svdata.mstBattleMapInfo
@@ -194,12 +199,23 @@ const mapAreaText = computed((): string => {
     return '出撃情報がありません'
   }
 
+  // mapinfo.api_nameは名前が長いことがあり表示しない
   const s1 = svdata.inMap ? '出撃中' : '出撃帰'
-  return `${s1}: ${mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id}-${mapinfo.api_no} ${mapinfo.api_name}`
+  return `${s1}: ${mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id}-${mapinfo.api_no}`
 })
 
 const mapCellText = computed((): string => {
-  return mapcell_labels.join('-')
+  if (mapcell_labels.length === 0) {
+    return ''
+  }
+  return '【'+mapcell_labels.join('-')+'】'
+})
+
+const noBattleInfoText = computed((): string => {
+  if (inBattle.value || ! mapStartOnce.value) {
+    return ''
+  }
+  return '戦闘情報がありません'
 })
 
 const formationText = computed((): string => {
@@ -297,6 +313,7 @@ onMounted(() => {
 })
 
 function onPort(): void {
+  inBattle.value = false
   taiha_singeki.value = false
   disp_seiku.value = null
   deck_formation.value = null
@@ -318,6 +335,7 @@ function onMapStart(): void {
 
 function onMapNext(): void {
   taiha_singeki.value = checkTaihaSingeki()
+  inBattle.value = false
   disp_seiku.value = null
   deck_formation.value = null
   enemy_formation.value = null
@@ -326,6 +344,7 @@ function onMapNext(): void {
 }
 
 function onApiBattleStart(arg: ApiBattleStartType): void {
+  inBattle.value = true
   deck_formation.value = arg.api_formation[0]
   enemy_formation.value = arg.api_formation[1]
   tactics.value = arg.api_formation[2]
@@ -602,9 +621,7 @@ const isGimmickClear = computed((): boolean => {
     //debug('isGimmickClear called before initialized');
     return false;
   }
-  // todo fix detect gimmick clear
-  //return isGimmickFlagDetected.value || isMapChangeDetected.value
-  return false;
+  return isGimmickFlagDetected.value || isMapChangeDetected.value
 })
 
 
@@ -1155,7 +1172,7 @@ if (EnvRenderer.isTestMode) {
     <div class="mapinfo" :class="{ dragable: isDragable }">
       <div class="mapinfo-content">
         <div class="map-in-out-img" :class="{ 'in-map': inMap }"><MapInOutImage /></div>
-        <div>{{ mapAreaText }}</div>
+        <div class="map-area-route" :class="{ 'no-map-start': !mapStartOnce }">{{ mapAreaText }}{{ mapCellText }}</div>
         <div class="timeline-button" :class="{ press: timeline_pressed }" title="タイムライン">
           <div class="battle-score-text">
             <div>戦果</div>
@@ -1173,7 +1190,7 @@ if (EnvRenderer.isTestMode) {
           </div>
           <TimelineImage class="timeline-img" /><span class="dropdown-char">&#x25BC;</span>
         </div>
-        <div>{{ mapCellText }} {{ formationText }} {{ dispSeikuText }} {{ tacticsText }}</div>
+        <div>{{ noBattleInfoText }} {{ formationText }} {{ dispSeikuText }} {{ tacticsText }}</div>
       </div>
     </div>
     <div class="materials" :class="{ dragable: isDragable }">
