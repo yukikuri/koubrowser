@@ -2521,24 +2521,30 @@ export class KcsUtil {
    */
   public static yusouFromSlotitem(mst: MstSlotitem): number {
     switch (mst.api_id) {
-      case 75:
+      case 75:  // ドラム缶(輸送用)
         return 5.0
-      case 68:
-      case 193:
-      case 166:
-      case 230:
-      case 355:
-      case 408:
-      case 409:
-      case 436:
-      case 449:
-      case 482:
+      case 68:  // 大発動艇
+      case 193: // 特大発動艇
+      case 166: // 大発動艇(八九式中戦車&陸戦隊)
+      case 230: // 特大発動艇+戦車第11連隊
+      case 355: // M4A1 DD
+      case 408: // 装甲艇(AB艇)
+      case 409: // 武装大発
+      case 436: // 大発動艇(II号戦車/北アフリカ仕様)
+      case 449: // 特大発動艇＋一式砲戦車
+      case 482: // 特大発動艇+III号戦車(北アフリカ仕様)
+      case 494: // 特大発動艇＋チハ
+      case 495: // 特大発動艇＋チハ改
+      case 514: // 特大発動艇＋III号戦車J型
+      case 576: // 大発動艇(R35＆フランス兵)
         return 8.0
-      case 167:
+      case 167: // 特二式内火艇
+      case 525: // 特四式内火艇
+      case 526: // 特四式内火艇改
         return 2.0
-      case 145:
-      case 150:
-      case 241:
+      case 145: // 戦闘糧食
+      case 150: // 秋刀魚の缶詰
+      case 241: // 戦闘糧食(特別なおにぎり)
         return 1.0
       default:
         break
@@ -5444,7 +5450,7 @@ export class KcsUtil {
    * 
    * @param ships 
    */
-  static enableYatei(ships: ShipInfoSp[]): boolean {
+  static enableYatei(ships: ShipInfo[]): boolean {
 
     // 艦隊チェック無しは常にtrue
     if (ships.length === 0) {
@@ -5474,9 +5480,11 @@ export class KcsUtil {
   }
   
   /**
-   *
+   * info: 夜偵を装備している艦
+   * ships: 夜偵を装備している艦の艦隊
+   * deck1Ships: チェック艦が第2艦隊で連合艦隊の場合での第一艦隊情報
    */
-  public static rateYatei(info: ShipInfoSp, ships: ShipInfoSp[]): YateiRate | undefined {
+  public static rateYatei(info: ShipInfoSp, ships: ShipInfoSp[], deck1Ships: ShipInfo[]): YateiRate | undefined {
     if (!info.sp.yt) {
       return
     }
@@ -5495,15 +5503,26 @@ export class KcsUtil {
       return 
     }
 
+    // 連合艦隊の場合は第一艦隊で航空戦可能な装備があるかもチェック
+    let enable: boolean
+    if (deck1Ships.length > 0) {
+      enable = KcsUtil.enableYatei(deck1Ships)
+      if (! enable) {
+        enable = KcsUtil.enableYatei(ships)
+      }
+    } else {
+      enable = KcsUtil.enableYatei(ships)
+    }
+
     if (rates.length === 1) {
       return {
-        enable: KcsUtil.enableYatei(ships),
+        enable,
         rate: Math.min(1, rates[0])
       }
     }
     
     return {
-      enable: KcsUtil.enableYatei(ships),
+      enable,
       rate: Math.min(1, MathUtil.totalRate(rates).total)
     }
   }
@@ -6769,6 +6788,14 @@ interface ApiAirBaseCorpsSupply {
 
 type ApiBattleMap = ApiMapStart | ApiMapNext
 
+export function isApiMapStart(map: ApiBattleMap): map is ApiMapStart {
+  return 'api_cell_data' in map
+}
+
+export function isApiMapNext(map: ApiBattleMap): map is ApiMapNext {
+  return 'api_comment_kind' in map
+}
+
 // api data
 export interface ApiData {
   readonly api_mst_ship: MstShip[]
@@ -7520,7 +7547,7 @@ export const EmptyApiMapInfoList = (): ApiMapInfoList => {
 
 export const ApiGaugeType = {
   counter: 1,
-  event: 2,
+  bossHp: 2,
   yusou: 3
 } as const
 export type ApiGaugeType = (typeof ApiGaugeType)[keyof typeof ApiGaugeType]
@@ -7781,6 +7808,7 @@ export interface ApiMapNext extends ApiMap {
   readonly api_production_kind: number
   readonly api_get_eo_rate?: number
   readonly api_itemget_eo_result?: ApiItemGetEo
+  readonly api_m1?: number // 2026夏イベでのE1H到達でのマップ変化で4が設定
 }
 
 export const ApiItemGetUseMst = {
@@ -8626,6 +8654,9 @@ export class SvData {
           this.portPort(api_data)
           break
 
+        case KcsApi.Api.PORT_AIR_CORPS_COND_RECOVERY_WITH_TIMER:
+          break
+
         case KcsApi.Api.GET_MEMBER_MISSION:
           this.getMemberMission(api_data as ApiMissionList)
           break
@@ -9021,19 +9052,27 @@ export class SvData {
     // check gimmick flag
     if (! this.svdata.gimmickFlagDetectedClear) {
 
-      const flagCheck = this.apiData.api_event_object.api_m_flag > 0;
       const flag2Check = (this.apiData.api_event_object.api_m_flag2 ?? 0) > 0;
-      const gimmickFlagDetected = (flagCheck || flag2Check)
+      const gimmickFlagDetected = flag2Check
 
       let isEventMap = false
-      let mapChangeDetected = false;
+      let mapChangeDetectedMapNext = false;
+      let mapChangeDetectedBattle = false;
+      const lastMap = this.lastMap;
+      if (lastMap) {
+        isEventMap = KcsUtil.isEventAreaId(lastMap.api_maparea_id)
+        if (isApiMapNext(lastMap)) {
+          mapChangeDetectedMapNext = (lastMap.api_m1 ?? 0) >= 4
+        }
+      }
+
       const lastBattle = this.lastBattle;
       if (lastBattle) {
-        isEventMap = KcsUtil.isEventAreaId(lastBattle.map.api_maparea_id)
         const api_m1 = lastBattle.result?.api_m1 ?? 0;
         const api_m2 = lastBattle.result?.api_m2 ?? 0;
-        mapChangeDetected = (api_m1 > 0 || api_m2 > 0)
+        mapChangeDetectedBattle = (api_m1 > 0 || api_m2 > 0)
       }
+      const mapChangeDetected = mapChangeDetectedMapNext || mapChangeDetectedBattle
 
       // イベントマップの場合は両方表示
       // 通常海域はMAP変更を優先でどちらか表示
@@ -9053,7 +9092,7 @@ export class SvData {
         }
       }
 
-      // clear if map start
+      // clear gimmick detected state if map start
       this.svdata.gimmickFlagDetectedClear = true
     }
 
@@ -10066,7 +10105,7 @@ export class SvData {
     return this.apiData.api_req_map
   }
 
-  public get lastMap(): ApiMap | undefined {
+  public get lastMap(): ApiBattleMap | undefined {
     if (this.mapNextOk) {
       const ar = this.apiData.api_req_map
       return ar[ar.length - 1]
@@ -10954,6 +10993,10 @@ export class SvData {
     return InvalidMapLosValue()
   }
 
+  /**
+   * todo
+   * 指定した係数の配列で計算結果を返すように
+   */
   public deckMapLos(deck: ApiDeckPort, maplos: number): number {
     const ship_los = deck.api_ship.reduce((los, ship_id) => {
       const ship = this.ship(ship_id)

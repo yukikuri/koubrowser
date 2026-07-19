@@ -301,6 +301,11 @@ body {
     color: yellow;
   }
 
+  .way-support-content,
+  .boss-support-content {
+    color: yellow;
+  }
+
   .update-available-content {
     -webkit-app-region: no-drag;
 
@@ -428,6 +433,13 @@ body {
         svg {
           fill: red;
         }
+      }
+    }
+    .map-area-route {
+      display: inline-block;
+      min-width: 150px;
+      &.no-map-start {
+        transform: translateY(8px);
       }
     }
 

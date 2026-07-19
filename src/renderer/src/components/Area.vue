@@ -1030,7 +1030,7 @@ const isCleared = computed<boolean>(() => {
   const mi = mapinfo.value
   if (!mi) return false
   if (!mi.api_defeat_count && !mi.api_required_defeat_count && mi.api_cleared) return true
-  if (mi.api_gauge_type === ApiGaugeType.event) {
+  if (mi.api_gauge_type === ApiGaugeType.bossHp) {
     const eventmap = mi.api_eventmap
     if (eventmap) return 0 === eventmap.api_now_maphp
   }
@@ -1040,19 +1040,23 @@ const isCleared = computed<boolean>(() => {
 const mepGaugeText = computed<string>(() => {
   const mi = mapinfo.value
   if (!mi) return 'ゲージ情報が未取得です。出撃画面を開いてください。'
-  if (mi.api_gauge_type === ApiGaugeType.event || mi.api_gauge_type === ApiGaugeType.yusou) {
+  if (mi.api_gauge_type === ApiGaugeType.bossHp || mi.api_gauge_type === ApiGaugeType.yusou) {
     const eventmap = mi.api_eventmap
     if (eventmap) {
-      const remainingLimit = mi.api_gauge_type === ApiGaugeType.event ? 1000 : 250
       let rank = '';
       if (MapLvText[eventmap.api_selected_rank]) {
         rank = MapLvText[eventmap.api_selected_rank] + ' ';
       }
       if (0 === eventmap.api_now_maphp || mi.api_cleared) return 'クリア ' + rank
-      const gauge_name = mi.api_gauge_type === ApiGaugeType.event ? '戦力' : '輸送'
-      const remainingValue = eventmap.api_max_maphp - eventmap.api_now_maphp
-      const remainingValueText = remainingValue < remainingLimit ? ` 残: ${remainingValue} ` : ''
-      return `${rank}${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp}${remainingValueText}`
+      const isBossHp = mi.api_gauge_type === ApiGaugeType.bossHp
+      const isYusou = mi.api_gauge_type === ApiGaugeType.yusou
+      let gauge_name = '';
+      if (isBossHp) {
+        gauge_name = '戦力'
+      } else if (isYusou) {
+        gauge_name = '輸送'
+      }
+      return `${rank}${gauge_name}: ${eventmap.api_now_maphp}/${eventmap.api_max_maphp}`
     } else {
       // 5-6-1
       if (mi.api_gauge_type === ApiGaugeType.yusou && 
@@ -1110,6 +1114,17 @@ const deck3MapLos = computed<string>(() => {
   return getDeckMapLos(ApiDeckPortId.deck3st)
 })
 
+const deckCombinedMapLos = computed<string>(() => {
+  const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+  const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+  if (!deck1 || !deck2) return ''
+  
+  const los1 = Math.trunc(svdata.deckMapLos(deck1, 1) + svdata.deckMapLos(deck2, 1))
+  const los2 = Math.trunc(svdata.deckMapLos(deck1, 2) + svdata.deckMapLos(deck2, 2))
+  const los3 = Math.trunc(svdata.deckMapLos(deck1, 3) + svdata.deckMapLos(deck2, 3))
+  const los4 = Math.trunc(svdata.deckMapLos(deck1, 4) + svdata.deckMapLos(deck2, 4))
+  return `${los1}/${los2}/${los3}/${los4}`
+})
 
 function onChangeAirbaseSpot(value: boolean): void {
   debug('onChangeAirbaseSpot', value, target_label.value)
@@ -1272,9 +1287,15 @@ function onChangeAirbaseSpot(value: boolean): void {
         :color="lineColor" :dashed="false"
       />
       <div v-if="isShowEventMapLos" class="event-losinfo">
-        <div>索敵値(第一)：{{ deck1MapLos }}</div>
-        <div>索敵値(第二)：{{ deck2MapLos }}</div>
-        <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        <template v-if="isCombined">
+          <div>索敵値(連合)：{{ deckCombinedMapLos }}</div>
+          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        </template>
+        <template v-else>
+          <div>索敵値(第一)：{{ deck1MapLos }}</div>
+          <div>索敵値(第二)：{{ deck2MapLos }}</div>
+          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        </template>
       </div>
       <div v-if="isShowDebugCellInfo" class="debug-info">
         <span>cell count:{{ spots.length }}</span>

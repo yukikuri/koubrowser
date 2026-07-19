@@ -13,6 +13,8 @@ export const Api = {
   START2_GET_DATA: '/api_start2/getData',
   // 母港
   PORT_PORT: '/api_port/port',
+  // 母港 基地航空隊 COND関連
+  PORT_AIR_CORPS_COND_RECOVERY_WITH_TIMER: '/api_port/airCorpsCondRecoveryWithTimer',
   // 資源情報
   GET_MEMBER_MATERIAL: '/api_get_member/material',
   // 装備情報

@@ -177,7 +177,7 @@ const FunsindanmakuTag = (ship: ShipInfoSp): string => {
 }
 
 const YateiTag = (ship: ShipInfoSp): string => {
-  const rate = KcsUtil.rateYatei(ship, [])
+  const rate = KcsUtil.rateYatei(ship, [], [])
   let rate_txt = '?'
   if (rate) {
     rate_txt = toNaNTxt(MathUtil.floor(rate.rate * 100, 1))
