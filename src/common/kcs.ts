@@ -10980,6 +10980,10 @@ export class SvData {
     return InvalidMapLosValue()
   }
 
+  /**
+   * todo
+   * 指定した係数の配列で計算結果を返すように
+   */
   public deckMapLos(deck: ApiDeckPort, maplos: number): number {
     const ship_los = deck.api_ship.reduce((los, ship_id) => {
       const ship = this.ship(ship_id)

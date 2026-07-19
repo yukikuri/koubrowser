@@ -1114,6 +1114,17 @@ const deck3MapLos = computed<string>(() => {
   return getDeckMapLos(ApiDeckPortId.deck3st)
 })
 
+const deckCombinedMapLos = computed<string>(() => {
+  const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+  const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+  if (!deck1 || !deck2) return ''
+  
+  const los1 = Math.trunc(svdata.deckMapLos(deck1, 1) + svdata.deckMapLos(deck2, 1))
+  const los2 = Math.trunc(svdata.deckMapLos(deck1, 2) + svdata.deckMapLos(deck2, 2))
+  const los3 = Math.trunc(svdata.deckMapLos(deck1, 3) + svdata.deckMapLos(deck2, 3))
+  const los4 = Math.trunc(svdata.deckMapLos(deck1, 4) + svdata.deckMapLos(deck2, 4))
+  return `${los1}/${los2}/${los3}/${los4}`
+})
 
 function onChangeAirbaseSpot(value: boolean): void {
   debug('onChangeAirbaseSpot', value, target_label.value)
@@ -1276,9 +1287,15 @@ function onChangeAirbaseSpot(value: boolean): void {
         :color="lineColor" :dashed="false"
       />
       <div v-if="isShowEventMapLos" class="event-losinfo">
-        <div>索敵値(第一)：{{ deck1MapLos }}</div>
-        <div>索敵値(第二)：{{ deck2MapLos }}</div>
-        <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        <template v-if="isCombined">
+          <div>索敵値(連合)：{{ deckCombinedMapLos }}</div>
+          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        </template>
+        <template v-else>
+          <div>索敵値(第一)：{{ deck1MapLos }}</div>
+          <div>索敵値(第二)：{{ deck2MapLos }}</div>
+          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+        </template>
       </div>
       <div v-if="isShowDebugCellInfo" class="debug-info">
         <span>cell count:{{ spots.length }}</span>
