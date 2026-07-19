@@ -5450,7 +5450,7 @@ export class KcsUtil {
    * 
    * @param ships 
    */
-  static enableYatei(ships: ShipInfoSp[]): boolean {
+  static enableYatei(ships: ShipInfo[]): boolean {
 
     // 艦隊チェック無しは常にtrue
     if (ships.length === 0) {
@@ -5480,9 +5480,11 @@ export class KcsUtil {
   }
   
   /**
-   *
+   * info: 夜偵を装備している艦
+   * ships: 夜偵を装備している艦の艦隊
+   * deck1Ships: チェック艦が第2艦隊で連合艦隊の場合での第一艦隊情報
    */
-  public static rateYatei(info: ShipInfoSp, ships: ShipInfoSp[]): YateiRate | undefined {
+  public static rateYatei(info: ShipInfoSp, ships: ShipInfoSp[], deck1Ships: ShipInfo[]): YateiRate | undefined {
     if (!info.sp.yt) {
       return
     }
@@ -5501,15 +5503,26 @@ export class KcsUtil {
       return 
     }
 
+    // 連合艦隊の場合は第一艦隊で航空戦可能な装備があるかもチェック
+    let enable: boolean
+    if (deck1Ships.length > 0) {
+      enable = KcsUtil.enableYatei(deck1Ships)
+      if (! enable) {
+        enable = KcsUtil.enableYatei(ships)
+      }
+    } else {
+      enable = KcsUtil.enableYatei(ships)
+    }
+
     if (rates.length === 1) {
       return {
-        enable: KcsUtil.enableYatei(ships),
+        enable,
         rate: Math.min(1, rates[0])
       }
     }
     
     return {
-      enable: KcsUtil.enableYatei(ships),
+      enable,
       rate: Math.min(1, MathUtil.totalRate(rates).total)
     }
   }
