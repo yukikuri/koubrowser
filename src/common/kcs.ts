@@ -9108,7 +9108,7 @@ export class SvData {
         }
       }
 
-      // clear gimmic detected state if map start
+      // clear gimmick detected state if map start
       this.svdata.gimmickFlagDetectedClear = true
     }
 
