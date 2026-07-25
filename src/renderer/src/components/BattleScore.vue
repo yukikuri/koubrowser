@@ -1026,21 +1026,11 @@ function drawChart(info: ChartInfo, isNew: boolean) {
     credits: { enabled: false }
   }
 
-  // カテゴリ数が少ないと視認性が悪く空データで埋める
-  const FIX_MIN_CATEGORY_COUNT = 9;
-  const xAxisCategories = info.categories.map((d) => String(d-1));
-  if (!info.isForecastScore && xAxisCategories.length < FIX_MIN_CATEGORY_COUNT) {
-    const count = FIX_MIN_CATEGORY_COUNT - xAxisCategories.length;
-    for (let i = 0; i < count; i++) {
-      xAxisCategories.push(String(xAxisCategories.length+1))
-    }
-  }
-
   const xAxis: XAxisOptions = {
     // チャート更新時にxaxis値が文字列と数値の混合となった
     // -1は0起算とすると回避できたことによる
-    //categories: info.categories.map((d) => String(d-1)),
-    categories: xAxisCategories, 
+    categories: info.categories.map((d) => String(d-1)),
+    //categories: xAxisCategories, 
     labels: {
       style: {
         color: axisFontColor,
@@ -1131,18 +1121,15 @@ function drawChart(info: ChartInfo, isNew: boolean) {
   ];
 
   // カテゴリ数が少ないと視認性が悪く空データで埋める
-  const spliceScore = [...info.cumulativeSumScoreLine]
-  if (spliceScore.length < FIX_MIN_CATEGORY_COUNT) {
-    spliceScore.push(...Array(FIX_MIN_CATEGORY_COUNT - spliceScore.length).fill(null))
-  }
+  //const spliceScore = [...info.cumulativeSumScoreLine]
 
   const series: Array<SeriesOptionsType> = [
     {
       type: 'spline',
       id: SeriesTypes.total,
       name: '累計戦果',
-      //data: info.cumulativeSumScoreLine,
-      data: spliceScore,
+      data: info.cumulativeSumScoreLine,
+      //data: spliceScore,
       marker: {
           lineWidth: 2,
           lineColor: '#4840d6',

@@ -18,6 +18,7 @@ import { setGlobalSettingWithPreventSave } from '@renderer/store/global_setting'
 import { GlobalSetting } from '@common/global_setting'
 import { AppSetting } from '@common/store'
 import { Quest } from '@common/record'
+import { updateFleetHps } from '@common/kcsbattle_util'
 
 let requiredRecvedCallback: (()=> void) | null = null;
 
@@ -61,9 +62,22 @@ function onApiReq(msg: ApiReqMessage) {
 function onApiRes(msg: ApiResMessage) {
   console.log('stream got api res >> ', 'api:', msg.api)
   svdata.update(msg.api, msg.data)
-  if (msg.uuid && svdata.prvBattleMapInfo) {
-    svdata.prvBattleMapInfo.uuid = msg.uuid;
-    console.log('map start uuid set in renderer:', msg.uuid);
+
+  // API受信情報により追加の処理を行う場合
+  if (msg.additional) {
+    const additional = msg.additional;
+
+    // 出撃ユニークID設定
+    if (additional.mapStartUuid && svdata.prvBattleMapInfo) {
+      svdata.prvBattleMapInfo.uuid = additional.mapStartUuid;
+      console.log('map start uuid set in renderer:', additional.mapStartUuid);
+    }
+
+    // 戦闘結果で味方HPを更新する場合
+    if (additional.afterBattleFleetHps) {
+      console.log('updateFleetHps requested in renderer');
+      updateFleetHps(svdata, additional.afterBattleFleetHps);
+    }
   }
   console.log('stream got api res << ', 'api:', msg.api)
 }

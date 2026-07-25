@@ -564,6 +564,16 @@ export const areaNames: AreaName[] =
     "areaNo": 3,
     "areaName": "パラオ沖/ウルシー泊地沖/中部太平洋"
   },
+  {
+    "areaId": 62,
+    "areaNo": 4,
+    "areaName": "地中海南仏沖/アルジェリア沖/イタリア半島沖"
+  },
+  {
+    "areaId": 62,
+    "areaNo": 5,
+    "areaName": "ブレスト沖/大西洋/イギリス本土沖/バルト海"
+  },
 ]
 
 export function getAreaName(areaId: number, areaNo: number): string | null {

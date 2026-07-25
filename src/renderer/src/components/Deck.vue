@@ -55,6 +55,7 @@ interface DeckShip {
   readonly stype: string
   readonly hpClassTT: object
   readonly hpClass: object
+  readonly hpIconClass: object
   readonly condClass: string
   readonly fualClass: string
   readonly bullClass: string
@@ -113,6 +114,7 @@ const shipsData = computed<DeckShip[]>(() => {
     stype: svdata.mstStypeFromSafe(ship.mst),
     hpClassTT: RUtil.hpClassesTT(ship.api),
     hpClass: RUtil.hpClasses(ship.api),
+    hpIconClass: RUtil.hpIconClasses(ship.api),
     condClass: RUtil.condClass(ship.api),
     fualClass: RUtil.fualClass(ship),
     bullClass: RUtil.bullClass(ship),
@@ -697,7 +699,7 @@ function rowClass(): string {
         </b-table-column>
         <b-table-column v-slot="props" label="hp" centered cell-class="cell-status small">
           <div v-if="props.row !== null">
-            <div class="s-icon heart-a2" title="耐久"></div>
+            <div class="s-icon" :class="props.row.hpIconClass" title="耐久"></div>
             <div>
               <span :class="props.row.hpClass">{{ props.row.ship.api.api_nowhp }}</span>
             </div>

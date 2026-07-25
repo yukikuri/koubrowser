@@ -54,7 +54,7 @@ import { globalSettingStore } from '@main/store'
 import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
-import type { ApiReqMessage, ApiResMessage, QuestsMessage, RequiredMessage } from '@common/message'
+import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestsMessage, RequiredMessage } from '@common/message'
 import { gameSetting, gameSettingProxy, gameState } from '@main/settings'
 import path from 'node:path'
 import { getWorkerDriver, start as WorkersStart } from '@main/stuff/wrokers'
@@ -69,6 +69,7 @@ import * as appSetting from '@main/app_setting'
 import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
 import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
+import { getAfterBattleFleetHpsInfo, updateFleetHps } from '@common/kcsbattle_util'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -950,8 +951,8 @@ export class KcApp {
   /**
    *
    */
-  postResToRenderer(api: kcsapi.Api, data: string, uuid?: string): void {
-    const msg: ApiResMessage = { type: 'api_res', api, data, uuid }
+  postResToRenderer(api: kcsapi.Api, data: string, additional? : ApiResMessageAdditional): void {
+    const msg: ApiResMessage = { type: 'api_res', api, data, additional }
     streamManager.postToRenderers(msg);
   }
 
@@ -2078,8 +2079,26 @@ export class KcApp {
     kcapi_debug.logResponse(data);
     if (data.response) {
       svdata.update(data.api, data.response)
-      const uuid: string | undefined = (data.api === kcsapi.Api.REQ_MAP_START) ? svdata.prvBattleMapInfo?.uuid : undefined
-      this.postResToRenderer(data.api, data.response, uuid)
+      let additional: ApiResMessageAdditional | undefined
+      if (data.api === kcsapi.Api.REQ_MAP_START) {
+        additional = {
+          mapStartUuid: svdata.prvBattleMapInfo?.uuid
+        }
+      }
+      else if (kcsapi.isBattleResultApi(data.api)) {
+        // 戦闘後の味方HP計算、更新
+        const afterBattleFleetHps = getAfterBattleFleetHpsInfo(svdata)
+        if (afterBattleFleetHps) {
+          additional = {
+            afterBattleFleetHps
+          }
+
+          // mainプロセス側を反映
+          // renderer側はメッセージ受信時に更新
+          updateFleetHps(svdata, afterBattleFleetHps)
+        }
+      }
+      this.postResToRenderer(data.api, data.response, additional)
     }
   }
 
