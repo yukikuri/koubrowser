@@ -38,7 +38,7 @@ export function getAfterBattleFleetHpsInfo(svdata: SvData): AfterBattleFleetHpsI
       combined: fleetHps.combined
     }
   } catch (e) {
-    console.error('updateFleetHps error:', e)
+    console.error('getAfterBattleFleetHpsInfo error:', e)
   }
 
   return 
