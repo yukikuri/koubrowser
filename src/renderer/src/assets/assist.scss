@@ -1155,6 +1155,13 @@ $world-event-tab-width: 150px;
     background-color: rgba(#000, 0.5);
     z-index: 999;
 
+    &.right-bottom {
+      top: unset;
+      bottom: 90px;
+      left: unset;
+      right: 20px;
+    }
+
     svg {
       width: $fontsize;
       height: $fontsize;
@@ -1387,6 +1394,13 @@ $world-event-tab-width: 150px;
     line-height: 11px;
     color: #05ff9f;
     background-color: rgba(0, 0, 0, 0.5);
+
+    &.right-bottom {
+      top: unset;
+      bottom: 90px;
+      left: unset;
+      right: 180px;
+    }
   }
 
   .spot {

@@ -1093,6 +1093,16 @@ const isShowEventMapLos = computed<boolean>(() => {
   return isEventMap.value
 })
 
+const isEventMapLosRightBottom = computed<boolean>(() => {
+  if (!isEventMap.value) return false
+  return props.area_id === 62 && props.area_no === 5
+})
+
+const isMapGuageRightBottom = computed<boolean>(() => {
+  if (!isEventMap.value) return false
+  return props.area_id === 62 && props.area_no === 5
+})
+
 const getDeckMapLos = (deckId: ApiDeckPortId): string => {
   const deck = svdata.deckPort(deckId)
   if (!deck) return ''
@@ -1205,7 +1215,7 @@ function onChangeAirbaseSpot(value: boolean): void {
         :data-no="spot.no"
         ></a>
       -->
-      <div v-if="hasGauge" class="map-gauge"><DoneImg v-if="isCleared" /> {{ mepGaugeText }}</div>
+      <div v-if="hasGauge" class="map-gauge" :class="{'right-bottom': isMapGuageRightBottom}"><DoneImg v-if="isCleared" /> {{ mepGaugeText }}</div>
       <!-- item取得結果 -->
       <div
         v-for="(item, itemIndex) in areaGetItems"
@@ -1286,7 +1296,7 @@ function onChangeAirbaseSpot(value: boolean): void {
         :x1="currentLine.x1" :y1="currentLine.y1" :x2="currentLine.x2" :y2="currentLine.y2" :is-animate="true"
         :color="lineColor" :dashed="false"
       />
-      <div v-if="isShowEventMapLos" class="event-losinfo">
+      <div v-if="isShowEventMapLos" class="event-losinfo" :class="{'right-bottom': isEventMapLosRightBottom}">
         <template v-if="isCombined">
           <div>索敵値(連合)：{{ deckCombinedMapLos }}</div>
           <div>索敵値(第三)：{{ deck3MapLos }}</div>

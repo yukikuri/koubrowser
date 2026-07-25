@@ -75,7 +75,14 @@ watch(
 const spots = computed<Spot[]>(() => {
   const s = CommonMap.spotsFromLevel(cell_info.value, svdata.mapLevel(props.area_id, props.area_no))
   const cells = s.filter((spot) => spot.type === 'enemy' || spot.type === 'boss')
-  cells.sort((a, b) => a.label.localeCompare(b.label))
+  cells.sort((a, b) => {
+    try {
+      return a.label.localeCompare(b.label)
+    } catch (e) {
+      debug('cell enemies spots sort error', a, b, e)
+      return 0
+    }
+  })
   return cells
 })
 
