@@ -3,7 +3,7 @@ import type { ApiDeckPortId, ApiMapInfoList, ApiMissionList, ApiQuestList, SvDat
 import type { Api } from '@common/kcsapi'
 import { AppSetting } from '@common/store'
 import { GlobalSetting } from '@common/global_setting'
-import { AfterBattleFleetHps } from './kcsbattle'
+import type { AfterBattleFleetHps } from '@common/kcsbattle'
 
 /**
  * message type
