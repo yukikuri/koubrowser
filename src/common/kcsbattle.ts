@@ -105,9 +105,10 @@ export function damaged(
 ): void {
   const hpLen = hps.length
   damages?.forEach((damage, index) => {
-    debug('damaged index:', index, 'damage:', damage, 'nowhp:', hps[index])
-    if (index < hpLen) {
-      hps[offset + index] -= Math.floor(damage)
+    const target = offset + index
+    debug('damaged index:', index, 'offset:', offset, 'damage:', damage, 'nowhp:', hps[target])
+    if (target < hpLen) {
+      hps[target] -= Math.floor(damage)
     }
   })
 }
