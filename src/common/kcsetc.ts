@@ -3379,7 +3379,7 @@ export const ShipEtcs: ShipEtc[] = [
   {
     api_id: 706,
     api_sakuteki: [14, 43],
-    api_kaihi: [NaN, 83],
+    api_kaihi: [37, 83],
   },
   {
     api_id: 707,
@@ -3575,6 +3575,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_id: 745,
     api_sakuteki: [10, 55],
     api_kaihi: [43, 87],
+  },
+  {
+    api_id: 747,
+    api_sakuteki: [9, 49],
+    api_kaihi: [37, 75],
   },
   {
     api_id: 877,
@@ -3812,6 +3817,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_kaihi: [28, 54],
   },
   {
+    api_id: 932,
+    api_sakuteki: [15, 49],
+    api_kaihi: [29, 59],
+  },
+  {
     api_id: 933,
     api_sakuteki: [15, 47],
     api_kaihi: [27, 59],
@@ -3830,6 +3840,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_id: 936,
     api_sakuteki: [15, 52],
     api_kaihi: [27, 67],
+  },
+  {
+    api_id: 937,
+    api_sakuteki: [18, 61],
+    api_kaihi: [36, 66],
   },
   {
     api_id: 938,
@@ -4072,6 +4087,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_kaihi: [19, 59],
   },
   {
+    api_id: 991,
+    api_sakuteki: [11, 39],
+    api_kaihi: [34, 68],
+  },
+  {
     api_id: 992,
     api_sakuteki: [8, 26],
     api_kaihi: [29, 70],
@@ -4162,6 +4182,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_kaihi: [34, 66],
   },
   {
+    api_id: 1023,
+    api_sakuteki: [40, 68],
+    api_kaihi: [22, 43],
+  },
+  {
     api_id: 1025,
     api_sakuteki: [51, 82],
     api_kaihi: [39, 62],
@@ -4170,6 +4195,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_id: 1027,
     api_sakuteki: [37, 65],
     api_kaihi: [34, 56],
+  },
+  {
+    api_id: 1028,
+    api_sakuteki: [50, 81],
+    api_kaihi: [30, 57],
   },
   {
     api_id: 1030,
@@ -4197,9 +4227,84 @@ export const ShipEtcs: ShipEtc[] = [
     api_kaihi: [53, 95],
   },
   {
+    api_id: 1036,
+    api_sakuteki: [NaN, 84],
+    api_kaihi: [NaN, 65],
+  },
+  {
     api_id: 1040,
     api_sakuteki: [20, 62],
     api_kaihi: [56, 99],
+  },
+  {
+    api_id: 1041,
+    api_sakuteki: [8, 26],
+    api_kaihi: [43, 83],
+  },
+  {
+    api_id: 1044,
+    api_sakuteki: [9, 24],
+    api_kaihi: [33, 71],
+  },
+  {
+    api_id: 1046,
+    api_sakuteki: [8, 47],
+    api_kaihi: [48, 89],
+  },
+  {
+    api_id: 1051,
+    api_sakuteki: [13, 40],
+    api_kaihi: [33, 59],
+  },
+  {
+    api_id: 1053,
+    api_sakuteki: [7, 20],
+    api_kaihi: [46, 81],
+  },
+  {
+    api_id: 1055,
+    api_sakuteki: [24, 60],
+    api_kaihi: [20, 70],
+  },
+  {
+    api_id: 1056,
+    api_sakuteki: [22, 68],
+    api_kaihi: [38, 72],
+  },
+    {
+    api_id: 1058,
+    api_sakuteki: [10, 40],
+    api_kaihi: [47, 83],
+  },
+  {
+    api_id: 1060,
+    api_sakuteki: [NaN, NaN],
+    api_kaihi: [NaN, NaN],
+  },
+  {
+    api_id: 1061,
+    api_sakuteki: [NaN, NaN],
+    api_kaihi: [NaN, NaN],
+  },
+  {
+    api_id: 1062,
+    api_sakuteki: [8, 28],
+    api_kaihi: [50, 91],
+  },
+  {
+    api_id: 1065,
+    api_sakuteki: [10, 30],
+    api_kaihi: [14, 26],
+  },
+  {
+    api_id: 1067,
+    api_sakuteki: [NaN, NaN],
+    api_kaihi: [NaN, NaN],
+  },
+  {
+    api_id: 1070,
+    api_sakuteki: [NaN, NaN],
+    api_kaihi: [NaN, NaN],
   },
   {
     api_id: 1496,
