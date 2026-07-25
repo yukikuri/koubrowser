@@ -289,3 +289,13 @@ export function getServerId(url: string | undefined): ApiServerId | undefined {
   const ret = ids.find((v) => id ===v[1])
   return ret ? ret[1] : undefined
 }
+
+/**
+ * 
+ * @param api 
+ * @returns 
+ */
+export function isBattleResultApi(api: Api): boolean {
+  return api === Api.REQ_SORTIE_BATTLERESULT ||
+    api === Api.REQ_COMBINED_BATTLE_BATTLERESULT
+}

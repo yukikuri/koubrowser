@@ -655,8 +655,10 @@ body {
     //background-image: url("../../img/status/heart.svg");
   }
   &.heart-a2::before {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0xNi41IDVjLTEuNTQgMC0zLjA0Ljk5LTMuNTYgMi4zNmgtMS44N0MxMC41NCA1Ljk5IDkuMDQgNSA3LjUgNSA1LjUgNSA0IDYuNSA0IDguNWMwIDIuODkgMy4xNCA1Ljc0IDcuOSAxMC4wNWwuMS4xLjEtLjFDMTYuODYgMTQuMjQgMjAgMTEuMzkgMjAgOC41YzAtMi0xLjUtMy41LTMuNS0zLjV6IiBvcGFjaXR5PSIuMiIvPjxwYXRoIGQ9Ik0xNi41IDNjLTEuNzQgMC0zLjQxLjgxLTQuNSAyLjA5QzEwLjkxIDMuODEgOS4yNCAzIDcuNSAzIDQuNDIgMyAyIDUuNDIgMiA4LjVjMCAzLjc4IDMuNCA2Ljg2IDguNTUgMTEuNTRMMTIgMjEuMzVsMS40NS0xLjMyQzE4LjYgMTUuMzYgMjIgMTIuMjggMjIgOC41IDIyIDUuNDIgMTkuNTggMyAxNi41IDN6bS00LjQgMTUuNTVsLS4xLjEtLjEtLjFDNy4xNCAxNC4yNCA0IDExLjM5IDQgOC41IDQgNi41IDUuNSA1IDcuNSA1YzEuNTQgMCAzLjA0Ljk5IDMuNTcgMi4zNmgxLjg3QzEzLjQ2IDUuOTkgMTQuOTYgNSAxNi41IDVjMiAwIDMuNSAxLjUgMy41IDMuNSAwIDIuODktMy4xNCA1Ljc0LTcuOSAxMC4wNXoiIG9wYWNpdHk9Ii44Ii8+PC9zdmc+');
-    //background-image: url("../../img/status/heart-a2.svg");
+    background-image: url("img/status/heart-a2.svg");
+  }
+  &.heart-d::before {
+    background-image: url("img/status/heart-d.svg");
   }
   &.cond-plus.cond::before {
     animation-name: cond-light;
