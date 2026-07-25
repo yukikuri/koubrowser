@@ -4,7 +4,7 @@ import { ShipEtcs } from '@common/kcsetc'
 import { assignSafeE, replaceArray, replaceArraySafe, toNumberSafe } from '@common/ts'
 import * as KcsApi from '@common/kcsapi'
 import { calcEnemyHps } from '@common/kcsbattle'
-import { MathUtil } from './math'
+import { MathUtil } from '@common/math'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // kc stuff
@@ -7913,8 +7913,8 @@ export interface ApiBattleBase {
   readonly api_fParam: number[][]
   readonly api_ship_ke: number[]
   readonly api_ship_lv: number[]
-  readonly api_e_nowhps: number[]
-  readonly api_e_maxhps: number[]
+  readonly api_e_nowhps: (number | string)[] // 対潜空襲マスでは"N/A"が入ってくる +演算はしないこと(文字列結合となる) -演算はNaNとなる
+  readonly api_e_maxhps: (number | string)[] // 対潜空襲マスでは"N/A"が入ってくる +演算はしないこと(文字列結合となる) -演算はNaNとなる
   readonly api_eSlot: number[][]
   readonly api_eParam: number[][]
   readonly api_flavor_info?: ApiFlavorInfo[]
@@ -7977,19 +7977,20 @@ export interface ApiSupportInfo {
 }
 
 export interface ApiBattle extends ApiBattleNormal {
-  readonly api_air_base_attack: ApiAirBaseAttack[] | undefined
-  readonly api_support_flag: number
-  readonly api_support_info: ApiSupportInfo | null
-  readonly api_opening_taisen_flag: number
-  readonly api_opening_taisen: ApiHougeki | null
-  readonly api_opening_flag: number
-  readonly api_opening_atack: ApiRaigeki | null
-  readonly api_hourai_flag: number[]
+  readonly api_injection_kouku?: ApiInjectionKouku  // 墳式強襲
+  readonly api_air_base_attack?: ApiAirBaseAttack[] // 空襲で存在しない場合有り
+  readonly api_support_flag?: number                // 空襲で存在しない場合有り
+  readonly api_support_info?: ApiSupportInfo | null // 空襲で存在しない場合有り
+  readonly api_opening_taisen_flag?: number         // 空襲で存在しない場合有り
+  readonly api_opening_taisen?: ApiHougeki | null   // 空襲で存在しない場合有り
+  readonly api_opening_flag?: number                // 空襲で存在しない場合有り
+  readonly api_opening_atack?: ApiRaigeki | null    // 空襲で存在しない場合有り
+  readonly api_hourai_flag?: number[]               // 空襲で存在しない場合有り
   // ここはオブジェクト順序が攻撃順の可能性がある
-  readonly api_hougeki1: ApiHougeki | null
-  readonly api_hougeki2: ApiHougeki | null
-  readonly api_hougeki3: ApiHougeki | null
-  readonly api_raigeki: ApiRaigeki | null
+  readonly api_hougeki1?: ApiHougeki | null         // 空襲で存在しない場合有り
+  readonly api_hougeki2?: ApiHougeki | null         // 空襲で存在しない場合有り
+  readonly api_hougeki3?: ApiHougeki | null         // 空襲で存在しない場合有り
+  readonly api_raigeki?: ApiRaigeki | null          // 空襲で存在しない場合有り
 }
 
 export interface ApiSortieBattle extends ApiBattle {}
@@ -8134,6 +8135,14 @@ export interface ApiAirBaseAttack {
   readonly api_stage3_combined?: ApiStage3
 }
 
+export interface ApiInjectionKouku {
+  readonly api_plane_from: numberarrayORnull[]
+  readonly api_stage1: ApiStage1Kouku
+  readonly api_stage2: ApiStage2 | null
+  readonly api_stage3: ApiStage3 | null
+  readonly api_stage3_combined?: ApiStage3
+}
+
 export interface ApiAirFire {
   readonly api_idx: number
   readonly api_kind: number
@@ -8152,7 +8161,7 @@ type numberORstring = number | string
 export interface ApiHougeki {
   readonly api_at_eflag: number[]
   readonly api_at_list: number[]
-  readonly api_at_type: number[]
+  readonly api_at_type: number[] // 攻撃タイプ 0: 通常攻撃  101: 長門特殊攻撃
   readonly api_df_list: number[][]
   readonly api_si_list: numberORstring[][] // カットイン装備ID
   readonly api_cl_list: number[][]
@@ -8186,6 +8195,13 @@ interface ApiStage1 {
   readonly api_e_lostcount: number
   readonly api_disp_seiku: ApiDispSeiku
   readonly api_touch_plane: number[]
+}
+
+interface ApiStage1Kouku {
+  readonly api_f_count: number
+  readonly api_f_lostcount: number
+  readonly api_e_count: number
+  readonly api_e_lostcount: number
 }
 
 interface ApiStage2 {
@@ -9092,7 +9108,7 @@ export class SvData {
         }
       }
 
-      // clear gimmick detected state if map start
+      // clear gimmic detected state if map start
       this.svdata.gimmickFlagDetectedClear = true
     }
 
@@ -11120,6 +11136,9 @@ export class SvData {
    * @returns 
    */
   private updateGaugeCount(info: PrvBattleInfo): void {
+    
+    // todo:
+    // move to src\common\kcsbattle_util.ts
 
     // ボス戦以外は更新しない
     if (! info.isBoss) {

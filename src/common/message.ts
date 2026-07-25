@@ -1,8 +1,9 @@
 import type { Quest } from '@common/record'
-import type { ApiMapInfoList, ApiMissionList, ApiQuestList, SvDataRaw } from '@common/kcs'
+import type { ApiDeckPortId, ApiMapInfoList, ApiMissionList, ApiQuestList, SvDataRaw } from '@common/kcs'
 import type { Api } from '@common/kcsapi'
 import { AppSetting } from '@common/store'
 import { GlobalSetting } from '@common/global_setting'
+import { AfterBattleFleetHps } from './kcsbattle'
 
 /**
  * message type
@@ -47,7 +48,16 @@ export interface ApiResMessage{
   readonly type: 'api_res'
   readonly api: Api
   readonly data: string
-  readonly uuid?: string // map start uuid
+  readonly additional?: ApiResMessageAdditional
+}
+
+export interface ApiResMessageAdditional {
+  readonly mapStartUuid?: string // map start uuid
+  readonly afterBattleFleetHps?: AfterBattleFleetHpsInfo  // after battle fleet hps 
+}
+
+export interface AfterBattleFleetHpsInfo extends AfterBattleFleetHps {
+  readonly deckId: number
 }
 
 /**

@@ -1,0 +1,900 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_deck_id": 1,
+  "api_formation": [
+   14,
+   4,
+   3
+  ],
+  "api_f_nowhps": [
+   99,
+   99,
+   66,
+   65,
+   47
+  ],
+  "api_f_maxhps": [
+   99,
+   99,
+   66,
+   65,
+   47
+  ],
+  "api_f_nowhps_combined": [
+   26,
+   49,
+   41,
+   41,
+   53,
+   40
+  ],
+  "api_f_maxhps_combined": [
+   49,
+   49,
+   41,
+   41,
+   53,
+   40
+  ],
+  "api_fParam": [
+   [
+    118,
+    0,
+    100,
+    110
+   ],
+   [
+    118,
+    0,
+    102,
+    109
+   ],
+   [
+    48,
+    0,
+    88,
+    72
+   ],
+   [
+    34,
+    0,
+    72,
+    65
+   ],
+   [
+    64,
+    70,
+    128,
+    61
+   ]
+  ],
+  "api_fParam_combined": [
+   [
+    63,
+    139,
+    49,
+    63
+   ],
+   [
+    63,
+    139,
+    49,
+    63
+   ],
+   [
+    69,
+    91,
+    72,
+    56
+   ],
+   [
+    66,
+    90,
+    85,
+    60
+   ],
+   [
+    81,
+    88,
+    89,
+    74
+   ],
+   [
+    69,
+    88,
+    76,
+    55
+   ]
+  ],
+  "api_ship_ke": [
+   1640,
+   1640,
+   1640,
+   1640,
+   1639,
+   1639
+  ],
+  "api_ship_lv": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "api_e_nowhps": [
+   18,
+   18,
+   18,
+   18,
+   15,
+   15
+  ],
+  "api_e_maxhps": [
+   18,
+   18,
+   18,
+   18,
+   15,
+   15
+  ],
+  "api_eSlot": [
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ],
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ],
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ],
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ],
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ],
+   [
+    1515,
+    1515,
+    -1,
+    -1,
+    -1
+   ]
+  ],
+  "api_eParam": [
+   [
+    18,
+    118,
+    24,
+    39
+   ],
+   [
+    18,
+    118,
+    24,
+    39
+   ],
+   [
+    18,
+    118,
+    24,
+    39
+   ],
+   [
+    18,
+    118,
+    24,
+    39
+   ],
+   [
+    15,
+    98,
+    18,
+    29
+   ],
+   [
+    15,
+    98,
+    18,
+    29
+   ]
+  ],
+  "api_smoke_type": 0,
+  "api_balloon_cell": 0,
+  "api_atoll_cell": 0,
+  "api_midnight_flag": 0,
+  "api_search": [
+   1,
+   5
+  ],
+  "api_stage_flag": [
+   1,
+   1,
+   1
+  ],
+  "api_kouku": {
+   "api_plane_from": [
+    [
+     3,
+     4
+    ],
+    null
+   ],
+   "api_stage1": {
+    "api_f_count": 99,
+    "api_f_lostcount": 0,
+    "api_e_count": 0,
+    "api_e_lostcount": 0,
+    "api_disp_seiku": 1,
+    "api_touch_plane": [
+     570,
+     -1
+    ]
+   },
+   "api_stage2": {
+    "api_f_count": 67,
+    "api_f_lostcount": 0,
+    "api_e_count": 0,
+    "api_e_lostcount": 0
+   },
+   "api_stage3": {
+    "api_frai_flag": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_erai_flag": [
+     0,
+     1,
+     0,
+     0,
+     1,
+     0
+    ],
+    "api_fbak_flag": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_ebak_flag": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0
+    ],
+    "api_fcl_flag": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_ecl_flag": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_fdam": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_edam": [
+     0,
+     54,
+     5,
+     0,
+     0,
+     0
+    ],
+    "api_f_sp_list": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "api_e_sp_list": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "api_stage3_combined": {
+    "api_frai_flag": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_fbak_flag": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_fcl_flag": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_fdam": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "api_f_sp_list": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  "api_support_flag": 0,
+  "api_support_info": null,
+  "api_opening_taisen_flag": 0,
+  "api_opening_taisen": null,
+  "api_opening_flag": 1,
+  "api_opening_atack": {
+   "api_frai_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+     0
+    ],
+    [
+     4
+    ],
+    null,
+    null,
+    null,
+    null
+   ],
+   "api_fcl_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+     0
+    ],
+    [
+     0
+    ],
+    null,
+    null,
+    null,
+    null
+   ],
+   "api_fdam": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "api_fydam_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+     0
+    ],
+    [
+     0
+    ],
+    null,
+    null,
+    null,
+    null
+   ],
+   "api_erai_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "api_ecl_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "api_edam": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "api_eydam_list_items": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "api_hourai_flag": [
+   1,
+   1,
+   1,
+   0
+  ],
+  "api_hougeki1": {
+   "api_at_eflag": [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    1
+   ],
+   "api_at_list": [
+    0,
+    4,
+    1,
+    2,
+    2,
+    5,
+    4,
+    3,
+    0
+   ],
+   "api_at_type": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    7,
+    0
+   ],
+   "api_df_list": [
+    [
+     4
+    ],
+    [
+     1
+    ],
+    [
+     5
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     2
+    ],
+    [
+     0
+    ],
+    [
+     5
+    ],
+    [
+     2
+    ]
+   ],
+   "api_si_list": [
+    [
+     281
+    ],
+    [
+     -1
+    ],
+    [
+     161
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     363
+    ],
+    [
+     "56",
+     "476",
+     "94"
+    ],
+    [
+     -1
+    ]
+   ],
+   "api_cl_list": [
+    [
+     0
+    ],
+    [
+     2
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     2
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     2
+    ],
+    [
+     1
+    ]
+   ],
+   "api_damage": [
+    [
+     0
+    ],
+    [
+     11
+    ],
+    [
+     0
+    ],
+    [
+     0.1
+    ],
+    [
+     255
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     306
+    ],
+    [
+     5
+    ]
+   ]
+  },
+  "api_hougeki2": {
+   "api_at_eflag": [
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   "api_at_list": [
+    0,
+    0,
+    1,
+    2,
+    2,
+    3,
+    4
+   ],
+   "api_at_type": [
+    0,
+    0,
+    0,
+    0,
+    7,
+    7,
+    0
+   ],
+   "api_df_list": [
+    [
+     2
+    ],
+    [
+     2
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     2
+    ],
+    [
+     2
+    ]
+   ],
+   "api_si_list": [
+    [
+     281
+    ],
+    [
+     -1
+    ],
+    [
+     161
+    ],
+    [
+     -1
+    ],
+    [
+     "547",
+     "475",
+     "570"
+    ],
+    [
+     "56",
+     "476",
+     "94"
+    ],
+    [
+     363
+    ]
+   ],
+   "api_cl_list": [
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     2
+    ],
+    [
+     1
+    ],
+    [
+     0
+    ]
+   ],
+   "api_damage": [
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0.1
+    ],
+    [
+     0
+    ],
+    [
+     302
+    ],
+    [
+     1
+    ],
+    [
+     0
+    ]
+   ]
+  },
+  "api_hougeki3": {
+   "api_at_eflag": [
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   "api_at_list": [
+    10,
+    2,
+    7,
+    0,
+    6,
+    8,
+    11
+   ],
+   "api_at_type": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "api_df_list": [
+    [
+     0
+    ],
+    [
+     8
+    ],
+    [
+     2
+    ],
+    [
+     6
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     2
+    ]
+   ],
+   "api_si_list": [
+    [
+     407
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ],
+    [
+     -1
+    ]
+   ],
+   "api_cl_list": [
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     1
+    ],
+    [
+     1
+    ]
+   ],
+   "api_damage": [
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     37
+    ],
+    [
+     12
+    ]
+   ]
+  }
+ }
+}

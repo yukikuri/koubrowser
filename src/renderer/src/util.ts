@@ -233,6 +233,18 @@ class RUtilImpl {
    *
    * @param ship
    */
+  public hpIconClasses(ship: ApiShip): object {
+    const isHpFull = ship.api_maxhp === ship.api_nowhp;
+    return {
+      'heart-a2': isHpFull,
+      'heart-d': !isHpFull
+    }
+  }
+
+  /**
+   *
+   * @param ship
+   */
   public hpClassesTT(ship: ApiShip): object {
     const state = KcsUtil.shipHpState(ship)
     return {
