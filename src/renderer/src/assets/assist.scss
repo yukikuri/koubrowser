@@ -2045,8 +2045,7 @@ weapon-img {
 .deck-ship-imgs {
   line-height: 0;
   max-width: $ship-img-width * 3;
-  --ship-img-row-count: 2;
-  height: calc( #{$ship-img-height} * --var(--ship-img-row-count) );
+  height: calc( #{$ship-img-height} * var( --ship-img-row-count ) );
   .tooltip-content {
     width: unset;
     background: $tooltip-bkcolor !important;
@@ -2426,6 +2425,7 @@ $tkbar-width: 445px; //$assist-width - $tkbar-title-width;
 // deck tabs
 .deck-tabs {
   --deck-tabs-height: 333px;
+  --ship-img-row-count: 2;
   height: var(--deck-tabs-height);
   overflow: hidden;
 
