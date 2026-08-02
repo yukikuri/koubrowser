@@ -564,6 +564,8 @@ export interface THCutinRate {
   type: THCutin
   enable: boolean
   rate: number
+  plusFactor?: boolean // 不明だが発動率を上げる要素がある場合にtrue
+                       // 38cm四連装砲改 deux装備有りでtrue
 }
 
 export interface TKCutinState {
@@ -1251,8 +1253,10 @@ export const THCutin = {
   Hiei: 5,
   Haruna: 6,
   Kirisima: 7,
-  YamatoType1: 8,
-  YamatoType2: 9,
+  YamatoType1: 8, // 3隻での攻撃
+  YamatoType2: 9, // 2隻での攻撃
+  Richelieu: 10,
+  Warspite: 11,
 } as const
 export type THCutin = (typeof THCutin)[keyof typeof THCutin]
 
@@ -5061,6 +5065,34 @@ export class KcsUtil {
         }
     }
   
+    // Richelieu, Jean Bart
+    if (isShipId(top.mst.api_id, [392, 969, 724])) {
+      if (
+        ships.length >= 6 &&
+        isShipId(ships[1].mst.api_id, [
+          392, // Richelieu改
+          969, // Richelieu Deux
+          724, // Jean Bart改
+        ]) &&
+        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+      ) {
+        return [{ type: THCutin.Richelieu, enable: true }]
+      }
+    }
+
+    // Warspite, Valiant
+    if (isShipId(top.mst.api_id, [364, 733])) {
+      if (
+        ships.length >= 6 &&
+        isShipId(ships[1].mst.api_id, [
+          364, // Warspite改
+          733, // Valiant改
+        ]) &&
+        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+      ) {
+        return [{ type: THCutin.Warspite, enable: true }]
+      }
+    }
 
     return
   }
@@ -5252,6 +5284,32 @@ export class KcsUtil {
   }
 
   /**
+   * https://en.kancollewiki.net/Special_Attacks#Richelieu-class_Special_Attack
+   */
+  public static rateTHRicheliu(ships: ShipInfoSp[]): { rate: number, plusFactor: boolean } {
+    const v1 = Math.sqrt(ships[0].api.api_lv) + Math.sqrt(ships[1].api.api_lv)
+    const v2 = Math.sqrt(ships[0].api.api_lucky[0]) + Math.sqrt(ships[1].api.api_lucky[0])
+    const equipSpecialWeapon = (ship: ShipInfoSp): boolean => {
+      return ship.slots.some((slot) => {
+        return slot?.mst.api_id === 468 // 38cm四連装砲改 deux
+      })
+    }
+    return {
+      rate: (v1 + 1.2*v2 + 30) / 100,
+      plusFactor: equipSpecialWeapon(ships[0]) || equipSpecialWeapon(ships[1])
+    }
+  }
+
+  /**
+   * https://en.kancollewiki.net/Special_Attacks#Queen_Elizabeth-class_Special_Attack
+   */
+  public static rateTHWarspite(ships: ShipInfoSp[]): number {
+    const v1 = Math.sqrt(ships[0].api.api_lv) + Math.sqrt(ships[1].api.api_lv)
+    const v2 = Math.sqrt(ships[0].api.api_lucky[0]) + Math.sqrt(ships[1].api.api_lucky[0])
+    return (v1 + 1.2*v2 + 30) / 100
+  }
+
+  /**
    * 
    */
   public static rateTH(th: THCutinState | undefined, ships: ShipInfoSp[]): THCutinRate | undefined {
@@ -5298,6 +5356,22 @@ export class KcsUtil {
         type: th.type,
         enable: th.enable,
         rate: KcsUtil.rateTHYamatoType2(ships)
+      }
+    }
+
+    if (th.type === THCutin.Richelieu) {
+      return {
+        type: th.type,
+        enable: th.enable,
+        ...KcsUtil.rateTHRicheliu(ships)
+      }
+    }
+
+    if (th.type === THCutin.Warspite) {
+      return {
+        type: th.type,
+        enable: th.enable,
+        rate: KcsUtil.rateTHWarspite(ships)
       }
     }
 
@@ -7571,9 +7645,16 @@ export interface ApiMapInfoEventmap {
   readonly api_selected_rank: MapLv // 4: 甲 3: 乙 2: 丙 1: 丁
 }
 
+export const ApiRID = {
+  rid1: 1,
+  rid2: 2,
+  rid3: 3,
+}as const
+export type ApiRID = (typeof ApiRID)[keyof typeof ApiRID]
+
 export interface ApiAirBase {
   readonly api_area_id: number
-  readonly api_rid: number
+  readonly api_rid: ApiRID
   readonly api_name: string
   readonly api_distance: ApiDistance
   readonly api_action_kind: AirBaseActionKind // 0:待機 1: 出撃 2:防空 3:退避 4:休息
@@ -7661,6 +7742,14 @@ interface ApiSelectEventmapRankParam {
 export interface ApiSelectEventmapRank {
   api_maphp: APIMapHp
   api_sally_flag: number[]
+}
+
+// req map start air base param
+interface ApiMapStartAirBaseParam {
+  readonly api_verno: string
+  readonly api_strike_point_1: string;
+  readonly api_strike_point_2?: string;
+  readonly api_strike_point_3?: string;
 }
 
 export interface APIMapHp {
@@ -8295,16 +8384,22 @@ export interface ApiBattleResult {
   readonly api_get_exmap_useitem_id: number // EOクリア時Item
   readonly api_landing_hp?: ApiLandingHp // 輸送ゲージ情報
   readonly api_escape_flag: number
-  readonly api_escape?:
-    | null
-    | undefined
-    | {
-        readonly api_escape_idx: number[] // 退避艦 index
-        readonly api_tow_idx: number[] // 護衛艦 index
-      }
+  readonly api_escape?: null | ApiEscape
   readonly api_get_useitem?: ApiGetItem
   readonly api_m1?: number
   readonly api_m2?: number
+}
+
+export const ApiEscapeType = {
+  yuugeki: 1, // 遊撃部隊
+  suirai: 2 // 水雷
+} as const
+export type ApiEscapeType = (typeof ApiEscapeType)[keyof typeof ApiEscapeType]
+
+export interface ApiEscape {
+  readonly api_escape_idx: number[] // 退避艦 index
+  readonly api_tow_idx?: number[] // 護衛艦 index   連合艦隊で存在
+  readonly api_escape_type?: ApiEscapeType // 連合退避では存在しない
 }
 
 // sortie battle result
@@ -8866,6 +8961,10 @@ export class SvData {
           this.getMemberSlotitem(api_data as ApiSlotitem[])
           break
 
+        case KcsApi.Api.REQ_MAP_START_AIR_BASE:
+          this.reqMapStartAirBase()
+          break
+
         case KcsApi.Api.REQ_MAP_START:
           this.reqMapStart(api_data as ApiMapStart)
           break
@@ -8900,6 +8999,10 @@ export class SvData {
 
         case KcsApi.Api.REQ_SORTIE_BATTLERESULT:
           this.reqSortieBattleResult(api_data as ApiSortieBattleResult)
+          break
+
+        case KcsApi.Api.REQ_SORTIE_GOBACK_PORT:
+          this.reqSortieGobackPort()
           break
 
         case KcsApi.Api.REQ_PRACTICE_BATTLE:
@@ -10037,6 +10140,9 @@ export class SvData {
     }
   }
 
+  private reqMapStartAirBase(): void {
+  }
+
   private reqMapStart(api_data: ApiMapStart): void {
     const query = this.getReq(KcsApi.Api.REQ_MAP_START)
     if (query) {
@@ -10249,6 +10355,10 @@ export class SvData {
     }
   }
 
+  private reqSortieGobackPort(): void {
+    this.updateEscape(false)
+  }
+
   private reqCombinedCombinedBattle(api_data: ApiCombinedVsNormalBattle, json: string): void {
     this.pushMiddayBattle(BattleType.combined, api_data, json)
   }
@@ -10277,7 +10387,7 @@ export class SvData {
     }
   }
 
-  private reqCombinedBattleGobackPort(): void {
+  private updateEscape(checkCombined: boolean): void {
     const result = this.lastBattle?.result
     if (!result || !result.api_escape) {
       return
@@ -10287,20 +10397,33 @@ export class SvData {
     if (!prv_battle_map_info) {
       return
     }
+    
+    // 連合艦隊では tow存在をチェックする
+    if (checkCombined && !result.api_escape.api_tow_idx) {
+      return 
+    }
 
-    const escape_index = result.api_escape.api_escape_idx.find(
+    // 退避艦で若い順に1起算インデックスを追加
+    const escape_push_value = result.api_escape.api_escape_idx.find(
       (el) => !prv_battle_map_info.escape_indexs.includes(el)
     )
-    if (escape_index !== undefined) {
-      prv_battle_map_info.escape_indexs.push(escape_index)
+    if (escape_push_value !== undefined) {
+      prv_battle_map_info.escape_indexs.push(escape_push_value)
     }
 
-    const tow_index = result.api_escape.api_tow_idx.find(
-      (el) => !prv_battle_map_info.tow_indexs.includes(el)
-    )
-    if (tow_index !== undefined) {
-      prv_battle_map_info.tow_indexs.push(tow_index)
+    // 護衛艦で若い順に1起算インデックスを追加
+    if (result.api_escape.api_tow_idx) {
+      const tow_push_value = result.api_escape.api_tow_idx.find(
+        (el) => !prv_battle_map_info.tow_indexs.includes(el)
+      )
+      if (tow_push_value !== undefined) {
+        prv_battle_map_info.tow_indexs.push(tow_push_value)
+      }
     }
+  }
+
+  private reqCombinedBattleGobackPort(): void {
+    this.updateEscape(true)
   }
 
   private reqPracticeBattle(): void {}
@@ -10778,19 +10901,115 @@ export class SvData {
   }
 
   public isShipEscaped(deck: ApiDeckPort, index: number): boolean {
-    if (!this.isCombined) {
+
+    const map_info = this.apiData.prv_battle_map_info
+    if (!map_info || ! map_info.escape_indexs.length) {
       return false
     }
 
-    const map_info = this.apiData.prv_battle_map_info
-    if (!map_info) {
-      return false
+    // check combined
+    if (map_info.tow_indexs.length && 
+      [ApiDeckPortId.deck1st as number, ApiDeckPortId.deck2st as number].includes(deck.api_id)) {
+
+      // escape start index: 1. not 0.
+      const start_index = deck.api_id === ApiDeckPortId.deck2st ? 7 : 1
+      const check_indexs = map_info.escape_indexs.concat(map_info.tow_indexs)
+      return check_indexs.includes(start_index + index)
+
+    } else {
+      if (deck.api_id !== map_info.deck_id) {
+        return false
+      }
     }
 
     // escape start index: 1. not 0.
-    const start_index = deck.api_id === ApiDeckPortId.deck2st ? 7 : 1
-    const check_indexs = map_info.escape_indexs.concat(map_info.tow_indexs)
+    const start_index = 1
+    const check_indexs = map_info.escape_indexs
     return check_indexs.includes(start_index + index)
+  }
+
+  /**
+   * 退避艦が存在するか？
+   *
+   * @param id 
+   * @returns 
+   */
+  public isDeckEscaped(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((ship_id, index) => this.isShipEscaped(deck, index))
+  }
+
+  /**
+   * 制空値が持つ艦が退避したか
+   * 
+   * @param id 
+   * @returns 
+   */
+  public isDeckEscapedAa(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((ship_id, index) => {
+      if (this.isShipEscaped(deck, index)) {
+        // 制空値があればtrue
+        return this.shipSeiku(this.ship(ship_id)) > 0
+      }
+      return false
+    })
+  }
+
+  /**
+   * 輸送値がある艦が退避したか
+   * 
+   * @param id 
+   * @returns 
+   */
+  public isDeckEscapedYusou(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((ship_id, index) => {
+      if (this.isShipEscaped(deck, index)) {
+        // 輸送値があればtrue
+        return this.shipYusou(this.ship(ship_id)) > 0
+      }
+      return false;
+    })
+  }
+
+  public isDeckCombinedEscaped(): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck1 = this.deckPort(ApiDeckPortId.deck1st)
+    const deck2 = this.deckPort(ApiDeckPortId.deck2st)
+    if (!deck1 || !deck2) {
+      return false
+    }
+
+    return deck1.api_ship.some((_, index) => this.isShipEscaped(deck1, index)) ||
+          deck2.api_ship.some((_, index) => this.isShipEscaped(deck2, index))
   }
 
   public shipSeiku(ship: ApiShip | undefined): number {
@@ -10833,17 +11052,33 @@ export class SvData {
   }
 
   public deckSeiku(deck: ApiDeckPort): number {
-    return deck.api_ship.reduce(
-      (acc: number, ship_id: number) => (acc += this.shipSeiku(this.ship(ship_id))),
-      0
-    )
+    return deck.api_ship.reduce((acc: number, ship_id: number, index: number) => {
+
+      // 退避艦チェック
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          return acc
+        }
+      }
+
+      acc += this.shipSeiku(this.ship(ship_id));
+      return acc;
+    }, 0)
   }
 
   public deckYusou(deck: ApiDeckPort): number {
-    const yusou = deck.api_ship.reduce(
-      (acc: number, ship_id: number) => (acc += this.shipYusou(this.ship(ship_id))),
-      0
-    )
+    const yusou = deck.api_ship.reduce((acc: number, ship_id: number, index: number) => {
+      
+      // 退避艦チェック
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          return acc
+        }
+      }
+
+      acc += this.shipYusou(this.ship(ship_id));
+      return acc;
+    }, 0)
     return Math.floor(yusou)
   }
 
@@ -11014,7 +11249,16 @@ export class SvData {
    * 指定した係数の配列で計算結果を返すように
    */
   public deckMapLos(deck: ApiDeckPort, maplos: number): number {
-    const ship_los = deck.api_ship.reduce((los, ship_id) => {
+    const ship_los = deck.api_ship.reduce((los, ship_id, index) => {
+
+      // check escape
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          // is escaped, skip
+          return los;
+        }
+      }
+
       const ship = this.ship(ship_id)
       if (ship) {
         const calc = InvalidMapLosValue()

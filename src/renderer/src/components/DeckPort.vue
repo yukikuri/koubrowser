@@ -7,8 +7,9 @@ import ShipTooltip from '@renderer/components/ShipTooltip.vue'
 import World from '@renderer/components/World.vue'
 import MissionBadge from '@renderer/components/MissionBadge.vue'
 import LockImage from '@renderer/assets/img/lock.svg'
-import { ApiGaugeType } from '@common/kcs'
-import { mapInfo as storeMapInfo } from '@renderer/store/mapinfo'
+import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
+import { CombinedNames } from '@common/locale'
+import { deckShipCount } from '@common/kcs'
 
 type Props = { show_rate?: boolean }
 withDefaults(defineProps<Props>(), { show_rate: true })
@@ -18,24 +19,46 @@ const tooltip_ship_id = ref(0)
 const tooltip_ship_show = ref(false)
 
 const isDeckOk = computed(() => svdata.isShipDataOk)
+
+// 輸送ゲージマップがある場合、輸送値を表示する
+// 輸送値は常には表示しない
+// 常に表示しないのは、表示が煩雑になることを避けるため
+const { computed: isShowYusou } = kcs_stuff.isShowYusou()
+
+const isCombined = computed<boolean>(() => svdata.isCombined)
+
 const decks = computed<DeckInfo[]>(() => {
-  const ret = RUtil.deckInfos()
-  //console.log('DeckPort: update decks decks called', ret[0])
+  const ret = RUtil.deckInfos(isShowYusou.value)
+  //console.log('DeckPort: update decks decks called', ret)
   return ret;
 });
 
 const tooltipShipId = computed(() => tooltip_ship_id.value)
 const isShowShipTooltip = computed(() => tooltip_ship_show.value)
 
-// 輸送ゲージマップがある場合、輸送値を表示する
-// 輸送値は常には表示しない
-// 常に表示しないのは、表示が煩雑になることを避けるため
-const isShowYusou = computed(() => {
-  const svdataMapInfos = svdata.mapinfos;
-  if (svdataMapInfos.length) {
-    return !!svdata.mapinfos.some(mi => mi.api_gauge_type === ApiGaugeType.yusou)
+/**
+ * 遊撃部隊では艦隊タブの高さを増やす
+ * EnemyListではすべて表示できないことから表示艦数を制限する
+ */
+const deckTabsStyle = computed(() => {
+  
+  // 第3以外はデフォルトの高さを使用する
+  if (index.value !== 2) {
+    return ''
   }
-  return storeMapInfo.api_map_info.some(mi => mi.api_gauge_type === ApiGaugeType.yusou)
+
+  // 第3で7隻以上の場合は高さを増やす
+  const deckPort = decks.value[index.value].deck
+  const shipCount = deckShipCount(deckPort.api_ship)
+  if (shipCount < 7) {
+    // デフォルト表示
+    return ''
+  }
+  return `--deck-tabs-height: 416px; --ship-img-row-count:3;`
+})
+
+const combinedName = computed<string>(() => {
+  return CombinedNames[svdata.combinedFlag] || '';
 })
 
 // todo
@@ -67,24 +90,30 @@ const isShowYusou = computed(() => {
       <template #content>
         <ShipTooltip v-if="isShowShipTooltip" :ship_id="tooltipShipId" />
       </template>
-      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index">
+      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" :style="deckTabsStyle">
         <b-tab-item v-for="(deck, deck_index) in decks" :key="deck.deck.api_id"
-          :disabled="deck.isLock" :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}`">
+          :disabled="deck.isLock" 
+          :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}_${deck.yusou}_${deck.isEscapedAa}__${deck.isEscapedYusou}`">
           <template #header>
             <LockImage v-if="deck.isLock" class="is-lock"/>
+            <span v-if="deck_index === 0 && isCombined" class="combined-badge">{{ combinedName }}</span>
             {{ deck.name }}
             <MissionBadge v-if="deck.inMission" :deck="deck.deck" />
             <template v-else>
               <div v-if="deck.seiku > 0" title="制空値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
-                  <div class="txt">{{deck.seiku}}</div>
+                  <div class="txt" :class="{
+                    'is-minus': deck.isEscapedAa
+                  }">{{deck.seiku}}</div>
                 </div>
               </div>
               <div v-if="isShowYusou && (deck.yusou > 0)" title="輸送値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="yusou-value">輸送</span>
-                  <div class="txt">{{ deck.yusou }}/{{ Math.floor(deck.yusou * 0.7) }}</div>
+                  <div class="txt" :class="{
+                    'is-minus': deck.isEscapedYusou
+                  }">{{ deck.yusou }}/{{ Math.floor(deck.yusou * 0.7) }}</div>
                 </div>
               </div>
             </template>

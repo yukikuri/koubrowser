@@ -115,9 +115,12 @@ const classWorldEvent = computed((): object => {
   }
 })
 
-const eventName = computed<string>(
-  () => svdata.mstMapareaType(ApiMapAreaType.event)?.api_name ?? '????'
-)
+const getEventName = (): string => {
+  const name = svdata.mstMapareaType(ApiMapAreaType.event)?.api_name ?? '????'
+  return name.replace('反撃！', '反撃！\n')
+}
+
+const eventName = computed<string>(() => getEventName())
 
 onMounted(() => {
   debug('world mounted')

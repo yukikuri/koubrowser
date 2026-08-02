@@ -60,7 +60,7 @@ function onApiReq(msg: ApiReqMessage) {
 }
 
 function onApiRes(msg: ApiResMessage) {
-  console.log('stream got api res >> ', 'api:', msg.api)
+  console.log('stream got api res >> ', 'api:', msg.api, 'additional:', !!msg.additional)
   svdata.update(msg.api, msg.data)
 
   // API受信情報により追加の処理を行う場合
