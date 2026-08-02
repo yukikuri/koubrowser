@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { svdata } from '@renderer/store/svdata'
 import { MinMax, MaxMin } from '@common/type'
-import { KcsUtil, ShipInfo, HoseiType, HoseiConst, ApiDeckPort } from '@common/kcs'
+import { KcsUtil, ShipInfo, HoseiType, HoseiConst, ApiDeckPort, deckShipCount } from '@common/kcs'
 import { RUtil, EnemyInfo, EShipInfo } from '@renderer/util'
 import { EnemyEtc } from '@common/enemy_etc'
 import { computed } from 'vue'
@@ -199,7 +199,12 @@ const eships = computed<EShip[]>(() =>
 )
 
 const ships = computed<ShipInfoDmg[]>(() => {
-  const list = svdata.shipInfoSps(deck.value.api_ship)
+  const deckPort = deck.value
+  const shipCount = deckShipCount(deckPort.api_ship)
+
+  // 遊撃部隊の場合は3隻までの表示に制限する
+  const shipIds = shipCount >= 7 ? deckPort.api_ship.slice(0, 3) : deckPort.api_ship
+  const list = svdata.shipInfoSps(shipIds)
   return list.map(
     (ship) => ({ ...(ship as any), dmgs: shipDmgs(ship, props.info.enemy) }) as ShipInfoDmg
   )

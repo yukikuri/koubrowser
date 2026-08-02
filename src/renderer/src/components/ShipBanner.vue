@@ -9,12 +9,14 @@ type Props = {
   mst_id?: number
   mst_id_enemy?: number
   dmg?: boolean
+  escaped?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ship_info: null,
   mst_id: 0,
-  dmg: false
+  dmg: false,
+  escaped: false
 })
 
 const ReloadState = {
@@ -85,6 +87,7 @@ function onError(event: Event, _src?: string): void {
 <template>
   <b-image
     class="ship-banner"
+    :class="{ 'is-escaped': props.escaped }"
     custom-class="loading"
     loading="lazy"
     :src="src"
