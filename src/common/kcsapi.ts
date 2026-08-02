@@ -161,6 +161,8 @@ export const Api = {
   // 出撃 - 演習 夜戦
   REQ_PRACTICE_MIDNIGHT_BATTLE: '/api_req_practice/midnight_battle',
 
+  // 出撃 - 基地航空隊対象選択
+  REQ_MAP_START_AIR_BASE: '/api_req_map/start_air_base',
   // 出撃 - マップ選択
   REQ_MAP_START: '/api_req_map/start',
   // 出撃 - 戦闘結果 ship入手
@@ -171,6 +173,9 @@ export const Api = {
   REQ_SORTIE_AIRBATTLE: '/api_req_sortie/airbattle',
   // 出撃 - 戦闘空襲2
   REQ_SORTIE_LD_AIRBATTLE: '/api_req_sortie/ld_airbattle',
+  // 出撃 - 退避
+  REQ_SORTIE_GOBACK_PORT: '/api_req_sortie/goback_port',
+
   // 出撃 - 戦闘結果 艦隊状態更新
   GET_MEMBER_SHIP_DECK: '/api_get_member/ship_deck',
   // 出撃 - 進撃

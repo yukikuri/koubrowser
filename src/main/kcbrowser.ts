@@ -829,8 +829,8 @@ export class KcApp {
 
     // api request/response hook event
     ipcMain.on(kcsapi_hook.HookedType.serverid, (_event, data) => this.onApiHookServerId(data));
-    ipcMain.on(kcsapi_hook.HookedType.loadstart, (_event, data) => this.onApiHookLoadStart(data));
-    ipcMain.on(kcsapi_hook.HookedType.loadend, (_event, data) => this.onApiHookLoadEnd(data));
+    ipcMain.on(kcsapi_hook.HookedType.loadstart, (_event, data) => this.onApiHookLoadStart(data, true));
+    ipcMain.on(kcsapi_hook.HookedType.loadend, (_event, data) => this.onApiHookLoadEnd(data, true));
     if (Env.isDevelopment) { 
       ipcMain.on(kcsapi_hook.HookedType.unk_loadstart, (_event, data) => this.onApiHookUnknownLoadStart(data));
       ipcMain.on(kcsapi_hook.HookedType.unk_loadend, (_event, data) => this.onApiHookUnknownLoadEnd(data));
@@ -943,7 +943,7 @@ export class KcApp {
   /**
    *
    */
-  postReqToRenderer(api: kcsapi.Api, data: string): void {
+  private postReqToRenderer(api: kcsapi.Api, data: string): void {
     const msg: ApiReqMessage = { type: 'api_req', api, data }
     streamManager.postToRenderers(msg);
   }
@@ -951,7 +951,7 @@ export class KcApp {
   /**
    *
    */
-  postResToRenderer(api: kcsapi.Api, data: string, additional? : ApiResMessageAdditional): void {
+  private postResToRenderer(api: kcsapi.Api, data: string, additional? : ApiResMessageAdditional): void {
     const msg: ApiResMessage = { type: 'api_res', api, data, additional }
     streamManager.postToRenderers(msg);
   }
@@ -2060,10 +2060,13 @@ export class KcApp {
   /**
    * 
    * @param data 
+   * @param logRequest 
    */
-  private onApiHookLoadStart(data: kcsapi_hook.LoadStart): void {
-    debug('[XHR Request Started(in main)]', data.api, data.method) 
-    kcapi_debug.logRequest(data);
+  public onApiHookLoadStart(data: kcsapi_hook.LoadStart, logRequest: boolean): void {
+    debug('[XHR Request Started(in main)]', data.api, data.method)
+    if (logRequest) {
+      kcapi_debug.logRequest(data);
+    }
     if (data.body) {
       svdata.setReq(data.api, data.body)
       this.postReqToRenderer(data.api, data.body)
@@ -2073,10 +2076,13 @@ export class KcApp {
   /**
    * 
    * @param data 
+   * @param logResponse 
    */
-  private onApiHookLoadEnd(data: kcsapi_hook.LoadEnd): void {
+  public onApiHookLoadEnd(data: kcsapi_hook.LoadEnd, logResponse: boolean): void {
     debug('[XHR Request Ended(in main)]', data.api, data.method)
-    kcapi_debug.logResponse(data);
+    if (logResponse) {
+      kcapi_debug.logResponse(data);
+    }
     if (data.response) {
       svdata.update(data.api, data.response)
       let additional: ApiResMessageAdditional | undefined

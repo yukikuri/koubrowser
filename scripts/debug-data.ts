@@ -112,14 +112,12 @@ function listDebugDataCalls(targetDir: string): DebugCallInfo[] {
 
 const setReqData = (app: KcApp, call: DebugDataCall): void => {
   const content = fs.readFileSync(call.absFilePath, 'utf8')
-  svdata.setReq(call.api, content)
-  app.postReqToRenderer(call.api, content)
+  app.onApiHookLoadStart({ api: call.api, method: 'GET', body: content }, false)
 }
 
 const setResData = (app: KcApp, call: DebugDataCall): void => {
   const content = fs.readFileSync(call.absFilePath, 'utf8')
-  svdata.update(call.api, content)
-  app.postResToRenderer(call.api, content)
+  app.onApiHookLoadEnd({ api: call.api, method: 'GET', response: content }, false)
 }
 
 function callApi(app: KcApp, call: DebugDataCall): void {
