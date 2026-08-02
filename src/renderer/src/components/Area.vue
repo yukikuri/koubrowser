@@ -1371,7 +1371,7 @@ function onChangeAirbaseSpot(value: boolean): void {
         <template v-if="isCombined">
           <div :class="{'is-minus': isDeckCombinedEscaped }">索敵値(連合)：{{ deckCombinedMapLos }}</div>
           <div :class="{'is-minus': isDeck3Escaped }">索敵値(第三)：{{ deck3MapLos }}</div>
-          <div v-if="isShowYusou">輸送値(連合)：{{ deckCombinedYusou }}</div>
+          <div v-if="isShowYusou" :class="{'is-minus': isDeckCombinedEscaped }">輸送値(連合)：{{ deckCombinedYusou }}</div>
         </template>
         <template v-else>
           <div :class="{'is-minus': isDeck1Escaped }">索敵値(第一)：{{ deck1MapLos }}</div>

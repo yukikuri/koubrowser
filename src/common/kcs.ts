@@ -10928,6 +10928,12 @@ export class SvData {
     return check_indexs.includes(start_index + index)
   }
 
+  /**
+   * 退避艦が新在するか？
+   * 
+   * @param id 
+   * @returns 
+   */
   public isDeckEscaped(id: ApiDeckPortId): boolean {
     if (! this.inMap) {
       return false
@@ -10938,7 +10944,57 @@ export class SvData {
       return false
     }
 
-    return deck.api_ship.some((_, index) => this.isShipEscaped(deck, index))
+    return deck.api_ship.some((ship_id, index) => this.isShipEscaped(deck, index))
+  }
+
+  /**
+   * 制空値が持つ艦が退避したか
+   * 
+   * @param id 
+   * @returns 
+   */
+  public isDeckEscapedAa(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((ship_id, index) => {
+      if (this.isShipEscaped(deck, index)) {
+        // 制空値があればtrue
+        return this.shipSeiku(this.ship(ship_id)) > 0
+      }
+      return false
+    })
+  }
+
+  /**
+   * 輸送値がある艦が退避したか
+   * 
+   * @param id 
+   * @returns 
+   */
+  public isDeckEscapedYusou(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((ship_id, index) => {
+      if (this.isShipEscaped(deck, index)) {
+        // 輸送値があればtrue
+        return this.shipYusou(this.ship(ship_id)) > 0
+      }
+      return false;
+    })
   }
 
   public isDeckCombinedEscaped(): boolean {
@@ -11011,10 +11067,18 @@ export class SvData {
   }
 
   public deckYusou(deck: ApiDeckPort): number {
-    const yusou = deck.api_ship.reduce(
-      (acc: number, ship_id: number) => (acc += this.shipYusou(this.ship(ship_id))),
-      0
-    )
+    const yusou = deck.api_ship.reduce((acc: number, ship_id: number, index: number) => {
+      
+      // 退避艦チェック
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          return acc
+        }
+      }
+
+      acc += this.shipYusou(this.ship(ship_id));
+      return acc;
+    }, 0)
     return Math.floor(yusou)
   }
 

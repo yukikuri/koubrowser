@@ -206,7 +206,7 @@ export const Api = {
   // 出撃(連合-通常空襲) - 戦闘開始
   REQ_COMBINED_BATTLE_LD_AIRBATTLE: '/api_req_combined_battle/ld_airbattle',
   // 出撃(連合) - 護衛退避
-  REQ_COMBINED_BATTLE_GOBACK_PORT: 'api_req_combined_battle/goback_port',
+  REQ_COMBINED_BATTLE_GOBACK_PORT: '/api_req_combined_battle/goback_port',
 
   // airbase set order
   REQ_AIR_CORPS_SET_PLANE: '/api_req_air_corps/set_plane',

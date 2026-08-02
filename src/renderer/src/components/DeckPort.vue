@@ -19,9 +19,17 @@ const tooltip_ship_id = ref(0)
 const tooltip_ship_show = ref(false)
 
 const isDeckOk = computed(() => svdata.isShipDataOk)
+
+// 輸送ゲージマップがある場合、輸送値を表示する
+// 輸送値は常には表示しない
+// 常に表示しないのは、表示が煩雑になることを避けるため
+const { computed: isShowYusou } = kcs_stuff.isShowYusou()
+
+const isCombined = computed<boolean>(() => svdata.isCombined)
+
 const decks = computed<DeckInfo[]>(() => {
-  const ret = RUtil.deckInfos()
-  //console.log('DeckPort: update decks decks called', ret[0])
+  const ret = RUtil.deckInfos(isShowYusou.value)
+  //console.log('DeckPort: update decks decks called', ret)
   return ret;
 });
 
@@ -48,13 +56,6 @@ const deckTabsStyle = computed(() => {
   }
   return `--deck-tabs-height: 416px; --ship-img-row-count:3;`
 })
-
-// 輸送ゲージマップがある場合、輸送値を表示する
-// 輸送値は常には表示しない
-// 常に表示しないのは、表示が煩雑になることを避けるため
-const { computed: isShowYusou } = kcs_stuff.isShowYusou()
-
-const isCombined = computed<boolean>(() => svdata.isCombined)
 
 const combinedName = computed<string>(() => {
   return CombinedNames[svdata.combinedFlag] || '';
@@ -91,7 +92,8 @@ const combinedName = computed<string>(() => {
       </template>
       <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" :style="deckTabsStyle">
         <b-tab-item v-for="(deck, deck_index) in decks" :key="deck.deck.api_id"
-          :disabled="deck.isLock" :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}`">
+          :disabled="deck.isLock" 
+          :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}_${deck.yusou}_${deck.isEscapedAa}__${deck.isEscapedYusou}`">
           <template #header>
             <LockImage v-if="deck.isLock" class="is-lock"/>
             <span v-if="deck_index === 0 && isCombined" class="combined-badge">{{ combinedName }}</span>
@@ -102,14 +104,16 @@ const combinedName = computed<string>(() => {
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
                   <div class="txt" :class="{
-                    'is-minus': deck.isEscaped
+                    'is-minus': deck.isEscapedAa
                   }">{{deck.seiku}}</div>
                 </div>
               </div>
               <div v-if="isShowYusou && (deck.yusou > 0)" title="輸送値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="yusou-value">輸送</span>
-                  <div class="txt">{{ deck.yusou }}/{{ Math.floor(deck.yusou * 0.7) }}</div>
+                  <div class="txt" :class="{
+                    'is-minus': deck.isEscapedYusou
+                  }">{{ deck.yusou }}/{{ Math.floor(deck.yusou * 0.7) }}</div>
                 </div>
               </div>
             </template>
