@@ -1942,20 +1942,20 @@ weapon-img {
       line-height: 1;
       z-index: 2;
     }
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        -45deg,
-        rgba(255, 255, 255, 0.08) 0,
-        rgba(255, 255, 255, 0.08) 6px,
-        transparent 6px,
-        transparent 12px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
+    // &::before {
+    //   content: '';
+    //   position: absolute;
+    //   inset: 0;
+    //   background: repeating-linear-gradient(
+    //     -45deg,
+    //     rgba(255, 255, 255, 0.08) 0,
+    //     rgba(255, 255, 255, 0.08) 6px,
+    //     transparent 6px,
+    //     transparent 12px
+    //   );
+    //   pointer-events: none;
+    //   z-index: 1;
+    // }
   }
 
   .slots {
@@ -2517,6 +2517,38 @@ $tkbar-width: 445px; //$assist-width - $tkbar-title-width;
         .cell-sps,
         .sp-content {
           @include setAllHeight($this-row-height);
+        }
+      }
+
+      &.is-escaped {
+        opacity: 0.45;
+
+        td {
+          background-color: rgba(#000, 0.4);
+        }
+
+        td:first-child {
+          position: relative;
+        }
+
+        td:first-child::after {
+          content: '退避';
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+
+          padding: 1px 5px;
+          background: #2f855a;
+          border: 1px solid #d8fff0;
+
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          line-height: 1.1;
+          z-index: 2;
+          pointer-events: none;
+          white-space: nowrap;
         }
       }
     }

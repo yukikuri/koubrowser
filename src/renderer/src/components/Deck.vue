@@ -638,7 +638,10 @@ const TipTKCiTag = (st: TKCutinState): string => {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // row class
-function rowClass(): string {
+function rowClass(row: DeckShip | null): string {
+   if (row?.escaped) {
+    return 'ship-row is-escaped'
+   }
   return 'ship-row'
 }
 
