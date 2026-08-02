@@ -565,7 +565,13 @@ const checkTaihaSingeki = (): boolean => {
   }
 
   if (
-    battleDeck.api_ship.some((el) => {
+    battleDeck.api_ship.some((el, index) => {
+
+      // 退避している場合は大破判定しない
+      if (svdata.isShipEscaped(battleDeck, index)) {
+        return false
+      }
+
       const ship = svdata.ship(el)
       if (!ship) {
         return false
@@ -577,30 +583,35 @@ const checkTaihaSingeki = (): boolean => {
     return true
   }
 
-  if (!svdata.isCombined) {
-    return false
-  }
+  // 出撃が第一艦隊で連合艦隊の場合は第二艦隊も判定する
+  if (battleDeck.api_id == ApiDeckPortId.deck1st && svdata.isCombined) {
+    const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+    if (!deck2) {
+      return false
+    }
 
-  const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
-  if (!deck2) {
-    return false
-  }
+    if (
+      deck2.api_ship.some((el, index) => {
+        // 第2旗艦は判定しない
+        if (0 === index) {
+          return false
+        }
 
-  if (
-    deck2.api_ship.some((el, index) => {
-      // 第2旗艦は判定しない
-      if (0 === index) {
-        return false
-      }
+        // 退避している場合は大破判定しない
+        if (svdata.isShipEscaped(deck2, index)) {
+          return false
+        }
 
-      const ship = svdata.ship(el)
-      if (!ship) {
-        return false
-      }
-      return KcsUtil.shipHpState(ship) == ShipHpState.taiha
-    })
-  ) {
-    return true
+        const ship = svdata.ship(el)
+        if (!ship) {
+          return false
+        }
+
+        return KcsUtil.shipHpState(ship) == ShipHpState.taiha
+      })
+    ) {
+      return true
+    }
   }
 
   return false
