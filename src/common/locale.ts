@@ -1,5 +1,5 @@
 import { AggregateShipType } from "@common/calc_record"
-import { ApiFormation, ApiShipBacks, YCutin, YSCutin } from "@common/kcs"
+import { AirBaseActionKind, ApiFormation, ApiShipBacks, YCutin, YSCutin } from "@common/kcs"
 
 export const SyateiText = ['', '短', '中', '長', '超長', '超長+'] as const
 
@@ -105,6 +105,8 @@ export const getYSCutinText = (cutin: YSCutin, isShort: boolean): string => {
 export const SenseiTaisenText = ['先制対潜', '自動対潜'] as const
 
 export const DeckNames = ['第一艦隊', '第二艦隊', '第三艦隊', '第四艦隊'] as const
+
+export const CombinedNames = ['', '機動', '水上', '輸送'] as const
 
 // 制空権
 export const DispSeikuText = [
@@ -252,3 +254,8 @@ export function getAirSearchResultText(result: number): string {
   return AirSearchResultText[result] || ''
 }
 
+// 基地航空隊状態
+export const AirBaseActionKindText = ['待機', '出撃', '防空', '退避', '休息'] as const
+export function getAirBaseActionKindText(kind: AirBaseActionKind): string {
+  return AirBaseActionKindText[kind] || ''
+}
