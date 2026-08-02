@@ -815,11 +815,26 @@ const combinedSeiku = computed<number>(
   () => svdata.deckSeiku(decks.value[0]) + svdata.deckSeiku(decks.value[1])
 )
 const currentSeikuu = computed<number>(() => {
-  if (svdata.isCombined) return combinedSeiku.value
+
+  // 出撃デッキがある場合
   const deck = svdata.battleDeck
-  if (deck) return svdata.deckSeiku(deck)
+  if (deck) {
+    // 連合艦隊の場合
+    if (svdata.isCombined && deck.api_id === ApiDeckPortId.deck1st) {
+      return combinedSeiku.value
+    }
+    return svdata.deckSeiku(deck)
+  }
+
+  // 連合艦隊の場合
+  if (svdata.isCombined) {
+    return combinedSeiku.value
+  }
+
+  // 第一デッキを表示
   return svdata.deckSeiku(decks.value[0])
 })
+
 const deckSeikus = computed<number[]>(() => decks.value.map((deck) => svdata.deckSeiku(deck)))
 
 function enemySpotClick(event: MouseEvent): void {
@@ -1170,38 +1185,10 @@ const deckCombinedMapLos = computed<string>(() => {
   return `${los1}/${los2}/${los3}/${los4}`
 })
 
-const checkDeckEscaped = (id: ApiDeckPortId): boolean => {
-  if (! svdata.inMap) {
-    return false
-  }
-
-  const deck = svdata.deckPort(id)
-  if (!deck) {
-    return false
-  }
-
-  return deck.api_ship.some((_, index) => svdata.isShipEscaped(deck, index))
-};
-
-const isDeck1Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck1st))
-const isDeck2Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck2st))
-const isDeck3Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck3st))
-
-const isDeckCombinedEscaped = computed<boolean>(() => {
-
-  if (! svdata.inMap) {
-    return false
-  }
-
-  const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
-  const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
-  if (!deck1 || !deck2) {
-    return false
-  }
-
-  return deck1.api_ship.some((_, index) => svdata.isShipEscaped(deck1, index)) ||
-         deck2.api_ship.some((_, index) => svdata.isShipEscaped(deck2, index))
-})
+const isDeck1Escaped = computed<boolean>(() => svdata.isDeckEscaped(ApiDeckPortId.deck1st))
+const isDeck2Escaped = computed<boolean>(() => svdata.isDeckEscaped(ApiDeckPortId.deck2st))
+const isDeck3Escaped = computed<boolean>(() => svdata.isDeckEscaped(ApiDeckPortId.deck3st))
+const isDeckCombinedEscaped = computed<boolean>(() => svdata.isDeckCombinedEscaped())
 
 const deckCombinedYusou = computed<string>(() => {
   const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)

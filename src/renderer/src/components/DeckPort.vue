@@ -101,7 +101,9 @@ const combinedName = computed<string>(() => {
               <div v-if="deck.seiku > 0" title="制空値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
-                  <div class="txt">{{deck.seiku}}</div>
+                  <div class="txt" :class="{
+                    'is-minus': deck.isEscaped
+                  }">{{deck.seiku}}</div>
                 </div>
               </div>
               <div v-if="isShowYusou && (deck.yusou > 0)" title="輸送値" class="seiku-wrapper ml-1">

@@ -10928,6 +10928,34 @@ export class SvData {
     return check_indexs.includes(start_index + index)
   }
 
+  public isDeckEscaped(id: ApiDeckPortId): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck = this.deckPort(id)
+    if (!deck) {
+      return false
+    }
+
+    return deck.api_ship.some((_, index) => this.isShipEscaped(deck, index))
+  }
+
+  public isDeckCombinedEscaped(): boolean {
+    if (! this.inMap) {
+      return false
+    }
+
+    const deck1 = this.deckPort(ApiDeckPortId.deck1st)
+    const deck2 = this.deckPort(ApiDeckPortId.deck2st)
+    if (!deck1 || !deck2) {
+      return false
+    }
+
+    return deck1.api_ship.some((_, index) => this.isShipEscaped(deck1, index)) ||
+          deck2.api_ship.some((_, index) => this.isShipEscaped(deck2, index))
+  }
+
   public shipSeiku(ship: ApiShip | undefined): number {
     let ret = 0
     if (ship) {
@@ -10968,10 +10996,18 @@ export class SvData {
   }
 
   public deckSeiku(deck: ApiDeckPort): number {
-    return deck.api_ship.reduce(
-      (acc: number, ship_id: number) => (acc += this.shipSeiku(this.ship(ship_id))),
-      0
-    )
+    return deck.api_ship.reduce((acc: number, ship_id: number, index: number) => {
+
+      // 退避艦チェック
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          return acc
+        }
+      }
+
+      acc += this.shipSeiku(this.ship(ship_id));
+      return acc;
+    }, 0)
   }
 
   public deckYusou(deck: ApiDeckPort): number {

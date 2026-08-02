@@ -58,6 +58,7 @@ export interface DeckInfo {
   seiku: number
   yusou: number
   isLock: boolean
+  isEscaped: boolean
 }
 
 export interface EnemyInfo {
@@ -395,7 +396,8 @@ class RUtilImpl {
       inMission: inMissionStates.includes(deckport.api_mission[0]),
       seiku: svdata.deckSeiku(deckport),
       yusou: svdata.deckYusou(deckport),
-      isLock: false
+      isLock: false,
+      isEscaped: svdata.isDeckEscaped(deckport.api_id)
     }))
     if (ret.length < 4) {
       const ids = [
@@ -411,7 +413,8 @@ class RUtilImpl {
           inMission: false,
           seiku: 0,
           yusou: 0,
-          isLock: true
+          isLock: true,
+          isEscaped: false
         })
       }
     }

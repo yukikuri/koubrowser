@@ -3095,6 +3095,10 @@ $cell-emeny-tab-item-height: 31px;
       line-height: 12px;
       transform: translateY(-2px);
     }
+    $color-minus: orange;
+    .is-minus {
+      color: $color-minus;
+    }
   }
 }
 
