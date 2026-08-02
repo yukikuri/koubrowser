@@ -10929,8 +10929,8 @@ export class SvData {
   }
 
   /**
-   * 退避艦が新在するか？
-   * 
+   * 退避艦が存在するか？
+   *
    * @param id 
    * @returns 
    */
