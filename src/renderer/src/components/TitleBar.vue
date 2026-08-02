@@ -201,7 +201,8 @@ const mapAreaText = computed((): string => {
 
   // mapinfo.api_nameは名前が長いことがあり表示しない
   const s1 = svdata.inMap ? '出撃中' : '出撃帰'
-  return `${s1}: ${mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id}-${mapinfo.api_no}`
+  const areaText = mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id + '-'
+  return `${s1}: ${areaText}${mapinfo.api_no}`
 })
 
 const mapCellText = computed((): string => {
@@ -1118,8 +1119,8 @@ if (EnvRenderer.isTestMode) {
           v-show="isGimmickClear"
           :style="gimmickClearStyle">&nbsp;&nbsp;<span 
             class="g">ギミック</span>解除音<span 
-              v-if="isGimmickFlagDetected" class="tag-circle yellow">有</span><span 
-              v-if="isMapChangeDetected" class="tag-circle yellow">有<span 
+              v-if="isGimmickClear" class="tag-circle yellow">有</span><span 
+              v-if="false" class="tag-circle yellow">有<span 
                 class="is-map">MAP</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
