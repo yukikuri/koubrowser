@@ -1415,6 +1415,12 @@ $world-event-tab-width: 150px;
       left: 10px;
       right: unset;
     }
+
+    $color-minus: orange;
+
+    .is-minus {
+      color: $color-minus;
+    }
   }
 
   .spot {

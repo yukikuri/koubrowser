@@ -11149,7 +11149,16 @@ export class SvData {
    * 指定した係数の配列で計算結果を返すように
    */
   public deckMapLos(deck: ApiDeckPort, maplos: number): number {
-    const ship_los = deck.api_ship.reduce((los, ship_id) => {
+    const ship_los = deck.api_ship.reduce((los, ship_id, index) => {
+
+      // check escape
+      if (this.inMap) {
+        if (this.isShipEscaped(deck, index)) {
+          // is escaped, skip
+          return los;
+        }
+      }
+
       const ship = this.ship(ship_id)
       if (ship) {
         const calc = InvalidMapLosValue()

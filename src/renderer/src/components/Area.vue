@@ -1136,28 +1136,6 @@ const deck2MapLos = computed<string>(() => {
 const deck3MapLos = computed<string>(() => {
   return getDeckMapLos(ApiDeckPortId.deck3st)
 })
-const airBaseInfoText = computed<string>(() => {
-  const airbases = svdata.airbase(props.area_id)
-  debug('airBaseInfoText', airbases)
-  const syutugeki = airbases?.filter((el) => el.api_action_kind === AirBaseActionKind.syutugeki)
-  const bouku = airbases?.filter((el) => el.api_action_kind === AirBaseActionKind.bouku)
-  let syutugekiText = '';
-  let boukuText = ''
-  let space ='';
-  if (syutugeki && syutugeki.length > 0) {
-    syutugekiText = `出撃隊数:${Math.min(airbaseDecks.value, syutugeki.length)}`;
-    space = ' ';
-  }
-  if (bouku && bouku.length > 0) {
-    boukuText = `${space}防空隊数:${bouku.length}`;
-  }
-
-  if (! syutugekiText && !boukuText) {
-    return ''
-  }
-
-  return `基地${syutugekiText}${boukuText}`
-})
 
 const isAirBaseEnable = (rid: ApiRID): boolean => {
   const airbase = svdata.airbase(props.area_id)?.find((el) => el.api_rid === rid)
@@ -1190,6 +1168,39 @@ const deckCombinedMapLos = computed<string>(() => {
   const los3 = Math.trunc(svdata.deckMapLos(deck1, 3) + svdata.deckMapLos(deck2, 3))
   const los4 = Math.trunc(svdata.deckMapLos(deck1, 4) + svdata.deckMapLos(deck2, 4))
   return `${los1}/${los2}/${los3}/${los4}`
+})
+
+const checkDeckEscaped = (id: ApiDeckPortId): boolean => {
+  if (! svdata.inMap) {
+    return false
+  }
+
+  const deck = svdata.deckPort(id)
+  if (!deck) {
+    return false
+  }
+
+  return deck.api_ship.some((_, index) => svdata.isShipEscaped(deck, index))
+};
+
+const isDeck1Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck1st))
+const isDeck2Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck2st))
+const isDeck3Escaped = computed<boolean>(() => checkDeckEscaped(ApiDeckPortId.deck3st))
+
+const isDeckCombinedEscaped = computed<boolean>(() => {
+
+  if (! svdata.inMap) {
+    return false
+  }
+
+  const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+  const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+  if (!deck1 || !deck2) {
+    return false
+  }
+
+  return deck1.api_ship.some((_, index) => svdata.isShipEscaped(deck1, index)) ||
+         deck2.api_ship.some((_, index) => svdata.isShipEscaped(deck2, index))
 })
 
 const deckCombinedYusou = computed<string>(() => {
@@ -1371,14 +1382,14 @@ function onChangeAirbaseSpot(value: boolean): void {
           'left-top': isEventMapLosLeftTop
         }">
         <template v-if="isCombined">
-          <div>索敵値(連合)：{{ deckCombinedMapLos }}</div>
-          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+          <div :class="{'is-minus': isDeckCombinedEscaped }">索敵値(連合)：{{ deckCombinedMapLos }}</div>
+          <div :class="{'is-minus': isDeck3Escaped }">索敵値(第三)：{{ deck3MapLos }}</div>
           <div v-if="isShowYusou">輸送値(連合)：{{ deckCombinedYusou }}</div>
         </template>
         <template v-else>
-          <div>索敵値(第一)：{{ deck1MapLos }}</div>
-          <div>索敵値(第二)：{{ deck2MapLos }}</div>
-          <div>索敵値(第三)：{{ deck3MapLos }}</div>
+          <div :class="{'is-minus': isDeck1Escaped }">索敵値(第一)：{{ deck1MapLos }}</div>
+          <div :class="{'is-minus': isDeck2Escaped }">索敵値(第二)：{{ deck2MapLos }}</div>
+          <div :class="{'is-minus': isDeck3Escaped }">索敵値(第三)：{{ deck3MapLos }}</div>
         </template>
         <div v-if="isAirBase1Enable">{{ airBase1Text }}</div>
         <div v-if="isAirBase2Enable">{{ airBase2Text }}</div>
