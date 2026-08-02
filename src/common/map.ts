@@ -179,8 +179,18 @@ const AlwaysDropCellNos: AlwaysDropCellNo[] = [
   { mapId: 63, cellNos: [10] },
   { mapId: 64, cellNos: [14, 20, 21] },
   { mapId: 65, cellNos: [13, 18] },
+
+  // event: 62x
+  { mapId: 621, cellNos: [46] },
+  { mapId: 622, cellNos: [55] },
+  { mapId: 623, cellNos: [62] },
+  { mapId: 624, cellNos: [47] },
+  { mapId: 625, cellNos: [68, 76] },
 ];
 export function isAlwaysDropCellNo(mapId: number, cellId: number): boolean {
   const cellNo = AlwaysDropCellNos.find((bc) => bc.mapId === mapId);
   return cellNo ? cellNo.cellNos.includes(cellId) : false;
+}
+export function isAlwaysDropCellNoArea(areaId: number, areaNo: number, cellId: number): boolean {
+  return isAlwaysDropCellNo(areaId * 10 + areaNo, cellId);
 }
