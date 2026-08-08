@@ -248,6 +248,10 @@ export const ApiShipCategory = {
   courageous_kubo: 135, // Courageous型(Glorious 空母)
   reitousen: 136, // 冷凍船
   thonburi: 137, // Thonburi型
+  algérie: 138, // Algérie型
+  vautour: 139, // Vautour型
+  visby: 140, // Visby型
+  béarn: 141, // Béarn型
 } as const
 export type ApiShipCategory = (typeof ApiShipCategory)[keyof typeof ApiShipCategory]
 

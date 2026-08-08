@@ -3234,7 +3234,7 @@ register(
         svdata.shipMstIds(16), // usio
         svdata.shipMstIds(35), // hibiki
       ].flat()
-      
+
       return shipCount(msts, shipIds) >= 5
     }
   }
@@ -7170,7 +7170,10 @@ register(
         ApiShipCategory.richelieu,
         ApiShipCategory.commandantTeste,
         ApiShipCategory.la_galissonniere,
-        ApiShipCategory.mogador
+        ApiShipCategory.mogador,
+        ApiShipCategory.algérie,
+        ApiShipCategory.vautour,
+        ApiShipCategory.béarn,
       ]
       if (!shipCategoryCount([ships[0]], cats)) {
         return false
@@ -7441,7 +7444,10 @@ register(
         ApiShipCategory.richelieu,
         ApiShipCategory.commandantTeste,
         ApiShipCategory.la_galissonniere,
-        ApiShipCategory.mogador
+        ApiShipCategory.mogador,
+        ApiShipCategory.algérie,
+        ApiShipCategory.vautour,
+        ApiShipCategory.béarn,
       ]
       return shipCategoryCount(ships, cats) >= 3
     }
