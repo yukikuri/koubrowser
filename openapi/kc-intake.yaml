@@ -1,13 +1,30 @@
 openapi: 3.0.3
 info:
   title: Kc Intake API
-  version: 1.0.0
+  version: 1.0.1
 
 paths:
   /drop:
     post:
       summary: Drop情報受付
       operationId: drop
+      parameters:
+        - name: Kc-Intake-Sender
+          in: header
+          required: false
+          description: |
+            送信元クライアント識別情報。
+            後方互換性のため、省略可能です。
+            サーバ側の処理には影響しない参考情報です。
+            ソフト名のみ、またはソフト名とバージョン番号を指定できます。
+            OS名などの追加情報を含めることも任意です。
+            例:
+              koubrowser/1.0.8
+              koubrowser
+          schema:
+            type: string
+            maxLength: 128
+            example: "koubrowser/1.0.8"
       requestBody:
         required: true
         description: |
