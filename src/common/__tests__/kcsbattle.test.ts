@@ -616,4 +616,36 @@ describe('kcsbattle test', () => {
       { id: 1622, hp: 43-30-181 },
     ])
   })
+
+  it('case27: calculates sortie battle', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+
+    // case27: 機動部隊 vs 連合艦隊(通常マス)
+    // 基地航空隊1部隊目2部隊目、開幕、砲撃支援、先制雷撃、砲撃(特殊有り)、雷撃戦、砲撃、夜戦(敵第二)
+    const battleInfo = loadBattleInfo(
+      'case27-api_req_combined_battle-each_battle.json',
+      'case27-api_req_combined_battle-ec_midnight_battle.json'
+    )
+
+    expect(calcFleetHps(battleInfo)).toEqual({ 
+      deck: [91-13,88-6-42,71-11-43-11-3,33,26-13-9,51-27],
+      combined: [31,19-11,17-14,47-4-3,14,38-28-6-2]
+    })
+    expect(calcEnemyHps(battleInfo)).toEqual([
+      { id: 2391, hp: 1200 },
+      { id: 2119, hp: 900-86-311-40 },
+      { id: 2104, hp: 133-70-320 },
+      { id: 2104, hp: 133-162 },
+      { id: 2039, hp: 740-54-70-100-62 },
+      { id: 2039, hp: 740-285-58-37 },
+      // --
+      { id: 2321, hp: 470-10-237-338-226 },
+      { id: 1862, hp: 130-10-51-175 },
+      { id: 2052, hp: 69-66-63 },
+      { id: 2051, hp: 66-8-396-391 },
+      { id: 2051, hp: 66-36-2-40 },
+      { id: 1623, hp: 46-54 }
+    ])
+  })
+
 })
