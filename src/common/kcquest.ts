@@ -7401,7 +7401,9 @@ register(
       }
 
       const msts = toShipMsts(svdata, ship_ids)
-      const shipIds1 = [
+      const shipIds = [
+        svdata.shipMstIds(1041), // hanaduki
+        svdata.shipMstIds(1044), // kiri
         svdata.shipMstIds(994), // kaya
         svdata.shipMstIds(992), // sugi
         svdata.shipMstIds(993), // kasi
@@ -7409,16 +7411,6 @@ register(
         svdata.shipMstIds(16), // usio
         svdata.shipMstIds(35), // hibiki
       ].flat()
-      // 6月
-      const shipIdsMonth6 = [
-        svdata.shipMstIds(41), // hatusimo
-        svdata.shipMstIds(20), // yukikaze
-        svdata.shipMstIds(533), // fuyutuki
-        svdata.shipMstIds(532), // sudutuki
-      ].flat()
-
-      const shipIds = [...shipIds1]
-      shipIds.push(...shipIdsMonth6)
       return shipCount(msts, shipIds) >= 5
     }
   }
