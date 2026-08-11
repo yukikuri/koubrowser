@@ -248,6 +248,10 @@ export const ApiShipCategory = {
   courageous_kubo: 135, // Courageous型(Glorious 空母)
   reitousen: 136, // 冷凍船
   thonburi: 137, // Thonburi型
+  algérie: 138, // Algérie型
+  vautour: 139, // Vautour型
+  visby: 140, // Visby型
+  béarn: 141, // Béarn型
 } as const
 export type ApiShipCategory = (typeof ApiShipCategory)[keyof typeof ApiShipCategory]
 
@@ -7857,7 +7861,7 @@ export interface ApiMap {
   readonly api_color_no: number
   readonly api_event_id: ApiEventId
   readonly api_event_kind: ApiEventKind
-  readonly api_next: number
+  readonly api_next: number  // 行き止まりの場合、0
   readonly api_bosscell_no: number
   readonly api_bosscomp: number
   readonly api_airsearch: ApiAirSearch
@@ -7898,6 +7902,18 @@ export interface ApiMapNext extends ApiMap {
   readonly api_get_eo_rate?: number
   readonly api_itemget_eo_result?: ApiItemGetEo
   readonly api_m1?: number // 2026夏イベでのE1H到達でのマップ変化で4が設定
+}
+
+const ApiRecoveryType = {
+  none: '0', // 選択無し
+  repair: '1', // 修理要員
+  megami: '2', // 女神
+} as const
+export type ApiRecoveryType = (typeof ApiRecoveryType)[keyof typeof ApiRecoveryType]
+
+interface ApiMapNextParam {
+  readonly api_verno: string
+  readonly api_recovery_type: ApiRecoveryType
 }
 
 export const ApiItemGetUseMst = {

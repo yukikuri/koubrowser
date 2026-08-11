@@ -3224,7 +3224,9 @@ register(
       }
 
       const msts = toShipMsts(svdata, ship_ids)
-      const shipIds1 = [
+      const shipIds = [
+        svdata.shipMstIds(1041), // hanaduki
+        svdata.shipMstIds(1044), // kiri
         svdata.shipMstIds(994), // kaya
         svdata.shipMstIds(992), // sugi
         svdata.shipMstIds(993), // kasi
@@ -3232,16 +3234,7 @@ register(
         svdata.shipMstIds(16), // usio
         svdata.shipMstIds(35), // hibiki
       ].flat()
-      // 6月
-      const shipIdsMonth6 = [
-        svdata.shipMstIds(41), // hatusimo
-        svdata.shipMstIds(20), // yukikaze
-        svdata.shipMstIds(533), // fuyutuki
-        svdata.shipMstIds(532), // sudutuki
-      ].flat()
 
-      const shipIds = [...shipIds1]
-      shipIds.push(...shipIdsMonth6)
       return shipCount(msts, shipIds) >= 5
     }
   }
@@ -7177,7 +7170,10 @@ register(
         ApiShipCategory.richelieu,
         ApiShipCategory.commandantTeste,
         ApiShipCategory.la_galissonniere,
-        ApiShipCategory.mogador
+        ApiShipCategory.mogador,
+        ApiShipCategory.algérie,
+        ApiShipCategory.vautour,
+        ApiShipCategory.béarn,
       ]
       if (!shipCategoryCount([ships[0]], cats)) {
         return false
@@ -7405,7 +7401,9 @@ register(
       }
 
       const msts = toShipMsts(svdata, ship_ids)
-      const shipIds1 = [
+      const shipIds = [
+        svdata.shipMstIds(1041), // hanaduki
+        svdata.shipMstIds(1044), // kiri
         svdata.shipMstIds(994), // kaya
         svdata.shipMstIds(992), // sugi
         svdata.shipMstIds(993), // kasi
@@ -7413,16 +7411,6 @@ register(
         svdata.shipMstIds(16), // usio
         svdata.shipMstIds(35), // hibiki
       ].flat()
-      // 6月
-      const shipIdsMonth6 = [
-        svdata.shipMstIds(41), // hatusimo
-        svdata.shipMstIds(20), // yukikaze
-        svdata.shipMstIds(533), // fuyutuki
-        svdata.shipMstIds(532), // sudutuki
-      ].flat()
-
-      const shipIds = [...shipIds1]
-      shipIds.push(...shipIdsMonth6)
       return shipCount(msts, shipIds) >= 5
     }
   }
@@ -7448,7 +7436,10 @@ register(
         ApiShipCategory.richelieu,
         ApiShipCategory.commandantTeste,
         ApiShipCategory.la_galissonniere,
-        ApiShipCategory.mogador
+        ApiShipCategory.mogador,
+        ApiShipCategory.algérie,
+        ApiShipCategory.vautour,
+        ApiShipCategory.béarn,
       ]
       return shipCategoryCount(ships, cats) >= 3
     }
@@ -15294,7 +15285,11 @@ register(
       { id: 25 }
     ]
     static getCondition(svdata: SvData): DestroyItemCondition {
-      const ids = [svdata.shipMstIds(911), svdata.shipMstIds(488), 633].flat()
+      const ids = [
+        svdata.shipMstIds(911), // yamato kaini
+        svdata.shipMstIds(488), // yura kaini
+        svdata.shipMstIds(663), // yahagi kaini
+      ].flat()
       return {
         flagship_ids: ids,
         flagship_slotitem_ids: [238],

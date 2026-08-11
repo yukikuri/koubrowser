@@ -17,6 +17,7 @@ import {
   MenuItem,
   Menu,
   Display,
+  Input,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { is } from '@electron-toolkit/utils'
@@ -448,6 +449,17 @@ export class KcApp {
         webPreferences.preload = path.join(getMainDir(), '../preload/xhr-hook.js')
       }
     })
+
+    // 轟沈防止でCTRLキー押下状態を検知するため、webviewのbefore-input-eventを監視する(game webview側)
+    this.main_window.webContents.on('did-attach-webview', (_event, webContents: WebContents) => {
+      debug('did-attach-webview')
+      webContents.on('before-input-event', (_event, input) => this.onBeforeInputEvent(input))
+    })
+
+    // 轟沈防止でCTRLキー押下状態を検知するため、webviewのbefore-input-eventを監視する(main webcontents側)
+    // フォーカスロストはmain webcontents側でのみ検知できる
+    this.main_window.webContents.on('before-input-event', (_event, input) => this.onBeforeInputEvent(input))
+    this.main_window.webContents.on('blur', () => this.onMainWindowBlur())
 
     if (Env.isDevelopment) {
       this.main_window.webContents.openDevTools()
@@ -962,7 +974,7 @@ export class KcApp {
    * @param webContents
    */
   private onWebContentsCreated(_event: Event, webContents: WebContents): void {
-    debug('onWebContentsCreated') //, event, webContents);
+    debug('onWebContentsCreated', _event, 'url:', webContents.getURL());
 
     const didCreateWindowHandler = (window: BrowserWindow, detail: DidCreateWindowDetails) => 
       this.onDidCreateWindow(window, detail, webContents)
@@ -974,6 +986,63 @@ export class KcApp {
     webContents.once('destroyed', () => {
       webContents.removeListener('did-create-window', didCreateWindowHandler)
     })
+  }
+
+  /**
+   * 
+   */
+  private get isMainWindowDestroyed(): boolean {
+    const mainWindow = this.main_window
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return true
+    }
+
+    const webContents = mainWindow.webContents
+    if (!webContents || webContents.isDestroyed()) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * キー入力イベント処理
+   * CTRLキー押下で轟沈防止画面クリックを可とするためにgame側レンダラに通知する
+   * 
+   * @param input 
+   */
+  private onBeforeInputEvent(input: Input): void {
+    if (input.key === 'Control') {
+
+      if (this.isMainWindowDestroyed) {
+        debug('main window destroyed, ignore ctrl key event')
+        return
+      }
+
+      if (input.type === 'keyDown') {
+        debug('ctrl pressed')
+        this.main_window.webContents.send(GameChannel.set_ctrl_state, true)
+      }
+      
+      if (input.type === 'keyUp') {
+        debug('ctrl released')
+        this.main_window.webContents.send(GameChannel.set_ctrl_state, false)
+      }
+    }
+  }
+
+  /**
+   * フォーカスロストイベント処理
+   * CTRLキー状態をgame側レンダラに通知する
+   */
+  private onMainWindowBlur(): void {
+    const isDestroyed = this.isMainWindowDestroyed
+    debug('main window blur. isDestroyed:', isDestroyed)
+    if (isDestroyed) {
+      return
+    }
+
+    this.main_window.webContents.send(GameChannel.set_ctrl_state, false)
   }
 
   /**
