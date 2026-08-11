@@ -15285,7 +15285,11 @@ register(
       { id: 25 }
     ]
     static getCondition(svdata: SvData): DestroyItemCondition {
-      const ids = [svdata.shipMstIds(911), svdata.shipMstIds(488), 633].flat()
+      const ids = [
+        svdata.shipMstIds(911), // yamato kaini
+        svdata.shipMstIds(488), // yura kaini
+        svdata.shipMstIds(663), // yahagi kaini
+      ].flat()
       return {
         flagship_ids: ids,
         flagship_slotitem_ids: [238],
