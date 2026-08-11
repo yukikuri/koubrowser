@@ -65,7 +65,8 @@ export const GameChannel = {
   set_app_state: 'set_app_state',
   set_game_setting: 'set_game_setting',
   set_zoom_factor: 'set-zoom-factor',
-  resume: 'resume'
+  resume: 'resume',
+  set_ctrl_state: 'set_ctrl_state', // ctrlキー押下状態 args: 押下状態
 } as const
 export type GameChannel = (typeof GameChannel)[keyof typeof GameChannel]
 

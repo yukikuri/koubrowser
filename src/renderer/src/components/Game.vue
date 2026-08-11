@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted, computed } from 'vue'
 // webview
 // https://www.electronjs.org/ja/docs/latest/api/webview-tag
 import { WebviewTag, DidFrameFinishLoadEvent, LoadCommitEvent, IpcRendererEvent } from 'electron'
@@ -9,6 +9,11 @@ import { Const } from '@common/const'
 import { gameState } from '@renderer/store/gamestate'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { MainRendererState } from '@renderer/store/renderer_state'
+import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
+import WarningIcon from '@assets/img/warning.svg'
+import { ApiCallback } from '@common/kcs'
+import { Api } from '@common/kcsapi'
+import { svdata } from '@renderer/store/svdata'
 const ipcRenderer = window.electron.ipcRenderer
 const el = ref<HTMLElement | null>(null)
 
@@ -19,6 +24,26 @@ const DEBUG = 0;
 const debug = (...args: any[]) => {
   if (DEBUG) console.debug("[game webview]", ...args);
 };
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 大破進撃防止関連
+let cb_port = 0;
+let cb_battle_result = 0;
+let cb_combined_battle_result = 0;
+let cb_map_next = 0;
+const taihaSingekiResult = ref<kcs_stuff.CheckTaihaSingekiResult | null>(null)
+let blockShieldVisibleTimer: ReturnType<typeof setTimeout> | null = null
+const isBlockShieldEnabled = ref<boolean>(true)
+
+// アニメーション完了後に要素を削除するための判定に使用
+const isTaihaWarningInAnimation = ref(false)
+
+const clearBlockShieldVisibleTimer = () => {
+  if (blockShieldVisibleTimer) {
+    clearTimeout(blockShieldVisibleTimer)
+    blockShieldVisibleTimer = null
+  }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -88,6 +113,19 @@ onMounted(() => {
   }
 
   ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
+
+  // 大破進撃防止関連
+  cb_port = ApiCallback.set([Api.PORT_PORT, () => onPort()])
+  cb_battle_result = ApiCallback.set(
+    [Api.REQ_SORTIE_BATTLERESULT, () => onBattleResult()]
+  )
+  cb_combined_battle_result = ApiCallback.set(
+    [Api.REQ_COMBINED_BATTLE_BATTLERESULT, () => onBattleResult()]
+  )
+  cb_map_next = ApiCallback.set(
+    [Api.REQ_MAP_NEXT, () => onMapNext()]
+  )
+
   debug('game mounted <<')
 })
 
@@ -104,6 +142,25 @@ onUnmounted(() => {
     webview.removeEventListener('media-started-playing', mediaStartedPlaying)
     webview.removeEventListener('media-paused', mediaPaused)
   }
+
+  if (cb_port) {
+    ApiCallback.unset(cb_port)
+    cb_port = 0
+  }
+  if (cb_battle_result) {
+    ApiCallback.unset(cb_battle_result)
+    cb_battle_result = 0
+  }
+  if (cb_combined_battle_result) {
+    ApiCallback.unset(cb_combined_battle_result)
+    cb_combined_battle_result = 0
+  }
+  if (cb_map_next) {
+    ApiCallback.unset(cb_map_next)
+    cb_map_next = 0
+  }
+  clearBlockShieldVisibleTimer()
+
   debug('game unmounted <<')
 })
 
@@ -264,6 +321,164 @@ defineExpose({
   getWebview,
   setMute
 })
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 大破進撃関連
+function onPort(): void {
+  debug('onPort')
+  taihaSingekiResult.value = null
+  isBlockShieldEnabled.value = true
+  isTaihaWarningInAnimation.value = false
+  clearBlockShieldVisibleTimer()
+  gameState.ctrl_pressed = false
+}
+
+function onBattleResult(): void {
+
+  clearBlockShieldVisibleTimer()
+  isTaihaWarningInAnimation.value = false
+
+  // todo
+  // 大破進撃防止の判定は、艦隊HP更新後に行う必要があることの改善
+  // 艦隊HP更新はcallback呼び出し後に行われることからsettimeoutで遅延判定する
+  setTimeout(() => {
+    const result = kcs_stuff.checkTaihaSingeki()
+    debug('onBattleResult', result)
+
+    if (! result.isTaihaSingeki) {
+      debug('onBattleResult: no taiha singeki')
+      taihaSingekiResult.value = null
+      isTaihaWarningInAnimation.value = false
+      return
+    }
+
+    // 大破判定となった場合、戦闘結果画面が表示される約8秒後に表示する
+    const delaySec = 8000;
+    blockShieldVisibleTimer = setTimeout(() => {
+      taihaSingekiResult.value = result
+      isTaihaWarningInAnimation.value = true
+      blockShieldVisibleTimer = null
+    }, delaySec)
+
+  }, 0)
+}
+
+function onMapNext(): void {
+  debug('onMapNext')
+  taihaSingekiResult.value = null
+  isBlockShieldEnabled.value = true
+  gameState.ctrl_pressed = false
+}
+
+const isTaihaAdvanceBlockerVisible = computed<boolean>(() => {
+  const result = taihaSingekiResult.value
+  if (!result) {
+    debug('isTaihaAdvanceBlockerVisible: no result')
+    return false
+  }
+  debug('isTaihaAdvanceBlockerVisible: result', result)
+  return result.isTaihaSingeki
+})
+
+type TaihaShipInfo = {
+  // Lv.xx艦名(修理,女神)
+  // Lv.xx艦名(ダメコンなし)
+  shipText: string
+  dameconText: string
+  noDamageControl: boolean
+}
+
+const taihaShipInfos = computed<TaihaShipInfo[]>(() => {
+  const result = taihaSingekiResult.value
+  if (!result || !result.isTaihaSingeki) {
+    debug('taihaShipInfos: no result')
+    return []
+  }
+  return result.infos.map((info) => {
+    let dameconTexts: string[] = []
+    if (info.equips.includes(kcs_stuff.EquipType.flagship_megami) ||
+        info.equips.includes(kcs_stuff.EquipType.megami)) {
+      dameconTexts.push('女神')
+    }
+    if (info.equips.includes(kcs_stuff.EquipType.flagship_repair) ||
+        info.equips.includes(kcs_stuff.EquipType.repair)) {
+      dameconTexts.push('修理')
+    }
+    if (dameconTexts.length === 0) {
+      dameconTexts.push('ダメコンなし')
+    }
+
+    const api = info.api_ship
+    const mst = svdata.mstShip(api.api_ship_id)
+    const shipText = `Lv.${api.api_lv}${mst?.api_name ?? ''}`
+    const dameconText = dameconTexts.join(',')
+
+    return {
+      shipText,
+      dameconText,
+      noDamageControl: !info.equips.length
+    }
+  })
+})
+
+const isFlagshipTaiha = computed<boolean>(() => {
+  const result = taihaSingekiResult.value
+  if (!result || !result.isTaihaSingeki) {
+    debug('isFlagshipTaiha: no result')
+    return false
+  }
+
+  return result.infos.some((info) => {
+    const equips = info.equips
+    return equips.includes(kcs_stuff.EquipType.flagship_megami) ||
+           equips.includes(kcs_stuff.EquipType.flagship_repair)
+  })
+})
+
+const isBlockShieldVisible = computed<boolean>(() => {
+
+  // Ctrlキー押下時ならシールド無効
+  if (gameState.ctrl_pressed) {
+    debug('isBlockShieldVisible: ctrl pressed, shield hidden')
+    return false
+  }
+
+  debug('isBlockShieldVisible: shield visible', isBlockShieldEnabled.value)
+  return isBlockShieldEnabled.value
+})
+
+const isGuardHit = ref(false)
+
+const onButtonCoverClick = (_event: MouseEvent): void => {
+
+  // シールドアニメーション表示開始
+  isGuardHit.value = false
+  requestAnimationFrame(() => {
+    isGuardHit.value = true
+  })
+  setTimeout(() => {
+    isGuardHit.value = false
+  }, 450)
+}
+
+// 全体のオーバレイはアニメーション完了で要素を削除する
+const isTaihaOverlayVisible = computed<boolean>(() => {
+  debug('isTaihaOverlayVisible',
+  'isTaihaAdvanceBlockerVisible:', isTaihaAdvanceBlockerVisible.value, 
+  'isTaihaWarningInAnimation:', isTaihaWarningInAnimation.value)
+  
+  if(isTaihaAdvanceBlockerVisible.value) {
+    return true
+  }
+
+  return isTaihaWarningInAnimation.value
+})
+
+const onTaihaWarningAfterLeave = (): void => {
+  debug('onTaihaWarningAfterLeave')
+  isTaihaWarningInAnimation.value = false
+}
+
 </script>
 <template>
   <div class="game-container" ref="el">
@@ -277,5 +492,83 @@ defineExpose({
       nodeIntegrationInSubFrames="true"
       webPreferences="contextIsolation=no, sandbox=no"
     ></webview>
+
+    <div
+      v-if="isTaihaOverlayVisible"
+      class="taiha-overlay"
+    >
+      <transition name="slide-effect" appear @after-leave="onTaihaWarningAfterLeave">
+        <div 
+          v-if="isTaihaAdvanceBlockerVisible"
+          class="taiha-warning-banner">
+          <div class="banner-title"><WarningIcon />大破艦を検知しました</div>
+          <div class="banner-text">
+            轟沈防止で進撃操作を制限しています。シールドOFFにより操作可能です。
+          </div>
+          <div class="banner-text">
+            大破艦：<template v-for="(info, index) in taihaShipInfos" 
+              :key="`${index}-${info.shipText}-${info.dameconText}`"><span 
+              class="taiha-info">{{ info.shipText }}(<WarningIcon v-if="info.noDamageControl" />{{ info.dameconText }})</span><template v-if="index < taihaShipInfos.length - 1">, </template>
+            </template>
+          </div>
+        </div>
+      </transition>
+
+      <transition name="slide-effect" appear>
+        <b-switch
+          v-if="isTaihaAdvanceBlockerVisible"
+          v-model="isBlockShieldEnabled"
+          type="is-danger"
+          class="block-shield-toggle"
+          :left-label="true"
+        ><span class="switch-text">{{ isBlockShieldEnabled ? 'シールドON' : 'シールドOFF' }}</span></b-switch>
+      </transition>
+
+      <div class="button-cover" 
+        v-if="isBlockShieldVisible"
+        title="大破進撃防止" 
+        :class="{ 'is-flagship': isFlagshipTaiha }"
+        @click.prevent.stop="onButtonCoverClick">
+        <svg
+          class="button-cover-shield"
+          :class="{ 'is-guard-hit': isGuardHit }"
+          viewBox="0 0 220 120"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <filter id="shieldCyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feFlood flood-color="#56f6ff" flood-opacity="0.85" result="glowColor" />
+              <feComposite in="glowColor" in2="blur" operator="in" result="glow" />
+              <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <polygon
+            class="shield-fill"
+            points="38,2 182,2 218,60 182,118 38,118 2,60"
+            vector-effect="non-scaling-stroke"
+          />
+
+          <polygon
+            class="shield-border-outer"
+            points="38,2 182,2 218,60 182,118 38,118 2,60"
+            vector-effect="non-scaling-stroke"
+          />
+
+          <polygon
+            class="shield-border-inner"
+            points="45,12 175,12 205,60 175,108 45,108 15,60"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+
+    </div>
+
   </div>
 </template>
