@@ -527,7 +527,7 @@ const onTaihaWarningAfterLeave = (): void => {
       <div class="button-cover" 
         v-if="isBlockShieldVisible"
         title="大破進撃防止" 
-        :class="{ 'is-flagship': isFlagshipTaiha }"
+        :class="{ 'is-flagship': isFlagshipTaiha, 'is-guard-hit': isGuardHit }"
         @click.prevent.stop="onButtonCoverClick">
         <svg
           class="button-cover-shield"
