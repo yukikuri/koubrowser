@@ -1,6 +1,6 @@
 import { svdata } from "@renderer/store/svdata";
 import { mapInfo as storeMapInfo } from '@renderer/store/mapinfo'
-import { ApiDeck, ApiDeckPort, ApiDeckPortId, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
+import { ApiDeckPort, ApiDeckPortId, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
 import { computed } from "vue";
 
 export function isGimmickFlagDetected() {
