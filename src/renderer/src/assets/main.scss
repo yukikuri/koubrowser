@@ -354,19 +354,15 @@ body {
     }
     transition: opacity 0.15s ease;
 
-    // ただの進撃ボタンの場合
-    left: 23%;
-    top: 41%;
-    width: 25%;
-    height: 25%;
+    --left: 23%;
+    --top: 41%;
+    --width: 25%;
+    --height: 25%;
 
-    &.is-flagship {
-      // 旗艦の場合(修理と女神ボタンをブロック)
-      left: 14.5%;
-      top: 20%;
-      width: 42%;
-      height: 76%;
-    }
+    left: var(--left);
+    top: var(--top);
+    width: var(--width);
+    height: var(--height);
 
     pointer-events: auto;
     cursor: not-allowed;

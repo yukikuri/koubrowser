@@ -137,6 +137,30 @@ const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
   }, [])
 }
 
+const DameconSlotitemIds = [42, 43]
+
+const isEquipDamegeControl = (svdata: SvData, ship: ApiShip): boolean => {
+  const hasDamecon = ship.api_slot.some(slotitem_id => {
+    const slotitem = svdata.slotitem(slotitem_id)
+    if (!slotitem) {
+      return false
+    }
+    return DameconSlotitemIds.includes(slotitem.api_slotitem_id)
+  })
+
+  if (hasDamecon) {
+    return true
+  }
+  if (ship.api_slot_ex > 0) {
+    const slotitem = svdata.slotitem(ship.api_slot_ex)
+    if (slotitem) {
+      return DameconSlotitemIds.includes(slotitem.api_slotitem_id)
+    }
+  }
+
+  return false
+}
+
 /**
  * 進撃前での大破艦が存在するかのチェック
  * 
@@ -167,6 +191,15 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
   // 退避艦は除外し、大破艦が存在するか？
   // 存在すれば大破進撃
   const taihaShips = filterTaihaShip(svdata, battleDeck)
+
+  // 旗艦が大破している場合でダメコンなしは強制で進撃できない
+  // falseで返す
+  const flagship = taihaShips.find(ts => ts.index === 0)
+  if (flagship) {
+    if (!isEquipDamegeControl(svdata, flagship.api_ship)) {
+      return { isTaihaSingeki: false }
+    }
+  }
 
   // 出撃が第一艦隊で連合艦隊の場合は第二艦隊も判定する
   const taihaShips2: TaihaShip[] = []

@@ -4,7 +4,7 @@ import type { Api } from './api'
 import { MainChannel, MainMessage, AirbaseSpot, AirbaseTargetSpots } from '@common/channel'
 import type { MstMapinfo, ApiMap } from '@common/kcs'
 import type { Spot } from '@common/map'
-import type { TimelineResult } from '@common/channel'
+import type { TimelineResult, TaihaSingekiBlockState } from '@common/channel'
 import type { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import type { Query, QueryReturn, PortChartData } from '@common/record'
 import type { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
@@ -186,6 +186,10 @@ const api: Api = {
     const handler = (_event: Electron.IpcRendererEvent, result: UpdateCheckResult) => cb(result)
     ipcRenderer.on(MainMessage.startup_update_checked, handler)
     return () => ipcRenderer.removeListener(MainMessage.startup_update_checked, handler)
+  },
+
+  setTaihaSingekiBlockState(state: TaihaSingekiBlockState): void {
+    ipcRenderer.invoke(MainChannel.set_taiha_singeki_block_state, state)
   }
 
 }

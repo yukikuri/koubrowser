@@ -4,7 +4,7 @@ import { ref, onMounted, watch, onUnmounted, computed } from 'vue'
 // https://www.electronjs.org/ja/docs/latest/api/webview-tag
 import { WebviewTag, DidFrameFinishLoadEvent, LoadCommitEvent, IpcRendererEvent } from 'electron'
 import { gameSetting } from '@renderer/store/gamesetting'
-import { GameChannel } from '@common/channel'
+import { GameChannel, TaihaSingekiBlockState } from '@common/channel'
 import { Const } from '@common/const'
 import { gameState } from '@renderer/store/gamestate'
 import { EnvRenderer } from '@renderer/common/env-renderer'
@@ -44,6 +44,18 @@ const clearBlockShieldVisibleTimer = () => {
     blockShieldVisibleTimer = null
   }
 }
+
+const isFlagshipTaiha = computed<boolean>(() => {
+  if (! taihaSingekiResult.value || !taihaSingekiResult.value.isTaihaSingeki) {
+    return false
+  }
+
+  return taihaSingekiResult.value.infos.some((info) => {
+    const equips = info.equips
+    return equips.includes(kcs_stuff.EquipType.flagship_megami) ||
+           equips.includes(kcs_stuff.EquipType.flagship_repair)
+  })
+})
 
 /////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -113,6 +125,7 @@ onMounted(() => {
   }
 
   ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
+  ipcRenderer.on(GameChannel.guard_hit_effect, guardHitEffect)
 
   // 大破進撃防止関連
   cb_port = ApiCallback.set([Api.PORT_PORT, () => onPort()])
@@ -327,8 +340,8 @@ defineExpose({
 function onPort(): void {
   debug('onPort')
   taihaSingekiResult.value = null
+  window.api.setTaihaSingekiBlockState(TaihaSingekiBlockState.noState)
   isBlockShieldEnabled.value = true
-  isTaihaWarningInAnimation.value = false
   clearBlockShieldVisibleTimer()
   gameState.ctrl_pressed = false
 }
@@ -348,14 +361,15 @@ function onBattleResult(): void {
     if (! result.isTaihaSingeki) {
       debug('onBattleResult: no taiha singeki')
       taihaSingekiResult.value = null
-      isTaihaWarningInAnimation.value = false
       return
     }
 
-    // 大破判定となった場合、戦闘結果画面が表示される約8秒後に表示する
-    const delaySec = 8000;
+    // 大破判定となった場合、戦闘結果画面が表示される約9秒後に表示する
+    const delaySec = 9000;
     blockShieldVisibleTimer = setTimeout(() => {
       taihaSingekiResult.value = result
+      window.api.setTaihaSingekiBlockState(
+        isFlagshipTaiha.value ? TaihaSingekiBlockState.flagshipBlock : TaihaSingekiBlockState.normalBlock)
       isTaihaWarningInAnimation.value = true
       blockShieldVisibleTimer = null
     }, delaySec)
@@ -366,6 +380,7 @@ function onBattleResult(): void {
 function onMapNext(): void {
   debug('onMapNext')
   taihaSingekiResult.value = null
+  window.api.setTaihaSingekiBlockState(TaihaSingekiBlockState.noState)
   isBlockShieldEnabled.value = true
   gameState.ctrl_pressed = false
 }
@@ -421,21 +436,36 @@ const taihaShipInfos = computed<TaihaShipInfo[]>(() => {
   })
 })
 
-const isFlagshipTaiha = computed<boolean>(() => {
+const toPercent = (value: number): string => `${value * 100}%`
+const buttonCoverStyle = computed(() => {
+
   const result = taihaSingekiResult.value
   if (!result || !result.isTaihaSingeki) {
     debug('isFlagshipTaiha: no result')
-    return false
+    return {}
   }
 
-  return result.infos.some((info) => {
-    const equips = info.equips
-    return equips.includes(kcs_stuff.EquipType.flagship_megami) ||
-           equips.includes(kcs_stuff.EquipType.flagship_repair)
-  })
+  const rectRate = isFlagshipTaiha.value ? Const.TaihaSingeki.flagshipBlockRect : Const.TaihaSingeki.normalBlockRect
+  const outline = EnvRenderer.isTestMode ? '1px solid red' : undefined
+  const opacity = EnvRenderer.isTestMode ? 1.0 : undefined
+  return {
+    '--left': toPercent(rectRate.left),
+    '--top': toPercent(rectRate.top),
+    '--width': toPercent(rectRate.width),
+    '--height': toPercent(rectRate.height),
+    outline,
+    opacity
+  }
 })
 
 const isBlockShieldVisible = computed<boolean>(() => {
+
+  // 大破判定無しでは非表示
+  // ボタンを押して進撃、もしくはポートに戻った場合
+  if (!isTaihaAdvanceBlockerVisible.value) {
+    debug('isBlockShieldVisible: no taiha, shield hidden')
+    return false
+  }
 
   // Ctrlキー押下時ならシールド無効
   if (gameState.ctrl_pressed) {
@@ -449,8 +479,8 @@ const isBlockShieldVisible = computed<boolean>(() => {
 
 const isGuardHit = ref(false)
 
-const onButtonCoverClick = (_event: MouseEvent): void => {
-
+function doGuardHitEffect(): void {
+  
   // シールドアニメーション表示開始
   isGuardHit.value = false
   requestAnimationFrame(() => {
@@ -459,6 +489,15 @@ const onButtonCoverClick = (_event: MouseEvent): void => {
   setTimeout(() => {
     isGuardHit.value = false
   }, 450)
+}
+
+function guardHitEffect(_event: IpcRendererEvent): void {
+  debug('guardHitEffect')
+  doGuardHitEffect()
+}
+
+const onButtonCoverClick = (_event: MouseEvent): void => {
+  doGuardHitEffect()
 }
 
 // 全体のオーバレイはアニメーション完了で要素を削除する
@@ -527,7 +566,8 @@ const onTaihaWarningAfterLeave = (): void => {
       <div class="button-cover" 
         v-if="isBlockShieldVisible"
         title="大破進撃防止" 
-        :class="{ 'is-flagship': isFlagshipTaiha, 'is-guard-hit': isGuardHit }"
+        :class="{ 'is-guard-hit': isGuardHit }"
+        :style="buttonCoverStyle"
         @click.prevent.stop="onButtonCoverClick">
         <svg
           class="button-cover-shield"
