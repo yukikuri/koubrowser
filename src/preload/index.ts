@@ -188,8 +188,8 @@ const api: Api = {
     return () => ipcRenderer.removeListener(MainMessage.startup_update_checked, handler)
   },
 
-  setTaihaSingekiBlockState(state: TaihaSingekiBlockState): void {
-    ipcRenderer.invoke(MainChannel.set_taiha_singeki_block_state, state)
+  setTaihaSingekiBlockState(states: TaihaSingekiBlockState[]): void {
+    ipcRenderer.invoke(MainChannel.set_taiha_singeki_block_state, states)
   }
 
 }

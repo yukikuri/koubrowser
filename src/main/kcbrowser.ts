@@ -25,7 +25,7 @@ import { is } from '@electron-toolkit/utils'
 import * as fs from 'fs'
 import { once } from 'events'
 import { svdata } from '@main/svdata'
-import { Const } from '@common/const'
+import { Const, RectRate } from '@common/const'
 import { AppStuff } from '@main/app'
 import { MapStuff } from '@main/map'
 import {
@@ -265,7 +265,7 @@ export class KcApp {
     errorMessage: '',
     downloadPercent: null,
   }
-  private taihaSingekiBlockState: TaihaSingekiBlockState = TaihaSingekiBlockState.noState
+  private taihaSingekiBlockStates: TaihaSingekiBlockState[] = []
   private ctrl_key_state: boolean = false
 
   public get mainWindow(): BrowserWindow {
@@ -835,8 +835,8 @@ export class KcApp {
     ipcMain.handle(MainChannel.restart_and_install_update, async () =>
       this.onChannelRestartAndInstallUpdate()
     )
-    ipcMain.handle(MainChannel.set_taiha_singeki_block_state, (_event, state) =>
-      this.onChannelSetTaihaSingekiBlockState(state)
+    ipcMain.handle(MainChannel.set_taiha_singeki_block_state, (_event, states) =>
+      this.onChannelSetTaihaSingekiBlockState(states)
     )
     autoUpdater.on('download-progress', (progress) =>
       this.notifyUpdateDownloadProgress(progress.percent)
@@ -1052,24 +1052,24 @@ export class KcApp {
    * 大破進撃ブロック状態をmainプロセスに設定
    * 
    * ブロック状態をmainプロセスで持つ理由は以下の通り
-   *   以下の操作をブロックするために、mainプロセスでマウスイベントをブロックする必要がある。
+   *   以下の操作をブロックするため
    *   1) 右クリック押しっぱなしのまま進撃ボタンへマウス移動
    *   2) 進撃ボタンで右クリックを離す
-   *   3) 進撃ボタンが押下されてしまう
-   *   mainプロセスで右クリックが離された場所がBlock UI上の場合、イベントをpreventする
+   *   3) ブロック要素がボタン上に存在しても進撃ボタンが押下されてしまう
+   *   本操作ブロックのため、mainプロセスで右クリックが離された場所がBlock UI上の場合イベントをpreventする
    * 
    * @param state 
    */
-  private onChannelSetTaihaSingekiBlockState(state: TaihaSingekiBlockState): void {
-    debug('onChannelSetTaihaSingekiBlockState', state)
-    this.taihaSingekiBlockState = state
+  private onChannelSetTaihaSingekiBlockState(states: TaihaSingekiBlockState[]): void {
+    debug('onChannelSetTaihaSingekiBlockState', states)
+    this.taihaSingekiBlockStates = [...states]
   }
 
   /**
    * 
    */
   private onBeforeMouseEvent(event: Event, mouse: MouseInputEvent): void {
-    if (this.taihaSingekiBlockState === TaihaSingekiBlockState.noState) {
+    if (! this.taihaSingekiBlockStates.length) {
       return
     }
     if (this.ctrl_key_state) {
@@ -1080,42 +1080,58 @@ export class KcApp {
       return
     }
 
-    const rectRate = this.taihaSingekiBlockState === TaihaSingekiBlockState.flagshipBlock
-      ? Const.TaihaSingeki.flagshipBlockRect
-      : Const.TaihaSingeki.normalBlockRect
+    const hittest = (state: TaihaSingekiBlockState): boolean => {
 
-    const blockUIRect: Rectangle = {
-      x: Const.GameWidth*rectRate.left,
-      // Const.GameBarHeight: マウスイベントでのyはwindow座標により上部バナー分を補正する
-      y: (Const.GameHeight+Const.GameBarHeight)*rectRate.top - Const.GameBarHeight, 
-      width: Const.GameWidth*rectRate.width,
-      height: (Const.GameHeight+Const.GameBarHeight)*rectRate.height
+      let rectRate: RectRate | undefined
+      if (state === TaihaSingekiBlockState.normalBlock) {
+        rectRate = Const.TaihaSingeki.normalBlockRect
+      }
+      if (state === TaihaSingekiBlockState.repairBlock) {
+        rectRate = Const.TaihaSingeki.repairBlockRect
+      }
+      if (state === TaihaSingekiBlockState.megamiBlock) {
+        rectRate = Const.TaihaSingeki.megamiBlockRect
+      }
+      if (!rectRate) {
+        return false
+      }
+
+      const blockUIRect: Rectangle = {
+        x: Math.floor(Const.GameWidth * rectRate.left),
+        // マウスイベントでのyはゲーム内window座標によりゲーム外上部バナー分を補正する
+        y: Math.floor((Const.GameHeight + Const.GameBarHeight) * rectRate.top) - Const.GameBarHeight, 
+        width: Math.round(Const.GameWidth * rectRate.width),
+        height: Math.round((Const.GameHeight + Const.GameBarHeight) * rectRate.height)
+      }
+      
+      // ゲームのみ表示の場合、表示倍率で補正
+      if (!gameSetting.isAssistInGame) {
+        const zoomFactor = gameSetting.zoom_factor
+        blockUIRect.x = Math.floor(blockUIRect.x * zoomFactor)
+        blockUIRect.y = Math.floor(blockUIRect.y * zoomFactor)
+        blockUIRect.width = Math.round(blockUIRect.width * zoomFactor)
+        blockUIRect.height = Math.round(blockUIRect.height * zoomFactor)
+      }
+
+      let ret = false
+      if ((blockUIRect.x <= mouse.x) && (mouse.x <= (blockUIRect.x + blockUIRect.width)) && 
+          (blockUIRect.y <= mouse.y) && (mouse.y <= (blockUIRect.y + blockUIRect.height))) {
+        ret = true
+      }
+
+      debug('taihaSingekiBlockUI mouseUp ishit:', ret, 
+        'state:', state, 'blockUIRect:', blockUIRect,
+        'mouseX:', mouse.x, 'mouseY:', mouse.y, 'zoomFactor:', gameSetting.zoom_factor)
+
+      return ret
     }
 
-    // ゲームのみ表示の場合、表示倍率で補正
-    if (!gameSetting.isAssistInGame) {
-      const zoomFactor = gameSetting.zoom_factor
-      blockUIRect.x *= zoomFactor
-      blockUIRect.y *= zoomFactor
-      blockUIRect.width *= zoomFactor
-      blockUIRect.height *= zoomFactor
-    }
-
-    let inBlockUI = false
-    if ((blockUIRect.x <= mouse.x) && (mouse.x <= (blockUIRect.x + blockUIRect.width)) && 
-        (blockUIRect.y <= mouse.y) && (mouse.y <= (blockUIRect.y + blockUIRect.height))) {
-      inBlockUI = true
-    }
-
-    debug('onBeforeMouseEvent mouseUp', 
-      'inBlockUI:', inBlockUI, 'state:', this.taihaSingekiBlockState, 'blockUIRect:', blockUIRect,
-      'mouseX:', mouse.x, 'mouseY:', mouse.y, 'zoomFactor:', gameSetting.zoom_factor)
-    if (inBlockUI) {
-      debug('onBeforeMouseEvent mouseUp in area, prevent default')
+    const states = this.taihaSingekiBlockStates
+    const hitted = states.find((state) => hittest(state))
+    if (hitted) {
+      debug('onBeforeMouseEvent mouseUp in block area, prevent default')
       event.preventDefault()
-
-      // ガードエフェクト
-      this.main_window.webContents.send(GameChannel.guard_hit_effect)
+      this.main_window.webContents.send(GameChannel.guard_hit_effect, hitted)
     }
   }
 

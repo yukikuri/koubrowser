@@ -48,5 +48,5 @@ export interface Api {
   onUpdateStateChanged(cb: (state: UpdateStateSnapshot) => void): () => void
   onUpdateDownloadProgress(cb: (percent: number) => void): () => void
   onStartupUpdateChecked(cb: (result: UpdateCheckResult) => void): () => void
-  setTaihaSingekiBlockState(state: TaihaSingekiBlockState): void
+  setTaihaSingekiBlockState(states: TaihaSingekiBlockState[]): void
 }

@@ -31,15 +31,16 @@ export function isShowYusou() {
   return {computed: ret};
 }
 
-export type TaihaEquipInfo = {
+export type TaihaShipInfo = {
   api_ship: ApiShip
+  canEscape: boolean
   equips: EquipType[]
 }
 
 export type CheckTaihaSingekiResult =
   | {
       isTaihaSingeki: true
-      infos: TaihaEquipInfo[]
+      infos: TaihaShipInfo[]
     }
   | {
       isTaihaSingeki: false
@@ -100,11 +101,13 @@ const getEquipType = (svdata: SvData, ship: ApiShip, isFlagship: boolean): Equip
  */
 type TaihaShip = {
   index: number
+  canEscape: boolean
   api_ship: ApiShip
 }
 const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
 
   const ships = deck.api_ship
+  const escape = svdata.lastBattle?.result?.api_escape
   return ships.reduce<TaihaShip[]>((acc, ship_id, index) => {
 
     // 連合艦隊第2旗艦は判定しない
@@ -127,8 +130,21 @@ const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
     }
 
     if (KcsUtil.shipHpState(api_ship) == ShipHpState.taiha) {
+
+      // 退避可能か？
+      let canEscape = false
+      if (escape) {
+        let offset = 1;
+        if ((deck.api_id === ApiDeckPortId.deck2st) &&
+          svdata.isCombined) {
+          offset = 7
+        }
+        canEscape = escape.api_escape_idx.includes(index+offset)
+      }
+
       acc.push({
         index,
+        canEscape,
         api_ship
       })
     }
@@ -194,9 +210,9 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
 
   // 旗艦が大破している場合でダメコンなしは強制で進撃できない
   // falseで返す
-  const flagship = taihaShips.find(ts => ts.index === 0)
-  if (flagship) {
-    if (!isEquipDamegeControl(svdata, flagship.api_ship)) {
+  const taihaFlagship = taihaShips.find(ts => ts.index === 0)
+  if (taihaFlagship) {
+    if (!isEquipDamegeControl(svdata, taihaFlagship.api_ship)) {
       return { isTaihaSingeki: false }
     }
   }
@@ -210,18 +226,30 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
     }
   }
 
-  // 大破艦が存在する場合は、装備情報を返す
+  // 旗艦大破でダメコンあり、他に大破艦が存在しなければ大破進撃ではない
+  if (taihaFlagship && !taihaShips2.length) {
+    if (isEquipDamegeControl(svdata, taihaFlagship.api_ship)) {
+      if (taihaShips.length === 1) {
+        return { isTaihaSingeki: false }
+      }
+    }
+  }
+
+  // 大破艦が存在すれば大破進撃
+  // 大破艦装備情報を返す
   if (taihaShips.length || taihaShips2.length) {
-    const infos: TaihaEquipInfo[] = []
+    const infos: TaihaShipInfo[] = []
     taihaShips.forEach(taihaShip => {
       infos.push({
         api_ship: taihaShip.api_ship,
+        canEscape: taihaShip.canEscape,
         equips: getEquipType(svdata, taihaShip.api_ship, 0 === taihaShip.index)
       })
     })
     taihaShips2.forEach(taihaShip => {
       infos.push({
         api_ship: taihaShip.api_ship,
+        canEscape: taihaShip.canEscape,
         equips: getEquipType(svdata, taihaShip.api_ship, false)
       })
     })

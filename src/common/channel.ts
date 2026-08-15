@@ -45,9 +45,9 @@ export type MainChannel = (typeof MainChannel)[keyof typeof MainChannel]
 
 
 export const TaihaSingekiBlockState = {
-  noState: 0, // なし
   normalBlock: 1, // 通常進撃ブロック
-  flagshipBlock: 2, // 旗艦進撃ブロック(修理要員+女神)
+  repairBlock: 2, // 旗艦進撃ブロック(修理要員)
+  megamiBlock: 3, // 旗艦進撃ブロック(女神)
 } as const
 export type TaihaSingekiBlockState = (typeof TaihaSingekiBlockState)[keyof typeof TaihaSingekiBlockState]
 

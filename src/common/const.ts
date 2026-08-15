@@ -42,20 +42,28 @@ export class Const {
   static readonly TaihaSingeki = {
     // 通常進撃ボタン配置箇所
     normalBlockRect: {
-      left: 0.23,
-      top: 0.41,
-      width: 0.25,
-      height: 0.25,
+      left: 0.278,
+      top: 0.428,
+      width: 0.167,
+      height: 0.206,
     },
-    // 旗艦の場合では修理と女神ボタン両方を含む配置箇所
-    flagshipBlockRect: {
-      left: 0.145,
-      top: 0.20,
-      width: 0.42,
-      height: 0.76,
+    // 修理要員ボタン配置箇所
+    repairBlockRect: {
+      left: 0.252,
+      top: 0.359,
+      width: 0.248,
+      height: 0.202,
+    },
+    // 女神ボタン配置箇所
+    megamiBlockRect: {
+      left: 0.260,
+      top: 0.736,
+      width: 0.241,
+      height: 0.199,
     },
   } as const satisfies {
     readonly normalBlockRect: RectRate
-    readonly flagshipBlockRect: RectRate
+    readonly repairBlockRect: RectRate
+    readonly megamiBlockRect: RectRate
   }
 }
