@@ -1,30 +1,31 @@
 import {
   BrowserWindow,
   ipcMain,
-  Rectangle,
+  type Rectangle,
   powerMonitor,
-  WebContents,
+  type WebContents,
   session,
   screen,
   shell,
   dialog,
   app,
-  Event,
-  HandlerDetails,
-  DidCreateWindowDetails,
-  BrowserWindowConstructorOptions,
-  IpcMainInvokeEvent,
-  MenuItem,
+  type Event,
+  type HandlerDetails,
+  type DidCreateWindowDetails,
+  type BrowserWindowConstructorOptions,
+  type IpcMainInvokeEvent,
+  type MenuItem,
   Menu,
-  Display,
-  Input,
+  type Display,
+  type Input,
+  MouseInputEvent,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { is } from '@electron-toolkit/utils'
 import * as fs from 'fs'
 import { once } from 'events'
 import { svdata } from '@main/svdata'
-import { Const } from '@common/const'
+import { Const, RectRate } from '@common/const'
 import { AppStuff } from '@main/app'
 import { MapStuff } from '@main/map'
 import {
@@ -34,6 +35,7 @@ import {
   QuestContext,
   AirbaseSpot,
   OptionChannel,
+  TaihaSingekiBlockState,
 } from '@common/channel'
 import moment from 'moment'
 import { KcRecord } from '@main/kcrecord'
@@ -263,6 +265,8 @@ export class KcApp {
     errorMessage: '',
     downloadPercent: null,
   }
+  private taihaSingekiBlockStates: TaihaSingekiBlockState[] = []
+  private ctrl_key_state: boolean = false
 
   public get mainWindow(): BrowserWindow {
     return this.main_window
@@ -454,7 +458,9 @@ export class KcApp {
     this.main_window.webContents.on('did-attach-webview', (_event, webContents: WebContents) => {
       debug('did-attach-webview')
       webContents.on('before-input-event', (_event, input) => this.onBeforeInputEvent(input))
+      webContents.on('before-mouse-event', (_event, mouse) => this.onBeforeMouseEvent(_event, mouse))
     })
+
 
     // 轟沈防止でCTRLキー押下状態を検知するため、webviewのbefore-input-eventを監視する(main webcontents側)
     // フォーカスロストはmain webcontents側でのみ検知できる
@@ -829,6 +835,9 @@ export class KcApp {
     ipcMain.handle(MainChannel.restart_and_install_update, async () =>
       this.onChannelRestartAndInstallUpdate()
     )
+    ipcMain.handle(MainChannel.set_taiha_singeki_block_state, (_event, states) =>
+      this.onChannelSetTaihaSingekiBlockState(states)
+    )
     autoUpdater.on('download-progress', (progress) =>
       this.notifyUpdateDownloadProgress(progress.percent)
     )
@@ -1006,6 +1015,16 @@ export class KcApp {
   }
 
   /**
+   * 
+   * @param state 
+   */
+  private setCtrlKeyState(state: boolean): void {
+    debug('setCtrlKeyState', state)
+    this.ctrl_key_state = state
+    this.main_window.webContents.send(GameChannel.set_ctrl_state, state)
+  }
+
+  /**
    * キー入力イベント処理
    * CTRLキー押下で轟沈防止画面クリックを可とするためにgame側レンダラに通知する
    * 
@@ -1020,14 +1039,99 @@ export class KcApp {
       }
 
       if (input.type === 'keyDown') {
-        debug('ctrl pressed')
-        this.main_window.webContents.send(GameChannel.set_ctrl_state, true)
+        this.setCtrlKeyState(true)
       }
       
       if (input.type === 'keyUp') {
-        debug('ctrl released')
-        this.main_window.webContents.send(GameChannel.set_ctrl_state, false)
+        this.setCtrlKeyState(false)
       }
+    }
+  }
+
+  /**
+   * 大破進撃ブロック状態をmainプロセスに設定
+   * 
+   * ブロック状態をmainプロセスで持つ理由は以下の通り
+   *   以下の操作をブロックするため
+   *   1) 右クリック押しっぱなしのまま進撃ボタンへマウス移動
+   *   2) 進撃ボタンで右クリックを離す
+   *   3) ブロック要素がボタン上に存在しても進撃ボタンが押下されてしまう
+   *   本操作ブロックのため、mainプロセスで右クリックが離された場所がBlock UI上の場合イベントをpreventする
+   * 
+   * @param state 
+   */
+  private onChannelSetTaihaSingekiBlockState(states: TaihaSingekiBlockState[]): void {
+    debug('onChannelSetTaihaSingekiBlockState', states)
+    this.taihaSingekiBlockStates = [...states]
+  }
+
+  /**
+   * 
+   */
+  private onBeforeMouseEvent(event: Event, mouse: MouseInputEvent): void {
+    if (! this.taihaSingekiBlockStates.length) {
+      return
+    }
+    if (this.ctrl_key_state) {
+      debug('onBeforeMouseEvent mouseUp ctrl key pressed, ignore block')
+      return
+    }
+    if (mouse.type !== 'mouseUp') {
+      return
+    }
+
+    const hittest = (state: TaihaSingekiBlockState): boolean => {
+
+      let rectRate: RectRate | undefined
+      if (state === TaihaSingekiBlockState.normalBlock) {
+        rectRate = Const.TaihaSingeki.normalBlockRect
+      }
+      if (state === TaihaSingekiBlockState.repairBlock) {
+        rectRate = Const.TaihaSingeki.repairBlockRect
+      }
+      if (state === TaihaSingekiBlockState.megamiBlock) {
+        rectRate = Const.TaihaSingeki.megamiBlockRect
+      }
+      if (!rectRate) {
+        return false
+      }
+
+      const blockUIRect: Rectangle = {
+        x: Math.floor(Const.GameWidth * rectRate.left),
+        // マウスイベントでのyはゲーム内window座標によりゲーム外上部バナー分を補正する
+        y: Math.floor((Const.GameHeight + Const.GameBarHeight) * rectRate.top) - Const.GameBarHeight, 
+        width: Math.round(Const.GameWidth * rectRate.width),
+        height: Math.round((Const.GameHeight + Const.GameBarHeight) * rectRate.height)
+      }
+
+      // ゲームのみ表示の場合、表示倍率で補正
+      if (!gameSetting.isAssistInGame) {
+        const zoomFactor = gameSetting.zoom_factor
+        blockUIRect.x = Math.floor(blockUIRect.x * zoomFactor)
+        blockUIRect.y = Math.floor(blockUIRect.y * zoomFactor)
+        blockUIRect.width = Math.round(blockUIRect.width * zoomFactor)
+        blockUIRect.height = Math.round(blockUIRect.height * zoomFactor)
+      }
+
+      let ret = false
+      if ((blockUIRect.x <= mouse.x) && (mouse.x <= (blockUIRect.x + blockUIRect.width)) && 
+          (blockUIRect.y <= mouse.y) && (mouse.y <= (blockUIRect.y + blockUIRect.height))) {
+        ret = true
+      }
+
+      debug('taihaSingekiBlockUI mouseUp ishit:', ret, 
+        'state:', state, 'blockUIRect:', blockUIRect,
+        'mouseX:', mouse.x, 'mouseY:', mouse.y, 'zoomFactor:', gameSetting.zoom_factor)
+
+      return ret
+    }
+
+    const states = this.taihaSingekiBlockStates
+    const hitted = states.find((state) => hittest(state))
+    if (hitted) {
+      debug('onBeforeMouseEvent mouseUp in block area, prevent default')
+      event.preventDefault()
+      this.main_window.webContents.send(GameChannel.guard_hit_effect, hitted)
     }
   }
 
@@ -1041,8 +1145,7 @@ export class KcApp {
     if (isDestroyed) {
       return
     }
-
-    this.main_window.webContents.send(GameChannel.set_ctrl_state, false)
+    this.setCtrlKeyState(false)
   }
 
   /**
@@ -1357,6 +1460,9 @@ export class KcApp {
 
     // キャプチャ保存先更新する
     PathStuff.setCapturePath(setting.captureSavePath)
+
+    // オプション設定をゲーム設定に反映する
+    gameSetting.applyOptionSetting(setting)
   }
 
   /**

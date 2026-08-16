@@ -1,6 +1,6 @@
 import { svdata } from "@renderer/store/svdata";
 import { mapInfo as storeMapInfo } from '@renderer/store/mapinfo'
-import { ApiDeck, ApiDeckPort, ApiDeckPortId, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
+import { ApiDeckPort, ApiDeckPortId, ApiEventId, ApiEventKind, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
 import { computed } from "vue";
 
 export function isGimmickFlagDetected() {
@@ -31,15 +31,16 @@ export function isShowYusou() {
   return {computed: ret};
 }
 
-export type TaihaEquipInfo = {
+export type TaihaShipInfo = {
   api_ship: ApiShip
+  canEscape: boolean
   equips: EquipType[]
 }
 
 export type CheckTaihaSingekiResult =
   | {
       isTaihaSingeki: true
-      infos: TaihaEquipInfo[]
+      infos: TaihaShipInfo[]
     }
   | {
       isTaihaSingeki: false
@@ -100,11 +101,13 @@ const getEquipType = (svdata: SvData, ship: ApiShip, isFlagship: boolean): Equip
  */
 type TaihaShip = {
   index: number
+  canEscape: boolean
   api_ship: ApiShip
 }
 const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
 
   const ships = deck.api_ship
+  const escape = svdata.lastBattle?.result?.api_escape
   return ships.reduce<TaihaShip[]>((acc, ship_id, index) => {
 
     // 連合艦隊第2旗艦は判定しない
@@ -127,8 +130,21 @@ const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
     }
 
     if (KcsUtil.shipHpState(api_ship) == ShipHpState.taiha) {
+
+      // 退避可能か？
+      let canEscape = false
+      if (escape) {
+        let offset = 1;
+        if ((deck.api_id === ApiDeckPortId.deck2st) &&
+          svdata.isCombined) {
+          offset = 7
+        }
+        canEscape = escape.api_escape_idx.includes(index+offset)
+      }
+
       acc.push({
         index,
+        canEscape,
         api_ship
       })
     }
@@ -137,12 +153,43 @@ const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
   }, [])
 }
 
+const DameconSlotitemIds = [42, 43]
+
+const isEquipDamegeControl = (svdata: SvData, ship: ApiShip): boolean => {
+  const hasDamecon = ship.api_slot.some(slotitem_id => {
+    const slotitem = svdata.slotitem(slotitem_id)
+    if (!slotitem) {
+      return false
+    }
+    return DameconSlotitemIds.includes(slotitem.api_slotitem_id)
+  })
+
+  if (hasDamecon) {
+    return true
+  }
+  if (ship.api_slot_ex > 0) {
+    const slotitem = svdata.slotitem(ship.api_slot_ex)
+    if (slotitem) {
+      return DameconSlotitemIds.includes(slotitem.api_slotitem_id)
+    }
+  }
+
+  return false
+}
+
+export const TaihaCheckPhase = {
+  afterBattle: 0, // 戦闘後
+  afterMapNext: 1, // マップ移動後
+} as const
+export type TaihaCheckPhase = (typeof TaihaCheckPhase)[keyof typeof TaihaCheckPhase]
+
 /**
  * 進撃前での大破艦が存在するかのチェック
  * 
+ * @param checkPhase 
  * @returns 
  */
-export function checkTaihaSingeki(): CheckTaihaSingekiResult {
+export function checkTaihaSingeki(checkPhase: TaihaCheckPhase): CheckTaihaSingekiResult {
 
   // 出撃中で判定する
   if (!svdata.inMap) {
@@ -155,18 +202,46 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
     return { isTaihaSingeki: false }
   }
 
-  // 行き止まりの場合は判定しない
+  // マップ情報が無いとき判定しない
   const lastMap = svdata.lastMap
   if (! lastMap) {
     return { isTaihaSingeki: false }
   }
-  if (! lastMap.api_next) {
-    return { isTaihaSingeki: false }
+
+  // 戦闘後：行き止まりの場合は判定しない
+  if (checkPhase === TaihaCheckPhase.afterBattle) {
+    if (! lastMap.api_next) {
+      return { isTaihaSingeki: false }
+    }
+  }
+
+  // マップ移動後：行き止まりで戦闘マス以外は判定しない
+  if (checkPhase === TaihaCheckPhase.afterMapNext) {
+    if (! lastMap.api_next) {
+      const noBattleEventId: ApiEventId[] = [
+        ApiEventId.noevent,
+        ApiEventId.getMaterial, 
+        ApiEventId.imagination,
+        ApiEventId.eoMaterialGet,
+      ]
+      if (noBattleEventId.includes(lastMap.api_event_id)) {
+        return { isTaihaSingeki: false }
+      }
+    }
   }
 
   // 退避艦は除外し、大破艦が存在するか？
   // 存在すれば大破進撃
   const taihaShips = filterTaihaShip(svdata, battleDeck)
+
+  // 旗艦が大破している場合でダメコンなしは強制で進撃できない
+  // falseで返す
+  const taihaFlagship = taihaShips.find(ts => ts.index === 0)
+  if (taihaFlagship) {
+    if (!isEquipDamegeControl(svdata, taihaFlagship.api_ship)) {
+      return { isTaihaSingeki: false }
+    }
+  }
 
   // 出撃が第一艦隊で連合艦隊の場合は第二艦隊も判定する
   const taihaShips2: TaihaShip[] = []
@@ -177,18 +252,30 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
     }
   }
 
-  // 大破艦が存在する場合は、装備情報を返す
+  // 旗艦大破でダメコンあり、他に大破艦が存在しなければ大破進撃ではない
+  if (taihaFlagship && !taihaShips2.length) {
+    if (isEquipDamegeControl(svdata, taihaFlagship.api_ship)) {
+      if (taihaShips.length === 1) {
+        return { isTaihaSingeki: false }
+      }
+    }
+  }
+
+  // 大破艦が存在すれば大破進撃
+  // 大破艦装備情報を返す
   if (taihaShips.length || taihaShips2.length) {
-    const infos: TaihaEquipInfo[] = []
+    const infos: TaihaShipInfo[] = []
     taihaShips.forEach(taihaShip => {
       infos.push({
         api_ship: taihaShip.api_ship,
+        canEscape: taihaShip.canEscape,
         equips: getEquipType(svdata, taihaShip.api_ship, 0 === taihaShip.index)
       })
     })
     taihaShips2.forEach(taihaShip => {
       infos.push({
         api_ship: taihaShip.api_ship,
+        canEscape: taihaShip.canEscape,
         equips: getEquipType(svdata, taihaShip.api_ship, false)
       })
     })
@@ -199,4 +286,52 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
   }
 
   return { isTaihaSingeki: false }
+}
+
+/**
+ * 現在のセルが以下のセルでtrueを返す
+ * 
+ * ・1-6.鎮守府近海航路 Bマス<br>
+ * ・2-2.バシー海峡 Bマス<br>
+ * ・3-1.モーレイ海 Bマス<br>
+ * ・7-2.タウイタウイ泊地沖 Jマス<br>
+ * ・5-6.ラバウル方面海域 Hマス
+ * 
+ * @returns 
+ */
+export function currentIsSafeCell(): boolean {
+
+  // マップ情報が無いとき判定しない
+  const lastMap = svdata.lastMap
+  if (! lastMap) {
+    return false
+  }
+
+  // 安全セル情報
+  const safecells: {
+    mapId: number
+    cellIds: number[]
+  }[] = [
+    {
+      mapId: 16, cellIds:[13]
+    },
+    {
+      mapId: 22, cellIds:[2]
+    },
+    {
+      mapId: 31, cellIds:[2]
+    },
+    {
+      mapId: 32, cellIds:[1,13]
+    },
+    {
+      mapId: 72, cellIds:[12]
+    },
+    {
+      mapId: 56, cellIds:[18]
+    }
+  ] as const
+
+  const mapId = lastMap.api_maparea_id * 10 + lastMap.api_mapinfo_no
+  return safecells.some(sc => sc.mapId === mapId && sc.cellIds.includes(lastMap.api_no))
 }

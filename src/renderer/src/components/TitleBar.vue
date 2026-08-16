@@ -330,12 +330,12 @@ function onPort(): void {
 
 function onMapStart(): void {
   replaceArray(mapcell_labels, [])
-  taiha_singeki.value = checkTaihaSingeki()
+  taiha_singeki.value = checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterMapNext)
   mapPushCell()
 }
 
 function onMapNext(): void {
-  taiha_singeki.value = checkTaihaSingeki()
+  taiha_singeki.value = checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterMapNext)
   inBattle.value = false
   disp_seiku.value = null
   deck_formation.value = null
@@ -554,67 +554,8 @@ const onClose = (): void => {
   window.api.close()
 }
 
-const checkTaihaSingeki = (): boolean => {
-  if (!svdata.inMap) {
-    return false
-  }
-
-  const battleDeck = svdata.battleDeck
-  if (!battleDeck) {
-    return false
-  }
-
-  if (
-    battleDeck.api_ship.some((el, index) => {
-
-      // 退避している場合は大破判定しない
-      if (svdata.isShipEscaped(battleDeck, index)) {
-        return false
-      }
-
-      const ship = svdata.ship(el)
-      if (!ship) {
-        return false
-      }
-
-      return KcsUtil.shipHpState(ship) == ShipHpState.taiha
-    })
-  ) {
-    return true
-  }
-
-  // 出撃が第一艦隊で連合艦隊の場合は第二艦隊も判定する
-  if (battleDeck.api_id == ApiDeckPortId.deck1st && svdata.isCombined) {
-    const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
-    if (!deck2) {
-      return false
-    }
-
-    if (
-      deck2.api_ship.some((el, index) => {
-        // 第2旗艦は判定しない
-        if (0 === index) {
-          return false
-        }
-
-        // 退避している場合は大破判定しない
-        if (svdata.isShipEscaped(deck2, index)) {
-          return false
-        }
-
-        const ship = svdata.ship(el)
-        if (!ship) {
-          return false
-        }
-
-        return KcsUtil.shipHpState(ship) == ShipHpState.taiha
-      })
-    ) {
-      return true
-    }
-  }
-
-  return false
+const checkTaihaSingeki = (phase: kcs_stuff.TaihaCheckPhase): boolean => {
+  return kcs_stuff.checkTaihaSingeki(phase).isTaihaSingeki
 }
 
 const isStartupUpdateAvailable = computed((): boolean => {

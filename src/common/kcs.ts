@@ -7813,11 +7813,11 @@ interface ApiAirSearch {
 export const ApiEventId = {
   initpos: 0,
   noevent: 1,
-  getMaterial: 2,
+  getMaterial: 2, // 資源獲得
   uzusio: 3,
   sortieBattle: 4,
   bossBattle: 5,
-  imagination: 6,
+  imagination: 6, // 敵影を見ず
   airBattleOrAirSsearch: 7,
   eoMaterialGet: 8, // 1-6 goal
   landingPoint: 9,
@@ -8461,6 +8461,8 @@ type CallbackApiNyukyoStart = () => void
 type CallbackApiHokyuCharge = (arg: ApiHokyuCharge) => void
 type CallbackApiPowerUp = (arg: ApiPowerUpWothParam) => void
 type CallbackApiGetMemberUseItem = (arg: ApiUseItem[]) => void
+type CallbackApiGobackPort = () => void
+type CallbackApiCombinedGobackPort = () => void
 type CallbackMaterialUpdated = () => void
 type CallbackShipCountUpdated = () => void
 type CallbackSlotitemCountUpdated = () => void
@@ -8512,6 +8514,8 @@ type CallbackFunc =
   | CallbackApiNyukyoStart
   | CallbackApiHokyuCharge
   | CallbackApiPowerUp
+  | CallbackApiGobackPort
+  | CallbackApiCombinedGobackPort
   | CallbackMaterialUpdated
   | CallbackShipCountUpdated
   | CallbackSlotitemCountUpdated
@@ -8523,7 +8527,9 @@ type Calltype =
   | typeof KcsApi.Api.REQ_HENSEI_CHANGE
   | typeof KcsApi.Api.REQ_PRACTICE_BATTLE_RESULT
   | typeof KcsApi.Api.REQ_SORTIE_BATTLERESULT
+  | typeof KcsApi.Api.REQ_SORTIE_GOBACK_PORT
   | typeof KcsApi.Api.REQ_COMBINED_BATTLE_BATTLERESULT
+  | typeof KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT
   | typeof KcsApi.Api.REQ_KOUSYOU_CREATEITEM
   | typeof KcsApi.Api.REQ_KOUSYOU_DESTROYITEM2
   | typeof KcsApi.Api.REQ_KOUSYOU_CREATESHIP
@@ -8555,7 +8561,9 @@ type Callback =
   | [typeof KcsApi.Api.REQ_HENSEI_CHANGE, callbackApiHenseiChange]
   | [typeof KcsApi.Api.REQ_PRACTICE_BATTLE_RESULT, CallbackApiPracticeBattle]
   | [typeof KcsApi.Api.REQ_SORTIE_BATTLERESULT, CallbackApiSortieBattle]
+  | [typeof KcsApi.Api.REQ_SORTIE_GOBACK_PORT, CallbackApiGobackPort]
   | [typeof KcsApi.Api.REQ_COMBINED_BATTLE_BATTLERESULT, CallbackApiCombinedBattle]
+  | [typeof KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT, CallbackApiCombinedGobackPort]
   | [typeof KcsApi.Api.REQ_KOUSYOU_CREATEITEM, CallbackApiCreateItem]
   | [typeof KcsApi.Api.REQ_KOUSYOU_DESTROYITEM2, CallbackApiDestroyItem2]
   | [typeof KcsApi.Api.REQ_KOUSYOU_CREATESHIP, CallbackApiCreateShip]
@@ -10373,6 +10381,7 @@ export class SvData {
 
   private reqSortieGobackPort(): void {
     this.updateEscape(false)
+    ApiCallback.call(KcsApi.Api.REQ_SORTIE_GOBACK_PORT, undefined)
   }
 
   private reqCombinedCombinedBattle(api_data: ApiCombinedVsNormalBattle, json: string): void {
@@ -10440,6 +10449,7 @@ export class SvData {
 
   private reqCombinedBattleGobackPort(): void {
     this.updateEscape(true)
+    ApiCallback.call(KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT, undefined)
   }
 
   private reqPracticeBattle(): void {}
