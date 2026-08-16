@@ -230,6 +230,44 @@ const clearProxyFixedServersInput = (): void => {
                 </button>
               </div>
             </div>
+
+            <div class="section-title">大破進撃防止</div>
+            <div class="option-row option-row-vertical">
+              <label class="option-checkbox option-checkbox-with-description">
+                <input v-model="optionSetting.taihaSingekiBlockEnable" type="checkbox" />
+
+                <span class="option-checkbox-body">
+                  <span class="option-checkbox-title">大破進撃防止機能を有効にする</span>
+                  <span class="option-checkbox-description">
+                    大破艦を検知すると、轟沈防止のため進撃操作をボタン上シールドで制限します。<br>
+                    Ctrl+クリック、またはシールド表示OFFで操作できます。
+                  </span>
+                </span>
+              </label>
+
+              <label class="option-checkbox option-checkbox-with-description option-sub-checkbox">
+                <input
+                  v-model="optionSetting.taihaSingekiBlockSkipSafeCell"
+                  type="checkbox"
+                  :disabled="!optionSetting.taihaSingekiBlockEnable"
+                />
+
+                <span class="option-checkbox-body">
+                  <span class="option-checkbox-title">一部の安全マスではチェックしない</span>
+                  <span class="option-checkbox-description">
+                    大破進撃扱いにならないことが確認できているマスでは、警告とシールドを表示しません。<br>
+                    対象は以下です。<br>
+                    <br>
+                    ・1-6.鎮守府近海航路 Bマス<br>
+                    ・2-2.バシー海峡 Bマス<br>
+                    ・3-1.モーレイ海 Bマス<br>
+                    ・3-2.キス島沖 Aマス<br>
+                    ・7-2.タウイタウイ泊地沖 Jマス<br>
+                    ・5-6.ラバウル方面海域 Hマス
+                  </span>
+                </span>
+              </label>
+            </div>
           </section>
 
           <!-- 通信設定 -->

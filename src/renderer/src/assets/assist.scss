@@ -1157,9 +1157,9 @@ $world-event-tab-width: 150px;
 
     &.right-bottom {
       top: unset;
-      bottom: 90px;
+      bottom: 85px;
       left: unset;
-      right: 180px;
+      right: 200px;
     }
 
     &.left-top {
@@ -1404,7 +1404,7 @@ $world-event-tab-width: 150px;
 
     &.right-bottom {
       top: unset;
-      bottom: 90px;
+      bottom: 80px;
       left: unset;
       right: 20px;
     }
@@ -5139,6 +5139,12 @@ $eship-col-height: math.div(60px, math.div(240px, $eship-col-width)) + 12px;
     top: 130px !important;
     background-color: rgba(#000, 0.8) !important;
     border: 1px solid #000;
+  }
+
+  &:has(.is-row3) {
+    > .tooltip-content {
+      top: 181px !important;
+    }
   }
 }
 

@@ -14,6 +14,13 @@ export type SupportCodecs =
 //types.forEach(type => console.log(type, MediaRecorder.isTypeSupported(type)));
 //console.log(navigator.mediaDevices.getSupportedConstraints());
 
+export type RectRate = {
+  readonly left: number
+  readonly top: number
+  readonly width: number
+  readonly height: number
+}
+
 export class Const {
   static readonly InGameAssistDisplayRequirementWidth = 1800
   static readonly InGameAssistDisplayRequirementHeight = 960
@@ -30,4 +37,33 @@ export class Const {
   static readonly ArgIsInitMuted = '--is-init-muted'
   static readonly ArgAppLaunchId = '--app-launch-id' 
   static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
+
+  // 大破進撃ブロック関連
+  static readonly TaihaSingeki = {
+    // 通常進撃ボタン配置箇所
+    normalBlockRect: {
+      left: 0.278,
+      top: 0.428,
+      width: 0.167,
+      height: 0.206,
+    },
+    // 修理要員ボタン配置箇所
+    repairBlockRect: {
+      left: 0.252,
+      top: 0.359,
+      width: 0.248,
+      height: 0.202,
+    },
+    // 女神ボタン配置箇所
+    megamiBlockRect: {
+      left: 0.260,
+      top: 0.736,
+      width: 0.241,
+      height: 0.199,
+    },
+  } as const satisfies {
+    readonly normalBlockRect: RectRate
+    readonly repairBlockRect: RectRate
+    readonly megamiBlockRect: RectRate
+  }
 }

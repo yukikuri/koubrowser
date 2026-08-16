@@ -248,6 +248,10 @@ export const ApiShipCategory = {
   courageous_kubo: 135, // Courageous型(Glorious 空母)
   reitousen: 136, // 冷凍船
   thonburi: 137, // Thonburi型
+  algérie: 138, // Algérie型
+  vautour: 139, // Vautour型
+  visby: 140, // Visby型
+  béarn: 141, // Béarn型
 } as const
 export type ApiShipCategory = (typeof ApiShipCategory)[keyof typeof ApiShipCategory]
 
@@ -7809,11 +7813,11 @@ interface ApiAirSearch {
 export const ApiEventId = {
   initpos: 0,
   noevent: 1,
-  getMaterial: 2,
+  getMaterial: 2, // 資源獲得
   uzusio: 3,
   sortieBattle: 4,
   bossBattle: 5,
-  imagination: 6,
+  imagination: 6, // 敵影を見ず
   airBattleOrAirSsearch: 7,
   eoMaterialGet: 8, // 1-6 goal
   landingPoint: 9,
@@ -7857,7 +7861,7 @@ export interface ApiMap {
   readonly api_color_no: number
   readonly api_event_id: ApiEventId
   readonly api_event_kind: ApiEventKind
-  readonly api_next: number
+  readonly api_next: number  // 行き止まりの場合、0
   readonly api_bosscell_no: number
   readonly api_bosscomp: number
   readonly api_airsearch: ApiAirSearch
@@ -7898,6 +7902,18 @@ export interface ApiMapNext extends ApiMap {
   readonly api_get_eo_rate?: number
   readonly api_itemget_eo_result?: ApiItemGetEo
   readonly api_m1?: number // 2026夏イベでのE1H到達でのマップ変化で4が設定
+}
+
+const ApiRecoveryType = {
+  none: '0', // 選択無し
+  repair: '1', // 修理要員
+  megami: '2', // 女神
+} as const
+export type ApiRecoveryType = (typeof ApiRecoveryType)[keyof typeof ApiRecoveryType]
+
+interface ApiMapNextParam {
+  readonly api_verno: string
+  readonly api_recovery_type: ApiRecoveryType
 }
 
 export const ApiItemGetUseMst = {
@@ -8445,6 +8461,8 @@ type CallbackApiNyukyoStart = () => void
 type CallbackApiHokyuCharge = (arg: ApiHokyuCharge) => void
 type CallbackApiPowerUp = (arg: ApiPowerUpWothParam) => void
 type CallbackApiGetMemberUseItem = (arg: ApiUseItem[]) => void
+type CallbackApiGobackPort = () => void
+type CallbackApiCombinedGobackPort = () => void
 type CallbackMaterialUpdated = () => void
 type CallbackShipCountUpdated = () => void
 type CallbackSlotitemCountUpdated = () => void
@@ -8496,6 +8514,8 @@ type CallbackFunc =
   | CallbackApiNyukyoStart
   | CallbackApiHokyuCharge
   | CallbackApiPowerUp
+  | CallbackApiGobackPort
+  | CallbackApiCombinedGobackPort
   | CallbackMaterialUpdated
   | CallbackShipCountUpdated
   | CallbackSlotitemCountUpdated
@@ -8507,7 +8527,9 @@ type Calltype =
   | typeof KcsApi.Api.REQ_HENSEI_CHANGE
   | typeof KcsApi.Api.REQ_PRACTICE_BATTLE_RESULT
   | typeof KcsApi.Api.REQ_SORTIE_BATTLERESULT
+  | typeof KcsApi.Api.REQ_SORTIE_GOBACK_PORT
   | typeof KcsApi.Api.REQ_COMBINED_BATTLE_BATTLERESULT
+  | typeof KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT
   | typeof KcsApi.Api.REQ_KOUSYOU_CREATEITEM
   | typeof KcsApi.Api.REQ_KOUSYOU_DESTROYITEM2
   | typeof KcsApi.Api.REQ_KOUSYOU_CREATESHIP
@@ -8539,7 +8561,9 @@ type Callback =
   | [typeof KcsApi.Api.REQ_HENSEI_CHANGE, callbackApiHenseiChange]
   | [typeof KcsApi.Api.REQ_PRACTICE_BATTLE_RESULT, CallbackApiPracticeBattle]
   | [typeof KcsApi.Api.REQ_SORTIE_BATTLERESULT, CallbackApiSortieBattle]
+  | [typeof KcsApi.Api.REQ_SORTIE_GOBACK_PORT, CallbackApiGobackPort]
   | [typeof KcsApi.Api.REQ_COMBINED_BATTLE_BATTLERESULT, CallbackApiCombinedBattle]
+  | [typeof KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT, CallbackApiCombinedGobackPort]
   | [typeof KcsApi.Api.REQ_KOUSYOU_CREATEITEM, CallbackApiCreateItem]
   | [typeof KcsApi.Api.REQ_KOUSYOU_DESTROYITEM2, CallbackApiDestroyItem2]
   | [typeof KcsApi.Api.REQ_KOUSYOU_CREATESHIP, CallbackApiCreateShip]
@@ -10357,6 +10381,7 @@ export class SvData {
 
   private reqSortieGobackPort(): void {
     this.updateEscape(false)
+    ApiCallback.call(KcsApi.Api.REQ_SORTIE_GOBACK_PORT, undefined)
   }
 
   private reqCombinedCombinedBattle(api_data: ApiCombinedVsNormalBattle, json: string): void {
@@ -10424,6 +10449,7 @@ export class SvData {
 
   private reqCombinedBattleGobackPort(): void {
     this.updateEscape(true)
+    ApiCallback.call(KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT, undefined)
   }
 
   private reqPracticeBattle(): void {}

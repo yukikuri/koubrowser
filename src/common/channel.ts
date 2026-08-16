@@ -39,8 +39,17 @@ export const MainChannel = {
   check_for_updates: 'check_for_updates',
   download_update: 'download_update',
   restart_and_install_update: 'restart_and_install_update',
+  set_taiha_singeki_block_state: 'set_taiha_singeki_block_state', 
 } as const
 export type MainChannel = (typeof MainChannel)[keyof typeof MainChannel]
+
+
+export const TaihaSingekiBlockState = {
+  normalBlock: 1, // 通常進撃ブロック
+  repairBlock: 2, // 旗艦進撃ブロック(修理要員)
+  megamiBlock: 3, // 旗艦進撃ブロック(女神)
+} as const
+export type TaihaSingekiBlockState = (typeof TaihaSingekiBlockState)[keyof typeof TaihaSingekiBlockState]
 
 /**
  * from main to renderer
@@ -61,11 +70,16 @@ export const AssistMessage = {
 } as const
 export type AssistMessage = (typeof AssistMessage)[keyof typeof AssistMessage]
 
+/**
+ * from main to renderer
+ */
 export const GameChannel = {
   set_app_state: 'set_app_state',
   set_game_setting: 'set_game_setting',
   set_zoom_factor: 'set-zoom-factor',
-  resume: 'resume'
+  resume: 'resume',
+  set_ctrl_state: 'set_ctrl_state', // ctrlキー押下状態 args: 押下状態
+  guard_hit_effect: 'guard_hit_effect', // 進撃ブロックでのガードヒットエフェクト要求
 } as const
 export type GameChannel = (typeof GameChannel)[keyof typeof GameChannel]
 

@@ -4229,7 +4229,7 @@ export const ShipEtcs: ShipEtc[] = [
   {
     api_id: 1036,
     api_sakuteki: [NaN, 84],
-    api_kaihi: [NaN, 65],
+    api_kaihi: [33, 65],
   },
   {
     api_id: 1040,
@@ -4278,13 +4278,13 @@ export const ShipEtcs: ShipEtc[] = [
   },
   {
     api_id: 1060,
-    api_sakuteki: [NaN, NaN],
-    api_kaihi: [NaN, NaN],
+    api_sakuteki: [30, 68],
+    api_kaihi: [27, 48],
   },
   {
     api_id: 1061,
-    api_sakuteki: [NaN, NaN],
-    api_kaihi: [NaN, NaN],
+    api_sakuteki: [NaN, 80],
+    api_kaihi: [NaN, 55],
   },
   {
     api_id: 1062,
@@ -4298,13 +4298,13 @@ export const ShipEtcs: ShipEtc[] = [
   },
   {
     api_id: 1067,
-    api_sakuteki: [NaN, NaN],
-    api_kaihi: [NaN, NaN],
+    api_sakuteki: [9, 42],
+    api_kaihi: [54, 99],
   },
   {
     api_id: 1070,
-    api_sakuteki: [NaN, NaN],
-    api_kaihi: [NaN, NaN],
+    api_sakuteki: [17, 38],
+    api_kaihi: [15, 35],
   },
   {
     api_id: 1496,

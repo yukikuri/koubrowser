@@ -63,6 +63,13 @@ ipcRenderer.on(GameChannel.set_app_state, (_event, state: AppState) => {
   Object.assign(appState, state)
 })
 
+if (! EnvRenderer.isAssist) {
+  ipcRenderer.on(GameChannel.set_ctrl_state, (_event, pressed: boolean) => {
+    //console.log(GameChannel.set_ctrl_state, pressed)
+    gameState.ctrl_pressed = pressed
+  })
+}
+
 //console.log('process env', process.env);
 
 console.log('rederder ready')

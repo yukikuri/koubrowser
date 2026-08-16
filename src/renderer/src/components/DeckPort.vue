@@ -40,20 +40,33 @@ const isShowShipTooltip = computed(() => tooltip_ship_show.value)
  * 遊撃部隊では艦隊タブの高さを増やす
  * EnemyListではすべて表示できないことから表示艦数を制限する
  */
-const deckTabsStyle = computed(() => {
+const isRow3 = computed(() => {
   
-  // 第3以外はデフォルトの高さを使用する
+  // 第3以外はfalse
   if (index.value !== 2) {
-    return ''
+    return false
   }
 
-  // 第3で7隻以上の場合は高さを増やす
+  // 第3で7隻以上の場合、true
   const deckPort = decks.value[index.value].deck
   const shipCount = deckShipCount(deckPort.api_ship)
   if (shipCount < 7) {
     // デフォルト表示
+    return false
+  }
+  return true
+})
+
+const deckTabsStyle = computed(() => {
+  
+  const row3 = isRow3.value
+
+  // デフォルトの高さを使用する
+  if (!row3) {
     return ''
   }
+
+  // 7隻以上の場合は高さを増やす
   return `--deck-tabs-height: 416px; --ship-img-row-count:3;`
 })
 
@@ -90,7 +103,8 @@ const combinedName = computed<string>(() => {
       <template #content>
         <ShipTooltip v-if="isShowShipTooltip" :ship_id="tooltipShipId" />
       </template>
-      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" :style="deckTabsStyle">
+      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" 
+        :style="deckTabsStyle" :class="{'is-row3': isRow3 }">
         <b-tab-item v-for="(deck, deck_index) in decks" :key="deck.deck.api_id"
           :disabled="deck.isLock" 
           :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}_${deck.yusou}_${deck.isEscapedAa}__${deck.isEscapedYusou}`">

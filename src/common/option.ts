@@ -21,6 +21,12 @@ export interface OptionSetting {
 
   // unpacked extension information, default empty
   extensions: ExtensionInfo[]
+
+  // taiha singeki block display requirement, default true
+  taihaSingekiBlockEnable: boolean
+
+  // taiha singeki block check skip for safe cell, default true
+  taihaSingekiBlockSkipSafeCell: boolean
 }
 
 /**
@@ -54,7 +60,9 @@ export function defaultOptionSetting(): OptionSetting {
     proxyMode: 'system',
     proxyPacScript: null,
     proxyFixedServers: null,
-    extensions: []
+    extensions: [],
+    taihaSingekiBlockEnable: true,
+    taihaSingekiBlockSkipSafeCell: true
   }
 }
 
