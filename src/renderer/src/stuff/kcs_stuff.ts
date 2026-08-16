@@ -287,3 +287,48 @@ export function checkTaihaSingeki(checkPhase: TaihaCheckPhase): CheckTaihaSingek
 
   return { isTaihaSingeki: false }
 }
+
+/**
+ * 現在のセルが以下のセルでtrueを返す
+ * 
+ * ・1-6.鎮守府近海航路 Bマス<br>
+ * ・2-2.バシー海峡 Bマス<br>
+ * ・3-1.モーレイ海 Bマス<br>
+ * ・7-2.タウイタウイ泊地沖 Jマス<br>
+ * ・5-6.ラバウル方面海域 Hマス
+ * 
+ * @returns 
+ */
+export function currentIsSafeCell(): boolean {
+
+  // マップ情報が無いとき判定しない
+  const lastMap = svdata.lastMap
+  if (! lastMap) {
+    return false
+  }
+
+  // 安全セル情報
+  const safecells: {
+    mapId: number
+    cellIds: number[]
+  }[] = [
+    {
+      mapId: 16, cellIds:[13]
+    },
+    {
+      mapId: 22, cellIds:[2]
+    },
+    {
+      mapId: 31, cellIds:[2]
+    },
+    {
+      mapId: 72, cellIds:[12]
+    },
+    {
+      mapId: 56, cellIds:[18]
+    }
+  ] as const
+
+  const mapId = lastMap.api_maparea_id * 10 + lastMap.api_mapinfo_no
+  return safecells.some(sc => sc.mapId === mapId && sc.cellIds.includes(lastMap.api_no))
+}

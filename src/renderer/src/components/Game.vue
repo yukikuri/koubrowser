@@ -418,9 +418,22 @@ function onBattleResult(): void {
   taihaSingekiRechecked.value = false
   gameState.ctrl_pressed = false
 
+  debug('onBattleResult: check taiha singeki block.',
+    'enable:', gameSetting.taihaSingekiBlockEnable,
+    'skip safe cell:', gameSetting.taihaSingekiBlockSkipSafeCell)
+
   // オプション設定で無効
   if (! gameSetting.taihaSingekiBlockEnable) {
     debug('onBattleResult: taiha singeki block disabled by option')
+    return
+  }
+
+  // オプション設定で安全マススキップ有効で、かつ安全マスなら判定しない
+  if (gameSetting.taihaSingekiBlockSkipSafeCell) {
+    if (kcs_stuff.currentIsSafeCell()) {
+      debug('onBattleResult: safe cell, skip taiha singeki block check')
+      return
+    }
     return
   }
 

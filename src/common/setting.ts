@@ -18,7 +18,8 @@ export class GameSetting {
   private assist_restricted: boolean = false
 
   private taiha_singeki_block_enable: boolean = true
-  
+  private taiha_singeki_block_skip_safe_cell: boolean = true
+
   public get isAssistInGame(): boolean {
     return !this.assist_restricted && this.assist_in_game
   }
@@ -47,6 +48,14 @@ export class GameSetting {
     return this.taiha_singeki_block_enable
   }
 
+  public setTaihaSingekiBlockSkipSafeCell(skip: boolean): void {
+    this.taiha_singeki_block_skip_safe_cell = skip
+  }
+
+  public get taihaSingekiBlockSkipSafeCell(): boolean {
+    return this.taiha_singeki_block_skip_safe_cell
+  }
+
   /**
    * 
    * @param option 
@@ -54,5 +63,7 @@ export class GameSetting {
   public applyOptionSetting(option: OptionSetting): void {
     // 大破進撃防止
     this.setTaihaSingekiBlockEnable(option.taihaSingekiBlockEnable)
+    // 大破進撃防止：安全マススキップ
+    this.setTaihaSingekiBlockSkipSafeCell(option.taihaSingekiBlockSkipSafeCell)
   }
 }
