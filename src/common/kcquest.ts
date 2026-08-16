@@ -9064,7 +9064,7 @@ register(
   }
 )
 
-// 646:	「特注家具」の調達
+// 646(F42):	「特注家具」の調達
 register(
   646,
   class {
@@ -9102,18 +9102,18 @@ register(
   }
 )
 
-// 648:	「特注家具」の調達
+// 648(F44):	「特注家具」の調達
 register(
   648,
   class {
     static readonly questType = QuestType.destroyItemIdOrType
-    static max = [1]
+    static max = [2]
     static key = QuestKey.infer
     static id_or_types: ItemIdOrType[] = [
-      { id: 49 }
+      { id: 10 }
     ]
     static formatter(quest: Quest): string {
-      return detailFormat(['破棄 25mm単装機銃：'], quest)
+      return detailFormat(['破棄 12.7cm連装高角砲：'], quest)
     }
     static getCondition(_svdata: SvData) {
       return undefined
@@ -9178,7 +9178,7 @@ register(
   }
 )
 
-// 652:	「特注家具」の調達
+// 652(F48):	「特注家具」の調達
 register(
   652,
   class {
