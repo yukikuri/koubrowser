@@ -21,6 +21,9 @@ export interface OptionSetting {
 
   // unpacked extension information, default empty
   extensions: ExtensionInfo[]
+
+  // taiha singeki block display requirement, default true
+  taihaSingekiBlockEnable: boolean
 }
 
 /**
@@ -54,7 +57,8 @@ export function defaultOptionSetting(): OptionSetting {
     proxyMode: 'system',
     proxyPacScript: null,
     proxyFixedServers: null,
-    extensions: []
+    extensions: [],
+    taihaSingekiBlockEnable: true
   }
 }
 

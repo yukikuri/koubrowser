@@ -265,6 +265,9 @@ input {
     margin-bottom: 0.25rem;
     font-size: 1rem;
     font-weight: 600;
+    &:not(:first-of-type) {
+      margin-top: 18px;
+    }
   }
 }
 
@@ -432,7 +435,6 @@ input {
   }
 }
 
-
 .option-radio-group {
   display: flex;
   flex-direction: column;
@@ -440,7 +442,8 @@ input {
   margin-top: 12px;
 }
 
-.option-radio {
+.option-radio,
+.option-checkbox {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -450,6 +453,13 @@ input {
   
   input {
     margin: 0;
+  }
+}
+
+.option-checkbox {
+  input {
+    width: 1rem;
+    height: 1rem;
   }
 }
 
@@ -522,25 +532,30 @@ input {
 }
 
 
-.option-radio-with-description {
+.option-radio-with-description,
+.option-checkbox-with-description {
   align-items: flex-start;
   input {
     margin-top: 0.25rem;
   }
 }
 
-.option-radio-body {
+.option-radio-body,
+.option-checkbox-body {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.option-radio-title {
-  color: #d9dee7;
+.option-radio-title,
+.option-checkbox-title {
+  color: $option-text-primary;
+  font-size: $option-text-primary-size;
 }
 
-.option-radio-description {
-  color: #8f9bad;
-  font-size: 0.75rem;
+.option-radio-description,
+.option-checkbox-description {
+  color:$option-text-secondary;
+  font-size: $option-text-secondary-size;
   line-height: 1.4;
 }
