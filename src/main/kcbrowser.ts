@@ -1103,7 +1103,7 @@ export class KcApp {
         width: Math.round(Const.GameWidth * rectRate.width),
         height: Math.round((Const.GameHeight + Const.GameBarHeight) * rectRate.height)
       }
-      
+
       // ゲームのみ表示の場合、表示倍率で補正
       if (!gameSetting.isAssistInGame) {
         const zoomFactor = gameSetting.zoom_factor
@@ -1460,6 +1460,9 @@ export class KcApp {
 
     // キャプチャ保存先更新する
     PathStuff.setCapturePath(setting.captureSavePath)
+
+    // オプション設定をゲーム設定に反映する
+    gameSetting.applyOptionSetting(setting)
   }
 
   /**

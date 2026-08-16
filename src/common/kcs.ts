@@ -7813,11 +7813,11 @@ interface ApiAirSearch {
 export const ApiEventId = {
   initpos: 0,
   noevent: 1,
-  getMaterial: 2,
+  getMaterial: 2, // 資源獲得
   uzusio: 3,
   sortieBattle: 4,
   bossBattle: 5,
-  imagination: 6,
+  imagination: 6, // 敵影を見ず
   airBattleOrAirSsearch: 7,
   eoMaterialGet: 8, // 1-6 goal
   landingPoint: 9,
