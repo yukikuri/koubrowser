@@ -22,6 +22,8 @@ const el = ref<HTMLElement | null>(null)
 const normalBlockShieldRef = ref<BlockShieldInstance | null>(null)
 const repairBlockShieldRef = ref<BlockShieldInstance | null>(null)
 const megamiBlockShieldRef = ref<BlockShieldInstance | null>(null)
+let stopSetZoomFactor: (() => void) | null = null
+let stopGuardHitEffect: (() => void) | null = null
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -146,8 +148,8 @@ onMounted(() => {
     webview.addEventListener('media-paused', mediaPaused)
   }
 
-  ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
-  ipcRenderer.on(GameChannel.guard_hit_effect, guardHitEffect)
+  stopSetZoomFactor = ipcRenderer.on(GameChannel.set_zoom_factor, setZoomFactor)
+  stopGuardHitEffect = ipcRenderer.on(GameChannel.guard_hit_effect, guardHitEffect)
 
   // 大破進撃防止関連
   cb_port = ApiCallback.set([Api.PORT_PORT, () => onPort()])
@@ -183,6 +185,12 @@ onUnmounted(() => {
     webview.removeEventListener('media-started-playing', mediaStartedPlaying)
     webview.removeEventListener('media-paused', mediaPaused)
   }
+
+  stopSetZoomFactor?.()
+  stopSetZoomFactor = null
+
+  stopGuardHitEffect?.()
+  stopGuardHitEffect = null
 
   if (cb_port) {
     ApiCallback.unset(cb_port)
