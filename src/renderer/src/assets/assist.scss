@@ -5140,6 +5140,12 @@ $eship-col-height: math.div(60px, math.div(240px, $eship-col-width)) + 12px;
     background-color: rgba(#000, 0.8) !important;
     border: 1px solid #000;
   }
+
+  &:has(.is-row3) {
+    > .tooltip-content {
+      top: 181px !important;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////
