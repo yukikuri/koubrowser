@@ -322,6 +322,9 @@ export function currentIsSafeCell(): boolean {
       mapId: 31, cellIds:[2]
     },
     {
+      mapId: 32, cellIds:[1,13]
+    },
+    {
       mapId: 72, cellIds:[12]
     },
     {

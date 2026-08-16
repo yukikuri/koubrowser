@@ -261,6 +261,7 @@ const clearProxyFixedServersInput = (): void => {
                     ・1-6.鎮守府近海航路 Bマス<br>
                     ・2-2.バシー海峡 Bマス<br>
                     ・3-1.モーレイ海 Bマス<br>
+                    ・3-2.キス島沖 Aマス<br>
                     ・7-2.タウイタウイ泊地沖 Jマス<br>
                     ・5-6.ラバウル方面海域 Hマス
                   </span>
