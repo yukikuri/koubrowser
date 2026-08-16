@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, computed, useId } from 'vue'
+import { ref, computed, useId } from 'vue'
 import { RectRate } from '@common/const'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 
@@ -18,11 +18,6 @@ const props = defineProps<{
 }>()
 const shieldGlowId = `shield-glow-${useId().replaceAll(':', '-')}`
 const shieldGlowUrl = `url(#${shieldGlowId})`
-
-/////////////////////////////////////////////////////////////////////////////////////
-// 
-onMounted(() => {})
-onUnmounted(() => {})
 
 /////////////////////////////////////////////////////////////////////////////////////
 // 

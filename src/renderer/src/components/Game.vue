@@ -56,7 +56,7 @@ const clearBlockShieldVisibleTimer = () => {
   }
 }
 
-const tahiaSingekiBlockStates = computed<TaihaSingekiBlockState[]>(() => {
+const taihaSingekiBlockStates = computed<TaihaSingekiBlockState[]>(() => {
   if (!taihaSingekiResult.value || !taihaSingekiResult.value.isTaihaSingeki) {
     return []
   }
@@ -408,7 +408,7 @@ const checkSingekiBlock = () => {
   const delayMs = 9000
   blockShieldVisibleTimer = setTimeout(() => {
     taihaSingekiResult.value = result
-    window.api.setTaihaSingekiBlockState(tahiaSingekiBlockStates.value)
+    window.api.setTaihaSingekiBlockState(taihaSingekiBlockStates.value)
     isTaihaWarningInAnimation.value = true
     blockShieldVisibleTimer = null
   }, delayMs)
@@ -472,7 +472,7 @@ function onGobackPort(): void {
     debug('onGobackPort: taiha singeki')
     taihaSingekiRechecked.value = true
     taihaSingekiResult.value = result
-    window.api.setTaihaSingekiBlockState(tahiaSingekiBlockStates.value)
+    window.api.setTaihaSingekiBlockState(taihaSingekiBlockStates.value)
   } else {
     debug('onGobackPort: no taiha singeki')
 
@@ -558,7 +558,7 @@ const onBlockShieldSwitchChanged = (enabled: boolean): void => {
     window.api.setTaihaSingekiBlockState([])
   } else {
     // シールドONにした場合、進撃操作制限
-    window.api.setTaihaSingekiBlockState(tahiaSingekiBlockStates.value)
+    window.api.setTaihaSingekiBlockState(taihaSingekiBlockStates.value)
   }
 }
 
@@ -584,8 +584,8 @@ const isShieldVisible = (state: TaihaSingekiBlockState): boolean => {
   }
 
   // 表示場所判定
-  const visible = tahiaSingekiBlockStates.value.includes(state)
-  debug('isShieldVisible', state, 'visible:', visible, 'states:', tahiaSingekiBlockStates.value)
+  const visible = taihaSingekiBlockStates.value.includes(state)
+  debug('isShieldVisible', state, 'visible:', visible, 'states:', taihaSingekiBlockStates.value)
   return visible
 }
 
