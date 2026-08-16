@@ -330,12 +330,12 @@ function onPort(): void {
 
 function onMapStart(): void {
   replaceArray(mapcell_labels, [])
-  taiha_singeki.value = checkTaihaSingeki()
+  taiha_singeki.value = checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterMapNext)
   mapPushCell()
 }
 
 function onMapNext(): void {
-  taiha_singeki.value = checkTaihaSingeki()
+  taiha_singeki.value = checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterMapNext)
   inBattle.value = false
   disp_seiku.value = null
   deck_formation.value = null
@@ -554,8 +554,8 @@ const onClose = (): void => {
   window.api.close()
 }
 
-const checkTaihaSingeki = (): boolean => {
-  return kcs_stuff.checkTaihaSingeki().isTaihaSingeki
+const checkTaihaSingeki = (phase: kcs_stuff.TaihaCheckPhase): boolean => {
+  return kcs_stuff.checkTaihaSingeki(phase).isTaihaSingeki
 }
 
 const isStartupUpdateAvailable = computed((): boolean => {

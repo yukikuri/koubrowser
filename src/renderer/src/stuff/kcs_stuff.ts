@@ -1,6 +1,6 @@
 import { svdata } from "@renderer/store/svdata";
 import { mapInfo as storeMapInfo } from '@renderer/store/mapinfo'
-import { ApiDeckPort, ApiDeckPortId, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
+import { ApiDeckPort, ApiDeckPortId, ApiEventId, ApiEventKind, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
 import { computed } from "vue";
 
 export function isGimmickFlagDetected() {
@@ -177,12 +177,19 @@ const isEquipDamegeControl = (svdata: SvData, ship: ApiShip): boolean => {
   return false
 }
 
+export const TaihaCheckPhase = {
+  afterBattle: 0, // 戦闘後
+  afterMapNext: 1, // マップ移動後
+} as const
+export type TaihaCheckPhase = (typeof TaihaCheckPhase)[keyof typeof TaihaCheckPhase]
+
 /**
  * 進撃前での大破艦が存在するかのチェック
  * 
+ * @param checkPhase 
  * @returns 
  */
-export function checkTaihaSingeki(): CheckTaihaSingekiResult {
+export function checkTaihaSingeki(checkPhase: TaihaCheckPhase): CheckTaihaSingekiResult {
 
   // 出撃中で判定する
   if (!svdata.inMap) {
@@ -195,13 +202,32 @@ export function checkTaihaSingeki(): CheckTaihaSingekiResult {
     return { isTaihaSingeki: false }
   }
 
-  // 行き止まりの場合は判定しない
+  // マップ情報が無いとき判定しない
   const lastMap = svdata.lastMap
   if (! lastMap) {
     return { isTaihaSingeki: false }
   }
-  if (! lastMap.api_next) {
-    return { isTaihaSingeki: false }
+
+  // 戦闘後：行き止まりの場合は判定しない
+  if (checkPhase === TaihaCheckPhase.afterBattle) {
+    if (! lastMap.api_next) {
+      return { isTaihaSingeki: false }
+    }
+  }
+
+  // マップ移動後：行き止まりで戦闘マス以外は判定しない
+  if (checkPhase === TaihaCheckPhase.afterMapNext) {
+    if (! lastMap.api_next) {
+      const noBattleEventId: ApiEventId[] = [
+        ApiEventId.noevent,
+        ApiEventId.getMaterial, 
+        ApiEventId.imagination,
+        ApiEventId.eoMaterialGet,
+      ]
+      if (noBattleEventId.includes(lastMap.api_event_id)) {
+        return { isTaihaSingeki: false }
+      }
+    }
   }
 
   // 退避艦は除外し、大破艦が存在するか？

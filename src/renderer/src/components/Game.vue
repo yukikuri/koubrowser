@@ -386,7 +386,7 @@ function onPort(): void {
  */
 const checkSingekiBlock = () => {
 
-  const result = kcs_stuff.checkTaihaSingeki()
+  const result = kcs_stuff.checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterBattle)
   debug('onBattleResult', result)
 
   if (! result.isTaihaSingeki) {
@@ -418,6 +418,12 @@ function onBattleResult(): void {
   taihaSingekiRechecked.value = false
   gameState.ctrl_pressed = false
 
+  // オプション設定で無効
+  if (! gameSetting.taihaSingekiBlockEnable) {
+    debug('onBattleResult: taiha singeki block disabled by option')
+    return
+  }
+
   // todo
   // 大破進撃防止の判定は、艦隊HP更新後に行う必要があることの改善
   // 艦隊HP更新はcallback呼び出し後に行われることからsettimeoutで遅延判定する
@@ -430,8 +436,17 @@ function onBattleResult(): void {
  * 退避が行われた場合は、再度大破進撃判定を行う
  */
 function onGobackPort(): void {
+
+  // 大破進撃判定済みで再度判定を行う
+  // オプション設定で無効であっても一度動作した大破進撃チェックは継続して動作させる
+  const currentResult = taihaSingekiResult.value
+  if (! currentResult || !currentResult.isTaihaSingeki) {
+    debug('onGobackPort: no taiha singeki result, skip recheck')
+    return
+  }
+
   // 退避が行われた場合、再度大破進撃判定
-  const result = kcs_stuff.checkTaihaSingeki()
+  const result = kcs_stuff.checkTaihaSingeki(kcs_stuff.TaihaCheckPhase.afterBattle)
   if (result.isTaihaSingeki) {
     // 情報更新
     debug('onGobackPort: taiha singeki')
