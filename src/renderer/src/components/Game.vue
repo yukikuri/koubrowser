@@ -434,7 +434,6 @@ function onBattleResult(): void {
       debug('onBattleResult: safe cell, skip taiha singeki block check')
       return
     }
-    return
   }
 
   // todo
