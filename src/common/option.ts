@@ -24,6 +24,9 @@ export interface OptionSetting {
 
   // taiha singeki block display requirement, default true
   taihaSingekiBlockEnable: boolean
+
+  // taiha singeki block check skip for safe cell, default true
+  taihaSingekiBlockSkipSafeCell: boolean
 }
 
 /**
@@ -58,7 +61,8 @@ export function defaultOptionSetting(): OptionSetting {
     proxyPacScript: null,
     proxyFixedServers: null,
     extensions: [],
-    taihaSingekiBlockEnable: true
+    taihaSingekiBlockEnable: true,
+    taihaSingekiBlockSkipSafeCell: true
   }
 }
 
