@@ -18,7 +18,7 @@ import {
   Menu,
   type Display,
   type Input,
-  MouseInputEvent,
+  type MouseInputEvent,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { is } from '@electron-toolkit/utils'
