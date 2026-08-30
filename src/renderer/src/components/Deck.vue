@@ -6,7 +6,6 @@ import {
   THCutin,
   THCutinState,
   SenseiTaisenState,
-  SenseiRaigekiState,
   TKCutinState,
   TKCutin,
   TKCutinConsts,
@@ -14,7 +13,8 @@ import {
   ShipInfoSp,
   Slot,
   YCutin,
-  ApiDeckPortId
+  ApiDeckPortId,
+  type MstShip
 } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
 import {
@@ -27,7 +27,7 @@ import {
   getYSCutinText
 } from '@common/locale'
 import ShipBanner from '@renderer/components/ShipBanner.vue'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, StyleValue } from 'vue'
 import { MathUtil } from '@common/math'
 import { RUtil } from '@renderer/util'
 
@@ -35,7 +35,7 @@ import { RUtil } from '@renderer/util'
 // debug
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[DeckUnit]", ...args);
 };
 
@@ -94,16 +94,16 @@ const shipSlotDips = (ship: ShipInfoSp): SlotDisp[] => {
 
 type Props = {
   deck: ApiDeckPort
-  show_rate?: boolean
-  tooltip_ship_id?: number
-  tooltip_ship_show?: boolean
+  showRate?: boolean
+  tooltipShipId?: number
+  tooltipShipShow?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { show_rate: true })
+const props = withDefaults(defineProps<Props>(), { showRate: true })
 
 const emit = defineEmits<{
-  (e: 'update:tooltip_ship_id', v: number): void
-  (e: 'update:tooltip_ship_show', v: boolean): void
+  (e: 'update:tooltip-ship-id', v: number): void
+  (e: 'update:tooltip-ship-show', v: boolean): void
 }>()
 
 const tkHoverShipId = ref('')
@@ -165,11 +165,12 @@ const tktipHtml = computed<string>(() => {
   if (!tkHoverShipId.value || !tkHoverTk.value) return ''
   const shipId = parseInt(tkHoverShipId.value)
   const tk = parseInt(tkHoverTk.value) as TKCutin
-  const ship = shipsData.value.find((s) => s.ship.api.api_id === shipId)
-  if (!ship || !tk) return ''
-  const header = `Lv: ${ship.ship.api.api_lv} ${ship.ship.mst.api_name}`
+  const api = svdata.ship(shipId)
+  const mst = svdata.mstShip(api?.api_ship_id ?? 0)
+  if (!api || ! mst || !tk) return ''
+  const header = `Lv: ${api.api_lv} ${mst.api_name}`
   const tktag = TipTKCiTag({ entry: [], type: [tk] })
-  const src = RUtil.shipBannerImg(ship.ship.api.api_ship_id, false, true)
+  const src = RUtil.shipBannerImg(api.api_ship_id, false, true)
   const rate = MathUtil.floor(KcsUtil.rateTK(tk) * 100.0, 1)
   const tkconst = TKCutinConsts[tk]
   return `<div>${header}</div><img class="img" src="${src}"><div>${tktag} ${rate}%</div><div>固定:${tkconst.kotei} 変動:${tkconst.hendou}</div>`
@@ -186,14 +187,36 @@ const tkrateHover = (event: Event): void => {
   }
 }
 
-const tkrateLeave = (_ev: Event): void => {
+const tkrateLeave = (): void => {
   tktipActive.value = false
 }
 
 const isTkrateActive = computed<boolean>(() => tktipActive.value)
 
 const tkRates = computed<TKRate[]>(() => {
-  const sps = shipSps.value
+  const sps = [...shipSps.value]
+
+  // 連合艦隊
+  // 第一艦隊の場合は第二艦隊の艦船も含めて対空CIを計算する
+  // 第二艦隊の場合は第一艦隊の艦船も含めて対空CIを計算する
+  if (svdata.isCombined) {
+    if (props.deck.api_id === ApiDeckPortId.deck1st) {
+      const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+      if (deck2) {
+        const deck2Sps = svdata.shipInfoTKCutins(deck2.api_ship)
+        sps.push(...deck2Sps)
+      }
+    }
+    if (props.deck.api_id === ApiDeckPortId.deck2st) {
+      const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+      if (deck1) {
+        const deck1Sps = svdata.shipInfoTKCutins(deck1.api_ship)
+        sps.push(...deck1Sps)
+      }
+    }
+  }
+
+
   let tks: TKEntry[] = []
   const atlantas = filterShips(sps, KcsUtil.isAtlantaType)
   const fletchers = filterShips(sps, KcsUtil.isFletcherType)
@@ -236,29 +259,49 @@ const tknorateStyle = computed(() => ({
   '--width': `${1.0 - tkrateTotal.value}`
 }))
 const totalTkrateText = computed<string>(() => MathUtil.floor(tkrateTotal.value * 100.0, 1) + '%')
-const tkrateStyle = (rate: TKRate) => ({ '--left': `${rate.left}`, '--width': `${rate.rate}` })
+const tkrateStyle = (rate: TKRate): StyleValue => ({ '--left': `${rate.left}`, '--width': `${rate.rate}` })
 const tkrateText = (rate: TKRate): string => {
   const v = MathUtil.floor(rate.rate * 100.0, 1)
   const prefix = v > 12.0 ? `${rate.tk}種: ` : ''
   return `${prefix}${v}%`
 }
-const deckKTBText = computed(() => KcsUtil.shipsSeiku(shipsData.value.map((s) => s.ship)))
+const deckKTBText = computed(() => {
+  let kb = KcsUtil.deckKantaiBouku(shipsData.value.map((s) => s.ship))
+
+  if (svdata.isCombined) {
+    if (props.deck.api_id === ApiDeckPortId.deck1st) {
+      const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+      if (deck2) {
+        const deck2Sps = svdata.shipInfos(deck2.api_ship)
+        kb += KcsUtil.deckKantaiBoukuShipInfos(deck2Sps)
+      }
+    }
+    if (props.deck.api_id === ApiDeckPortId.deck2st) {
+      const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+      if (deck1) {
+        const deck1Sps = svdata.shipInfos(deck1.api_ship)
+        kb += KcsUtil.deckKantaiBoukuShipInfos(deck1Sps)
+      }
+    }
+  }
+  return Math.floor(kb * 10) / 10
+})
 
 const shipMouseEnter = (event: Event): void => {
   const dataset = (event.currentTarget as HTMLElement).dataset
   const id = parseInt(dataset.shipId!)
-  emit('update:tooltip_ship_id', id)
-  emit('update:tooltip_ship_show', true)
+  emit('update:tooltip-ship-id', id)
+  emit('update:tooltip-ship-show', true)
 }
 const shipMouseLeave = (): void => {
-  emit('update:tooltip_ship_show', false)
+  emit('update:tooltip-ship-show', false)
 }
-const filterShips = (ships: ShipInfoSp[], type: (id: number) => boolean): ShipInfoSp[] => {
-  return ships.filter((ship) => type(ship.mst.api_id))
+const filterShips = (ships: ShipInfoSp[], type: (mst: MstShip) => boolean): ShipInfoSp[] => {
+  return ships.filter((ship) => type(ship.mst))
 }
 
-const isNotSpecialTkShip = (id: number): boolean => {
-  return !KcsUtil.isSpecialTkShipType(id)
+const isNotSpecialTkShip = (mst: MstShip): boolean => {
+  return !KcsUtil.isSpecialTkShipType(mst)
 }
 
 const onslotHtml = (ship: ShipInfo, index: number, slot: Slot): string => {
@@ -343,7 +386,7 @@ const SenseiTaisenTag = (st: SenseiTaisenState): string => {
     `<span class="sp-rate">&nbsp;</span></span>`
 }
 
-const SenseiRaigekiTag = (st: SenseiRaigekiState): string => {
+const SenseiRaigekiTag = (): string => {
   return '<span class="sp"><span class="tag is-info">先制雷撃</span><span class="sp-rate">&nbsp;</span></span>'
 }
 
@@ -489,10 +532,9 @@ const YCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): st
   if (isReduce && multiCi.length > 1) {
 
     // 夜間瑞雲カットインは名前文字数順で表示する
-    let reOrder = rates;
     if (rates.some(rate => rate.type === YCutin.YAKAN_ZUIUN1_DEN) &&
       rates.some(rate => rate.type === YCutin.YAKAN_ZUIUN2_DEN)) {
-        reOrder = rates.sort((a, b) => {
+        rates.sort((a, b) => {
           const aIsZuiun = a.type === YCutin.YAKAN_ZUIUN1_DEN || a.type === YCutin.YAKAN_ZUIUN2_DEN
           const bIsZuiun = b.type === YCutin.YAKAN_ZUIUN1_DEN || b.type === YCutin.YAKAN_ZUIUN2_DEN
           if (aIsZuiun && !bIsZuiun) {
@@ -519,7 +561,7 @@ const YCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): st
     htmls.push('</span>')
     html = htmls.join('')
   } else {
-    html = rates.reduce((acc, rate, index) => {
+    html = rates.reduce((acc, rate) => {
       const isMaxClass = isMaxYCutins.includes(rate.type) ? ' is-max' : ''
       const rate_txt = MathUtil.floor(rate.rate * 100, 1)
       acc += `<span class="sp"><span class="tag is-dark${isMaxClass}">`+
@@ -599,7 +641,7 @@ const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
 
   // sensei raigeki
   if (sp.sr) {
-    ret.push(SenseiRaigekiTag(sp.sr))
+    ret.push(SenseiRaigekiTag())
   }
 
   // funsindanmaku
@@ -622,7 +664,6 @@ const shipSpHtml = (ships: ShipInfoSp[], ship: ShipInfoSp): string => {
 }
 
 const shipBouku = (shipSps: ShipInfoSp[], ship: ShipInfoSp): string => {
-  const saitei = 1
   const wariai = MathUtil.floor((ship.bouku.kt / 400.0) * 100.0, 0)
   const kotei = KcsUtil.shipKoteiGekitui(ship, shipSps)
   //const saidai = Math.floor(ship.bouku.kt*66/400.0)+kotei+saitei;
@@ -648,37 +689,39 @@ function rowClass(row: DeckShip | null): string {
 </script>
 
 <template>
+  <!-- 内部で生成した固定タグのみを描画するため v-html を許可する -->
+  <!-- eslint-disable vue/no-v-html -->
   <div class="deck">
     <section class="deck-ship-imgs" @mouseleave="shipMouseLeave">
       <span
+        v-for="(ship, shipIndex) in shipsData"
+        :key="shipIndex"
         class="ship-container"
-        @mouseenter="shipMouseEnter"
         :data-ship-id="ship.ship.api.api_id"
-        v-for="(ship, index) in shipsData"
-        :key="index"
+        @mouseenter="shipMouseEnter"
       >
         <!-- todo: load image error draw ship name -->
         <ShipBanner :ship_info="ship.ship" :escaped="ship.escaped" />
         <span class="slots">
           <img
-            v-for="(slot, index) in ship.ship.slots"
-            :key="index"
+            v-for="(slot, slotIndex) in ship.ship.slots"
+            :key="slotIndex"
             class="slot"
             src="../assets/img/slot/slot.png"
           />
         </span>
         <span class="slots">
           <img
-            v-for="(disp, index) in ship.slot_disps"
-            :key="index"
+            v-for="(disp, slotIndex) in ship.slot_disps"
+            :key="slotIndex"
             class="slot"
             :src="disp.type_img"
           />
         </span>
         <span class="slots">
           <span
-            v-for="(disp, index) in ship.slot_disps"
-            :key="index"
+            v-for="(disp, slotIndex) in ship.slot_disps"
+            :key="slotIndex"
             class="slot"
             v-html="disp.onslot_html"
           />
@@ -704,91 +747,91 @@ function rowClass(row: DeckShip | null): string {
         :mobile-cards="false"
         :row-class="rowClass"
       >
-        <b-table-column v-slot="props" label="name" centered cell-class="cell-name">
-          <div v-if="props.row !== null" :class="props.row.hpClassTT">
-            <div class="stype">{{ props.row.stype }}</div>
-            <div class="name">{{ props.row.ship.mst.api_name }}</div>
+        <b-table-column v-slot="slotProps" label="name" centered cell-class="cell-name">
+          <div v-if="slotProps.row !== null" :class="slotProps.row.hpClassTT">
+            <div class="stype">{{ slotProps.row.stype }}</div>
+            <div class="name">{{ slotProps.row.ship.mst.api_name }}</div>
           </div>
           <div v-else class="ship-empty"></div>
         </b-table-column>
-        <b-table-column v-slot="props" label="Lv" centered cell-class="cell-status small">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="Lv" centered cell-class="cell-status small">
+          <div v-if="slotProps.row !== null">
             <div class="lv">Lv</div>
             <div>
-              <span :class="{ 'state-plus': props.row.ship.api.api_lv >= 100 }">{{
-                props.row.ship.api.api_lv
+              <span :class="{ 'state-plus': slotProps.row.ship.api.api_lv >= 100 }">{{
+                slotProps.row.ship.api.api_lv
               }}</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="hp" centered cell-class="cell-status small">
-          <div v-if="props.row !== null">
-            <div class="s-icon" :class="props.row.hpIconClass" title="耐久"></div>
+        <b-table-column v-slot="slotProps" label="hp" centered cell-class="cell-status small">
+          <div v-if="slotProps.row !== null">
+            <div class="s-icon" :class="slotProps.row.hpIconClass" title="耐久"></div>
             <div>
-              <span :class="props.row.hpClass">{{ props.row.ship.api.api_nowhp }}</span>
+              <span :class="slotProps.row.hpClass">{{ slotProps.row.ship.api.api_nowhp }}</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="cond" centered cell-class="cell-status small">
-          <div v-if="props.row !== null">
-            <div class="s-icon cond" :class="props.row.condClass" title="コンディション"></div>
+        <b-table-column v-slot="slotProps" label="cond" centered cell-class="cell-status small">
+          <div v-if="slotProps.row !== null">
+            <div class="s-icon cond" :class="slotProps.row.condClass" title="コンディション"></div>
             <div>
-              <span :class="props.row.condClass">{{ props.row.ship.api.api_cond }}</span>
+              <span :class="slotProps.row.condClass">{{ slotProps.row.ship.api.api_cond }}</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="fual" centered cell-class="cell-status large0">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="fual" centered cell-class="cell-status large0">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon fuel" title="燃料"></div>
-            <div :class="props.row.fualClass">
-              <span>{{ props.row.fual_per }}%</span>
+            <div :class="slotProps.row.fualClass">
+              <span>{{ slotProps.row.fual_per }}%</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="bull" centered cell-class="cell-status large0">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="bull" centered cell-class="cell-status large0">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon bull" title="弾薬"></div>
-            <div :class="props.row.bullClass">
-              <span>{{ props.row.bull_per }}%</span>
+            <div :class="slotProps.row.bullClass">
+              <span>{{ slotProps.row.bull_per }}%</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="speed" centered cell-class="cell-status large1">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="speed" centered cell-class="cell-status large1">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon speed" title="速力"></div>
             <div>
-              <span :class="props.row.sokuClass">{{ props.row.soku_text }}</span>
+              <span :class="slotProps.row.sokuClass">{{ slotProps.row.soku_text }}</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="range" centered cell-class="cell-status large1">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="range" centered cell-class="cell-status large1">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon range" title="射程"></div>
             <div>
-              <span :class="props.row.syateiClass">{{ props.row.syatei_text }}</span>
+              <span :class="slotProps.row.syateiClass">{{ slotProps.row.syatei_text }}</span>
             </div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="hit" centered cell-class="cell-status large0">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="hit" centered cell-class="cell-status large0">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon hit" title="命中項"></div>
-            <div :class="props.row.hitClass">{{ props.row.hit }}%</div>
+            <div :class="slotProps.row.hitClass">{{ slotProps.row.hit }}%</div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="ev" centered cell-class="cell-status large0">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="ev" centered cell-class="cell-status large0">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon ev" title="回避項"></div>
-            <div :class="props.row.evClass">{{ props.row.ev }}%</div>
+            <div :class="slotProps.row.evClass">{{ slotProps.row.ev }}%</div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="boku" cell-class="cell-status large_aa">
-          <div v-if="props.row !== null">
+        <b-table-column v-slot="slotProps" label="boku" cell-class="cell-status large_aa">
+          <div v-if="slotProps.row !== null">
             <div class="s-icon aa" title="撃墜 割合/固定"></div>
-            <div class="status-txt">{{ props.row.boku_text }}</div>
+            <div class="status-txt">{{ slotProps.row.boku_text }}</div>
           </div>
         </b-table-column>
-        <b-table-column v-slot="props" label="slot" cell-class="cell-sps">
-          <div v-if="props.row !== null" class="sp-content" v-html="props.row.sp_html"></div>
+        <b-table-column v-slot="slotProps" label="slot" cell-class="cell-sps">
+          <div v-if="slotProps.row !== null" class="sp-content" v-html="slotProps.row.sp_html"></div>
         </b-table-column>
       </b-table>
     </section>
@@ -824,10 +867,10 @@ function rowClass(row: DeckShip | null): string {
               :key="index"
               class="tkrate-unit"
               :style="tkrateStyle(rate)"
-              @mouseenter="tkrateHover"
-              @mouseleave="tkrateLeave"
               :data-tk="rate.tk"
               :data-ship-id="rate.ship ? rate.ship.api.api_id : ''"
+              @mouseenter="tkrateHover"
+              @mouseleave="tkrateLeave"
             >
               <span class="tkrate-value-container">
                 <span v-if="rate.ship !== undefined" class="tkrate-text">{{
@@ -840,4 +883,5 @@ function rowClass(row: DeckShip | null): string {
       </section>
     </b-tooltip>
   </div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

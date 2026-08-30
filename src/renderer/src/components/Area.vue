@@ -45,7 +45,7 @@ import { mapInfoCache } from '@renderer/common/mapinfo'
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[Area]", ...args);
 };
 
@@ -1234,12 +1234,12 @@ function onChangeAirbaseSpot(value: boolean): void {
 
 <template>
   <div v-if="isDataOk">
-    <div class="map" ref="mapEl">
+    <div ref="mapEl" class="map">
       <MapImg :area_id="area_id" :area_no="area_no" />
       <div v-for="(spot, index) in enemySpots" :key="index">
         <div :class="spot.seikuClass" :style="spot.spotXY">
           <div v-if="spot.airbase !== undefined" class="spot-airbases">
-            <div v-for="(result, index) in spot.airbase" :key="index" class="spot-airbase">
+            <div v-for="(result, airbaseIndex) in spot.airbase" :key="airbaseIndex" class="spot-airbase">
               {{ result.name }}{{ result.seikuText }}: {{ result.afterAA }}
             </div>
           </div>
@@ -1278,7 +1278,8 @@ function onChangeAirbaseSpot(value: boolean): void {
         :data-no="spot.no"
         ></a>
       -->
-      <div v-if="hasGauge" class="map-gauge" 
+      <div 
+        v-if="hasGauge" class="map-gauge" 
         :class="{
           'right-bottom': isMapGuageRightBottom,
           'left-top': isMapGuageLeftTop
@@ -1316,7 +1317,7 @@ function onChangeAirbaseSpot(value: boolean): void {
           :key="`airbase${index}`"
           :airbase="airbase"
           :index="index"
-          :target_label="target_label[index]"
+          :target-label="target_label[index]"
         />
       </div>
       <!-- todo 基地航空隊のマップ表示がに見くいため要見直し -->
@@ -1339,13 +1340,14 @@ function onChangeAirbaseSpot(value: boolean): void {
       -->
       <div
         v-for="(passed, index) in passedCells"
+        :key="`passed${index}`"
         class="current-cell is-passed"
         :style="passed.cellXY"
-        :key="`passed${index}`"
       >
         <PassedCellImage />
       </div>
-      <Line v-for="(line, index) in passedLines" 
+      <Line 
+        v-for="(line, index) in passedLines" 
         :key="`passedLine${index}`"        
         :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2" :is-animate="false"
         :color="lineColor" :dashed="false"
@@ -1358,12 +1360,14 @@ function onChangeAirbaseSpot(value: boolean): void {
       >
         <CurrentLocationImage />
       </div>
-      <Line v-if="inArea && currentLine" 
+      <Line 
+        v-if="inArea && currentLine" 
         :key="`$currentLine${currentPosKey}`"
         :x1="currentLine.x1" :y1="currentLine.y1" :x2="currentLine.x2" :y2="currentLine.y2" :is-animate="true"
         :color="lineColor" :dashed="false"
       />
-      <div v-if="isShowEventMapLos" class="event-losinfo" 
+      <div 
+        v-if="isShowEventMapLos" class="event-losinfo" 
         :class="{
           'right-bottom': isEventMapLosRightBottom,
           'left-top': isEventMapLosLeftTop
@@ -1385,7 +1389,7 @@ function onChangeAirbaseSpot(value: boolean): void {
       <div v-if="isShowDebugCellInfo" class="debug-info">
         <span>cell count:{{ spots.length }}</span>
         <div>
-          <div class="deckport" v-for="(seiku, index) in deckSeikus" :key="`seiku${index}`">
+          <div v-for="(seiku, index) in deckSeikus" :key="`seiku${index}`" class="deckport">
             <div>{{ index }}:{{ seiku }}</div>
           </div>
           <div v-if="isCombined">

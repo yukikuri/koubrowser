@@ -11,12 +11,12 @@ import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
 import { CombinedNames } from '@common/locale'
 import { deckShipCount } from '@common/kcs'
 
-type Props = { show_rate?: boolean }
-withDefaults(defineProps<Props>(), { show_rate: true })
+type Props = { showRate?: boolean }
+withDefaults(defineProps<Props>(), { showRate: true })
 
 const index = ref(0)
-const tooltip_ship_id = ref(0)
-const tooltip_ship_show = ref(false)
+const tooltipShipId = ref(0)
+const tooltipShipShow = ref(false)
 
 const isDeckOk = computed(() => svdata.isShipDataOk)
 
@@ -33,8 +33,7 @@ const decks = computed<DeckInfo[]>(() => {
   return ret;
 });
 
-const tooltipShipId = computed(() => tooltip_ship_id.value)
-const isShowShipTooltip = computed(() => tooltip_ship_show.value)
+const isShowShipTooltip = computed(() => tooltipShipShow.value)
 
 /**
  * 遊撃部隊では艦隊タブの高さを増やす
@@ -103,11 +102,13 @@ const combinedName = computed<string>(() => {
       <template #content>
         <ShipTooltip v-if="isShowShipTooltip" :ship_id="tooltipShipId" />
       </template>
-      <b-tabs size="is-small" expanded class="deck-tabs" v-model="index" 
+      <b-tabs 
+        v-model="index" size="is-small" expanded class="deck-tabs" 
         :style="deckTabsStyle" :class="{'is-row3': isRow3 }">
-        <b-tab-item v-for="(deck, deck_index) in decks" :key="deck.deck.api_id"
+        <b-tab-item 
+          v-for="(deck, deck_index) in decks" :key="deck.deck.api_id"
           :disabled="deck.isLock" 
-          :headerClass="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}_${deck.yusou}_${deck.isEscapedAa}__${deck.isEscapedYusou}`">
+          :header-class="`for-update-${deck.deck.api_id}_${deck.isLock}_${deck.seiku}_${deck.inMission}_${deck.yusou}_${deck.isEscapedAa}__${deck.isEscapedYusou}`">
           <template #header>
             <LockImage v-if="deck.isLock" class="is-lock"/>
             <span v-if="deck_index === 0 && isCombined" class="combined-badge">{{ combinedName }}</span>
@@ -117,7 +118,8 @@ const combinedName = computed<string>(() => {
               <div v-if="deck.seiku > 0" title="制空値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
-                  <div class="txt" :class="{
+                  <div 
+                    class="txt" :class="{
                     'is-minus': deck.isEscapedAa
                   }">{{deck.seiku}}</div>
                 </div>
@@ -125,7 +127,8 @@ const combinedName = computed<string>(() => {
               <div v-if="isShowYusou && (deck.yusou > 0)" title="輸送値" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="yusou-value">輸送</span>
-                  <div class="txt" :class="{
+                  <div 
+                    class="txt" :class="{
                     'is-minus': deck.isEscapedYusou
                   }">{{ deck.yusou }}/{{ Math.floor(deck.yusou * 0.7) }}</div>
                 </div>
@@ -135,10 +138,10 @@ const combinedName = computed<string>(() => {
           <div class="deckport">
             <Deck
               v-if="index === deck_index"
-              :show_rate="show_rate"
+              v-model:tooltip-ship-id="tooltipShipId"
+              v-model:tooltip-ship-show="tooltipShipShow"
+              :show-rate="showRate"
               :deck="deck.deck"
-              v-model:tooltip_ship_id="tooltip_ship_id"
-              v-model:tooltip_ship_show="tooltip_ship_show"
             />
           </div>
         </b-tab-item>
