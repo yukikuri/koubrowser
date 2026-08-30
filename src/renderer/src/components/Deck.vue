@@ -13,7 +13,8 @@ import {
   ShipInfoSp,
   Slot,
   YCutin,
-  ApiDeckPortId
+  ApiDeckPortId,
+  type MstShip
 } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
 import {
@@ -252,12 +253,12 @@ const shipMouseEnter = (event: Event): void => {
 const shipMouseLeave = (): void => {
   emit('update:tooltip-ship-show', false)
 }
-const filterShips = (ships: ShipInfoSp[], type: (id: number) => boolean): ShipInfoSp[] => {
-  return ships.filter((ship) => type(ship.mst.api_id))
+const filterShips = (ships: ShipInfoSp[], type: (mst: MstShip) => boolean): ShipInfoSp[] => {
+  return ships.filter((ship) => type(ship.mst))
 }
 
-const isNotSpecialTkShip = (id: number): boolean => {
-  return !KcsUtil.isSpecialTkShipType(id)
+const isNotSpecialTkShip = (mst: MstShip): boolean => {
+  return !KcsUtil.isSpecialTkShipType(mst)
 }
 
 const onslotHtml = (ship: ShipInfo, index: number, slot: Slot): string => {

@@ -2611,34 +2611,52 @@ export class KcsUtil {
   /**
    *
    */
-  public static isAtlantaType(id: number): boolean {
+  static isAtlantaType(mst: MstShip): boolean {
+    return mst.api_ctype === ApiShipCategory.atlanta
+  }
+
+  /**
+   *
+   */
+  static isFletcherType(mst: MstShip): boolean {
+    return mst.api_ctype === ApiShipCategory.fletcher
+  }
+
+  /**
+   * 
+   * @param mstShipId 
+   * @returns 
+   */
+  static isAutoTaisenShip(mstShipId: number): boolean {
     return (
-      id === 597 || // atlanta
-      id === 696 // atlanta kai
+      mstShipId === 141 || // isuzukaini
+      mstShipId === 478 || // tatutakaini
+      mstShipId === 394 || // jerviskai
+      mstShipId === 893 || // januskai
+      mstShipId === 906 || // javelin kai
+      mstShipId === 681 || // samu kai
+      mstShipId === 920 || // samu kaini
+      mstShipId === 624 || // yuubari kaini tyou
+      mstShipId === 1040 || // fubukikaisan go
+
+      mstShipId === 562 || // johnston
+      mstShipId === 689 || // johnston kai
+      mstShipId === 596 || // fletcher
+      mstShipId === 692 || // fletcher kai
+      mstShipId === 628 || // fletcher kai mod.2
+      mstShipId === 629 || // fletcher mk.II
+      mstShipId === 726 || // Heywood L.E.改
+      mstShipId === 737 || // Richard P.Leary改
+      mstShipId === 1062 || // Visby
+      mstShipId === 1067 // Visby改
     )
   }
 
   /**
    *
    */
-  public static isFletcherType(id: number): boolean {
-    return (
-      id === 562 || // johnston
-      id === 689 || // johnston kai
-      id === 596 || // fletcher
-      id === 692 || // fletcher kai
-      id === 628 || // fletcher kai mod.2
-      id === 629 || // fletcher mk.II
-      id === 726 || // Heywood L.E.改
-      id === 737    // Richard P.Leary改
-    )
-  }
-
-  /**
-   *
-   */
-  public static isSpecialTkShipType(id: number): boolean {
-    return KcsUtil.isAtlantaType(id) || KcsUtil.isFletcherType(id)
+  public static isSpecialTkShipType(mst: MstShip): boolean {
+    return KcsUtil.isAtlantaType(mst) || KcsUtil.isFletcherType(mst)
   }
 
   /**
@@ -4136,18 +4154,7 @@ export class KcsUtil {
     const mst = info.mst
 
     // auto
-    if (
-      mst.api_id === 141 || // isuzukaini
-      mst.api_id === 478 || // tatutakaini
-      mst.api_id === 394 || // jerviskai
-      mst.api_id === 893 || // januskai
-      mst.api_id === 906 || // javelin kai
-      mst.api_id === 681 || // samu kai
-      mst.api_id === 920 || // samu kaini
-      mst.api_id === 624 || // yuubari kaini tyou
-      mst.api_id === 1040 || // fubukikaisan go
-      KcsUtil.isFletcherType(mst.api_id) // fletcher
-    ) {
+    if (KcsUtil.isAutoTaisenShip(mst.api_id)) {
       return { type: SenseiTaisenType.auto, enable: true }
     }
 
