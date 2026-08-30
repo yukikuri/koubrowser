@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ApiMapAreaType } from '@common/kcs'
 import DropAreas from '@renderer/components/DropAreas.vue'
-import { svdata } from '@renderer/store/svdata'
 import { EventName, eventNames } from '@common/area_name'
-
-type Props = { deck_index?: number }
-const props = withDefaults(defineProps<Props>(), { deck_index: 0 })
 
 const index = ref(0)
 const selectedAreaId = ref(0)
@@ -19,12 +14,6 @@ const onChange = (valueNew: number): void => {
     selectedAreaId.value = 0;
   }
 }
-
-const inEvent = (): boolean => {
-  return svdata.inEvent
-}
-
-const eventAreaId = computed<number>(() => svdata.mstMapareaType(ApiMapAreaType.event)?.api_id ?? 0)
 
 onMounted(() => {
   console.log('world mounted')
@@ -39,7 +28,7 @@ interface EventAreaDropDownItem extends EventName {
 
 const eventDropdownItems: EventAreaDropDownItem[] = [...eventNames.toReversed()];
 
-function eventSelected(areaId: number) {
+function eventSelected(areaId: number): void {
   console.log('event area selected:', areaId)
   const oldSelected = eventDropdownItems.find(item => item.isSelected);
   if (oldSelected) {
@@ -79,60 +68,60 @@ const selectedEventTitle = computed((): string => {
 <template>
   <div class="world-root">
     <b-tabs
+      v-model="index"
       type="is-toggle"
       size="is-small"
       expanded
       class="world-tabs"
-      @update:modelValue="onChange"
-      v-model="index"
+      @update:model-value="onChange"
     >
       <b-tab-item>
         <template #header>
           <img class="world-img" title="1: 鎮守府海域" src="../assets/img/world/world1.png" />
         </template>
-        <DropAreas v-if="index === 0" :area_id="1" />
+        <DropAreas v-if="index === 0" :area-id="1" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="2: 南西諸島海域" src="../assets/img/world/world2.png" />
         </template>
-        <DropAreas v-if="index === 1" :area_id="2" />
+        <DropAreas v-if="index === 1" :area-id="2" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="3: 北方海域" src="../assets/img/world/world3.png" />
         </template>
-        <DropAreas v-if="index === 2" :area_id="3" />
+        <DropAreas v-if="index === 2" :area-id="3" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="7: 南西海域" src="../assets/img/world/world7.png" />
         </template>
-        <DropAreas v-if="index === 3" :area_id="7" />
+        <DropAreas v-if="index === 3" :area-id="7" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="4: 西方海域" src="../assets/img/world/world4.png" />
         </template>
-        <DropAreas v-if="index === 4" :area_id="4" />
+        <DropAreas v-if="index === 4" :area-id="4" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="5: 南方海域" src="../assets/img/world/world5.png" />
         </template>
-        <DropAreas v-if="index === 5" :area_id="5" />
+        <DropAreas v-if="index === 5" :area-id="5" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
           <img class="world-img" title="6: 中部海域" src="../assets/img/world/world6.png" />
         </template>
-        <DropAreas v-if="index === 6" :area_id="6" />
+        <DropAreas v-if="index === 6" :area-id="6" />
       </b-tab-item>
-      <b-tab-item headerClass="is-event-tab">
+      <b-tab-item header-class="is-event-tab">
         <DropAreas
           v-if="index === 7"
           :key="selectedAreaId"
-          :area_id="selectedAreaId"
+          :area-id="selectedAreaId"
         />
       </b-tab-item>
     </b-tabs>
@@ -152,7 +141,8 @@ const selectedEventTitle = computed((): string => {
               </div>
             </div>
           </template>
-          <b-dropdown-item v-for="(item, index) in eventDropdownItems" :key="index" 
+          <b-dropdown-item 
+            v-for="(item, eventIndex) in eventDropdownItems" :key="eventIndex" 
             :value="item.areaId"><span 
               class="event-period-name">{{ item.periodName }}</span><span 
               class="event-title">{{ item.title }}</span></b-dropdown-item>          
