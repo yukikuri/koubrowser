@@ -4872,10 +4872,36 @@ export class KcsUtil {
     return ret
   }
 
+
   /**
-   *
+   * 水上艦数チェック
+   * 
+   * @param ships 艦隊情報
+   * @param needCunt 必要水上艦数
+   * @returns 
    */
-  public static spTHCutin(
+  static checkSuijyouShipCount(ships: ShipInfo[], needCunt: number): boolean {
+    if (ships.length < needCunt) {
+      return false;
+    }
+
+    const sensuikanCount = ships.reduce((acc, ship) => {
+      if (isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])) {
+        acc++;
+      }
+      return acc;
+    }, 0);
+    return (ships.length - sensuikanCount) >= needCunt;
+  }
+
+  /**
+   * 特殊砲撃判定
+   * 
+   * @param info チェックする艦情報
+   * @param ships 艦隊情報
+   * @returns 
+   */
+  static spTHCutin(
     info: ShipInfo,
     ships: ShipInfo[]
   ): { type: THCutin; enable: boolean }[] | undefined {
@@ -4888,10 +4914,7 @@ export class KcsUtil {
     // nelson touch
     if (isShipCategory(top.mst.api_ctype, [ApiShipCategory.nelson])) {
       if (
-        ships.length >= 6 &&
-        !ships.some((ship) =>
-          isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])
-        ) &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         !isShipType(ships[2].mst, [
           ApiShipType.kei_kuubo,
           ApiShipType.seiki_kuubo,
@@ -4910,10 +4933,7 @@ export class KcsUtil {
     // colorado
     if (isShipCategory(top.mst.api_ctype, [ApiShipCategory.colorado])) {
       if (
-        ships.length >= 6 &&
-        !ships.some((ship) =>
-          isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])
-        ) &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         isShipType(ships[1].mst, [
           ApiShipType.kousoku_senkan,
           ApiShipType.teisoku_senkan,
@@ -4932,10 +4952,7 @@ export class KcsUtil {
     // nagato, mutu
     if (isShipId(top.mst.api_id, [541, 573])) {
       if (
-        ships.length >= 6 &&
-        !ships.some((ship) =>
-          isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])
-        ) &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         isShipType(ships[1].mst, [
           ApiShipType.kousoku_senkan,
           ApiShipType.teisoku_senkan,
@@ -4949,15 +4966,14 @@ export class KcsUtil {
     // kongou
     if (isShipId(top.mst.api_id, [591])) {
       if (
-        ships.length >= 5 &&
+        KcsUtil.checkSuijyouShipCount(ships, 5) &&
         isShipId(ships[1].mst.api_id, [
           592, // 比叡改二丙
           151, 593, 954, // 榛名改二/乙/丙
           694, // 霧島改二丙
           439, 364, // Warspite
           927, 733, // Valiant
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Kongou, enable: true }]
       }
@@ -4966,13 +4982,12 @@ export class KcsUtil {
     // hiei
     if (isShipId(top.mst.api_id, [592])) {
       if (
-        ships.length >= 5 &&
+        KcsUtil.checkSuijyouShipCount(ships, 5) &&
         isShipId(ships[1].mst.api_id, [
           591, // 金剛改二丙
           593, 954, // 榛名改二乙/丙
           152, 694, // 霧島改二/丙
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Hiei, enable: true }]
       }
@@ -4981,13 +4996,12 @@ export class KcsUtil {
     // haruna
     if (isShipId(top.mst.api_id, [593, 954])) {
       if (
-        ships.length >= 5 &&
+        KcsUtil.checkSuijyouShipCount(ships, 5) &&
         isShipId(ships[1].mst.api_id, [
           591, // 金剛改二丙
           592, // 比叡改二丙
           694, // 霧島改二丙
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Haruna, enable: true }]
       }
@@ -4996,14 +5010,14 @@ export class KcsUtil {
     // kirisima
     if (isShipId(top.mst.api_id, [694])) {
       if (
+        KcsUtil.checkSuijyouShipCount(ships, 5) &&
         ships.length >= 5 &&
         isShipId(ships[1].mst.api_id, [
           591, // 金剛改二丙
           592, // 比叡改二丙
           593, 954, // 榛名改二乙/丙
           697, // South Dakota改
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Kirisima, enable: true }]
       }
@@ -5012,10 +5026,7 @@ export class KcsUtil {
     // yamato, musasi
     if (isShipId(top.mst.api_id, [911, 916, 546])) {
       if (
-        ships.length >= 6 &&
-        !ships.some((ship) =>
-          isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])
-        ) &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         isShipType(ships[1].mst, [
           ApiShipType.kousoku_senkan,
           ApiShipType.teisoku_senkan,
@@ -5072,13 +5083,12 @@ export class KcsUtil {
     // Richelieu, Jean Bart
     if (isShipId(top.mst.api_id, [392, 969, 724])) {
       if (
-        ships.length >= 6 &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         isShipId(ships[1].mst.api_id, [
           392, // Richelieu改
           969, // Richelieu Deux
           724, // Jean Bart改
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Richelieu, enable: true }]
       }
@@ -5087,12 +5097,11 @@ export class KcsUtil {
     // Warspite, Valiant
     if (isShipId(top.mst.api_id, [364, 733])) {
       if (
-        ships.length >= 6 &&
+        KcsUtil.checkSuijyouShipCount(ships, 6) &&
         isShipId(ships[1].mst.api_id, [
           364, // Warspite改
           733, // Valiant改
-        ]) &&
-        !ships.some((ship) => isShipType(ship.mst, [ApiShipType.sensuikan, ApiShipType.sensui_kuubo]))
+        ])
       ) {
         return [{ type: THCutin.Warspite, enable: true }]
       }
@@ -5102,10 +5111,15 @@ export class KcsUtil {
   }
 
   /**
-   *
+   * 艦カットイン情報をまとめて取得する
+   * 
+   * @param ship チェック数する艦情報
+   * @param ships 艦隊情報
+   * @returns 
    */
   public static spAll(ship: ShipInfo, ships: ShipInfo[]): SpState {
-    // tiku cutin
+
+    // taiku cutin
     const tk = KcsUtil.spTKCutin(ship)
 
     // thcutin
