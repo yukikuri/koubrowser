@@ -14,8 +14,6 @@ import { RUtil } from '@renderer/util'
 import { MathUtil } from '@common/math'
 import { computed, onMounted, onUnmounted } from 'vue'
 
-const nos = ['一', '二', '三'] as const
-
 interface ActionClass {
   'is-taiki'?: boolean
   'is-syutugeki'?: boolean
@@ -183,10 +181,10 @@ const slotTypeText = (mst: MstSlotitem): string => {
 };
 */
 
-const props = defineProps<{ airbase: ApiAirBase; index: number; target_label: string }>()
+const props = defineProps<{ airbase: ApiAirBase; index: number; targetLabel: string }>()
 
 onMounted(() => {
-  console.log('airbase mounted', props.airbase.api_name, props.target_label)
+  console.log('airbase mounted', props.airbase.api_name, props.targetLabel)
 })
 
 onUnmounted(() => {
@@ -238,8 +236,6 @@ const slots = computed<(AirBaseSlot | undefined)[]>(() => {
   return ret;
 })
 
-const nameText = computed<string>(() => props.airbase.api_name)
-const noText = computed<string>(() => `第${nos[props.index]}`)
 const actionText = computed<string>(
   () => AirbaseActionKindText[props.airbase.api_action_kind] ?? '?'
 )
@@ -265,12 +261,12 @@ const seikuText = computed<string>(() => {
 
 const targetLabelText1 = computed<string>(() => {
   if (props.airbase.api_action_kind !== AirBaseActionKind.syutugeki) return '-'
-  return props.target_label
+  return props.targetLabel
 })
 
 const targetLabelText2 = computed<string>(() => {
   if (props.airbase.api_action_kind !== AirBaseActionKind.syutugeki) return '-'
-  return props.target_label
+  return props.targetLabel
 })
 </script>
 
@@ -286,8 +282,8 @@ const targetLabelText2 = computed<string>(() => {
     </div>
     <div class="airbase-slots">
       <b-tooltip
-        v-for="(slot, index) in slots"
-        :key="index"
+        v-for="(slot, slotIndex) in slots"
+        :key="slotIndex"
         :always0="index === 0"
         position="is-right"
         multilined
@@ -295,7 +291,7 @@ const targetLabelText2 = computed<string>(() => {
         :animated="false"
         class="slot-tip"
       >
-        <template v-slot:content>
+        <template #content>
           <div class="slot-content">
             <div class="slot-tip-name">
               {{ slot!.slot.mst.api_name}}<span v-if="slot!.star !== ''" class="plane-star"> ★{{ slot!.star }}</span>
@@ -305,7 +301,7 @@ const targetLabelText2 = computed<string>(() => {
               <div>
                 <div v-if="slot!.seiku > 0">制空: {{ slot!.seiku }}</div>
                 <div class="slot-tip-grid">
-                  <div v-for="(status, index) in slot!.statuses" :key="index">
+                  <div v-for="(status, statusIndex) in slot!.statuses" :key="statusIndex">
                     {{ status.name }}: {{ status.status }}
                   </div>
                 </div>
