@@ -105,7 +105,7 @@ function pieXYWH(spot: Spot): string {
   )
 }
 
-function setPies(datas: AggregatedCellRank[]) {
+function setPies(datas: AggregatedCellRank[]): void {
   const localDropSpots: AreaSpot[] = []
   const pies: SpotPie[] = []
   const spots = cell_info.spots
@@ -192,7 +192,6 @@ onUnmounted(() => {
     .catch((err) => console.log(err))
 })()
 </script>
-<style scoped></style>
 <template>
   <div class="drop-area map">
     <MapImg :area_id="area_id" :area_no="area_no" />
@@ -206,15 +205,15 @@ onUnmounted(() => {
       @click="dropSpotClick"
     ></a>
     <div
-      class="rankpie-container"
       v-for="(spotPie, index) in spotPies"
       :key="`spotpie${index}`"
+      class="rankpie-container"
       :style="spotPie.pieXYWH"
     >
       <RankPie :seriesData="spotPie.datas" :height="pieHeight" :isSmall="pieIsSmall" />
     </div>
     <transition name="scale-effect" appear>
-      <div class="location-image" v-if="isLocatonVisible" :style="locationStyle">
+      <div v-if="isLocatonVisible" class="location-image" :style="locationStyle">
         <LocationImage />
       </div>
     </transition>
