@@ -165,11 +165,12 @@ const tktipHtml = computed<string>(() => {
   if (!tkHoverShipId.value || !tkHoverTk.value) return ''
   const shipId = parseInt(tkHoverShipId.value)
   const tk = parseInt(tkHoverTk.value) as TKCutin
-  const ship = shipsData.value.find((s) => s.ship.api.api_id === shipId)
-  if (!ship || !tk) return ''
-  const header = `Lv: ${ship.ship.api.api_lv} ${ship.ship.mst.api_name}`
+  const api = svdata.ship(shipId)
+  const mst = svdata.mstShip(api?.api_ship_id ?? 0)
+  if (!api || ! mst || !tk) return ''
+  const header = `Lv: ${api.api_lv} ${mst.api_name}`
   const tktag = TipTKCiTag({ entry: [], type: [tk] })
-  const src = RUtil.shipBannerImg(ship.ship.api.api_ship_id, false, true)
+  const src = RUtil.shipBannerImg(api.api_ship_id, false, true)
   const rate = MathUtil.floor(KcsUtil.rateTK(tk) * 100.0, 1)
   const tkconst = TKCutinConsts[tk]
   return `<div>${header}</div><img class="img" src="${src}"><div>${tktag} ${rate}%</div><div>固定:${tkconst.kotei} 変動:${tkconst.hendou}</div>`
@@ -193,7 +194,29 @@ const tkrateLeave = (): void => {
 const isTkrateActive = computed<boolean>(() => tktipActive.value)
 
 const tkRates = computed<TKRate[]>(() => {
-  const sps = shipSps.value
+  const sps = [...shipSps.value]
+
+  // 連合艦隊
+  // 第一艦隊の場合は第二艦隊の艦船も含めて対空CIを計算する
+  // 第二艦隊の場合は第一艦隊の艦船も含めて対空CIを計算する
+  if (svdata.isCombined) {
+    if (props.deck.api_id === ApiDeckPortId.deck1st) {
+      const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+      if (deck2) {
+        const deck2Sps = svdata.shipInfoTKCutins(deck2.api_ship)
+        sps.push(...deck2Sps)
+      }
+    }
+    if (props.deck.api_id === ApiDeckPortId.deck2st) {
+      const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+      if (deck1) {
+        const deck1Sps = svdata.shipInfoTKCutins(deck1.api_ship)
+        sps.push(...deck1Sps)
+      }
+    }
+  }
+
+
   let tks: TKEntry[] = []
   const atlantas = filterShips(sps, KcsUtil.isAtlantaType)
   const fletchers = filterShips(sps, KcsUtil.isFletcherType)
@@ -242,7 +265,27 @@ const tkrateText = (rate: TKRate): string => {
   const prefix = v > 12.0 ? `${rate.tk}種: ` : ''
   return `${prefix}${v}%`
 }
-const deckKTBText = computed(() => KcsUtil.shipsSeiku(shipsData.value.map((s) => s.ship)))
+const deckKTBText = computed(() => {
+  let kb = KcsUtil.deckKantaiBouku(shipsData.value.map((s) => s.ship))
+
+  if (svdata.isCombined) {
+    if (props.deck.api_id === ApiDeckPortId.deck1st) {
+      const deck2 = svdata.deckPort(ApiDeckPortId.deck2st)
+      if (deck2) {
+        const deck2Sps = svdata.shipInfos(deck2.api_ship)
+        kb += KcsUtil.deckKantaiBoukuShipInfos(deck2Sps)
+      }
+    }
+    if (props.deck.api_id === ApiDeckPortId.deck2st) {
+      const deck1 = svdata.deckPort(ApiDeckPortId.deck1st)
+      if (deck1) {
+        const deck1Sps = svdata.shipInfos(deck1.api_ship)
+        kb += KcsUtil.deckKantaiBoukuShipInfos(deck1Sps)
+      }
+    }
+  }
+  return Math.floor(kb * 10) / 10
+})
 
 const shipMouseEnter = (event: Event): void => {
   const dataset = (event.currentTarget as HTMLElement).dataset

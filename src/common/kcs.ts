@@ -4097,16 +4097,26 @@ export class KcsUtil {
   /**
    *
    */
-  public static deckKantaiBouku(ships: ShipInfoSp[]): number {
+  static deckKantaiBouku(ships: ShipInfoSp[]): number {
     if (!ships.length) {
       return 0
     }
     let deck_ktb = ships[0].deck_ktb
     if (!deck_ktb) {
       deck_ktb = ships.reduce((acc, ship) => acc + ship.bouku.ktb, 0)
-      ships[0].deck_ktb = deck_ktb
+      ships[0].deck_ktb = Math.floor(deck_ktb)
     }
     return deck_ktb
+  }
+
+  /**
+   * 
+   * @param ships 
+   * @returns 
+   */
+  static deckKantaiBoukuShipInfos(ships: ShipInfo[]): number {
+    const boukus = ships.map((ship) => KcsUtil.shipBouku(ship))
+    return Math.floor(boukus.reduce((acc, bouku) => acc + bouku.ktb, 0))
   }
 
   /**
@@ -11428,6 +11438,28 @@ export class SvData {
       slots: ship.slots,
       bouku: KcsUtil.shipBouku(ship),
       sp: KcsUtil.spAll(ship, ships),
+    }))
+  }
+
+  public shipInfoTKCutins(ids: number[]): ShipInfoSp[] {
+    const ships = this.shipInfos(ids)
+    return ships.map((ship) => ({
+      api: ship.api,
+      mst: ship.mst,
+      slots: ship.slots,
+      bouku: KcsUtil.shipBouku(ship),
+      sp: {
+        tk: KcsUtil.spTKCutin(ship),
+        th: undefined,
+        st: undefined,
+        sr: undefined,
+        fa: [],
+        aa: [],
+        y: [],
+        ys: [],
+        fd: undefined,
+        yt: undefined,
+      }
     }))
   }
 
