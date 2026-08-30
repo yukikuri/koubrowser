@@ -53,7 +53,7 @@ if (Env.isDevelopment) {
   }
 }
 
-function openExternalUrl(ev: Event) {
+function openExternalUrl(ev: Event): void {
   console.log(ev)
   ev.preventDefault()
   const href = (ev.currentTarget as HTMLAnchorElement).href
@@ -89,6 +89,8 @@ const clearSessionCacheStateText = computed(() => {
       return 'キャッシュをクリア中...'
     case 'cleared':
       return 'キャッシュをクリアしました'
+    default:
+      return ''
   }
 })
 
@@ -111,9 +113,9 @@ const kanlogUrl = 'https://kanlog.info'
           配布ページ：<a
             class="has-text-success"
             rel="noreferrer"
-            @click="openExternalUrl"
-            target="_blank"
             :href="appUrl"
+            target="_blank"
+            @click="openExternalUrl"
             >{{ appUrl }}</a
           >
         </p>
@@ -137,7 +139,7 @@ const kanlogUrl = 'https://kanlog.info'
             </p>
             <p>
               <label class="button-in-about">
-                <button @click="clickUpdateButton()" class="button" :disabled="updateButtonDisable">
+                <button class="button" :disabled="updateButtonDisable" @click="clickUpdateButton()" >
                   <CheckUpdateImage v-if="isUadeteIdle" />
                   <CheckUpdateImage v-if="isUadeteChecking" />
                   <DownloadUpdateImage v-if="isUadeteAvailable" />
@@ -170,9 +172,9 @@ const kanlogUrl = 'https://kanlog.info'
             <p>
               <label class="button-in-about">
                 <button
-                  @click="clearSessionCache()"
                   class="button"
                   :disabled="clearCacheButtonDisable"
+                  @click="clearSessionCache()"
                 >
                   <ClearCacheImage />ブラウザのキャッシュをクリア
                 </button>
@@ -195,9 +197,9 @@ const kanlogUrl = 'https://kanlog.info'
               <a
                 class="has-text-success"
                 rel="noreferrer"
-                @click="openExternalUrl"
                 target="_blank"
                 :href="kanlogUrl"
+                @click="openExternalUrl"
                 ><img class="kanlog-img" src="../assets/img/app/kanlog.png" alt="艦ログロゴ" /><span 
                   class="link-text">{{ kanlogUrl }}</span></a
               >
@@ -209,7 +211,7 @@ const kanlogUrl = 'https://kanlog.info'
             <p>甲ブラウザ側の開発者ツールを表示します。</p>
             <p>
               <label class="button-in-about">
-                <button @click="openKoubrowserDevTool()" class="button">
+                <button class="button" @click="openKoubrowserDevTool()">
                   <AppDevToolImage />
                   甲ブラウザ側開発者ツール表示
                 </button>
@@ -222,7 +224,7 @@ const kanlogUrl = 'https://kanlog.info'
             <p>同梱しているライブラリのライセンスを表示します。</p>
             <p>
               <label class="button-in-about">
-                <button @click="openLicenseOverlay()" class="button">
+                <button class="button" @click="openLicenseOverlay()">
                   <ShowLicenseImage />ライセンス...
                 </button>
               </label>
@@ -259,7 +261,7 @@ const kanlogUrl = 'https://kanlog.info'
         </div>
         <div class="license-actions">
           <label class="button-in-about">
-            <button @click="closeLicenseOverlay()" class="button">OK</button>
+            <button class="button" @click="closeLicenseOverlay()">OK</button>
           </label>
         </div>
       </div>
