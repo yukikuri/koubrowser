@@ -4897,11 +4897,11 @@ export class KcsUtil {
    * 水上艦数チェック
    * 
    * @param ships 艦隊情報
-   * @param needCunt 必要水上艦数
+   * @param needCount 必要水上艦数
    * @returns 
    */
-  static checkSuijyouShipCount(ships: ShipInfo[], needCunt: number): boolean {
-    if (ships.length < needCunt) {
+  static checkSuijyouShipCount(ships: ShipInfo[], needCount: number): boolean {
+    if (ships.length < needCount) {
       return false;
     }
 
@@ -4911,7 +4911,7 @@ export class KcsUtil {
       }
       return acc;
     }, 0);
-    return (ships.length - sensuikanCount) >= needCunt;
+    return (ships.length - sensuikanCount) >= needCount;
   }
 
   /**

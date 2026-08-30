@@ -281,10 +281,10 @@ const targetLabelText2 = computed<string>(() => {
       <span class="airbase-spot">{{ targetLabelText2 }}</span>
     </div>
     <div class="airbase-slots">
+      <!-- :always0="slotIndex === 0" -->
       <b-tooltip
         v-for="(slot, slotIndex) in slots"
         :key="slotIndex"
-        :always0="index === 0"
         position="is-right"
         multilined
         :square="true"
