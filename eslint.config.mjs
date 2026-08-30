@@ -35,5 +35,10 @@ export default tseslint.config(
       ]
     }
   },
-  eslintConfigPrettier
+  eslintConfigPrettier,
+  {
+    rules: {
+      'prettier/prettier': 'off'
+    }
+  }
 )
