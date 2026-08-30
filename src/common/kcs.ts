@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// 艦これAPIの生レスポンスを扱うため、未型付けデータでは any を許可する。
+
 import qs from 'qs'
 import { v4 as uuidv4 } from 'uuid'
 import { ShipEtcs } from '@common/kcsetc'
@@ -1604,7 +1607,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id49_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id49_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id49_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -1612,7 +1615,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id51_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id51_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id51_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -1620,7 +1623,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id52_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id52_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id52_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -2113,7 +2116,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     if (cnt.s464 === 1 && (cnt.s142+cnt.s460) >= 1 && ! cnt.kj6) types.push(TKCutin.id45_yamatogata_kai2)
 
     if (types.includes(TKCutin.id42_yamatogata_kai2)) {
-      let type: TKCutin[] = [TKCutin.id42_yamatogata_kai2]
+      const type: TKCutin[] = [TKCutin.id42_yamatogata_kai2]
       return {
         entry: types,
         type: type
@@ -2121,7 +2124,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id43_yamatogata_kai2)) {
-      let type: TKCutin[] = [TKCutin.id43_yamatogata_kai2]
+      const type: TKCutin[] = [TKCutin.id43_yamatogata_kai2]
       return {
         entry: types,
         type: type
@@ -2129,7 +2132,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id44_yamatogata_kai2)) {
-      let type: TKCutin[] = [TKCutin.id44_yamatogata_kai2]
+      const type: TKCutin[] = [TKCutin.id44_yamatogata_kai2]
       return {
         entry: types,
         type: type
@@ -2137,7 +2140,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id45_yamatogata_kai2)) {
-      let type: TKCutin[] = [TKCutin.id45_yamatogata_kai2]
+      const type: TKCutin[] = [TKCutin.id45_yamatogata_kai2]
       return {
         entry: types,
         type: type
@@ -2167,7 +2170,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
 
     if ((cnt.s502+cnt.s503) >= 1 &&  common.kjt >= 1 && common.d >= 1) types.push(TKCutin.id46_haruna_kai2_otu)
     if (types.includes(TKCutin.id46_haruna_kai2_otu)) {
-      let type: TKCutin[] = [TKCutin.id46_haruna_kai2_otu]
+      const type: TKCutin[] = [TKCutin.id46_haruna_kai2_otu]
       return {
         entry: types,
         type: type
@@ -2203,7 +2206,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     if (cnt.s529 >= 1 && (cnt.s505+cnt.d4) >= 1 ) types.push(TKCutin.id47_siratuyu_kai2)
 
     if (types.includes(TKCutin.id47_siratuyu_kai2)) {
-      let type: TKCutin[] = [TKCutin.id47_siratuyu_kai2]
+      const type: TKCutin[] = [TKCutin.id47_siratuyu_kai2]
       return {
         entry: types,
         type: type
@@ -2254,7 +2257,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
 
 
     if (types.includes(TKCutin.id50_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id50_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id50_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -2262,7 +2265,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id49_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id49_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id49_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -2270,7 +2273,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id51_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id51_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id51_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -2278,7 +2281,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id52_fubuki_kai2)) {
-      let type: TKCutin[] = [TKCutin.id52_fubuki_kai2]
+      const type: TKCutin[] = [TKCutin.id52_fubuki_kai2]
       return {
         entry: types,
         type: type
@@ -2325,7 +2328,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     if (cnt.s274 >= 1 && cnt.s275 >= 1 && common.d >= 1) types.push(TKCutin.id27_ooyodo_kai)
 
     if (types.includes(TKCutin.id10_maya)) {
-      let type: TKCutin[] = [TKCutin.id10_maya]
+      const type: TKCutin[] = [TKCutin.id10_maya]
       return {
         entry: types,
         type: type
@@ -2333,7 +2336,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id11_maya)) {
-      let type: TKCutin[] = [TKCutin.id11_maya]
+      const type: TKCutin[] = [TKCutin.id11_maya]
       return {
         entry: types,
         type: type
@@ -2341,7 +2344,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id27_ooyodo_kai)) {
-      let type: TKCutin[] = [TKCutin.id27_ooyodo_kai]
+      const type: TKCutin[] = [TKCutin.id27_ooyodo_kai]
       return {
         entry: types,
         type: type
@@ -2349,7 +2352,7 @@ const tkCutin = (info: ShipInfo): { entry: TKCutin[]; type: TKCutin[] } => {
     }
 
     if (types.includes(TKCutin.id53_hiryu_kai3)) {
-      let type: TKCutin[] = [TKCutin.id53_hiryu_kai3]
+      const type: TKCutin[] = [TKCutin.id53_hiryu_kai3]
       return {
         entry: types,
         type: type
@@ -2450,7 +2453,7 @@ export class KcsUtil {
   /**
    *
    */
-  public static hasOnSlot(type: SlotitemType) {
+  public static hasOnSlot(type: SlotitemType): boolean {
     switch (type) {
       case SlotitemType.Fighter: // 艦上戦闘機
       case SlotitemType.DiveBomber: // 艦上爆撃機
@@ -4512,11 +4515,11 @@ export class KcsUtil {
         // 汎用
         const common_cutins = ret.filter((ci) => isCommonYCutin(ci)).slice(0, 1)
         // 条件を満たす主魚電カットイン
-        let syu_gyo_dens: YCutin[] = []
+        const syu_gyo_dens: YCutin[] = []
         // 条件を満たす魚見(水)電カットイン
-        let gyo_mi_dens: YCutin[] = []
+        const gyo_mi_dens: YCutin[] = []
         // 条件を満たす水雷戦隊 熟練水雷見張員カットイン
-        let mi_gyos: YCutin[] = ret.filter((ci) => 
+        const mi_gyos: YCutin[] = ret.filter((ci) => 
           ([YCutin.KUTIKU_MI_GYO2, YCutin.KUTIKU_MI_GYO_D] as number[]).includes(ci)
         )
 
@@ -5260,7 +5263,7 @@ export class KcsUtil {
   /**
    *
    */
-  public static rateTHYamatoType1(ships: ShipInfoSp[]): number {
+  public static rateTHYamatoType1(): number {
     return NaN
   }
 
@@ -5365,7 +5368,7 @@ export class KcsUtil {
       return {
         type: th.type,
         enable: th.enable,
-        rate: KcsUtil.rateTHYamatoType1(ships)
+        rate: KcsUtil.rateTHYamatoType1()
       }
     }
 
@@ -6284,6 +6287,7 @@ export const ApiResult = {
 } as const
 export type ApiResult = (typeof ApiResult)[keyof typeof ApiResult]
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ApiResponse {
   readonly api_result: number
   readonly api_result_msg: string
@@ -7319,6 +7323,7 @@ interface ApiSlotDeprive {
 interface ApiMarrige extends ApiShip {}
 
 // req can preset slot select
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ApiCanPresetSlotSelect {
   readonly api_flag: number
 }
@@ -7716,6 +7721,7 @@ interface ApiCombinedParam {
   readonly api_combined_type: string // 0: nocimbined 1: kidou 2: suijyou 3: yusou
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ApiCombined {
   readonly api_combined: number // 0: nocimbined, 1: combined
 }
@@ -7763,6 +7769,7 @@ export interface ApiSelectEventmapRank {
 }
 
 // req map start air base param
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ApiMapStartAirBaseParam {
   readonly api_verno: string
   readonly api_strike_point_1: string;
@@ -7925,6 +7932,7 @@ const ApiRecoveryType = {
 } as const
 export type ApiRecoveryType = (typeof ApiRecoveryType)[keyof typeof ApiRecoveryType]
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ApiMapNextParam {
   readonly api_verno: string
   readonly api_recovery_type: ApiRecoveryType
@@ -8858,7 +8866,7 @@ export class SvData {
           break
 
         case KcsApi.Api.REQ_HENSEI_COMBINED:
-          this.reqHenseiCombined(api_data as ApiCombined)
+          this.reqHenseiCombined()
           break
 
         case KcsApi.Api.REQ_HENSEI_CHANGE:
@@ -8960,7 +8968,7 @@ export class SvData {
           break
 
         case KcsApi.Api.REQ_KOUSYOU_CREATESHIP:
-          this.reqKousyouCreateShip(api_data as ApiResponse)
+          this.reqKousyouCreateShip()
           break
 
         case KcsApi.Api.REQ_KOUSYOU_DESTROYSHIP:
@@ -9136,15 +9144,15 @@ export class SvData {
     }
   }
 
-  public get isMstDataOk() {
+  public get isMstDataOk(): boolean {
     return this.svdata.mstDataOk
   }
 
-  public get isShipDataOk() {
+  public get isShipDataOk(): boolean {
     return this.svdata.shipDataOk
   }
 
-  public get isSlotitemDataOk() {
+  public get isSlotitemDataOk(): boolean {
     return this.svdata.slotitemDataOk
   }
 
@@ -9388,7 +9396,7 @@ export class SvData {
     }
   }
 
-  private reqHenseiCombined(_api_data: ApiCombined) {
+  private reqHenseiCombined(): void {
     const query = this.getReq(KcsApi.Api.REQ_HENSEI_COMBINED)
     if (query) {
       const req: ApiCombinedParam = qsParse(query)
@@ -9569,7 +9577,7 @@ export class SvData {
     this.useitemAdd(ApiItemId.kekkonn_kakkokari, -1)
   }
 
-  private reqKaisouHangarExpand(api_data: ApiHangarExpand) {
+  private reqKaisouHangarExpand(api_data: ApiHangarExpand): void {
     // 搭載機上昇は対象艦情報の api_onslot_max が配列で来る
     const query = this.getReq(KcsApi.Api.REQ_KAISOU_HANGAR_EXPAND)
     if (query) {
@@ -9659,7 +9667,7 @@ export class SvData {
     api_data.forEach((m) => this.updateMaterialById(m.api_id, m.api_value, false))
   }
 
-  private getMemberNDock(ndocks: ApiNDock[]) {
+  private getMemberNDock(ndocks: ApiNDock[]): void {
     replaceArray(this.apiData.api_ndock, ndocks)
   }
 
@@ -9859,7 +9867,7 @@ export class SvData {
     }
   }
 
-  private reqKousyouRemodelSlotList(api_data: ApiRemodelSlotItem[]) {
+  private reqKousyouRemodelSlotList(api_data: ApiRemodelSlotItem[]): void {
     replaceArray(this.apiData.api_remodel_slot_list, api_data)
     SvDataPrivate.arg_remodel_slotitem = undefined
   }
@@ -9982,7 +9990,7 @@ export class SvData {
     return items
   }
 
-  private reqKousyouCreateShip(_api_data: ApiResponse) {
+  private reqKousyouCreateShip(): void {
     SvDataPrivate.arg_create_ship = undefined
     const query = this.getReq(KcsApi.Api.REQ_KOUSYOU_CREATESHIP)
     if (!query) {
@@ -10027,7 +10035,7 @@ export class SvData {
     }
   }
 
-  private reqKousyouDestroyShip(api_data: ApiDestroyShip) {
+  private reqKousyouDestroyShip(api_data: ApiDestroyShip): void {
     this.updateMaterial(api_data.api_material, false)
     const query = this.getReq(KcsApi.Api.REQ_KOUSYOU_DESTROYSHIP)
     if (query) {
@@ -10179,6 +10187,7 @@ export class SvData {
   }
 
   private reqMapStartAirBase(): void {
+    // Intentionally empty.
   }
 
   private reqMapStart(api_data: ApiMapStart): void {
@@ -10466,7 +10475,9 @@ export class SvData {
     ApiCallback.call(KcsApi.Api.REQ_COMBINED_BATTLE_GOBACK_PORT, undefined)
   }
 
-  private reqPracticeBattle(): void {}
+  private reqPracticeBattle(): void {
+    // Intentionally empty.
+  }
 
   private reqPracticeBattleResult(api_data: ApiPracticeBattleResult): void {
     if (!this.apiData.api_practice_battle_result) {
@@ -10861,7 +10872,7 @@ export class SvData {
     return this.apiData.api_mst_mission
   }
 
-  public mstMission(id: Number): MstMission | undefined {
+  public mstMission(id: number): MstMission | undefined {
     return this.apiData.api_mst_mission.find((mst) => mst.api_id === id)
   }
 
