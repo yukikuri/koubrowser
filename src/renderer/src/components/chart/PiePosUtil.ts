@@ -486,7 +486,42 @@ const fixPiePosAreaMap: FixPiePosAreaMap = new Map([
         [24, { modX: -15, modY: 25 }]
       ])
     }
-  ]
+  ],
+  [
+    621,
+    {
+      isSmall: true,
+      cells: new Map([])
+    }
+  ],
+  [
+    622,
+    {
+      isSmall: true,
+      cells: new Map([])
+    }
+  ],
+  [
+    623,
+    {
+      isSmall: true,
+      cells: new Map([])
+    }
+  ],
+  [
+    624,
+    {
+      isSmall: true,
+      cells: new Map([])
+    }
+  ],
+  [
+    625,
+    {
+      isSmall: true,
+      cells: new Map([])
+    }
+  ],
 ])
 
 export function getFixPiePosByMapId(map_id: number, cell_no: number): FixPiePos | undefined {

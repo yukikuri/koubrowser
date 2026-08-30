@@ -89,10 +89,11 @@ function fetchPortRecordForChart(): void {
   <div class="assist-root">
     <!-- todo: destroy-on-hideを指定するとアニメーションが効かない。 
      destroy-on-hideを指定せずv-ifでコンポーネントを有効とすることで回避可能 -->
-    <b-tabs type="is-toggle" 
-      size="is-small" class="assist-tabs" expanded 
+    <b-tabs 
       v-model="assistTabIndex"
-      @update:modelValue="onTabChange" 
+      type="is-toggle" 
+      size="is-small" class="assist-tabs" expanded 
+      @update:model-value="onTabChange" 
       >
       <b-tab-item>
         <template #header>
@@ -101,7 +102,7 @@ function fetchPortRecordForChart(): void {
         <DeckPort v-if="isAppReady && isTabVisibleByName('deckport')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('deckport')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title">
+      <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">遠征</div>
@@ -111,7 +112,7 @@ function fetchPortRecordForChart(): void {
         <MissionCheck v-if="isAppReady && isTabVisibleByName('missioncheck')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('missioncheck')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title">
+      <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">戦果</div>
@@ -121,7 +122,7 @@ function fetchPortRecordForChart(): void {
         <BattleTab v-if="isAppReady && isTabVisibleByName('battletab')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('battletab')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title">
+      <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">艦隊/装備</div>
@@ -131,7 +132,7 @@ function fetchPortRecordForChart(): void {
         <ShipItems v-if="isAppReady && isTabVisibleByName('shipitems')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('shipitems')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-subtitle">
+      <b-tab-item header-class="tab-with-subtitle">
         <template #header>
           <div class="tab-content">
             <div class="main-title">ドロップ履歴</div>
@@ -141,7 +142,7 @@ function fetchPortRecordForChart(): void {
         <DropByMap v-if="isAppReady && isTabVisibleByName('dropbymap')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('dropbymap')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-subtitle" >
+      <b-tab-item header-class="tab-with-subtitle" >
         <template #header>
           <div class="tab-content">
             <div class="main-title">ドロップ履歴</div>
@@ -151,7 +152,7 @@ function fetchPortRecordForChart(): void {
         <DropByShip v-if="isAppReady && isTabVisibleByName('dropbyship')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('dropbyship')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title" v-if="isDockQuestlistTabVisible">
+      <b-tab-item v-if="isDockQuestlistTabVisible" header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">任務</div>
@@ -167,7 +168,7 @@ function fetchPortRecordForChart(): void {
         </div>
         <Invalid v-if="!isAppReady && isTabVisibleByName('dockquestlist')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title">
+      <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">資源</div>
@@ -178,7 +179,7 @@ function fetchPortRecordForChart(): void {
         <ChartKit v-if="isAppReady && isTabVisibleByName('chart')" ref="chartKit" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('chart')" />
       </b-tab-item>
-      <b-tab-item headerClass="tab-with-title">
+      <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
             <div class="main-title">アプリ</div>

@@ -648,4 +648,66 @@ describe('kcsbattle test', () => {
     ])
   })
 
+  it('case28: calculates sortie battle', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+
+    // case28: 水上部隊 vs 連合艦隊(ボスマス)
+    // 基地航空隊1部隊目2部隊目、開幕、先制雷撃、砲撃(特殊有り)、雷撃戦、砲撃、遊撃部隊(敵第一のみ)、夜戦(敵第一)
+    const battleInfo = loadBattleInfo(
+      'case28-api_req_combined_battle-each_battle.json',
+      'case28-api_req_combined_battle-ec_midnight_battle.json'
+    )
+
+    expect(calcFleetHps(battleInfo)).toEqual({ 
+      deck: [91, 88-47, 71, 66, 69-54, 34],
+      combined: [38-22, 43, 46, 69-49, 37, 44]
+    })
+    expect(calcEnemyHps(battleInfo)).toEqual([
+      { id: 2388, hp: 1200-216-62-66-70-35-65-259-129-109-223-232 },
+      { id: 2104, hp: 133-315-298 },
+      { id: 2104, hp: 133-13-446 },
+      { id: 2036, hp: 740-58-87-246-227-203-267 },
+      { id: 2036, hp: 740-61-416-216-5-104 },
+      { id: 1862, hp: 130-85-445 },
+      // --
+      { id: 2318, hp: 470-38-28-54-44-274-92 },
+      { id: 2051, hp: 66-306 },
+      { id: 2051, hp: 66-154 },
+      { id: 1623, hp: 46-187 },
+      { id: 1577, hp: 38-41 },
+      { id: 1577, hp: 38-87 }
+    ])
+  })
+
+  it('case29: calculates sortie battle', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+
+    // case29: 水上部隊 vs 連合艦隊(ボスマス)
+    // 基地航空隊1部隊目2部隊目、開幕、先制雷撃、砲撃(特殊有り)、雷撃戦、砲撃、遊撃部隊(敵第一、第二)、夜戦(敵第一)
+    const battleInfo = loadBattleInfo(
+      'case29-api_req_combined_battle-each_battle.json',
+      'case29-api_req_combined_battle-ec_midnight_battle.json'
+    )
+
+    expect(calcFleetHps(battleInfo)).toEqual({ 
+      deck: [91, 88, 66-38-16, 71-56-10, 69, 62-3],
+      combined: [38, 43, 46-23, 69-19, 37-23, 33]
+    })
+    expect(calcEnemyHps(battleInfo)).toEqual([
+      { id: 2388, hp: 1200-89-116-104-87-315-663 },
+      { id: 2104, hp: 133-193-191 },
+      { id: 2104, hp: 133-125-340 },
+      { id: 2036, hp: 740-63-130-340-13-69-645 },
+      { id: 2036, hp: 740-23-355-358-351 },
+      { id: 1862, hp: 130-42-75-279-288 },
+      // --
+      { id: 2318, hp: 470-27-60-72-31-30-104-12-17-704 },
+      { id: 2051, hp: 66-186 },
+      { id: 2051, hp: 66-137 },
+      { id: 1623, hp: 46-95 },
+      { id: 1577, hp: 38-48 },
+      { id: 1577, hp: 38-177 }
+    ])
+  })
+
 })
