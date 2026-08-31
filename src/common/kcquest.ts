@@ -485,7 +485,7 @@ export type QuestStuffByType = {
 /**
  * newable な型
  */
-type Newable = abstract new (...args: any[]) => unknown
+type Newable = abstract new (...args: unknown[]) => unknown
 
 /**
  * クエストタイプ別のクラス型
@@ -1085,7 +1085,7 @@ register(
     static formatter(_quest: Quest): string {
       return ''
     }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+    static isDeckMatch(svdata: SvData, _ship_ids: number[]): boolean {
       const deck = svdata.deckPort(ApiDeckPortId.deck2st)
       if (! deck) {
         return false
@@ -2879,7 +2879,7 @@ register(
     static formatter(_quest: Quest): string {
       return ''
     }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+    static isDeckMatch(svdata: SvData, _ship_ids: number[]): boolean {
       const deck3st = svdata.deckPort(ApiDeckPortId.deck3st)
       if (! deck3st) {
         return false
@@ -8895,7 +8895,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 7.7mm機銃：', '12.7mm単装機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -8934,7 +8934,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -8987,7 +8987,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 ドラム缶：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9004,7 +9004,7 @@ register(
     static formatter(_quest: Quest): string {
       return '';
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9022,7 +9022,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 零式艦戦21型：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9036,10 +9036,10 @@ register(
     static max = [1]
     static key = QuestKey.infer
     static id_or_types: ItemIdOrType[] = []
-    static formatter(quest: Quest): string {
+    static formatter(_quest: Quest): string {
       return ''
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9058,7 +9058,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 三式弾：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9077,7 +9077,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 25mm単装機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9096,7 +9096,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 ドラム缶：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9115,7 +9115,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 12.7cm連装高角砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9134,7 +9134,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 零式水上偵察機：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9153,7 +9153,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 紫電改二：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9172,7 +9172,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 零式艦戦52型：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9191,7 +9191,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 12.7cm連装砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9209,7 +9209,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 14cm単装砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9253,7 +9253,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口：', '中口：', '大口：', '偵察機：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9299,7 +9299,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径:', '中口径:', '魚雷:'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9318,7 +9318,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 61cm三連装魚雷:'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9359,7 +9359,7 @@ register(
       { id: 20 },
       { id: 26 },
     ]
-    static getCondition(svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(_quest: Quest): string {
@@ -9381,7 +9381,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 副砲:'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9400,7 +9400,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中口径:'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9417,7 +9417,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 大口径：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9436,7 +9436,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 電探：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9455,7 +9455,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9497,7 +9497,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9528,7 +9528,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9545,7 +9545,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9565,7 +9565,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9586,7 +9586,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中口径：', '副砲：', 'ドラム缶：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9607,7 +9607,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 大口径：', '水偵：', '魚雷：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9624,7 +9624,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 九六式艦戦：', '零式艦戦21型：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9644,7 +9644,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中口径：', '副砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9664,7 +9664,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 機銃：', '電探：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9684,7 +9684,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦爆：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9777,7 +9777,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '艦爆：', '艦攻：', '水偵'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9798,7 +9798,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '水偵：', '艦偵：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9819,7 +9819,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '艦爆：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9840,7 +9840,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中口径：', '副砲：', '機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9861,7 +9861,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：', '大口径：', '水偵：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9882,7 +9882,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 水偵：', '艦戦：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -9903,7 +9903,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 瑞雲：', '彗星：', '流星：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -12167,7 +12167,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormatOne(['7-4ゲージ破壊: '], quest)
     }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+    static isDeckMatch(_svdata: SvData, _ship_ids: number[]): boolean {
       return true
     }
   }
@@ -14484,7 +14484,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 12.7cm連装砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14501,7 +14501,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 12cm単装砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14515,7 +14515,7 @@ register(
     static max = [3]
     static key = QuestKey.infer
     static id_or_types = [{ id: 125 }]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -14532,7 +14532,7 @@ register(
     static max = [3]
     static key = QuestKey.infer
     static id_or_types = [{ id: 106 }]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -14549,7 +14549,7 @@ register(
     static max = [3]
     static key = QuestKey.infer
     static id_or_types = [{ type: SlotitemType.LandAttackAircraft }]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -14590,7 +14590,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14677,7 +14677,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：', '中口径：', '大口径：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14713,7 +14713,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：', '中口径：', '副砲：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14734,7 +14734,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 大口径：', '副砲：', '水上偵察機：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14755,7 +14755,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 水偵：', '水爆：', '機銃：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14825,7 +14825,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：', '中口径：', '水上偵察機：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14846,7 +14846,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦戦：', '艦爆：', '艦攻：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14867,7 +14867,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 小口径：', '中口径：', '水偵：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -14968,7 +14968,7 @@ register(
       { type: SlotitemType.RecSeaplane },
       { id: 7 },
     ]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -15052,7 +15052,7 @@ register(
       { type: SlotitemType.EngineImp },
       { types: [SlotitemType.MediumExtraArmor, SlotitemType.LargeExtraArmor] }
     ]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -15073,7 +15073,7 @@ register(
       { type: SlotitemType.MediumMainGun },
       { type: SlotitemType.DepthCharge }
     ]
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
     static formatter(quest: Quest): string {
@@ -15098,7 +15098,7 @@ register(
         flagship_slotitem_lvl: [8]
       }
     }
-    static formatter(quest: Quest): string {
+    static formatter(_quest: Quest): string {
       return ''
     }
   }
@@ -15402,7 +15402,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 艦爆：', '艦攻：', '魚雷：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -15423,7 +15423,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 大口径：', '中口径：', '水偵：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -15465,7 +15465,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中口径：', '魚雷：', '大口径：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -15492,7 +15492,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 中：', '大：', '副砲：', '零式水偵[熟練max]：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -15513,7 +15513,7 @@ register(
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 水偵：', '中口径：', '艦爆：'], quest)
     }
-    static getCondition(_svdata: SvData) {
+    static getCondition(_svdata: SvData): undefined {
       return undefined
     }
   }
@@ -15548,7 +15548,7 @@ register(
     static max = [4]
     static key = QuestKey.infer
     static id_or_types = [{ id: 44 }]
-    static getCondition(svdata: SvData): DestroyItemCondition {
+    static getCondition(_svdata: SvData): DestroyItemCondition {
       return {
         flagship_categories: [ApiShipCategory.hiburi, ApiShipCategory.ukuru],
         flagship_slotitem_ids: [45, 45, 45],
@@ -15618,7 +15618,7 @@ register(1156, class {
   static formatter(quest: Quest): string {
     return detailFormat(['破棄 爆撃機：', '攻撃機：', '水偵：'], quest)
   }
-  static getCondition(_svdata: SvData) {
+  static getCondition(_svdata: SvData): undefined {
     return undefined
   }
 })
@@ -15636,7 +15636,7 @@ register(1157, class {
   static formatter(quest: Quest): string {
     return detailFormat(['爆雷破棄 九四式：', '三式：', '二式：'], quest)
   }
-  static getCondition(_svdata: SvData) {
+  static getCondition(_svdata: SvData): undefined {
     return undefined
   }
 })
@@ -15773,7 +15773,7 @@ register(1162, class {
   static formatter(quest: Quest): string {
     return detailFormat(['破棄 52型：', '紫電一一型：', '12.7高角砲：', '46砲：'], quest)
   }
-  static getCondition(_svdata: SvData) {
+  static getCondition(_svdata: SvData): undefined {
     return undefined
   }
 })
