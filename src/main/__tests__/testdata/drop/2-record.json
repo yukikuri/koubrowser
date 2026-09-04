@@ -1,0 +1,33 @@
+{
+  "mapId": 42,
+  "cellId": 12,
+  "isBoss": true,
+  "enemyFormation": 2,
+  "mapLv": 0,
+  "shipId": 68,
+  "shipName": "摩耶",
+  "shipCounts": [
+    0,
+    0,
+    2
+  ],
+  "rank": "A",
+  "questName": "カレー洋海域",
+  "enemyDeckName": "敵東方艦隊 強襲上陸主力艦隊",
+  "exp": 1580,
+  "baseExp": 410,
+  "teitokuLv": 120,
+  "firstClear": false,
+  "enemyShips1": [
+    1543,
+    1528,
+    1526,
+    1526,
+    1577,
+    1577
+  ],
+  "origin": "koubrowser/1.0.9",
+  "itemId": -1,
+  "itemCount": 0,
+  "date": "2026-09-03T09:00:00+09:00"
+}

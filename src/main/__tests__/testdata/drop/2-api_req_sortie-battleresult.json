@@ -1,0 +1,82 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_ship_id": [
+   1543,
+   1528,
+   1526,
+   1526,
+   1577,
+   1577
+  ],
+  "api_win_rank": "A",
+  "api_get_exp": 1580,
+  "api_mvp": 1,
+  "api_member_lv": 120,
+  "api_member_exp": 70765705,
+  "api_get_base_exp": 410,
+  "api_get_ship_exp": [
+   -1,
+   1230,
+   410,
+   410,
+   410,
+   410,
+   410
+  ],
+  "api_get_exp_lvup": [
+   [
+    683503,
+    701500
+   ],
+   [
+    383877,
+    397000
+   ],
+   [
+    247111,
+    255300
+   ],
+   [
+    206715,
+    211300
+   ],
+   [
+    165072,
+    168100
+   ],
+   [
+    290542,
+    296200
+   ]
+  ],
+  "api_dests": 5,
+  "api_destsf": 0,
+  "api_quest_name": "カレー洋海域",
+  "api_quest_level": 6,
+  "api_enemy_info": {
+   "api_level": "",
+   "api_rank": "",
+   "api_deck_name": "敵東方艦隊 強襲上陸主力艦隊"
+  },
+  "api_first_clear": 0,
+  "api_mapcell_incentive": 0,
+  "api_get_flag": [
+   0,
+   1,
+   0
+  ],
+  "api_get_ship": {
+   "api_ship_id": 68,
+   "api_ship_type": "重巡洋艦",
+   "api_ship_name": "摩耶",
+   "api_ship_getmes": "よ！アタシ、摩耶ってんだ、よろしくな。"
+  },
+  "api_get_eventflag": 0,
+  "api_get_exmap_rate": 0,
+  "api_get_exmap_useitem_id": 0,
+  "api_escape_flag": 0,
+  "api_escape": null
+ }
+}

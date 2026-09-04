@@ -1,0 +1,48 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_rashin_flg": 1,
+  "api_rashin_id": 3,
+  "api_maparea_id": 62,
+  "api_mapinfo_no": 5,
+  "api_no": 68,
+  "api_color_no": 5,
+  "api_event_id": 5,
+  "api_event_kind": 5,
+  "api_next": 0,
+  "api_bosscell_no": 18,
+  "api_bosscomp": 1,
+  "api_comment_kind": 1,
+  "api_production_kind": 1,
+  "api_airsearch": {
+   "api_plane_type": 0,
+   "api_result": 0
+  },
+  "api_eventmap": {
+   "api_max_maphp": 8540,
+   "api_now_maphp": 0,
+   "api_dmg": 1
+  },
+  "api_e_deck_info": [
+   {
+    "api_kind": 2,
+    "api_ship_ids": [
+     2394,
+     2119,
+     2382
+    ]
+   },
+   {
+    "api_kind": 2,
+    "api_ship_ids": [
+     2318,
+     2052,
+     2052
+    ]
+   }
+  ],
+  "api_limit_state": 0,
+  "api_ration_flag": 0
+ }
+}

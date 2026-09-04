@@ -1,0 +1,33 @@
+{
+  "mapId": 625,
+  "cellId": 65,
+  "isBoss": false,
+  "enemyFormation": 1,
+  "mapLv": 4,
+  "shipId": 56,
+  "shipName": "那珂",
+  "shipCounts": [
+    0,
+    0,
+    1
+  ],
+  "rank": "S",
+  "questName": "ブレスト沖/大西洋/イギリス本土沖/バルト海",
+  "enemyDeckName": "深海バルト海艦隊 旗艦艦隊護衛",
+  "exp": 200,
+  "baseExp": 250,
+  "teitokuLv": 120,
+  "firstClear": false,
+  "enemyShips1": [
+    1956,
+    1592,
+    1624,
+    1578,
+    1578,
+    1578
+  ],
+  "origin": "koubrowser/1.0.9",
+  "itemId": -1,
+  "itemCount": 0,
+  "date": "2026-09-04T09:00:00+09:00"
+}
