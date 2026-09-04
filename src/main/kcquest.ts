@@ -49,6 +49,8 @@ function buildQuery(findParam): QuestRecordQuery {
   }
 }
 
+type NedbAffectedDocuments = unknown
+
 /**
  * 
  * @param query 
@@ -58,10 +60,14 @@ function buildQuery(findParam): QuestRecordQuery {
  * @returns 
  */
 function doUpdate(
-  query: any,
-  updateQuery: any,
+  query: Update['query'],
+  updateQuery: Update['updateQuery'],
   options?: Nedb.UpdateOptions,
-  cb?: (err: Error | null, numberOfUpdated: number, affectedDocuments: any, upsert: boolean) => void,
+  cb?: (
+    err: Error | null, 
+    numberOfUpdated: number, 
+    affectedDocuments: NedbAffectedDocuments, 
+    upsert: boolean) => void,
 ): void {
   if (Env.isTestMode) {
     console.log('test mode: skip quest update', JSON.stringify(query), JSON.stringify(updateQuery))
@@ -101,7 +107,7 @@ interface UpdaterCtorParam {
   updated: UpdatedCallback
 }
 
-const handleDBErr = <T>(err: Error | null, newDoc: T, msg: string = '') => {
+const handleDBErr = <T>(err: Error | null, newDoc: T, msg: string = ''): void => {
   if (msg) {
     console.log(msg)
   }
@@ -113,7 +119,7 @@ const handleDBErr = <T>(err: Error | null, newDoc: T, msg: string = '') => {
   }
 }
 
-const updateLog = (err: Error | null, numberOfUpdate: number, doc: any, upsert: boolean) => {
+const updateLog = (err: Error | null, numberOfUpdate: number, doc: unknown, upsert: boolean): void => {
   if (err) {
     console.log('update quest err', err)
   } else {
@@ -486,7 +492,7 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
     return ret
   }
 
-  protected increment(inc: number = 1, index: number = 0) {
+  protected increment(inc: number = 1, index: number = 0): void {
     if (inc === 0) {
       return
     }
@@ -508,7 +514,7 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
     this.update()
   }
 
-  protected increments(incs: number[]) {
+  protected increments(incs: number[]): void {
     let doUpdate = false
 
     const state = this.state
@@ -1714,8 +1720,12 @@ class QuestDestroyShip extends QuestAnyCounter {
  *
  */
 class QuestHensei extends QuestAnyCounter {
-  setCallback(): void {}
-  unsetCallback(): void {}
+  setCallback(): void {
+    // noop
+  }
+  unsetCallback(): void {
+    // noop
+  }
 }
 
 /**

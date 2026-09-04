@@ -54,7 +54,7 @@ import { type Spot, type CellInfo, CommonMap } from '@common/map'
 import { Env } from '@common/env'
 import { airbaseSpotStore, appSettingStore, inheritScoreStoreLoader, mapInfoStoreLoader, missionListStoreLoader, optionSettingStore, questListStoreLoader } from '@main/store'
 import { globalSettingStore } from '@main/store'
-import { getMainDir, PathStuff, setUserDataDir } from '@main/path'
+import { getMainDir, PathStuff } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
 import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestsMessage, RequiredMessage } from '@common/message'
@@ -78,7 +78,7 @@ import { getAfterBattleFleetHpsInfo, updateFleetHps } from '@common/kcsbattle_ut
 // debug
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[KcBrowser]", ...args);
 };
 
@@ -294,7 +294,11 @@ export class KcApp {
   }
 
   constructor() { 
-    kcapp = this
+    // eslint警告対策thisを直に変数に入れない
+    const setKcApp = (app: KcApp): void => {
+      kcapp = app
+    }
+    setKcApp(this)
 
     const appLaunchId = crypto.randomUUID()
 
@@ -757,7 +761,7 @@ export class KcApp {
   /**
    * 
    */
-  private setupHandlers() {
+  private setupHandlers(): void {
     app.on('web-contents-created', (event, webContents) =>
       this.onWebContentsCreated(event, webContents)
     )
@@ -871,7 +875,7 @@ export class KcApp {
    * カスタムメニュー設定
    */
   private static buildCustomMenu(): Menu {
-    const goBackFoward = (id: number, isBack: boolean) => {
+    const goBackFoward = (id: number, isBack: boolean): void => {
       const w = BrowserWindow.fromId(id)
       if (w) {
         const wc = w.webContents
@@ -985,7 +989,7 @@ export class KcApp {
   private onWebContentsCreated(_event: Event, webContents: WebContents): void {
     debug('onWebContentsCreated', _event, 'url:', webContents.getURL());
 
-    const didCreateWindowHandler = (window: BrowserWindow, detail: DidCreateWindowDetails) => 
+    const didCreateWindowHandler = (window: BrowserWindow, detail: DidCreateWindowDetails): void => 
       this.onDidCreateWindow(window, detail, webContents)
 
     webContents.addListener('did-create-window', (window, detail) => didCreateWindowHandler(window, detail))
@@ -1151,7 +1155,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelRendererReady(event: IpcMainInvokeEvent) {
+  private onChannelRendererReady(event: IpcMainInvokeEvent): void {
 
     // set test data
     if (Env.isTestMode) {
@@ -1280,7 +1284,7 @@ export class KcApp {
   /**
    *
    */
-  private async onChannelClose() {
+  private async onChannelClose(): Promise<void> {
     debug('on channel msg', MainChannel.close)
 
     this.closeRelatedWindows()
@@ -1293,7 +1297,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelDevTool() {
+  private onChannelDevTool(): void {
     debug(MainChannel.devtool)
     const webContents = this.mainWindow.webContents
     if (webContents) {
@@ -1308,7 +1312,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelReload(ignoreCache: boolean) {
+  private onChannelReload(ignoreCache: boolean): void {
     debug(MainChannel.reload, 'ignoreCache:', ignoreCache)
     const webContents = this.mainWindow.webContents
     if (webContents) {
@@ -1323,7 +1327,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelTopmost() {
+  private onChannelTopmost(): void {
     debug(MainChannel.topmost)
     this.main_window.setAlwaysOnTop(!gameSetting.topmost)
     gameSetting.topmost = !gameSetting.topmost
@@ -1332,7 +1336,7 @@ export class KcApp {
   /**
    * Keep the main-process mute state in sync with the renderer.
    */
-  private onChannelNotifyMuteState(muted: boolean) {
+  private onChannelNotifyMuteState(muted: boolean): void {
     debug(MainChannel.notify_mute_state, 'muted:', muted)
     gameState.muted = muted
   }
@@ -1340,7 +1344,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelOpenAssist() {
+  private onChannelOpenAssist(): void {
     debug(MainChannel.openAssist, 'assist_window:', this.assist_window !== null)
     if (this.assist_window) {
       this.assist_window.show()
@@ -1468,7 +1472,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelOpenCaptureFolder() {
+  private onChannelOpenCaptureFolder(): void {
     debug(MainChannel.open_capture_folder)
     shell.openPath(PathStuff.capturePath(true))
   }
@@ -1478,7 +1482,7 @@ export class KcApp {
    * @param date
    * @param buffer
    */
-  private onChannelSaveCapture(date: Date, buffer: Buffer) {
+  private onChannelSaveCapture(date: Date, buffer: Buffer): void {
     const capture_dir = PathStuff.capturePath(true)
     const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.png`
     debug(MainChannel.save_capture, 'date:', date, filename, capture_dir)
@@ -1504,7 +1508,7 @@ export class KcApp {
    * @param buffer
    * @param isEnd
    */
-  private async onChannelStoreRec(buffer: Buffer, isEnd: boolean) {
+  private async onChannelStoreRec(buffer: Buffer, isEnd: boolean): Promise<void> {
     debug(
       MainChannel.store_rec,
       'buffer size',
@@ -1601,7 +1605,7 @@ export class KcApp {
   ): void {
 
     const task1 = new Promise<GlobalSetting>((resolve, reject) => {
-      globalSettingStore.load(defaultGlobalSetting(), (data) => resolve(data), (err: any) => reject(err))
+      globalSettingStore.load(defaultGlobalSetting(), (data) => resolve(data), (err) => reject(err))
     });
 
     if (emptyData) {
@@ -1634,7 +1638,7 @@ export class KcApp {
     }
 
     const task2 = new Promise<void>((resolve, reject) => {
-      appSettingStore.load(() => resolve(), (err: any) => reject(err))
+      appSettingStore.load(() => resolve(), (err) => reject(err))
     });
     const taks3 = new Promise<ApiMapInfoList>((resolve, reject) => {
       mapInfoStoreLoader.load(EmptyApiMapInfoList(), (data) => resolve(data), (err: Error) => reject(err))
@@ -1681,7 +1685,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelRequestRequiredData(event: IpcMainInvokeEvent) {
+  private onChannelRequestRequiredData(event: IpcMainInvokeEvent): void {
 
     const webContents = event.sender
 
@@ -2111,7 +2115,7 @@ export class KcApp {
     }
 
     debug(MainChannel.timeline)
-    const questTask = () => {
+    const questTask = (): Promise<QuestContext> => {
       return new Promise<QuestContext>((resolve) => {
         const questlist = svdata.questlist
         resolve({
@@ -2134,7 +2138,7 @@ export class KcApp {
   /**
    *
    */
-  private onChannelRefreshAssist() {
+  private onChannelRefreshAssist(): void {
     // todo: remount vue app
     // debug(MainChannel.refresh_assist)
     // this.assist_webcontents.forEach((el) => el.webcontents.reload())
@@ -2320,7 +2324,7 @@ export class KcApp {
   /**
    *
    */
-  private onClosed() {
+  private onClosed(): void {
     debug('main window closed. data ok:', svdata.isShipDataOk)
     this.kcrecord?.doDispose()
     this.closeRecorder()

@@ -12,7 +12,7 @@ export class IpcObject<T extends object> {
     this.channel = channel
   }
 
-  public set(target: T, p: PropertyKey, value: any, receiver: any): boolean {
+  public set(target: T, p: PropertyKey, value: unknown, receiver: unknown): boolean {
     if (!this.ticked) {
       if (this.webContents) {
         this.ticked = true
@@ -25,7 +25,7 @@ export class IpcObject<T extends object> {
     return Reflect.set(target, p, value, receiver)
   }
 
-  public get(target: T, p: PropertyKey, receiver: any): any {
+  public get(target: T, p: PropertyKey, receiver: unknown): unknown {
     return Reflect.get(target, p, receiver)
   }
 }

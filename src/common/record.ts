@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// NeDB の動的なクエリ/更新条件を扱う共通型のため、any を許可する。
+
 import {
   MapLv,
   SvData,
@@ -117,13 +120,18 @@ export interface PortChartData {
   kits: KitChartData
 }
 
+type BattleRecordProjection = {
+  mapId?: 0 | 1
+  date?: 0 | 1
+}
+
 export interface BattleRecordQuery
-  extends RecordQuery<{}, Partial<BattleRecord>> {
+  extends RecordQuery<BattleRecordProjection, Partial<BattleRecord>> {
   readonly dbName: typeof DbName.battle
 }
 
 export interface BattleRecordQueryFind
-  extends RecordQuery<{}, any> {
+  extends RecordQuery<BattleRecordProjection, any> {
   readonly dbName: typeof DbName.battle
 }
 
@@ -422,7 +430,7 @@ export function toRecordMapId(maparea_id: number, mapinfo_no: number): number {
   return maparea_id * 10 + mapinfo_no
 }
 
-export function recordMapIdToIdNo(record_map_id: number) {
+export function recordMapIdToIdNo(record_map_id: number): { areaId: number, areaNo: number } {
   return { areaId: Math.floor(record_map_id / 10), areaNo: record_map_id % 10 }
 }
 
@@ -531,7 +539,7 @@ export const toShipsInfo = (svdata: SvData, ships: number[]): ShipInfoRecord[] |
   return ret
 }
 
-export interface Quest<T extends any = any> {
+export interface Quest<T = any> {
   no: number
   dateKey: string
   date: string

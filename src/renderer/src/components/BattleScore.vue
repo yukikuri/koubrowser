@@ -5,6 +5,7 @@ import Highcharts, { AxisLabelsFormatterContextObject, SeriesFlagsOptions, Serie
 import noDataToDisplay from 'highcharts/modules/no-data-to-display'
 import { 
   BattleRecord, 
+  BattleRecordQuery, 
   ClearItemGetRecord, 
   DbName, 
   PortRecord, 
@@ -1453,7 +1454,7 @@ async function fetchEoClearRecord(year: number, month: number):Promise<EoClearRe
 
   async function fetchBattleEoClear() : Promise<EoClearRecord[]> {
     return new Promise((resolve, reject) => {
-      const query = { 
+      const query: BattleRecordQuery  = { 
         dbName: DbName.battle, 
         find: { 
           mapId: {

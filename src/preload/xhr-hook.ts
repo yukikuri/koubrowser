@@ -2,10 +2,12 @@ import * as kcsapi from '@common/kcsapi'
 import * as kcsapi_hook from '@common/kcsapi_hook'
 import { Env } from '@common/env'
 
-let serverId = kcsapi.getServerId(window.location.href);
+const serverId = kcsapi.getServerId(window.location.href);
 //console.log('xhr-hook >> contextIsolated:', process.contextIsolated, 'href:', window.location.href, 'serverId:', serverId);
 if (serverId) {
-  const { ipcRenderer } =  require('electron');
+  // serverId を判定できる game frame でのみ Electron IPC を読み込む。
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ipcRenderer } = require('electron') as typeof import('electron')
 
   // send server id
   ipcRenderer.send(kcsapi_hook.HookedType.serverid, kcsapi_hook.toServerId(serverId));
@@ -54,7 +56,7 @@ if (serverId) {
       // レスポンス受信時、メインプロセスに通知
       this.addEventListener("loadend", () => {
         const type = typeof this.response;
-        const length = type === 'string' ? this.response.length : (this.response?.byteLength ?? -1);
+        //const length = type === 'string' ? this.response.length : (this.response?.byteLength ?? -1);
         //console.log("[XHR End]", this.status, this.responseURL, this.responseType, type, length, 'api:', this._api);
 
         let response;
@@ -103,6 +105,6 @@ if (serverId) {
     }
   }
 
-  window.XMLHttpRequest = MyXHR as any;
+  window.XMLHttpRequest = MyXHR as typeof XMLHttpRequest;
   //console.log('xhr-hook set <<', window.location.href, 'serverId:', serverId);
 }

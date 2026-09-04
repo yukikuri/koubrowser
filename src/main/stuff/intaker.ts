@@ -31,7 +31,7 @@ const toDropItem = (record: DropRecord): DropItem => {
   }
 }
 
-function toDropData(record: DropRecord): DropData {
+export function toDropData(record: DropRecord): DropData {
   return {
     v: 1,
     mid: record.mapId,

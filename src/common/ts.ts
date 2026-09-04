@@ -16,10 +16,10 @@ export const assignSafeE = <T, S>(target: T | undefined, source: S | undefined):
   Object.assign(target, source)
 }
 
-export const arrayDeepCopy = <T>(target: T[], source: T[]): void => {
+export const arrayDeepCopy = <T extends object>(target: T[], source: T[]): void => {
   target.length = 0
-  source.forEach((s: any) => {
-    target.push(Object.assign(s))
+  source.forEach((s) => {
+    target.push({ ...s })
   })
 }
 
@@ -46,7 +46,7 @@ export const toNumberSafe = (v: string, def: number = 0): number => {
 
 export function deepFreeze<T>(o: T): T {
   Object.getOwnPropertyNames(o).forEach((k) => {
-    const v: any = (o as any)[k]
+    const v = (o as Record<string, unknown>)[k]
     if (v && typeof v === 'object') deepFreeze(v)
   })
   return Object.freeze(o)

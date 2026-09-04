@@ -453,7 +453,7 @@ async function fetchFirstBattleDate(): Promise<string | null> {
       return ;
     }
 
-    const projection = { date: 1 }
+    const projection = { date: 1 } as const
     const query: BattleRecordQuery = { 
       dbName: DbName.battle, 
       sort: { date: 1 },
