@@ -13,7 +13,7 @@ import { Env } from '@common/env'
 // debug
 const DEBUG = false;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[Areas]", ...args);
 };
 
@@ -87,7 +87,7 @@ onUnmounted(() => {
   ApiCallback.unset(cb_map_start)
 })
 
-function onChange(value: number) {
+function onChange(value: number): void {
   debug(
     'area change old value',
     props.area_id,
@@ -144,28 +144,28 @@ function lockClick(event: Event): void {
 <template>
   <div class="areas-root">
     <b-carousel
+      v-model="area_index"
       class="areas"
       :arrow="false"
       :autoplay="false"
       @change="onChange"
-      v-model="area_index"
     >
       <b-carousel-item v-for="(area_no, index) in areaNos" :key="index">
         <Area
           v-if="area_index === index"
-          :area_id="area_id"
-          :area_no="area_no"
-          v-model:selected_label="selected_label"
+          v-model:selected-label="selected_label"
+          :area-id="area_id"
+          :area-no="area_no"
         />
       </b-carousel-item>
-      <template #indicators="props">
+      <template #indicators="slotProps">
         <span
           class="areas-indicator"
+          :class="{ 'is-battle': isBattleArea(slotProps.i), 'is-locked': isAreaLocked(slotProps.i) }"
           @click="indicatorClick"
-          :class="{ 'is-battle': isBattleArea(props.i), 'is-locked': isAreaLocked(props.i) }"
         >
-          <LockImage v-if="isAreaLocked(props.i)" @click="lockClick" />
-          {{ areaNoText(props.i) }}
+          <LockImage v-if="isAreaLocked(slotProps.i)" @click="lockClick" />
+          {{ areaNoText(slotProps.i) }}
         </span>
       </template>
     </b-carousel>

@@ -1,7 +1,6 @@
 import { SvData } from '@common/kcs'
 import type { LoadStart, LoadEnd, UnknownLoadStart, UnknownLoadEnd } from '@common/kcsapi_hook'
 import { Env } from '@common/env'
-import moment from 'moment'
 import fs from 'node:fs'
 
 // 全体的なコンソールログにタイムスタンプを付けたい場合にコメントアウトを外す
@@ -23,7 +22,7 @@ let saved_count = 0
 const getDtString = (): string => {
   // YYYYMMDD-HHmmss
   const date = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
+  const pad = (n: number): string => String(n).padStart(2, '0')
   return (
     `${date.getFullYear()}` +
     `${pad(date.getMonth() + 1)}` +

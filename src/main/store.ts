@@ -36,7 +36,7 @@ class AirbaseSpotStore {
         try {
           const spots = JSON.parse(fs.readFileSync(filepath, 'utf8'))
           this.spots = spots
-        } catch (err: any) {
+        } catch (err) {
           console.error(err)
         }
       }
@@ -124,7 +124,7 @@ export function mergeStoredData<T>(defaults: T, loaded: unknown): T {
 /**
  * json store loader
  */
-class JsonStoreLoader<T extends Object> {
+class JsonStoreLoader<T extends object> {
   private storeFileName: string
   private storeDirGetter: () => string
 
@@ -137,7 +137,7 @@ class JsonStoreLoader<T extends Object> {
     return path.join(this.storeDirGetter(), this.storeFileName)
   }
 
-  load(def: T,  cb: (data: T) => void, errCb: (err: any) => void): void {
+  load(def: T,  cb: (data: T) => void, errCb: (err) => void): void {
 
     const filepath = this.storePath
     if (fs.existsSync(filepath)) {
@@ -153,7 +153,7 @@ class JsonStoreLoader<T extends Object> {
 
             // call loaded callback
             cb(loaded)
-          } catch(err: any) {
+          } catch(err) {
             console.error(err)
             errCb(err)
             return
@@ -176,7 +176,7 @@ class JsonStoreLoader<T extends Object> {
     try {
       const fileContents = await fs.promises.readFile(filepath, 'utf8')
       return mergeStoredData(def, JSON.parse(fileContents))
-    } catch (err: any) {
+    } catch (err) {
       console.error(err)
       throw err
     }
@@ -199,7 +199,7 @@ class JsonStoreLoader<T extends Object> {
 /**
  * json store
  */
-class JsonStore<T extends Object> {
+class JsonStore<T extends object> {
   private data: T;
   private storeFileName: string
   private loaded: boolean = false
@@ -215,7 +215,7 @@ class JsonStore<T extends Object> {
     return path.join(this.storeDirGetter(), this.storeFileName)
   }
 
-  load(cb: (data: T) => void, errCb: (err: any) => void ): void {
+  load(cb: (data: T) => void, errCb: (err) => void ): void {
     if (this.loaded) {
       cb(this.data)
       return
@@ -237,7 +237,7 @@ class JsonStore<T extends Object> {
              
             // call loaded callback
             cb(this.data)
-          } catch(err: any) {
+          } catch(err) {
             console.error(err)
             errCb(err)
             return

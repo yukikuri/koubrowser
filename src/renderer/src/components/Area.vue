@@ -28,7 +28,6 @@ import CurrentLocationImage from '@renderer/assets/img/current-location.svg'
 import DoneImg from '@renderer/assets/img/done-outline.svg'
 import MapImg from '@renderer/components/MapImg.vue'
 import PassedCellImage from '@renderer/assets/img/passed-cell.svg'
-import { AirbaseSpot, AirbaseTargetSpots, MainChannel } from '@common/channel'
 import { getAirBaseActionKindText, getAirSearchResultText, MapLvText, StateText } from '@common/locale'
 import AirBase from '@renderer/components/AirBase.vue'
 import Line from '@renderer/components/area/Line.vue'
@@ -38,7 +37,7 @@ import type { AreaItemGetInfo } from '@common/record'
 import * as place from '@renderer/stuff/place'
 import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
 
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, CSSProperties, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { mapInfoCache } from '@renderer/common/mapinfo'
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +68,7 @@ interface AirBaseSeiku {
   afterAA: number
 }
 
-interface SpotAirBase {
+interface _SpotAirBase {
   seikus: AirBaseSeiku[]
 }
 
@@ -100,11 +99,16 @@ interface AreaCheck {
   cellXY: string
 }
 
-interface PassedCell {
-  cellXY: any
+interface LocationStyle extends CSSProperties {
+  '--left'?: string
+  '--top'?: string
 }
 
-interface AirBaseInfo {
+interface PassedCell {
+  cellXY: LocationStyle
+}
+
+interface _AirBaseInfo {
   airbase: ApiAirBase
 }
 
@@ -194,11 +198,15 @@ const fromToAlignMap: [place.Direction, place.Direction, HorizontalAlign, Vertic
 ]
 
 // props & emits (v-model:selected_label)
-const props = defineProps<{ area_id: number; area_no: number; selected_label: string }>()
+const props = defineProps<{ 
+  areaId: number; 
+  areaNo: number; 
+  selectedLabel: string 
+}>()
 const emit = defineEmits<{ (e: 'update:selected_label', value: string): void }>()
 
 const selected_spot_label = computed<string>({
-  get: () => props.selected_label,
+  get: () => props.selectedLabel,
   set: (val) => emit('update:selected_label', val)
 })
 
@@ -216,7 +224,7 @@ const target_spot_invoked = ref(false)
 const areaGetItems = ref<AreaItemInfo[]>([])
 
 const area_id_no = computed(
-  () => props.area_id.toString().padStart(3, '0') + '_' + props.area_no.toString().padStart(2, '0')
+  () => props.areaId.toString().padStart(3, '0') + '_' + props.areaNo.toString().padStart(2, '0')
 )
 
 onMounted(() => {
@@ -233,31 +241,31 @@ onUnmounted(() => {
 const inArea = computed<boolean>(() => {
   if (!svdata.inMap) return false
   const map = svdata.mapStart
-  return map?.api_maparea_id === props.area_id && map.api_mapinfo_no === props.area_no
+  return map?.api_maparea_id === props.areaId && map.api_mapinfo_no === props.areaNo
 })
 
-const isEventMap = computed<boolean>(() => KcsUtil.isEventAreaId(props.area_id))
+const isEventMap = computed<boolean>(() => KcsUtil.isEventAreaId(props.areaId))
 const isStarted = computed<boolean>(() => home_location_setted.value)
 
 const airbaseDecks = computed<number>(
-  () => svdata.mapinfoFrom(props.area_id, props.area_no)?.api_air_base_decks ?? 0
+  () => svdata.mapinfoFrom(props.areaId, props.areaNo)?.api_air_base_decks ?? 0
 )
 
 const airbases = computed<ApiAirBase[]>(() => {
   const airbaseDeckCount = airbaseDecks.value
   debug(
-    'airbases for area', props.area_id, props.area_no, svdata.airbase(props.area_id),
+    'airbases for area', props.areaId, props.areaNo, svdata.airbase(props.areaId),
     'airbaseDecks:', airbaseDeckCount
  )
   //return svdata.airbase(props.area_id) ?? []
-  const ret = svdata.airbase(props.area_id)?.filter((el) => 
+  const ret = svdata.airbase(props.areaId)?.filter((el) => 
     el.api_action_kind === AirBaseActionKind.syutugeki
   )  ?? []
   return ret.slice(0, airbaseDeckCount)
 })
 
 const enemySpots = computed<AreaSpot[]>(() => {
-  const spots = CommonMap.spotsFromLevel(cell_info, svdata.mapLevel(props.area_id, props.area_no))
+  const spots = CommonMap.spotsFromLevel(cell_info, svdata.mapLevel(props.areaId, props.areaNo))
   const filtered = spots.filter((spot) => spot.type === 'enemy' || spot.type === 'boss')
   const deckSeiku = currentSeikuu.value
   const ret = filtered.map((el) => {
@@ -289,14 +297,14 @@ const enemySpots = computed<AreaSpot[]>(() => {
   return ret
 })
 
-const airbaseSpots = computed<AirBaseSpotInfo[]>(() => {
+const _airbaseSpots = computed<AirBaseSpotInfo[]>(() => {
   const enemy = enemySpots.value
-  const bases = svdata.airbase(props.area_id)
+  const bases = svdata.airbase(props.areaId)
   if (!bases) return []
   return bases.map((airbase, index) => {
     const range = airbase.api_distance.api_base + airbase.api_distance.api_bonus
     let spots: AirBaseSpot[] = [
-      { label: '-', txt: 'なし', disabled: target_spot_loaded.value ? false : true } as any
+      { label: '-', txt: 'なし', disabled: target_spot_loaded.value ? false : true }
     ]
     spots = spots.concat(
       enemy.map((spot) => ({
@@ -311,10 +319,6 @@ const airbaseSpots = computed<AirBaseSpotInfo[]>(() => {
     }
   })
 })
-
-function updateCurrentPos(): void {
-  if (!svdata.inMap) return
-}
 
 const passedCells = computed<PassedCell[]>(() => {
   if (!inArea.value) return []
@@ -338,7 +342,7 @@ interface LineInfo {
   y2: number
 }
 const passedLines = computed<LineInfo[]>(() => {
-  currentPosKey.value; // depend on key
+  void currentPosKey.value; // depend on key
 
   if (!inArea.value) return []
   const battleMap = svdata.battleMap
@@ -363,8 +367,9 @@ const passedLines = computed<LineInfo[]>(() => {
   }
   return ret;
 })
+
 const currentLine = computed<LineInfo | undefined>(() => {
-  currentPosKey.value; // depend on key
+  void currentPosKey.value; // depend on key
 
   debug('currentline called. inArea:', inArea.value, 'battleMap:', svdata.battleMap)
   const battleMap = svdata.battleMap
@@ -402,13 +407,13 @@ const currentLine = computed<LineInfo | undefined>(() => {
   return line;
 })
 
-function locationXY(spot: Spot): object {
+function locationXY(spot: Spot): LocationStyle {
   let mod_y = 2
   if (spot.no > 0) mod_y = 12
   return {
     '--left': ratio(spot.x) - 12 + 'px',
     '--top': ratio(spot.y) - mod_y + 'px'
-  } as any
+  }
 }
 
 const homeSpot = computed<Spot | undefined>(() => {
@@ -417,11 +422,11 @@ const homeSpot = computed<Spot | undefined>(() => {
   return cell_info.spots.find((spot) => spot.no === mapStart.api_from_no)
 })
 
-const currentPosStyle = computed<any>(() => {
-  currentPosKey.value; // depend on key
+const currentPosStyle = computed<LocationStyle>(() => {
+  void currentPosKey.value; // depend on key
   
   const battleMap = svdata.battleMap
-  const lastMapPos = (map_index: number): object => {
+  const lastMapPos = (map_index: number): LocationStyle => {
     const cur_cell_no = battleMap[map_index].api_no
     const cell = cell_info.spots.find((spot) => spot.no === cur_cell_no)
     debug(
@@ -436,9 +441,6 @@ const currentPosStyle = computed<any>(() => {
     return {}
   }
   if (!home_location_setted.value && cell_info.spots.length) {
-    setTimeout(() => {
-      home_location_setted.value = true
-    }, 100)
     if (svdata.battleMap.length > 1) {
       return lastMapPos(battleMap.length - 2)
     }
@@ -449,6 +451,21 @@ const currentPosStyle = computed<any>(() => {
   if (battleMap.length > 0) return lastMapPos(battleMap.length - 1)
   return {}
 })
+
+watch(
+  () => !home_location_setted.value && cell_info.spots.length > 0,
+  (needsUpdate, _previous, onCleanup): void => {
+    if (!needsUpdate) return
+
+    const timer = setTimeout(() => {
+      home_location_setted.value = true
+    }, 100)
+
+    // 条件が変わった場合やアンマウント時にタイマーを解除する
+    onCleanup(() => clearTimeout(timer))
+  },
+  { immediate: true }
+)
 
 function onPort(): void {
   home_location_setted.value = false
@@ -478,7 +495,7 @@ function onMapNext(arg?: ApiMapNext): void {
 const isDataOk = computed<boolean>(() => svdata.isShipDataOk)
 const spots = computed<Spot[]>(() => cell_info.spots)
 
-const isAreaItemGetVisibleMap = computed<boolean>(() => props.area_id === 6 && props.area_no === 3)
+const isAreaItemGetVisibleMap = computed<boolean>(() => props.areaId === 6 && props.areaNo === 3)
 
 function reloadAreaGetItems(): void {
   areaGetItems.value = []
@@ -493,7 +510,7 @@ function addAreaGetItems(map: ApiMap, mapIndex: number, delayedDisplay: boolean)
   if (!isAreaItemGetVisibleMap.value) {
     return
   }
-  if (map.api_maparea_id !== props.area_id || map.api_mapinfo_no !== props.area_no) {
+  if (map.api_maparea_id !== props.areaId || map.api_mapinfo_no !== props.areaNo) {
     return
   }
 
@@ -554,7 +571,7 @@ function getAreaItemGetInfos(
   return ret
 }
 
-function getFromAlign(
+function _getFromAlign(
   directionFrom: place.Direction
 ): { hor: HorizontalAlign; ver: VerticalAlign } | undefined {
   for (const [from, hor, ver] of fromAlignMap) {
@@ -565,7 +582,7 @@ function getFromAlign(
   return
 }
 
-function getFromToAlign(
+function _getFromToAlign(
   directionFrom: place.Direction,
   directionTo: place.Direction
 ): { hor: HorizontalAlign; ver: VerticalAlign } | undefined {
@@ -594,7 +611,7 @@ function spotFromMapIndex(mapIndex: number): Spot | undefined {
   return cell_info.spots.find((spot) => spot.no === map.api_no)
 }
 
-function directionFromMapIndex(mapIndex: number): place.Direction | null {
+function _directionFromMapIndex(mapIndex: number): place.Direction | null {
   const spot = spotFromMapIndex(mapIndex)
   if (!spot) {
     return null
@@ -607,7 +624,7 @@ function directionFromMapIndex(mapIndex: number): place.Direction | null {
   return place.getDirection(prevSpot.x, prevSpot.y, spot.x, spot.y)
 }
 
-function directionToMapIndex(mapIndex: number): place.Direction | null {
+function _directionToMapIndex(mapIndex: number): place.Direction | null {
   const spot = spotFromMapIndex(mapIndex)
   const nextSpot = spotFromMapIndex(mapIndex + 1)
   if (!spot || !nextSpot) {
@@ -695,7 +712,7 @@ function itemSrc(item: AreaItemInfo): string {
 }
 
 watch(
-  () => [props.area_id, props.area_no],
+  () => [props.areaId, props.areaNo],
   () => reloadAreaGetItems()
 )
 
@@ -748,7 +765,7 @@ function spotAirBase(spot: Spot): AirBaseSeiku[] | undefined {
         })
         enemy_aa = enemys.reduce(
           (acc2, eship) =>
-            acc2 + RUtil.eshipSeiku({ api_onslot: eship.onslot } as any, eship.mstSlot),
+            acc2 + RUtil.eshipSeiku({ api_onslot: eship.onslot }, eship.mstSlot),
           0
         )
         acc.push({
@@ -865,7 +882,7 @@ function spotXY(spot: SpotXYType): string {
   let y = ratio(spot.y)
   let label = spot.label
   if (label) {
-    const mod = modSpotXY(props.area_id, props.area_no, label)
+    const mod = modSpotXY(props.areaId, props.areaNo, label)
     if (mod) {
       x += mod.x
       y += mod.y
@@ -874,7 +891,7 @@ function spotXY(spot: SpotXYType): string {
   return `left: ${x + 12}px; top: ${y - 15}px`
 }
 
-interface MapLosXYMod {
+interface _MapLosXYMod {
   [key: string]: { x: number; y: number }
 }
 
@@ -951,7 +968,7 @@ function maplosXY(check: Check): string {
   debug('maplosXY', check)
   let diffX = 0;
   let diffY = 0;
-  const fixPos = getFixMapLosPos(props.area_id, props.area_no, check.no)
+  const fixPos = getFixMapLosPos(props.areaId, props.areaNo, check.no)
   if (fixPos) {
     diffX = fixPos.modX;
     diffY = fixPos.modY;
@@ -963,16 +980,16 @@ function maplosXY(check: Check): string {
   return `left: ${x}px; top: ${y}px`
 }
 
-function seikubarText(spot: Spot): string {
+function _seikubarText(spot: Spot): string {
   return `${currentSeikuu.value}/${spot.maxAa}`
 }
 
-function seikuText(spot: Spot): string {
+function _seikuText(spot: Spot): string {
   if (!spot.maxAa) return 'なし'
   return spot.maxAa.toString()
 }
 
-function seikuStyle(spot: Spot): string {
+function _seikuStyle(spot: Spot): string {
   const style: string[] = []
   if (!spot.maxAa) {
     style.push('display: none')
@@ -983,7 +1000,7 @@ function seikuStyle(spot: Spot): string {
   return style.join(';')
 }
 
-const seikuStyleDeck = computed<string>(() => {
+const _seikuStyleDeck = computed<string>(() => {
   const style: string[] = []
   const seiku = currentSeikuu.value
   if (!seiku) {
@@ -1004,44 +1021,67 @@ const hasAirbase = computed<boolean>(() => {
   // イベントエリアでは基地航空隊情報でマップが隠れることから一旦基地航空隊情報は表示しない
   if (isEventMap.value) return false
 
-  const ret = svdata.hasAirbase(props.area_id, props.area_no)
+  const ret = svdata.hasAirbase(props.areaId, props.areaNo)
   debug(
     'hasAirbase:',
-    props.area_id,
-    props.area_no,
+    props.areaId,
+    props.areaNo,
     ret,
     'spot loaded:',
     target_spot_loaded.value,
     target_spot_invoked.value
   )
-  if (ret && !target_spot_loaded.value) {
-    if (!target_spot_invoked.value) {
-      target_spot_invoked.value = true
-      window.api.getAirbaseSpots(props.area_id, props.area_no).then((spots: AirbaseTargetSpots) => {
-        debug(MainChannel.get_airbase_spots, area_id_no.value, spots)
-        target_label.value = [spots[0][0], spots[1][0], spots[2][0]] as [string, string, string]
-        target_spot_loaded.value = true
-      }).catch(() => {
-        //target_spot_loaded.value = true
-        debug(
-          MainChannel.get_airbase_spots,
-          area_id_no.value,
-          'failed to get airbase spots'
-        )
-      })
-    }
-  }
+
   return ret
 })
 
+/*
+watch(
+  hasAirbase,
+  async (hasAirbase): Promise<void> => {
+    if (
+      !hasAirbase ||
+      target_spot_loaded.value ||
+      target_spot_invoked.value
+    ) {
+      return
+    }
+
+    target_spot_invoked.value = true
+
+    try {
+      const spots = await window.api.getAirbaseSpots(
+        props.area_id,
+        props.area_no
+      )
+
+      target_label.value = [
+        spots[0][0],
+        spots[1][0],
+        spots[2][0]
+      ]
+      target_spot_loaded.value = true
+    } catch (err) {
+      debug(
+        'get_airbase_spots',
+        area_id_no.value,
+        'failed to get airbase spots',
+        err
+      )
+    }
+  },
+  { immediate: true }
+)
+*/
+
 const mapinfo = computed<ApiMapInfo | undefined>(() =>
-  svdata.mapinfoFrom(props.area_id, props.area_no)
+  svdata.mapinfoFrom(props.areaId, props.areaNo)
 )
 
 const hasGauge = computed<boolean>(() => {
   if (isEventMap.value) return true
   if (mapinfo.value) return typeof mapinfo.value.api_cleared === 'number'
-  return GaugeAreaNo[props.area_id].includes(props.area_no)
+  return GaugeAreaNo[props.areaId].includes(props.areaNo)
 })
 
 const isCleared = computed<boolean>(() => {
@@ -1096,7 +1136,7 @@ const mepGaugeText = computed<string>(() => {
 })
 
 const mapAirBaseStyle = computed<string>(() => {
-  if (props.area_id === 7 && props.area_no === 4) {
+  if (props.areaId === 7 && props.areaNo === 4) {
     return `--left: 10px; --top: 170px;`
   }
   return ''
@@ -1113,22 +1153,22 @@ const isShowEventMapLos = computed<boolean>(() => {
 
 const isEventMapLosRightBottom = computed<boolean>(() => {
   if (!isEventMap.value) return false
-  return props.area_id === 62 && props.area_no === 5
+  return props.areaId === 62 && props.areaNo === 5
 })
 
 const isEventMapLosLeftTop = computed<boolean>(() => {
   if (!isEventMap.value) return false
-  return props.area_id === 62 && props.area_no === 4
+  return props.areaId === 62 && props.areaNo === 4
 })
 
 const isMapGuageRightBottom = computed<boolean>(() => {
   if (!isEventMap.value) return false
-  return props.area_id === 62 && props.area_no === 5
+  return props.areaId === 62 && props.areaNo === 5
 })
 
 const isMapGuageLeftTop = computed<boolean>(() => {
   if (!isEventMap.value) return false
-  return props.area_id === 62 && props.area_no === 4
+  return props.areaId === 62 && props.areaNo === 4
 })
 
 const getDeckMapLos = (deckId: ApiDeckPortId): string => {
@@ -1153,7 +1193,7 @@ const deck3MapLos = computed<string>(() => {
 })
 
 const isAirBaseEnable = (rid: ApiRID): boolean => {
-  const airbase = svdata.airbase(props.area_id)?.find((el) => el.api_rid === rid)
+  const airbase = svdata.airbase(props.areaId)?.find((el) => el.api_rid === rid)
   return !!airbase
 }
 
@@ -1162,7 +1202,7 @@ const isAirBase2Enable = computed<boolean>(() => isAirBaseEnable(ApiRID.rid2))
 const isAirBase3Enable = computed<boolean>(() => isAirBaseEnable(ApiRID.rid3))
 
 const airbaseText = (rid: ApiRID, prefix: string): string => {
-  const airbase = svdata.airbase(props.area_id)?.find((el) => el.api_rid === rid)
+  const airbase = svdata.airbase(props.areaId)?.find((el) => el.api_rid === rid)
   if (!airbase) return '-'
   const stateText = getAirBaseActionKindText(airbase.api_action_kind)
   const aa = svdata.airbaseSeiku(airbase)
@@ -1197,8 +1237,9 @@ const deckCombinedYusou = computed<string>(() => {
   
   const yusouTotal = svdata.deckYusou(deck1) + svdata.deckYusou(deck2)
   return `${yusouTotal}/${ Math.floor(yusouTotal * 0.7) }`
-})
+});
 
+/*
 function onChangeAirbaseSpot(value: boolean): void {
   debug('onChangeAirbaseSpot', value, target_label.value)
   const arg: AirbaseSpot = {
@@ -1212,11 +1253,12 @@ function onChangeAirbaseSpot(value: boolean): void {
   } as any
   window.api.setAirbaseSpots(arg)
 }
+*/
 
 // ----------------------------------------------------------------------------------
 // initialize
 (() => {
-  mapInfoCache.get(props.area_id, props.area_no)
+  mapInfoCache.get(props.areaId, props.areaNo)
     .then((info) => {
       debug('cell info async returned', info)
       Object.assign(cell_info, info)
@@ -1235,7 +1277,7 @@ function onChangeAirbaseSpot(value: boolean): void {
 <template>
   <div v-if="isDataOk">
     <div ref="mapEl" class="map">
-      <MapImg :area_id="area_id" :area_no="area_no" />
+      <MapImg :area_id="areaId" :area_no="areaNo" />
       <div v-for="(spot, index) in enemySpots" :key="index">
         <div :class="spot.seikuClass" :style="spot.spotXY">
           <div v-if="spot.airbase !== undefined" class="spot-airbases">
