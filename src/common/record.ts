@@ -64,6 +64,17 @@ export type Insert =
   InsertDocT<typeof DbName.clearitemget, ClearItemGetRecord>
 ;
 
+export type InsertRecord =
+  ItemRecord[] |
+  ShipRecord |
+  RemodelRecord |
+  MissionRecord |
+  PortRecord |
+  MissionRecord |
+  DropRecord |
+  BattleRecord |
+  ClearItemGetRecord;
+
 export type Query = 
   PortRecordQuery | 
   MissionRecordQuery | 

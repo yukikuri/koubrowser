@@ -6,7 +6,7 @@ import { ApiEventId, ApiItemId, KcsUtil } from '@common/kcs'
 import { getAirSearchResultText, MapLvText } from '@common/locale'
 import BattleHistoryArea from '@renderer/components/BattleHistoryArea.vue'
 import { svdata } from '@renderer/store/svdata'
-import { computed, nextTick, onMounted, onUnmounted, ref, toRaw, watch } from 'vue'
+import { computed, ComputedRef, nextTick, onMounted, onUnmounted, Ref, ref, toRaw, watch } from 'vue'
 import { BattleAreaInfo } from '@renderer/common/battle-area'
 import { CellInfo, CommonMap } from '@common/map'
 import { mapInfoCache } from '@renderer/common/mapinfo'
@@ -109,7 +109,13 @@ const filterStartMinDate = ref<Date | null>(null);
 const filterStartDate = ref<Date | null>(null);
 const filterEndDate = ref<Date | null>(null);
 
-const yearHolder = () => {
+type YearHolder = {
+  year: Ref<number>
+  isYearMin: ComputedRef<boolean>
+  isYearMax: ComputedRef<boolean>
+}
+
+const yearHolder = (): YearHolder => {
   const year = ref(new Date().getFullYear());
   const isYearMin = computed((): boolean => {
     if (! filterStartMinDate.value) {
@@ -173,7 +179,7 @@ function setAccent(row: BattleTableData | null, rowOld: BattleTableData | null):
     return findDetailRow(el.parentElement);
   };
 
-  const setRowAccent = (row: BattleTableData, set: boolean) => {
+  const setRowAccent = (row: BattleTableData, set: boolean): void => {
     const el = findRow(document.querySelector('span#'+ROW_ID_PREFIX+row.detailKey))
     if (el) {
       const cls = 'is-accent';
@@ -185,7 +191,7 @@ function setAccent(row: BattleTableData | null, rowOld: BattleTableData | null):
     }
   };
 
-  const setDetailRowAccent = (row: BattleTableData, set: boolean) => {
+  const setDetailRowAccent = (row: BattleTableData, set: boolean): void => {
     const el = findDetailRow(document.querySelector('div#'+DETAIL_ROW_ID_PREFIX+row.detailKey))
     if (el) {
       const cls = 'is-accent';
@@ -401,23 +407,33 @@ async function fetchRecentRecords(): Promise<BattleRecord[]> {
       maxDate = toRecordDate(endDate)
     }    
 
+    type BattleHistoryFind = {
+      mapId?: number
+      date?: {
+        $gte?: string
+        $lte?: string
+      }
+    }
+    const find: BattleHistoryFind = {}
+
+    if (mapId !== undefined) {
+      find.mapId = mapId;
+    }
+    if (minDate !== undefined || maxDate !== undefined) {
+      find.date = {};
+      if (minDate !== undefined) {
+        find.date.$gte = minDate;
+      }
+      if (maxDate !== undefined) {
+        find.date.$lte = maxDate;
+      }
+    }
+
     const query = {
       dbName: DbName.battle,
       sort: { date: -1 },
       limit: filterLimit.value*10,
-      find: { }
-    }
-    if (mapId !== undefined) {
-      (query.find as any).mapId = mapId;
-    }
-    if (minDate !== undefined || maxDate !== undefined) {
-      (query.find as any).date = {};
-      if (minDate !== undefined) {
-        (query.find as any).date.$gte = minDate;
-      }
-      if (maxDate !== undefined) {
-        (query.find as any).date.$lte = maxDate;
-      }
+      find
     }
 
     window.api.queryDb(query).then((queryReturn) => {
@@ -871,11 +887,11 @@ const helpText = computed<string>(() => {
         <b-button 
           size="is-small" 
           outlined 
+          :class="{ 'is-active': showReports }"
           @click="() => {
             showReports = !showReports; 
             sesStorage.setBoolean(SessionStorageKeyName.BattleHistoryShowReports, showReports)
-          }" 
-          :class="{ 'is-active': showReports }">
+          }">
           <ReportsImage /><span class="button-text">セル状況表示</span></b-button>
       </div>
     </div>
@@ -894,7 +910,8 @@ const helpText = computed<string>(() => {
       <b-field class="inputs" grouped multiline>
         <label class="input-area">
           <div class="filter-label">海域</div>
-          <b-select v-model="filterMapId" size="is-small" :placeholder="filterMapIdPlaceholder"
+          <b-select 
+            v-model="filterMapId" size="is-small" :placeholder="filterMapIdPlaceholder"
             @change="onChangeFilterMapId"
             >
             <option :value="null" selected>未選択</option>
@@ -972,25 +989,26 @@ const helpText = computed<string>(() => {
             <span class="used-unit">
               <span class="s-icon bull"></span><span class="value">{{ toNumber(totalUsed.bull) }}</span>
             </span>
-            <span class="used-unit" v-if="totalUsed.buxite != undefined">
+            <span v-if="totalUsed.buxite != undefined" class="used-unit">
               <span class="s-icon buxite"></span><span class="value">{{ toNumber(totalUsed.buxite) }}</span>
             </span>
           </span>
-          <span class="total-get-items" v-if="totalGetItems.length > 0">獲得合計: 
+          <span v-if="totalGetItems.length > 0" class="total-get-items">獲得合計: 
             <template 
               v-for="(item, item_index) in totalGetItems" 
-              :key="`totalgetitem-${item_index}`"><span :class="['s-icon', { 
-                  fuel: item.itemId === ApiItemId.fual,
-                  bull: item.itemId === ApiItemId.ammo,
-                  steel: item.itemId === ApiItemId.steel,
-                  buxite: item.itemId === ApiItemId.buxite,
-                  'fast-repair': item.itemId === ApiItemId.fast_repair,
-                  'fast-build': item.itemId === ApiItemId.fast_build,
-                  'build-kit': item.itemId === ApiItemId.build_kit,
-                  'kagu-small': item.itemId === ApiItemId.kagu_small,
-                  'kagu-medium': item.itemId === ApiItemId.kagu_middle,
-                  'kagu-large': item.itemId === ApiItemId.kagu_large,
-                }]">+{{ item.itemCount }}</span></template></span>
+              :key="`totalgetitem-${item_index}`"><span 
+                :class="['s-icon', { 
+                fuel: item.itemId === ApiItemId.fual,
+                bull: item.itemId === ApiItemId.ammo,
+                steel: item.itemId === ApiItemId.steel,
+                buxite: item.itemId === ApiItemId.buxite,
+                'fast-repair': item.itemId === ApiItemId.fast_repair,
+                'fast-build': item.itemId === ApiItemId.fast_build,
+                'build-kit': item.itemId === ApiItemId.build_kit,
+                'kagu-small': item.itemId === ApiItemId.kagu_small,
+                'kagu-medium': item.itemId === ApiItemId.kagu_middle,
+                'kagu-large': item.itemId === ApiItemId.kagu_large,
+              }]">+{{ item.itemCount }}</span></template></span>
         </span>
       </div>
     </div>
@@ -998,8 +1016,9 @@ const helpText = computed<string>(() => {
     <!--
       出撃履歴
     -->
-    <div class="battle-history-table" ref="tableEl">
+    <div ref="tableEl" class="battle-history-table">
       <b-table
+        v-model:selected="selected"
         :data="datas"
         :paginated="false"
         :show-detail-icon="false"
@@ -1011,11 +1030,10 @@ const helpText = computed<string>(() => {
         detailed
         detail-key="detailKey"
         :opened-detailed="openDetailedDatas"
-        v-model:selected="selected"
-        @select="onSelect"
         :height="listHeight"
-        icon-pack="fa"
         :row-class="rowClass"
+        icon-pack="fa"
+        @select="onSelect"
       >
         <b-table-column centered header-class="battle-area" cell-class="battle-area">
           <template #header>
@@ -1044,18 +1062,19 @@ const helpText = computed<string>(() => {
             <span>{{ routeText(props.row) }} </span><span 
               v-if="props.row.areaGetItems.length > 0" class="area-get-items"><template 
                 v-for="(item, item_index) in props.row.areaGetItems" 
-                :key="`areagetitem-${item_index}`"><span :class="['s-icon', { 
-                  fuel: item.itemId === ApiItemId.fual,
-                  bull: item.itemId === ApiItemId.ammo,
-                  steel: item.itemId === ApiItemId.steel,
-                  buxite: item.itemId === ApiItemId.buxite,
-                  'fast-repair': item.itemId === ApiItemId.fast_repair,
-                  'fast-build': item.itemId === ApiItemId.fast_build,
-                  'build-kit': item.itemId === ApiItemId.build_kit,
-                  'kagu-small': item.itemId === ApiItemId.kagu_small,
-                  'kagu-medium': item.itemId === ApiItemId.kagu_middle,
-                  'kagu-large': item.itemId === ApiItemId.kagu_large,
-                }]">+{{ item.itemCount }}<span 
+                :key="`areagetitem-${item_index}`"><span 
+                  :class="['s-icon', { 
+                    fuel: item.itemId === ApiItemId.fual,
+                    bull: item.itemId === ApiItemId.ammo,
+                    steel: item.itemId === ApiItemId.steel,
+                    buxite: item.itemId === ApiItemId.buxite,
+                    'fast-repair': item.itemId === ApiItemId.fast_repair,
+                    'fast-build': item.itemId === ApiItemId.fast_build,
+                    'build-kit': item.itemId === ApiItemId.build_kit,
+                    'kagu-small': item.itemId === ApiItemId.kagu_small,
+                    'kagu-medium': item.itemId === ApiItemId.kagu_middle,
+                    'kagu-large': item.itemId === ApiItemId.kagu_large,
+                  }]">+{{ item.itemCount }}<span 
                   v-if="item.showAirSearchResult"
                   :class="{
                     'is-failed': item.airsearchResult === 0,
@@ -1079,7 +1098,7 @@ const helpText = computed<string>(() => {
               <span class="used-unit">
                 <span class="s-icon bull"></span><span class="value">{{ toNumber(props.row.used.bull) }}</span>
               </span>
-              <span class="used-unit" v-if="props.row.used.buxite != undefined">
+              <span v-if="props.row.used.buxite != undefined" class="used-unit">
                 <span class="s-icon buxite"></span><span class="value">{{ toNumber(props.row.used.buxite) }}</span>
               </span>
             </div>
@@ -1087,47 +1106,50 @@ const helpText = computed<string>(() => {
         </b-table-column>
 
         <template #detail="props">
-          <div class="detail-content" 
+          <div 
             :id="DETAIL_ROW_ID_PREFIX+props.row.detailKey"
+            class="detail-content" 
             :onClick="() => onDetailClick(props.row)"
           >
           <template v-for="(sr, index) in props.row.header.ships1" :key="`detail-${index}`">
           <div class="ship-detail">
               <div class="ship-header">Lv{{ sr.lv }} {{ shipNameFromId(sr.shipId) }}</div>
-              <div class="ship-img-slots" v-if="props.row.isAccent">
+              <div v-if="props.row.isAccent" class="ship-img-slots">
                 <div class="moreslot-container">
                   <ShipBanner :mst_id="sr.shipId" />
                   <div v-if="hasMoreSlots(sr)" class="ship-slots more">
-                    <SlotItemForRecord v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :slotitem="moreslot"
-                      :key="`moreslot-${moreslot_index}`" />
+                    <SlotItemForRecord 
+                      v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :key="`moreslot-${moreslot_index}`"
+                      :slotitem="moreslot"/>
                   </div>
                 </div>
-                <div class="ship-slots" v-if="getSlots(sr).length > 0">
-                  <SlotItemForRecord v-for="(slot, slot_index) in getSlots(sr)" :slotitem="slot"
-                    :key="`slot-${slot_index}`" />
+                <div v-if="getSlots(sr).length > 0" class="ship-slots">
+                  <SlotItemForRecord 
+                    v-for="(slot, slot_index) in getSlots(sr)" :key="`slot-${slot_index}`" :slotitem="slot" />
                 </div><div v-else class="ship-slots no-slot"><SlotItemForRecord :slotitem="null"/></div>
               </div>
             </div>
             </template>
             <template 
-              v-if="props.row.header.ships2 && props.row.header.ships2.length > 0"
-              v-for="(sr, index) in props.row.header.ships2" :key="`detail2-${index}`">
-            <div class="ship-detail">
-              <div class="ship-header">Lv{{ sr.lv }} {{ shipNameFromId(sr.shipId) }}</div>
-              <div class="ship-img-slots" v-if="props.row.isAccent">
-                <div class="moreslot-container">
-                  <ShipBanner :mst_id="sr.shipId" />
-                  <div v-if="hasMoreSlots(sr)" class="ship-slots more">
-                    <SlotItemForRecord v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :slotitem="moreslot"
-                      :key="`moreslot-${moreslot_index}`" />
+              v-for="(sr, index) in props.row.header.ships2 ?? []" :key="`detail2-${index}`">
+              <div class="ship-detail">
+                <div class="ship-header">Lv{{ sr.lv }} {{ shipNameFromId(sr.shipId) }}</div>
+                <div v-if="props.row.isAccent" class="ship-img-slots">
+                  <div class="moreslot-container">
+                    <ShipBanner :mst_id="sr.shipId" />
+                    <div v-if="hasMoreSlots(sr)" class="ship-slots more">
+                      <SlotItemForRecord 
+                        v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :key="`moreslot-${moreslot_index}`"
+                        :slotitem="moreslot"/>
+                    </div>
+                  </div>
+                  <div class="ship-slots">
+                    <SlotItemForRecord 
+                      v-for="(slot, slot_index) in getSlots(sr)" :key="`slot-${slot_index}`" 
+                      :slotitem="slot"/>
                   </div>
                 </div>
-                <div class="ship-slots">
-                  <SlotItemForRecord v-for="(slot, slot_index) in getSlots(sr)" :slotitem="slot"
-                    :key="`slot-${slot_index}`" />
-                </div>
               </div>
-            </div>
             </template>
           </div>
         </template>

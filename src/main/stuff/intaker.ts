@@ -7,7 +7,7 @@ import { Env } from "@common/env";
 // debug
 const DEBUG = false;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[Intake]", ...args);
 };
 
@@ -168,7 +168,7 @@ export class Intaker {
         // reschedule
         this.setIntakeSchedule();
       }
-    }).catch((error: any) => {
+    }).catch((error) => {
       // network or other error
       debug('Intaker dropData error:', error);
 
@@ -224,7 +224,7 @@ export class Intaker {
         drop(this.intaking).then((responses: dropResponse) => {
           debug('Intaker dropData responses status on quit:', responses.status);
           resolve();
-        }).catch((error: any) => {
+        }).catch((error) => {
           debug('Intaker dropData error on quit:', error);
           resolve();
         });

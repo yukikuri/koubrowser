@@ -388,7 +388,7 @@ abstract class QuestUpdaterImplDB extends QuestUpdater {
         doUpdate({ no }, doc, options, updateLog)
       }
       console.log('quest updater impl db set record', doc)
-      console.log('quest updater impl db set record', doc.state)
+      console.log('quest updater impl db set record', doc?.state)
       this.apiData = true
       this.record = doc
       this.updated(this)

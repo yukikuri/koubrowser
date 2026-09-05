@@ -1,4 +1,4 @@
-import type { Query, DbName, Insert, Update, Remove, UpdateRes, Operation } from '@common/record'
+import type { Query, DbName, Insert, Update, Remove, UpdateRes, Operation, InsertRecord } from '@common/record'
 import NeDB from 'nedb'
 import path from 'node:path'
 
@@ -34,7 +34,7 @@ export class DbStuff {
    * @param userDir 
    * @param dbs 
    */
-  load(userDir: string, dbs: DbName[], cb: (results: {name: DbName, err: any}[]) => void) {
+  load(userDir: string, dbs: DbName[], cb: (results: {name: DbName, err: Error | null | undefined}[]) => void): void {
     const openDb = (name: DbName): NeDB => {
       const db = new NeDB({filename: path.join(userDir, name+'.db')})
       db.loadDatabase((err: Error | null) => {
@@ -69,13 +69,13 @@ export class DbStuff {
    * @param doc 
    * @returns 
    */
-  insert(doc: Insert): Promise<any> {
+  insert(doc: Insert): Promise<InsertRecord> {
     const db = this.dbs.get(doc.dbName)
     return new Promise((resolve, reject) => {
       if (! db) {
         return reject(new Error('DB not found: ' + doc.dbName))
       }
-      db.insert(doc.record, (err: Error | null, newDoc: any) => {
+      db.insert(doc.record, (err: Error | null, newDoc) => {
         if (err) {
           return reject(err)
         } else {
@@ -90,14 +90,14 @@ export class DbStuff {
    * @param query
    * @returns 
    */
-  query(query: Query): Promise<any[]> {
+  query<T>(query: Query): Promise<T[]> {
     return new Promise((resolve, reject) => {
       const db = this.dbs.get(query.dbName)
       if (! db) {
         return reject(new Error('DB not found: ' + query.dbName))
       }
 
-      const find = db.find(query.find ?? {}, query.projection as any)
+      const find = db.find(query.find ?? {}, query.projection)
       if (query.limit) {
         find.limit(query.limit)
       }
@@ -106,7 +106,7 @@ export class DbStuff {
       }
       const counter = this.uniqueCounter++
       console.time('handle query ' + query.dbName + ' #' + counter)
-      find.exec((err, docs: any[]): void => {
+      find.exec((err, docs: T[]): void => {
         console.timeEnd('handle query ' + query.dbName + ' #' + counter)
         console.log('found docs:', query.dbName, 'count:', docs.length)
         if (err) {
@@ -123,7 +123,7 @@ export class DbStuff {
    * @param query
    * @returns 
    */
-  queryOne(query: Query): Promise<any> {
+  queryOne<T>(query: Query): Promise<T> {
     const db = this.dbs.get(query.dbName)
     return new Promise((resolve, reject) => {
       if (! db) {
@@ -132,7 +132,7 @@ export class DbStuff {
       const counter = this.uniqueCounter++
       console.time('handle query one ' + query.dbName + ' #' + counter)
       //db.findOne(query.find_param ?? {}, query.projection as any, (err, doc: any): void => {
-      db.findOne(query.find ?? {}, (err, doc: any): void => {
+      db.findOne(query.find ?? {}, (err, doc: T): void => {
         console.timeEnd('handle query one ' + query.dbName + ' #' + counter)
         console.log('found docs:', query.dbName, 'ok:', !!doc)
         if (err) {
