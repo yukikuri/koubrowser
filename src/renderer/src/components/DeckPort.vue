@@ -147,7 +147,7 @@ const combinedName = computed<string>(() => {
         </b-tab-item>
       </b-tabs>
       <section class="deck-world">
-        <World :deck_index="index" />
+        <World :deck-index="index" />
       </section>
     </b-tooltip>
   </div>
