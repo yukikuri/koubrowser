@@ -47,11 +47,18 @@ function getBattleTabIndex(): number {
     debug('areas select tab: not in map')
     return 0
   }
+
   const map_start = svdata.mapStart
   if (! map_start) {
     debug('areas select tab: no map start data')
     return 0
   }
+
+  if (map_start.api_maparea_id !== props.areaId) {
+    debug('areas select tab: map start area id mismatch', map_start.api_maparea_id, props.areaId)
+    return 0
+  }  
+
   const ret = map_start.api_mapinfo_no - 1
   if (ret < 0) {
     return 0
