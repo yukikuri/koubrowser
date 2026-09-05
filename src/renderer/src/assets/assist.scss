@@ -2383,6 +2383,10 @@ $tkbar-width: 445px; //$assist-width - $tkbar-title-width;
     .areas-indicator {
       padding-bottom: 4px;
       padding-top: 4px;
+      &.is-locked {
+        padding-bottom: 3px;
+        padding-top: 3px;
+      }
     }
   }
 
