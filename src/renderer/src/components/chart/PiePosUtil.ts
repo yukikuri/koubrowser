@@ -329,6 +329,7 @@ const fixPiePosAreaMap: FixPiePosAreaMap = new Map([
     {
       isSmall: true,
       cells: new Map([
+        [1, { modX: 70, modY: 25 }],
         [2, { modX: 5, modY: 45 }],
         [3, { modX: 5, modY: 45 }],
         [6, { modX: 5, modY: 45 }],
@@ -342,6 +343,7 @@ const fixPiePosAreaMap: FixPiePosAreaMap = new Map([
         [27, { modX: 60, modY: 25 }],
         [30, { modX: 10, modY: 5 }],
         [38, { modX: 5, modY: 40 }],
+        [40, { modX: 5, modY: 40 }],
         [41, { modX: 10, modY: 50 }],
         [43, { modX: 60, modY: 25 }]
       ])
