@@ -83,7 +83,7 @@ function indicatorClick(event: Event): void {
       </template>
     </b-carousel>
     <div class="drop-history-cell-container">
-      <DropHistoryCell :area_id="areaId" :area_no="areaNo" :selected_spot="selected_spot" />
+      <DropHistoryCell :area-id="areaId" :area-no="areaNo" :selected-spot="selected_spot" />
     </div>
   </div>
 </template>
