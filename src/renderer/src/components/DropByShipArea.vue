@@ -64,20 +64,6 @@ interface CellDropTableData {
 const datas = ref<CellDropTableData[]>([])
 const totalRowId = -3;
 
-const getRankText = (counts: RankDropCounts): string => {
-  const ret: string[] = []
-  if (counts[RankDropCountIndex.S]) {
-    ret.push('S');
-  }
-  if (counts[RankDropCountIndex.A]) {
-    ret.push('A');
-  }
-  if (counts[RankDropCountIndex.B]) {
-    ret.push('B');
-  }
-  return ret.length > 0 ? ret.join(' ') : '-'
-}
-
 const calcPercent = (data: CellDropTableData, total: number): number => {
   const percent = (data.count / total) * 100;
   return Math.round(percent * 100) / 100;
@@ -102,7 +88,7 @@ function scrollSelectedIntoView(): void {
   });
 }
 
-function updateTableDatas(drops: AggregatedShipDrop[]) {
+function updateTableDatas(drops: AggregatedShipDrop[]): void {
   type DataType = (typeof datas.value)[number];
   const newList: DataType[]= [];
   const totalCounts: RankDropCounts = [0, 0, 0];
@@ -326,13 +312,13 @@ const locationStyle = computed<string>(() => {
           :style="spotXY"
       ></div>
       <transition name="scale-effect" appear>
-        <div class="location-image" v-if="isLocatonVisible" :style="locationStyle">
+        <div v-if="isLocatonVisible" class="location-image" :style="locationStyle">
           <LocationImage />
         </div>  
       </transition>
       <div 
-        ref="elSpotTable"
         v-if="isTableOk"
+        ref="elSpotTable"
         class="spot-table"
         :style="spotTableStyle"
         >
@@ -353,13 +339,14 @@ const locationStyle = computed<string>(() => {
             <template #header>
               <span>艦名</span>
             </template>
-            <template #default="props">
-              <span :class="{
-                'is-rare': isShipRare(props.row.backs), 
-                'is-unique': isShipUnique(props.row.backs),
-                'is-hilight': props.row.isHilight
+            <template #default="slotProps">
+              <span 
+                :class="{
+                  'is-rare': isShipRare(slotProps.row.backs), 
+                  'is-unique': isShipUnique(slotProps.row.backs),
+                  'is-hilight': slotProps.row.isHilight
               }"
-              >{{ props.row.shipName }}</span>
+              >{{ slotProps.row.shipName }}</span>
             </template>
           </b-table-column>
 
@@ -367,8 +354,8 @@ const locationStyle = computed<string>(() => {
             <template #header>
               <span>確率</span>
             </template>
-            <template #default="props">
-              <span v-if="props.row.rate >= 0">{{ props.row.rate }}%</span>
+            <template #default="slotProps">
+              <span v-if="slotProps.row.rate >= 0">{{ slotProps.row.rate }}%</span>
             </template>
           </b-table-column>
 
@@ -376,8 +363,8 @@ const locationStyle = computed<string>(() => {
             <template #header>
               <span>ドロップ数</span>
             </template>
-            <template #default="props">
-              <span>S:{{ props.row.counts[RankDropCountIndex.S] }} A:{{ props.row.counts[RankDropCountIndex.A] }} B:{{ props.row.counts[RankDropCountIndex.B] }}</span>
+            <template #default="slotProps">
+              <span>S:{{ slotProps.row.counts[RankDropCountIndex.S] }} A:{{ slotProps.row.counts[RankDropCountIndex.A] }} B:{{ slotProps.row.counts[RankDropCountIndex.B] }}</span>
             </template>
           </b-table-column>
 

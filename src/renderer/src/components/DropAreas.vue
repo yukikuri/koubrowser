@@ -68,9 +68,9 @@ function indicatorClick(event: Event): void {
       <b-carousel-item v-for="(area_no, index) in areaNos" :key="index">
         <DropArea
           v-if="area_index === index"
-          v-model:selected_spot="selected_spot"
-          :area_id="areaId"
-          :area_no="area_no"
+          v-model:selected-spot="selected_spot"
+          :area-id="areaId"
+          :area-no="area_no"
         />
       </b-carousel-item>
       <template #indicators="slotProps">

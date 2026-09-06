@@ -13,12 +13,16 @@ const isLocatonVisible = ref(false)
 
 /////////////////////////////////////////////////////////////////////////////////////
 // props & emits (v-model:selected_spot)
-const props = defineProps<{ area_id: number; area_no: number; selected_spot: Spot | null }>()
-const emit = defineEmits<{ (e: 'update:selected_spot', value: Spot | null): void }>()
+const props = defineProps<{ 
+  areaId: number; 
+  areaNo: number; 
+  selectedSpot: Spot | null 
+}>()
+const emit = defineEmits<{ (e: 'update:selected-spot', value: Spot | null): void }>()
 
 const selected_spot = computed<Spot | null>({
-  get: () => props.selected_spot,
-  set: (val) => emit('update:selected_spot', val)
+  get: () => props.selectedSpot,
+  set: (val) => emit('update:selected-spot', val)
 })
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +41,7 @@ interface SpotPie {
 
 const spotPies = ref<SpotPie[]>([])
 const pieHeight = ref(90)
-const pieIsSmall = PiePosUtil.isSmallPie(props.area_id, props.area_no)
+const pieIsSmall = PiePosUtil.isSmallPie(props.areaId, props.areaNo)
 
 const MAP_RATIO = 0.5
 const ratio = (v: number): number => {
@@ -48,7 +52,7 @@ const ratio = (v: number): number => {
 const cell_info = reactive<CellInfo>({ spots: [], checks: [] })
 const active_cell = ref<HTMLElement | null>(null)
 
-const isEventMap = computed<boolean>(() => props.area_id > 40)
+const isEventMap = computed<boolean>(() => props.areaId > 40)
 
 const dropSpots = ref<AreaSpot[]>([])
 
@@ -92,7 +96,7 @@ function pieXYWH(spot: Spot): string {
   const diff = spot.type === 'boss' ? -70 : -70
   let diffX = 0
   let diffY = 0
-  const fixPos = PiePosUtil.getFixPiePos(props.area_id, props.area_no, spot.no)
+  const fixPos = PiePosUtil.getFixPiePos(props.areaId, props.areaNo, spot.no)
   if (fixPos) {
     diffX = fixPos.modX
     diffY = fixPos.modY
@@ -165,24 +169,24 @@ const locationStyle = computed<string>(() => {
 /////////////////////////////////////////////////////////////////////////////////////
 //
 onMounted(() => {
-  console.log('drop area mounted', props.area_id, props.area_no)
+  console.log('drop area mounted', props.areaId, props.areaNo)
 })
 
 onUnmounted(() => {
-  console.log('drop area destroyed', props.area_id, props.area_no)
+  console.log('drop area destroyed', props.areaId, props.areaNo)
 })
 
 // -----------------------------------------------------------------
 // initialize
 ;(() => {
   mapInfoCache
-    .get(props.area_id, props.area_no)
+    .get(props.areaId, props.areaNo)
     .then((info) => {
       console.log('cell info async returned', info)
       Object.assign(cell_info, info)
 
       window.api
-        .aggregateCellRank(props.area_id, props.area_no)
+        .aggregateCellRank(props.areaId, props.areaNo)
         .then((datas) => {
           console.log('aggregate drop by area returned:', datas)
           setPies(datas)
@@ -194,7 +198,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="drop-area map">
-    <MapImg :area_id="area_id" :area_no="area_no" />
+    <MapImg :area_id="areaId" :area_no="areaNo" />
     <a
       v-for="(spot, index) in dropSpots"
       :key="`enemy${index}`"
@@ -210,7 +214,7 @@ onUnmounted(() => {
       class="rankpie-container"
       :style="spotPie.pieXYWH"
     >
-      <RankPie :seriesData="spotPie.datas" :height="pieHeight" :isSmall="pieIsSmall" />
+      <RankPie :series-data="spotPie.datas" :height="pieHeight" :is-small="pieIsSmall" />
     </div>
     <transition name="scale-effect" appear>
       <div v-if="isLocatonVisible" class="location-image" :style="locationStyle">

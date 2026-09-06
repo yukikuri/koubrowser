@@ -13,7 +13,7 @@ const pieHeight = 90;
 const chartEl = ref<HTMLElement | null>(null);
 let chart: Highcharts.Chart | null = null;
 
-function createChart() {
+function createChart(): void {
   if (!chartEl.value) return;
   chart = Highcharts.chart({
     chart: {
