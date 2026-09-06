@@ -453,18 +453,25 @@ const currentPosStyle = computed<LocationStyle>(() => {
 })
 
 watch(
-  () => !home_location_setted.value && cell_info.spots.length > 0,
-  (needsUpdate, _previous, onCleanup): void => {
+  [
+    () => inArea.value && cell_info.spots.length > 0,
+    currentPosKey
+  ],
+  ([needsUpdate], _previous, onCleanup): void => {
+    debug('watch: home_location_setted:', 
+      home_location_setted.value, 'cell_info.spots.length:', cell_info.spots.length, 'needsUpdate:', needsUpdate)
+
     if (!needsUpdate) return
 
     const timer = setTimeout(() => {
+      debug('watch: set home location')
       home_location_setted.value = true
     }, 100)
 
     // 条件が変わった場合やアンマウント時にタイマーを解除する
     onCleanup(() => clearTimeout(timer))
   },
-  { immediate: true }
+  { immediate: false }
 )
 
 function onPort(): void {
