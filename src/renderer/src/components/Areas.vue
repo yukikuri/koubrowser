@@ -11,7 +11,7 @@ import { Env } from '@common/env'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = false;
+const DEBUG = 0;
 
 const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[Areas]", ...args);
@@ -178,11 +178,11 @@ function lockClick(event: Event): void {
     </b-carousel>
     <div class="areas-cell-enemies">
       <CellEnemies
-        :area_id="areaId"
-        :area_no="areaNo"
-        :selected_label="selected_label"
-        :deck_index="deckIndex"
-        :single_row="singleRow"
+        :area-id="areaId"
+        :area-no="areaNo"
+        :selected-label="selected_label"
+        :deck-index="deckIndex"
+        :single-row="singleRow"
       />
     </div>
   </div>

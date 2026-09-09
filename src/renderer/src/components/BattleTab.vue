@@ -16,11 +16,12 @@ function onTabChange(valueNew: number): void {
 <template>
   <div class="battlescore-history-root">
     <b-tabs 
+      v-model="index" 
       type="is-toggle" 
       size="is-small" class="select-tabs" expanded 
-      v-model="index" 
-      @update:modelValue="onTabChange"
-      destroy-on-hide>
+      destroy-on-hide
+      @update:model-value="onTabChange"
+    >
       <b-tab-item label="戦果">
         <BattleScore />
       </b-tab-item>

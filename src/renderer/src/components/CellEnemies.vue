@@ -10,7 +10,7 @@ import { mapInfoCache } from '@renderer/common/mapinfo'
 
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[CellEnemies]", ...args);
 };
 
@@ -22,15 +22,15 @@ interface EnemyTabItem {
 
 const props = withDefaults(
   defineProps<{
-    area_id: number
-    area_no: number
-    selected_label: string
-    deck_index?: number
-    single_row?: boolean
+    areaId: number
+    areaNo: number
+    selectedLabel: string
+    deckIndex?: number
+    singleRow?: boolean
   }>(),
   {
-    deck_index: 0,
-    single_row: false
+    deckIndex: 0,
+    singleRow: false
   }
 )
 
@@ -45,7 +45,7 @@ const isCellInfoOk = computed<boolean>(() => {
 })
 
 watch(
-  () => [props.area_id, props.area_no],
+  () => [props.areaId, props.areaNo],
   ([area_id, area_no]) => {
      mapInfoCache.get(area_id, area_no).then((info) => {
        cell_info.value = info
@@ -73,7 +73,8 @@ watch(
 )
 
 const spots = computed<Spot[]>(() => {
-  const s = CommonMap.spotsFromLevel(cell_info.value, svdata.mapLevel(props.area_id, props.area_no))
+  const s = CommonMap.spotsFromLevel(
+    cell_info.value, svdata.mapLevel(props.areaId, props.areaNo))
   const cells = s.filter((spot) => spot.type === 'enemy' || spot.type === 'boss')
   cells.sort((a, b) => {
     try {
@@ -86,7 +87,7 @@ const spots = computed<Spot[]>(() => {
   return cells
 })
 
-const isSingleRow = computed<boolean>(() => props.single_row)
+const isSingleRow = computed<boolean>(() => props.singleRow)
 
 const battleTabIndex = computed<number>(() => {
   if (!svdata.inMap) {
@@ -97,10 +98,10 @@ const battleTabIndex = computed<number>(() => {
     return -1
   }
   const map = maps[maps.length - 1]
-  if (map.api_maparea_id !== props.area_id) {
+  if (map.api_maparea_id !== props.areaId) {
     return -1
   }
-  if (map.api_mapinfo_no !== props.area_no) {
+  if (map.api_mapinfo_no !== props.areaNo) {
     return -1
   }
   const spot = CommonMap.findSpotForLabel(cell_info.value.spots, map.api_no)
@@ -111,11 +112,11 @@ const battleTabIndex = computed<number>(() => {
 })
 
 const items = computed<EnemyTabItem[]>(() => {
-  debug('cell enemies items computed >>', props.area_id, props.area_no, items_.value)
+  debug('cell enemies items computed >>', props.areaId, props.areaNo, items_.value)
   return items_.value
 })
 
-function updateItems() {
+function updateItems(): void {
   const s = spots.value
   const showAA = isSingleRow.value ? s.length <= 16 : true
   const items = s.map((el, _i) => ({
@@ -142,32 +143,32 @@ function onMapNext(): void {
   selectBattleTab()
 }
 
-debug('cell enemies setup >>', props.area_id, props.area_no)
+debug('cell enemies setup >>', props.areaId, props.areaNo)
 
 onBeforeMount(() => {
-  debug('cell enemies before mount', props.area_id, props.area_no)
+  debug('cell enemies before mount', props.areaId, props.areaNo)
 })
 
 onMounted(() => {
-  debug('cell enemies mounted', props.area_id, props.area_no)
+  debug('cell enemies mounted', props.areaId, props.areaNo)
   cb_map_start = ApiCallback.set([Api.REQ_MAP_START, () => onMapStart()])
   cb_map_next = ApiCallback.set([Api.REQ_MAP_NEXT, () => onMapNext()])
   selectBattleTab()
 })
 
 onUnmounted(() => {
-  debug('cell enemies destroyed', props.area_id, props.area_no)
+  debug('cell enemies destroyed', props.areaId, props.areaNo)
   ApiCallback.unset(cb_map_start)
   ApiCallback.unset(cb_map_next)
 })
 
 watch(
-  () => props.area_no,
+  () => props.areaNo,
   () => {
     debug(
       'cell enemies on area no changed',
-      props.area_id,
-      props.area_no,
+      props.areaId,
+      props.areaNo,
       'index:',
       index.value
     )
@@ -177,17 +178,17 @@ watch(
 )
 
 watch(
-  () => props.selected_label,
+  () => props.selectedLabel,
   () => {
     debug(
       'cell enemies selected_label changed',
-      props.area_id,
-      props.area_no,
-      props.selected_label,
+      props.areaId,
+      props.areaNo,
+      props.selectedLabel,
       'deck_index:',
-      props.deck_index
+      props.deckIndex
     )
-    const i = spots.value.findIndex((el) => el.label === props.selected_label)
+    const i = spots.value.findIndex((el) => el.label === props.selectedLabel)
     if (i >= 0) {
       index.value = i
     }
@@ -197,11 +198,14 @@ watch(
 
 <template>
   <div class="cell-enemies">
-    <b-tabs v-if="isCellInfoOk" size="is-small" expanded class="cell-enemy-tabs" v-model="index">
+    <b-tabs 
+      v-if="isCellInfoOk" 
+      v-model="index"
+      size="is-small" expanded class="cell-enemy-tabs">
       <b-tab-item
         v-for="(item, item_index) in items"
         :key="item_index"
-        headerClass="cell-enemy-tab"
+        header-class="cell-enemy-tab"
       >
         <template #header>
           <span
@@ -221,10 +225,10 @@ watch(
         </template>
         <div v-if="index === item_index">
           <CellEnemy
-            :area_id="area_id"
-            :area_no="area_no"
+            :area_id="areaId"
+            :area_no="areaNo"
             :cell_no="item.no"
-            :deck_index="deck_index"
+            :deck_index="deckIndex"
           />
         </div>
       </b-tab-item>

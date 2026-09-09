@@ -478,7 +478,7 @@ function battleSpotTitle(bs: BattleSpot): string {
 </script>
 
 <template>
-  <div class="battleshistory-area-root" ref="containerEl">
+  <div ref="containerEl" class="battleshistory-area-root">
     <!--
       マップ画像
     -->
@@ -498,8 +498,9 @@ function battleSpotTitle(bs: BattleSpot): string {
       <!--
         通過線分表示
       -->
-      <Line v-for="(line, index) in passedLines" 
-        :key="`passedLine${index}-${uuid}`"        
+      <Line 
+        v-for="(line, passedLineIndex) in passedLines" 
+        :key="`passedLine${passedLineIndex}-${uuid}`"        
         :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2" :is-animate="false"
         :color="lineColor" :dashed="false"
       />
@@ -516,26 +517,30 @@ function battleSpotTitle(bs: BattleSpot): string {
         戦闘・敵表示
       -->
       <div
-        class="reports battle-spot"
         v-if="bs.battleXY"
+        :id="bs.id"
+        class="reports battle-spot"
         :class="['ready', { enter: enter && props.showReports }]"
         :style="bs.battleXY"
-        :id="bs.id"
         :title="battleSpotTitle(bs)"
       >
         <div class="report">
-          <span class="seiku" 
+          <span 
             v-if="bs.record.seiku >= 0"
+            class="seiku" 
             :class="seikuClass(bs)"
-            >{{ getStateText(bs.record.seiku) }}</span><span class="rank" 
-            :class="{
-              rankS: bs.record.rank === 'S',
-              rankA: bs.record.rank === 'A',
-              rankB: bs.record.rank === 'B',
-              rankC: bs.record.rank === 'C',
-              rankD: bs.record.rank === 'D',
-              rankE: bs.record.rank === 'E',              
-            }"><span v-if="bs.record.midnightJson" class="nightbattle-label">夜</span>{{ bs.record.rank }}</span><span 
+            >{{ getStateText(bs.record.seiku) }}</span><span 
+              class="rank" 
+              :class="{
+                rankS: bs.record.rank === 'S',
+                rankA: bs.record.rank === 'A',
+                rankB: bs.record.rank === 'B',
+                rankC: bs.record.rank === 'C',
+                rankD: bs.record.rank === 'D',
+                rankE: bs.record.rank === 'E',              
+              }"><span 
+              v-if="bs.record.midnightJson" 
+              class="nightbattle-label">夜</span>{{ bs.record.rank }}</span><span 
               v-if="bs.dropShip" 
               class="drop" 
               :class="{
@@ -544,7 +549,9 @@ function battleSpotTitle(bs: BattleSpot): string {
               }"
               >{{ bs.dropShip.api_name }}</span><span v-else class="drop"></span>
         </div>
-        <div class="report" v-if="bs.showFormations"><span class="formations">{{ getFormationsText(bs) }}</span></div>
+        <div 
+          v-if="bs.showFormations"
+          class="report" ><span class="formations">{{ getFormationsText(bs) }}</span></div>
         <div class="enemies">
           <div v-if="bs.enemyIds2">
             <template v-for="(eid, eindex2) in bs.enemyIds2" :key="`enemy2-${eindex2}-${uuid}`">
@@ -562,22 +569,24 @@ function battleSpotTitle(bs: BattleSpot): string {
       <!--
         アイテム取得表示
       -->
-      <div class="reports items" 
+      <div 
         v-if="bs.itemsXY"
+        :id="bs.id"
+        class="reports items" 
         :class="[ 'ready', { enter : enter && props.showReports } ]"
         :style="bs.itemsXY"
-        :id="bs.id"
-        ><div class="air-search-result" 
+        ><div 
           v-if="bs.showAirSearchResult"
+          class="air-search-result" 
           :class="{
             'is-failed': bs.record.airsearchResult === 0,
             'is-success': bs.record.airsearchResult === 1,
             'is-great-success': bs.record.airsearchResult === 2
           }"
-          >{{ getAirSearchResultText(bs.record.airsearchResult) }}</div>
-          <div class="item-info"><img 
-            class="item-img" :src="itemSrc(bs)" /><span 
-            class="count">+{{ bs.record.items![0].itemCount }}</span></div>
+        >{{ getAirSearchResultText(bs.record.airsearchResult) }}</div>
+        <div class="item-info"><img 
+          class="item-img" :src="itemSrc(bs)" /><span 
+          class="count">+{{ bs.record.items![0].itemCount }}</span></div>
       </div>
 
     </template>
