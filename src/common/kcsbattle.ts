@@ -32,6 +32,12 @@ export interface EnemyState {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // type checkers
+const hasAirBaseInjection = (
+  battle: ApiMiddayBattleType
+): battle is ApiBattle & { api_air_base_injection: NonNullable<ApiBattle['api_air_base_injection']> } => {
+  return (battle as ApiBattle).api_air_base_injection !== undefined
+}
+
 const hasInjectionKouku = (
   battle: ApiMiddayBattleType
 ): battle is ApiBattle & { api_injection_kouku: NonNullable<ApiBattle['api_injection_kouku']> } => {
@@ -247,6 +253,23 @@ function calcMiddayEtoFDamage(hps: number[], api_battle: ApiMiddayBattleType): v
 export function calcMiddayFtoEDamage(hps: number[], api_battle: ApiMiddayBattleType): void {
   const stage3_edam = api_battle.api_kouku?.api_stage3?.api_edam
   const stage3_edam_combined = api_battle.api_kouku?.api_stage3_combined?.api_edam
+
+  //
+  if (hasAirBaseInjection(api_battle)) {
+    const air_base_injection = api_battle.api_air_base_injection
+    const stage3_edam = air_base_injection?.api_stage3?.api_edam
+    const stage3_edam_combined = air_base_injection?.api_stage3_combined?.api_edam
+
+    //
+    debug('>> airbase injection stage3 dam(FtoE):', stage3_edam, 'hps:', hps);
+    damaged(hps, stage3_edam)
+    debug('<< airbase injection stage3 dam(FtoE) hps:', hps);
+
+    //
+    debug('>> airbase injection stage3 dam combined(FtoE):', stage3_edam_combined, 'hps:', hps);
+    damaged(hps, stage3_edam_combined, 6)
+    debug('<< airbase injection stage3 dam combined(FtoE) hps:', hps);
+  }
 
   //
   if (hasInjectionKouku(api_battle)) {

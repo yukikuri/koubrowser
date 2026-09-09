@@ -710,4 +710,58 @@ describe('kcsbattle test', () => {
     ])
   })
 
+  it('case30: calculates sortie battle', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+
+    // case30: 機動部隊 vs 通常艦隊
+    // 基地墳式強襲、基地航空隊1部隊目2部隊目、開幕、先制雷撃、雷撃戦、砲撃
+    const battleInfo = loadBattleInfo(
+      'case30-api_req_combined_battle-battle.json',
+    )
+
+    expect(calcFleetHps(battleInfo)).toEqual({ 
+      deck: [91, 88, 71, 78, 74, 43],
+      combined: [66, 43, 43, 38, 45-5, 55]
+    })
+    expect(calcEnemyHps(battleInfo)).toEqual([
+      { id: 1527, hp: 76-253 },
+      { id: 1559, hp: 70-5-56-109 },
+      { id: 1559, hp: 70-2-23-151 },
+      { id: 1555, hp: 57-110 },
+      { id: 1577, hp: 38-81 },
+      { id: 1577, hp: 38-42 },
+    ])
+  })
+
+  it('case31: calculates sortie battle', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+
+    // case31: 機動部隊 vs 連合艦隊(ボスマス)
+    // 基地墳式強襲、基地航空隊1部隊目2部隊目、開幕、先制雷撃、雷撃戦、砲撃
+    const battleInfo = loadBattleInfo(
+      'case31-api_req_combined_battle-each_battle.json',
+    )
+
+    expect(calcFleetHps(battleInfo)).toEqual({ 
+      deck: [91, 88-59, 71-51-13, 78-57, 74-41, 43-33-5],
+      combined: [64, 43, 43, 38, 45-28, 55]
+    })
+    expect(calcEnemyHps(battleInfo)).toEqual([
+      { id: 2037, hp: 790-67-292-369 },
+      { id: 2119, hp: 900-99-77 },
+      { id: 1557, hp: 400-37-376 },
+      { id: 1557, hp: 400-136-103 },
+      { id: 1956, hp: 470-249-69-10-16 },
+      { id: 1592, hp: 66-13-65 },
+      // --
+      { id: 1904, hp: 115-122 },
+      { id: 2051, hp: 66-304 },
+      { id: 1623, hp: 46-35-13 },
+      { id: 1623, hp: 46-59 },
+      { id: 1577, hp: 38-69 },
+      { id: 1577, hp: 38-43 }
+    ])
+
+  })
+
 })

@@ -8142,6 +8142,7 @@ export interface ApiSupportInfo {
 }
 
 export interface ApiBattle extends ApiBattleNormal {
+  readonly api_air_base_injection?: ApiInjectionKouku  // 基地墳式強襲
   readonly api_injection_kouku?: ApiInjectionKouku  // 墳式強襲
   readonly api_air_base_attack?: ApiAirBaseAttack[] // 空襲で存在しない場合有り
   readonly api_support_flag?: number                // 空襲で存在しない場合有り
@@ -8298,6 +8299,20 @@ export interface ApiAirBaseAttack {
   readonly api_stage2: ApiStage2 | null
   readonly api_stage3: ApiStage3 | null
   readonly api_stage3_combined?: ApiStage3
+}
+
+export interface ApiAirBaseInjection {
+  readonly api_plane_from: unknown[]
+  readonly api_air_base_data: ApiAirBaseData[]
+  readonly api_stage1: ApiStage1
+  readonly api_stage2: ApiStage2
+  readonly api_stage3: ApiStage3
+  readonly api_stage3_combined?: ApiStage3
+}
+
+export interface ApiAirBaseData {
+  readonly api_mst_id: number
+  readonly api_count: number
 }
 
 export interface ApiInjectionKouku {
