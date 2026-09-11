@@ -482,7 +482,7 @@ function battleSpotTitle(bs: BattleSpot): string {
     <!--
       マップ画像
     -->
-    <MapImg :area_id="props.info.areaId" :area_no="props.info.areaNo" />
+    <MapImg :area-id="props.info.areaId" :area-no="props.info.areaNo" />
 
     <!--
       開始地点
@@ -555,12 +555,12 @@ function battleSpotTitle(bs: BattleSpot): string {
         <div class="enemies">
           <div v-if="bs.enemyIds2">
             <template v-for="(eid, eindex2) in bs.enemyIds2" :key="`enemy2-${eindex2}-${uuid}`">
-              <div class="ebanner"><ShipBanner :mst_id_enemy="eid" /></div>
+              <div class="ebanner"><ShipBanner :mst-id-enemy="eid" /></div>
             </template>
           </div>
           <div>
             <template v-for="(eid, eindex) in bs.enemyIds" :key="`enemy-${eindex}-${uuid}`">
-              <div class="ebanner"><ShipBanner :mst_id_enemy="eid" /></div>
+              <div class="ebanner"><ShipBanner :mst-id-enemy="eid" /></div>
             </template>
           </div>
         </div>

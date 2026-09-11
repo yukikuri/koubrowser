@@ -3,7 +3,7 @@ import { gameSetting } from '@renderer/store/gamesetting'
 import { Const } from '@common/const'
 
 class CaptureStuff {
-  public capture(webview: WebviewTag) {
+  public capture(webview: WebviewTag): void {
     const date = new Date()
     const rect: Rectangle = {
       x: 0,

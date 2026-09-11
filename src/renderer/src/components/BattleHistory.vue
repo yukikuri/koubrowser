@@ -1116,7 +1116,7 @@ const helpText = computed<string>(() => {
               <div class="ship-header">Lv{{ sr.lv }} {{ shipNameFromId(sr.shipId) }}</div>
               <div v-if="props.row.isAccent" class="ship-img-slots">
                 <div class="moreslot-container">
-                  <ShipBanner :mst_id="sr.shipId" />
+                  <ShipBanner :mst-id="sr.shipId" />
                   <div v-if="hasMoreSlots(sr)" class="ship-slots more">
                     <SlotItemForRecord 
                       v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :key="`moreslot-${moreslot_index}`"
@@ -1136,7 +1136,7 @@ const helpText = computed<string>(() => {
                 <div class="ship-header">Lv{{ sr.lv }} {{ shipNameFromId(sr.shipId) }}</div>
                 <div v-if="props.row.isAccent" class="ship-img-slots">
                   <div class="moreslot-container">
-                    <ShipBanner :mst_id="sr.shipId" />
+                    <ShipBanner :mst-id="sr.shipId" />
                     <div v-if="hasMoreSlots(sr)" class="ship-slots more">
                       <SlotItemForRecord 
                         v-for="(moreslot, moreslot_index) in getMoreSlots(sr)" :key="`moreslot-${moreslot_index}`"

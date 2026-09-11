@@ -24,7 +24,6 @@ import { itemIdClassMap, itemIdTitleMap } from '@renderer/util'
 import { appSetting } from '@renderer/store/app_setting'
 import LockImage from '@renderer/assets/img/lock.svg'
 import { missionList } from '@renderer/store/missionList'
-import moment from 'moment'
 
 const filterArea1 = ref<boolean>(false)
 const filterArea2 = ref<boolean>(false)
@@ -378,27 +377,27 @@ const emptyText = '該当する遠征が見つかりません。'
     <div class="filter-content" position="is-centered" multiline>
       <b-field class="inputs" position="is-centered" multiline>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea1" /><span 
+          <b-checkbox v-model="filterArea1" size="is-small" /><span 
             class="filter-label">鎮守府海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea2" /><span 
+          <b-checkbox v-model="filterArea2" size="is-small" /><span 
             class="filter-label">南西諸島海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea3" /><span 
+          <b-checkbox v-model="filterArea3" size="is-small" /><span 
             class="filter-label">北方海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea6" /><span 
+          <b-checkbox v-model="filterArea6" size="is-small" /><span 
             class="filter-label">南西海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea4" /><span 
+          <b-checkbox v-model="filterArea4" size="is-small" /><span 
             class="filter-label">西方海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea5" /><span 
+          <b-checkbox v-model="filterArea5" size="is-small" /><span 
             class="filter-label">南方海域</span>
         </label>
         <div class="sep-vertical"></div>
@@ -406,10 +405,10 @@ const emptyText = '該当する遠征が見つかりません。'
           <div class="monthly-title">マンスリー</div>
           <div class="monthly-controls">
             <label class="input-checkbox">
-              <b-checkbox size="is-small" v-model="filterMonthly" /><span class="filter-label">表示</span>
+              <b-checkbox v-model="filterMonthly" size="is-small" /><span class="filter-label">表示</span>
             </label>
             <label class="input-checkbox">
-              <b-checkbox size="is-small" v-model="filterClearedMonthlyUnDisplay" /><span class="filter-label">クリア済非表示</span>
+              <b-checkbox v-model="filterClearedMonthlyUnDisplay" size="is-small" /><span class="filter-label">クリア済非表示</span>
             </label>
           </div>
         </div>      
@@ -434,8 +433,9 @@ const emptyText = '該当する遠征が見つかりません。'
             <div title="常に表示する"><KeepImg /></div>
           </template>
           <template #default="props">
-            <span class="mission-keep-content" title="常に表示する" @click="toggleKeep(props.row.detail.id)" ><span :class="{
-              'is-keep': isKeeped(props.row.detail.id)}"><KeepImg /></span></span>
+            <span class="mission-keep-content" title="常に表示する" @click="toggleKeep(props.row.detail.id)" ><span 
+              :class="{
+                'is-keep': isKeeped(props.row.detail.id)}"><KeepImg /></span></span>
           </template>
         </b-table-column>
 
@@ -607,7 +607,10 @@ const emptyText = '該当する遠征が見つかりません。'
 
       </b-table>
     </section>
-    <MissionStateDetail v-if="isShowDetailed" 
-      :mission="detailMission" :deckInfo="detailDeckInfo" v-model:contentHeight="detailContentHeight" />
+    <MissionStateDetail 
+      v-if="isShowDetailed" 
+      v-model:content-height="detailContentHeight"
+      :mission="detailMission" 
+      :deck-info="detailDeckInfo" />
   </div>
 </template>

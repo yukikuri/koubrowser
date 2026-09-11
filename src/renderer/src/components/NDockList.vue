@@ -54,12 +54,12 @@ const ndocks = computed<NDockInfo[]>(() => {
       <div v-for="(info, index) in ndocks" :key="index" class="ndock">
         <div v-if="info.isIn">
           <span class="ndock-img-wrapper">
-            <ShipBanner :mst_id="info.info?.mst.api_id" :dmg="info.isDamaged" />
+            <ShipBanner :mst-id="info.info?.mst.api_id" :dmg="info.isDamaged" />
             <span class="ndock-img-help"
               ><DockStateTimer
-                :complete_time="info.ndock.api_complete_time"
-                :progress_text="'修復'"
-                :completed_text="'完了'"
+                :complete-time="info.ndock.api_complete_time"
+                :progress-text="'修復'"
+                :completed-text="'完了'"
             /></span>
           </span>
           <span class="ndock-info">
@@ -68,7 +68,7 @@ const ndocks = computed<NDockInfo[]>(() => {
               {{ info.info?.api.api_nowhp }}/{{ info.info?.api.api_maxhp }}</span
             >
             <span class="ndock-info-item"
-              >残り: <DockTimer :complete_time="info.ndock.api_complete_time" />
+              >残り: <DockTimer :complete-time="info.ndock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>

@@ -225,10 +225,10 @@ watch(
         </template>
         <div v-if="index === item_index">
           <CellEnemy
-            :area_id="areaId"
-            :area_no="areaNo"
-            :cell_no="item.no"
-            :deck_index="deckIndex"
+            :area-id="areaId"
+            :area-no="areaNo"
+            :cell-no="item.no"
+            :deck-index="deckIndex"
           />
         </div>
       </b-tab-item>

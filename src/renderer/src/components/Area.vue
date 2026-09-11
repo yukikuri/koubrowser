@@ -1284,7 +1284,7 @@ function onChangeAirbaseSpot(value: boolean): void {
 <template>
   <div v-if="isDataOk">
     <div ref="mapEl" class="map">
-      <MapImg :area_id="areaId" :area_no="areaNo" />
+      <MapImg :area-id="areaId" :area-no="areaNo" />
       <div v-for="(spot, index) in enemySpots" :key="index">
         <div :class="spot.seikuClass" :style="spot.spotXY">
           <div v-if="spot.airbase !== undefined" class="spot-airbases">

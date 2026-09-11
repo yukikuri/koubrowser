@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, watch, ref } from 'vue'
 import moment from 'moment'
 import { IntervalOneSec } from '@renderer/common/interval';
 
-const props = defineProps<{ complete_time: number }>()
+const props = defineProps<{ completeTime: number }>()
 
 const toStr = (v: number, prefix: string): string => {
   return (prefix + Math.floor(v)).slice(-2)
@@ -53,7 +53,7 @@ function onInterval(): void {
 
 function setupTimer(): void {
   clearTimer()
-  dur.value = moment.duration(moment(props.complete_time).diff(moment()))
+  dur.value = moment.duration(moment(props.completeTime).diff(moment()))
 
   if (completed.value) {
     return
@@ -65,7 +65,7 @@ function setupTimer(): void {
 }
 
 watch(
-  () => props.complete_time,
+  () => props.completeTime,
   () => {
     setupTimer()
   },

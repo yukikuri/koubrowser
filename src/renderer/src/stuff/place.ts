@@ -1,6 +1,6 @@
-const DEBUG = false;
+const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[place]", ...args);
 };
 
@@ -40,7 +40,7 @@ export interface Pad {
   bottom: number;
 }
 
-const rectsOverlap = (a: DOMRect, b: DOMRect, pad: number): boolean => {
+const _rectsOverlap = (a: DOMRect, b: DOMRect, pad: number): boolean => {
   // pad: 見た目の余白（ピクセル）
   return !(
     a.right + pad <= b.left ||
@@ -113,7 +113,13 @@ function ensureWithinContainerA(el: HTMLElement, container: HTMLElement, pad: Pa
 
 }
 
-export function ensureWithinContainerBySelector(container: HTMLElement, selector, pad: Pad, propName: {top: string, left: string} ) {
+export function ensureWithinContainerBySelector(
+  container: HTMLElement, 
+  selector, 
+  pad: Pad, 
+  propName: {top: string, left: string} 
+): void {
+
   const elems = Array.from<HTMLElement>(container.querySelectorAll(selector));
   const cRect = container.getBoundingClientRect();
 
@@ -134,7 +140,7 @@ export function ensureWithinContainer(
   list: NodeListOf<HTMLElement>, 
   propName: {top: string, left: string},
   pad: Pad
- ) {
+ ): void {
   const elems = Array.from<HTMLElement>(list);
   const cRect = container.getBoundingClientRect();
 

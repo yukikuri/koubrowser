@@ -239,7 +239,7 @@ function onTabChange(valueNew: number): void {
               :title="ship.mst.api_id.toString() + ' ' + ship.mst.api_name"
               @click="shipSelected(ship.mst.api_id)"
             ><ShipBanner 
-              :mst_id="ship.mst.api_id" /><span 
+              :mst-id="ship.mst.api_id" /><span 
               class="ship-name">{{ ship.mst.api_name }}</span></span>
           </span>
         </div>

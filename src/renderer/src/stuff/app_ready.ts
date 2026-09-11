@@ -3,7 +3,7 @@ import { computed, ref } from "vue"
 
 const appSettingOk = ref(false)
 
-export function setAppSettingOk(ok: boolean) {
+export function setAppSettingOk(ok: boolean): void {
   appSettingOk.value = ok
 }
 

@@ -6,7 +6,7 @@ import { getLocalStoragePrefixKey, LocalStorageKeyName } from '@renderer/store/s
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[ui-state]", ...args);
 };
 
@@ -101,13 +101,14 @@ function load(): UIState {
     Object.assign(def, obj)
     debug('state after assign:', def)
   } catch {
+    // ignore
   }
   return def
 }
 const uiState = load()
 
 let delaySaveRequested = false;
-function delaySave() {
+function delaySave(): void {
   if (! delaySaveRequested) {
     delaySaveRequested = true
     setTimeout(() => {
@@ -122,52 +123,56 @@ function delaySave() {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // assist component
-export namespace AssistUIState {
-
-  export const tabOrder: AssistTabName[] = (() => {
-    const ret: AssistTabName[] = []
-    ret.push('deckport')
-    ret.push('missioncheck')
-    ret.push('battletab')
-    ret.push('shipitems')
-    ret.push('dropbymap')
-    ret.push('dropbyship')
-    if (EnvRenderer.isAssist) {
-      ret.push('dockquestlist')
-    }
-    ret.push('chart')
-    ret.push('about')
-    return ret
-  })()
-
-  export const tabIndex = ref(getTabIndex(uiState.tabName))
-  export const tabRequest = ref<AssistTabName | null>(null)
-
-  export function requestTab(tabName: AssistTabName): void {
-    tabRequest.value = tabName
+const assistTabOrder: AssistTabName[] = (() => {
+  const ret: AssistTabName[] = []
+  ret.push('deckport')
+  ret.push('missioncheck')
+  ret.push('battletab')
+  ret.push('shipitems')
+  ret.push('dropbymap')
+  ret.push('dropbyship')
+  if (EnvRenderer.isAssist) {
+    ret.push('dockquestlist')
   }
+  ret.push('chart')
+  ret.push('about')
+  return ret
+})()
 
-  function getTabIndex(tabName: string): number {
-    const index = tabOrder.findIndex((el) => el === tabName)
-    debug('getting tab index for tab name:', tabName, 'tab order:', tabOrder, 'index:', index)
-    return index >= 0 ? index : 0
-  }
+function getAssistTabIndex(tabName: string): number {
+  const index = assistTabOrder.findIndex((el) => el === tabName)
+  debug('getting tab index for tab name:', tabName, 'tab order:', assistTabOrder, 'index:', index)
+  return index >= 0 ? index : 0
+}
 
-  export const isTabVisibleByName = (tabName: AssistTabName): boolean => {
-    const index = tabOrder.indexOf(tabName)
-    return tabIndex.value === index
-  }
+const assistTabIndex = ref(getAssistTabIndex(uiState.tabName))
+const assistTabRequest = ref<AssistTabName | null>(null)
 
-  export function getTabName(index: number): AssistTabName | undefined {
-    return tabOrder[index]
-  }
+export const AssistUIState = {
+  tabOrder: assistTabOrder,
+  tabIndex: assistTabIndex,
+  tabRequest: assistTabRequest,
 
-  export function saveTabName(tabName: AssistTabName): void {
+  requestTab(tabName: AssistTabName): void {
+    assistTabRequest.value = tabName
+  },
+
+  isTabVisibleByName(tabName: AssistTabName): boolean {
+    const index = assistTabOrder.indexOf(tabName)
+    return assistTabIndex.value === index
+  },
+
+  getTabName(index: number): AssistTabName | undefined {
+    return assistTabOrder[index]
+  },
+
+  saveTabName(tabName: AssistTabName): void {
     uiState.tabName = tabName
+
     if (EnvRenderer.isAssist) {
       delaySave()
     }
-  }
+  },
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

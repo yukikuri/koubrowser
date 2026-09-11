@@ -304,7 +304,7 @@ const locationStyle = computed<string>(() => {
 <template>
   <div class="drop-by-ship-area-root">
     <div class="map-container">
-      <MapImg :area_id="props.info.area_id" :area_no="props.info.area_no" />
+      <MapImg :area-id="props.info.area_id" :area-no="props.info.area_no" />
       <div class="map-title"><span>{{ getMapTitle() }}</span></div>
       <div
           v-if="isSpotOk"

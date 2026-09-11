@@ -100,7 +100,7 @@ const combinedName = computed<string>(() => {
       class="ship-tool-tip"
     >
       <template #content>
-        <ShipTooltip v-if="isShowShipTooltip" :ship_id="tooltipShipId" />
+        <ShipTooltip v-if="isShowShipTooltip" :ship-id="tooltipShipId" />
       </template>
       <b-tabs 
         v-model="index" size="is-small" expanded class="deck-tabs" 

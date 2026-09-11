@@ -10,14 +10,14 @@ import { MapImg } from '@renderer/stuff/imgs/map'
 // } as const
 // export type ReloadState = (typeof ReloadState)[keyof typeof ReloadState]
 
-const props = defineProps<{ area_id: number; area_no: number }>()
+const props = defineProps<{ areaId: number; areaNo: number }>()
 
 //const root = ref<HTMLElement | null>(null)
 //const ctx = ref(0)
 // const load_state = ref<ReloadState>(ReloadState.fromAppMapImg)
 
 const src = computed(() => {
-  return MapImg.getSrc(props.area_id, props.area_no)
+  return MapImg.getSrc(props.areaId, props.areaNo)
 })
 
 const srcFallback = computed(() => MapImg.getNodataSrc())

@@ -230,7 +230,7 @@ export class RecordCalculator {
     const calced: Map<number, Pick<AggregatedCellRank, 'counts'>> = new Map();
 
     // set rank count stuff
-    const setRankCount = (rec: DropRecord, counts: CellRankCounts) => {
+    const setRankCount = (rec: DropRecord, counts: CellRankCounts): void => {
       const rankIndex = RecordCalculator.toCellRankCountIndex(rec.rank);
       if (rankIndex !== undefined) {
         counts[rankIndex] += 1;
@@ -344,7 +344,7 @@ export class RecordCalculator {
     const cellIdMap: Map<number, CellCounts> = new Map();
 
     // 
-    const addDropCount = (rec: DropRecord, counts: RankDropCounts) => {
+    const addDropCount = (rec: DropRecord, counts: RankDropCounts): void => {
       const index = RecordCalculator.toRankDropCountIndex(rec.rank);
       if (index !== undefined) {
         counts[index] += 1;
@@ -352,7 +352,7 @@ export class RecordCalculator {
     };
 
     //
-    const addCellCount = (record: DropRecord, shipId: number, cellCounts: CellCounts) => {
+    const addCellCount = (record: DropRecord, shipId: number, cellCounts: CellCounts): void => {
       cellCounts.total += 1;
       if (record.shipId === shipId) {
         addDropCount(record, cellCounts.counts);
@@ -487,7 +487,7 @@ export class RecordCalculator {
     })
 
     // 
-    const addCount = (type: AggregateShipType, rank: string) => {
+    const addCount = (type: AggregateShipType, rank: string): void => {
       const counts = totals.get(type);
       if (counts) {
         const index = RecordCalculator.toRankDropCountIndex(rank);
@@ -558,7 +558,7 @@ export class RecordCalculator {
     })
 
     // 
-    const addCount = (type: AggregateShipType, addCounts: RankDropCounts) => {
+    const addCount = (type: AggregateShipType, addCounts: RankDropCounts): void => {
       const counts = totals.get(type);
       if (counts) {
         for (let rank = 0; rank < addCounts.length; rank++) {

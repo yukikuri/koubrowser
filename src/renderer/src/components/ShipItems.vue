@@ -18,10 +18,11 @@ function onTabChange(valueNew: number): void {
 <template>
   <div class="ship-items-root">
     <b-tabs 
-      type="is-toggle" size="is-small" class="ship-items-tabs" expanded 
       v-model="index" 
-      @update:modelValue="onTabChange"
-      destroy-on-hide>
+      type="is-toggle" size="is-small" class="ship-items-tabs" expanded 
+      destroy-on-hide
+      @update:model-value="onTabChange"
+    >
       <b-tab-item label="艦船一覧">
         <ShipList />
       </b-tab-item>

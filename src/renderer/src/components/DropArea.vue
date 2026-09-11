@@ -198,7 +198,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="drop-area map">
-    <MapImg :area_id="areaId" :area_no="areaNo" />
+    <MapImg :area-id="areaId" :area-no="areaNo" />
     <a
       v-for="(spot, index) in dropSpots"
       :key="`enemy${index}`"
