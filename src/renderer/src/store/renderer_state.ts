@@ -5,7 +5,7 @@ import { getLocalStoragePrefixKey, LocalStorageKeyName } from '@renderer/store/s
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[renderer-state]", ...args);
 };
 
@@ -46,13 +46,14 @@ function load(): RendererState {
     Object.assign(def, obj)
     debug('state after assign:', def)
   } catch {
+    // ignore
   }
   return def
 }
 const rendererState = load()
 
 let delaySaveRequested = false;
-function delaySave() {
+function delaySave(): void {
   if (! delaySaveRequested) {
     delaySaveRequested = true
     setTimeout(() => {
