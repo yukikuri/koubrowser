@@ -68,13 +68,13 @@ function delaySave(): void {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // main component
-export namespace MainRendererState {
+export const MainRendererState = (() => {
 
-  export function isCurrentAppLaunch(): boolean {
+  function isCurrentAppLaunch(): boolean {
     return !!EnvRenderer.appLaunchId && (rendererState.appLaunchId === EnvRenderer.appLaunchId)
   }
 
-  export function updateRendererState(muted: boolean): void {
+  function updateRendererState(muted: boolean): void {
     if (EnvRenderer.isAssist) {
       return ;
     }
@@ -84,7 +84,9 @@ export namespace MainRendererState {
     delaySave()
   }
 
-  export function getMuted(): boolean {
+  function getMuted(): boolean {
     return rendererState.muted
   }
-}
+
+  return { isCurrentAppLaunch, updateRendererState, getMuted }
+})()
