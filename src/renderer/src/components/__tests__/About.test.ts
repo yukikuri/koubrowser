@@ -4,9 +4,10 @@ import About from '../About.vue'
 
 // 
 beforeAll(() => {
-    ((global.window) as any).api = {
-      getVersion: vi.fn().mockResolvedValue('1.2.3'),
-      saveGlobalSetting: vi.fn(),
+
+  const apiMock = {
+    getVersion: vi.fn().mockResolvedValue('1.2.3'),
+    saveGlobalSetting: vi.fn(),
       clearSessionCache: vi.fn().mockResolvedValue(undefined),
       getUpdateState: vi.fn().mockResolvedValue({
         status: 'idle',
@@ -23,8 +24,14 @@ beforeAll(() => {
       openExternalUrl: vi.fn(),
       devtool: vi.fn(),
       saveAppSetting: vi.fn(),
-    }
+  } satisfies Partial<Window['api']>
+
+  Object.defineProperty(window, 'api', {
+    configurable: true,
+    writable: true,
+    value: apiMock
   })
+})
 
 describe('About.vue', () => {
   it('renders component', () => {

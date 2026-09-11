@@ -9,7 +9,8 @@ export default tseslint.config(
       '**/node_modules', 
       '**/dist', 
       '**/out',
-      'src/main/orval/generated/**'
+      'src/main/orval/generated/**',
+      'scripts/**'
     ] 
   },
   tseslint.configs.recommended,

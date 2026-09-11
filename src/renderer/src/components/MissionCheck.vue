@@ -114,20 +114,19 @@ const detailContentHeight = ref<number>(0)
 
 const isShowDetailed = ref<boolean>(false)
 const detailedMission = ref<MissionDetail | null>(null)
-const detailedDeckInfo = ref<ApiDeckPort | null>(null)
 const detailedDeckIndex = ref<number | null>(null)
+
+const detailedDeckInfo = computed<ApiDeckPort | null>(() => {
+  const index = detailedDeckIndex.value
+  if (index === null) return null
+
+  return svdata.deckPorts[index + 1] ?? null
+})
 
 const deckInfos = computed<DeckInfo[]>(() => {
   console.log('MissionCheck deckInfos called', 'isShowDetailed:', isShowDetailed.value)
   const decks = svdata.deckPorts.filter((_, index) => index !== 0)
-  const ret = decks.map((el) => MissionStuff.toDeckInfo(svdata, el))
-
-  // update detail dekc info
-  if (isShowDetailed.value && detailedDeckIndex.value !== null) {
-    detailedDeckInfo.value = svdata.deckPorts[detailedDeckIndex.value+1]
-    console.log('MissionCheck deckInfos updated detailedDeckInfo:', detailedDeckInfo.value)
-  }
-  return ret;
+  return decks.map((el) => MissionStuff.toDeckInfo(svdata, el))
 })
 
 const toDurationText = (minutes: number): string => {
@@ -335,7 +334,6 @@ const onClickMission = (rowIndex: number, deckIndex: number, data: MissionData):
   }
 
   detailedMission.value = data.detail
-  detailedDeckInfo.value = svdata.deckPorts[deckIndex+1] // 0 deckInfo index is deck port index of 2
   detailedDeckIndex.value = deckIndex
   isShowDetailed.value = true
   console.log('listHeight detailContentHeight:', detailContentHeight.value,)
