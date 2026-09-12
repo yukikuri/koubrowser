@@ -145,7 +145,8 @@ const quests = computed<QuestContent[]>(() => {
     if (el.state !== null) {
       is_stext = (el.state as QuestCounter).count.length >= 6
     }
-    if (el.quest.api_no === 1150) {
+    const stext_quests = [1150, 1170]
+    if (stext_quests.includes(el.quest.api_no)) {
       is_stext = true
     }
 

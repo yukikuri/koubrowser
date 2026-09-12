@@ -7446,6 +7446,82 @@ register(
   }
 )
 
+// 384:【期間限定任務】提督との秋祭り演習！
+register(
+  384,
+  class {
+    static readonly questType = QuestType.practiceDeck
+    static max = [4]
+    static key = QuestKey.daily
+    static need_win_rank: PracticeWinRank = 'B'
+    static formatter(quest: Quest): string {
+      return detailFormat(['演習勝利：'], quest)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 4) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds = [
+        svdata.shipMstIds(183), // ooyodo
+        svdata.shipMstIds(55), // jintu
+        svdata.shipMstIds(132), // akigumo
+        svdata.shipMstIds(421), // akiduki
+        svdata.shipMstIds(13), // ayanami
+        svdata.shipMstIds(42), // siratuyu
+        svdata.shipMstIds(168), // urakaze
+        svdata.shipMstIds(170), // hamakaze
+        svdata.shipMstIds(135), // naganami
+        svdata.shipMstIds(485), // fujinami
+        svdata.shipMstIds(425), // asasimo
+        svdata.shipMstIds(964), // sirakumo
+        svdata.shipMstIds(93), // oboro
+        svdata.shipMstIds(94), // sazanami
+        svdata.shipMstIds(634), // jingei
+        svdata.shipMstIds(635), // tyougei
+      ].flat()
+      return shipCount(msts, shipIds) >= 4
+    }
+  }
+)
+
+// 385:【期間限定拡張任務】秋祭り拡張演習！
+register(
+  385,
+  class {
+    static readonly questType = QuestType.practiceDeck
+    static max = [4]
+    static key = QuestKey.daily
+    static need_win_rank: PracticeWinRank = 'S'
+    static formatter(quest: Quest): string {
+      return detailFormat(['演習S勝利：'], quest)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 3) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds = [
+        svdata.shipMstIds(81), // mutu
+        svdata.shipMstIds(602), // South Dakota
+        svdata.shipMstIds(885), // Victorious
+        svdata.shipMstIds(1055), // Bearn
+        svdata.shipMstIds(1051), // Algerie
+        svdata.shipMstIds(1053), // Vautour
+        svdata.shipMstIds(962), // Mogador
+        svdata.shipMstIds(1065), // hieimaru
+        svdata.shipMstIds(944), // heianmaru
+        svdata.shipMstIds(995), // ootomari
+      ].flat()
+      return shipCount(msts, shipIds) >= 3
+    }
+  }
+)
+
 // 401: はじめての「遠征」！
 register(
   401,
@@ -14473,6 +14549,124 @@ register(
   }
 )
 
+// 1050:「第九戦隊」抜錨！前線展開せよッ！
+register(
+  1050,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1, 1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMapOrCell[] = [
+      [1, 4, 'S'],
+      [2, 1, 'S'],
+      [2, 2, 'S'],
+      [2, 3, 'S'],
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+
+      const flagshipIds = [
+        svdata.shipMstIds(118), // ooi kaini
+        svdata.shipMstIds(119), // kitakami kaini
+      ].flat()
+      if(! shipCount([msts[0]], flagshipIds)) {
+        return false
+      }
+
+      return shipTypeCount(msts.slice(1), [ApiShipType.kutikukan]) >= 2
+    }
+  }
+)
+
+// 1051: 改装「1YB3H」旗艦、敵中を突破せよ！
+register(
+  1051,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1, 1, 1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMapOrCell[] = [
+      [1, 5, 'S'],
+      [2, 3, 'S'],
+      [2, 5, 'S'],
+      [4, 3, 'S'],
+      [1, 6, ''],
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+
+      const flagshipIds = [
+        svdata.shipMstIds(749), // yamasiro kainiho
+      ].flat()
+      if(! shipCount([msts[0]], flagshipIds)) {
+        return false
+      }
+
+      const ids1 = [
+        svdata.shipMstIds(26), // fuso
+        svdata.shipMstIds(43), // sigure
+      ].flat()
+      if (! shipCount(msts.slice(1), ids1)) {
+        return false
+      }
+
+      const ids2 = [
+        svdata.shipMstIds(70), // mogami
+        svdata.shipMstIds(97), // mitisio
+        svdata.shipMstIds(413), // asagumo
+        svdata.shipMstIds(414), // yamagumo
+      ].flat()
+      return shipCount(msts.slice(1), ids2) >= 2
+    }
+  }
+)
+
+// 1052: 改装多目的搭載母艦「北上改三」、出撃ッ！
+register(
+  1052,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [2, 2, 2]
+    static key = QuestKey.infer
+    static maps: QuestMapOrCell[] = [
+      [1, 3, 'S'],
+      [2, 4, 'S'],
+      [4, 5, 'S'],
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+
+      const flagshipIds = [
+        svdata.shipMstIds(1071), // kitakami kaisan
+      ].flat()
+      if(! shipCount([msts[0]], flagshipIds)) {
+        return false
+      }
+
+      const ids = [
+        svdata.shipMstIds(1041), // hanaduki
+        svdata.shipMstIds(16), // usio
+        svdata.shipMstIds(35), // hibiki
+        svdata.shipMstIds(642), // take
+        svdata.shipMstIds(1044), // kiri
+        svdata.shipMstIds(994), // kaya
+        svdata.shipMstIds(992), // sugi
+        svdata.shipMstIds(993), // kasi
+      ].flat()
+      return shipCount(msts.slice(1), ids) >= 2
+    }
+  }
+)
+
 // 1101: 海軍工廠の再整備
 register(
   1101,
@@ -15984,6 +16178,35 @@ register(
     }
     static formatter(quest: Quest): string {
       return detailFormat(['破棄 九七式艦攻[熟練度max]：'], quest)
+    }
+  }
+)
+
+// 1170: 既存装備活用による対空兵装の開発
+register(
+  1170,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [12, 8, 4]
+    static key = QuestKey.infer
+    static id_or_types = [
+      { id: 10 },
+      { id: 66 },
+      { id: 40 }
+    ];
+    static getCondition(svdata: SvData): DestroyItemCondition {
+      const ids = [
+        svdata.shipMstIds(119), // kitakami kaini
+      ].flat()
+
+      return {
+        flagship_ids: ids,
+        flagship_slotitem_ids: [],
+        flagship_slotitem_lvl: [],
+      }
+    }
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 12.7cm連装高角：', '8cm高角：', '三連機銃：'], quest)
     }
   }
 )
