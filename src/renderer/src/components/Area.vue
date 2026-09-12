@@ -203,11 +203,11 @@ const props = defineProps<{
   areaNo: number; 
   selectedLabel: string 
 }>()
-const emit = defineEmits<{ (e: 'update:selected_label', value: string): void }>()
+const emit = defineEmits<{ (e: 'update:selected-label', value: string): void }>()
 
 const selected_spot_label = computed<string>({
   get: () => props.selectedLabel,
-  set: (val) => emit('update:selected_label', val)
+  set: (val) => emit('update:selected-label', val)
 })
 
 // state
