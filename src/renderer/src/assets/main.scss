@@ -925,6 +925,37 @@ body {
     }
   }
 
+  .screenshot-toast {
+    position: fixed;
+    top: 36px;
+    right: 12px;
+    z-index: 10;
+    max-width: min(420px, calc(100vw - 24px));
+    padding: 6px 12px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff;
+    background: rgba(#111820, 0.94);
+    border: 1px solid rgba(#fff, 0.32);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(#000, 0.45);
+    pointer-events: none;
+  }
+
+  .screenshot-toast-enter-active,
+  .screenshot-toast-leave-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .screenshot-toast-enter-from,
+  .screenshot-toast-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
   .close {
     &:hover {
       background-color: red;

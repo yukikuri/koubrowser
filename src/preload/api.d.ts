@@ -16,7 +16,7 @@ export interface Api {
   devtool(): void
   reload(): void
   openCaptureFolder(): void
-  saveCapture(date: Date, buffer: Buffer): void
+  saveCapture(date: Date, buffer: Buffer): Promise<string>
   openOption(): void
   openAssist(): void
   topmost(): void
