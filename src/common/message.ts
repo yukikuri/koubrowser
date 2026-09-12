@@ -1,5 +1,5 @@
 import type { Quest } from '@common/record'
-import type { ApiDeckPortId, ApiMapInfoList, ApiMissionList, ApiQuestList, SvDataRaw } from '@common/kcs'
+import type { ApiMapInfoList, ApiMissionList, ApiQuestList, SvDataRaw } from '@common/kcs'
 import type { Api } from '@common/kcsapi'
 import { AppSetting } from '@common/store'
 import { GlobalSetting } from '@common/global_setting'

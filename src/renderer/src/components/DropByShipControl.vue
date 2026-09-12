@@ -11,17 +11,17 @@ let selectedId = 0;
 
 // -----------------------------------------------------------------
 //
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    selected_ship_id: number
+    selectedShipId?: number
   }>(),
   {
-    selected_ship_id: 0,
+    selectedShipId: 0,
   }
 )
 
 const emit = defineEmits<{
-  (e: 'update:selected_ship_id', v: number): void
+  (e: 'update:selectedShipId', v: number): void
 }>()
 
 // -----------------------------------------------------------------
@@ -157,7 +157,7 @@ onUnmounted(() => {
   console.log('DropByShipControl unmounted');
 }); 
 
-const setSelectedStyle = (id: number, selected: boolean) => {
+const setSelectedStyle = (id: number, selected: boolean): void => {
   const selector = '#ship-selector-' + id;
   const elSelected = el.value?.querySelector(selector);
   const selectedClassName = 'is-selected';
@@ -172,7 +172,7 @@ const setSelectedStyle = (id: number, selected: boolean) => {
   }
 }
 
-function selectShipChanged(id: number) {
+function selectShipChanged(id: number): void {
   if (selectedId === id) {
    return;
   }
@@ -188,7 +188,7 @@ function selectShipChanged(id: number) {
 function shipSelected(mst_id: number): void {
   console.log('ship selected:', mst_id, !!el.value);
   selectShipChanged(mst_id);
-  emit('update:selected_ship_id', mst_id);
+  emit('update:selectedShipId', mst_id);
 }
 
 function onTabChange(valueNew: number): void {
@@ -217,19 +217,30 @@ function onTabChange(valueNew: number): void {
 // ref elem
 </script>
 <template>
-  <section class="ship-select-control" ref="el">
-    <b-tabs type="is-toggle" size="is-small" class="ship-type-tabs" :animated="false" destroy-on-hide
-      expanded v-model="tabIndex" @update:modelValue="onTabChange">
-      <b-tab-item v-for="(tab, tabIndex) in tabNames" :key="tabIndex"
-        :label="tab.name">
+  <section ref="el" class="ship-select-control">
+    <b-tabs 
+      v-model="tabIndex" 
+      type="is-toggle" 
+      size="is-small" 
+      class="ship-type-tabs" 
+      :animated="false" destroy-on-hide
+      expanded 
+      @update:model-value="onTabChange"
+    >
+      <b-tab-item 
+        v-for="(tab, tabNameIndex) in tabNames" :key="tabNameIndex"
+        :label="tab.name"
+      >
         <div class="ship-selector-container">
           <span v-for="(ship) in shipsByType" :key="ship.mst.api_id">
-            <span class="ship-selector"
+            <span 
               :id="'ship-selector-'+ship.mst.api_id"
+              class="ship-selector"
+              :title="ship.mst.api_id.toString() + ' ' + ship.mst.api_name"
               @click="shipSelected(ship.mst.api_id)"
-              :title="ship.mst.api_id.toString() + ' ' + ship.mst.api_name"><ShipBanner 
-                :mst_id="ship.mst.api_id" /><span 
-                class="ship-name">{{ ship.mst.api_name }}</span></span>
+            ><ShipBanner 
+              :mst-id="ship.mst.api_id" /><span 
+              class="ship-name">{{ ship.mst.api_name }}</span></span>
           </span>
         </div>
       </b-tab-item>

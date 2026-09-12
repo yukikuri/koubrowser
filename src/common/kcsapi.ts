@@ -124,6 +124,8 @@ export const Api = {
   REQ_KOUSYOU_REMODEL_SLOTLIST_DETAIL: '/api_req_kousyou/remodel_slotlist_detail',
   // 改修一覧取得
   REQ_KOUSYOU_REMODEL_SLOTLIST: '/api_req_kousyou/remodel_slotlist',
+  // 改修 - 状態回復
+  REQ_KOUSYOU_REMODEL_SLOT_RECOVER: '/api_req_kousyou/remodel_slot_recover',
   // 改修
   REQ_KOUSYOU_REMODEL_SLOT: '/api_req_kousyou/remodel_slot',
 

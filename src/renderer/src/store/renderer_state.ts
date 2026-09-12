@@ -5,7 +5,7 @@ import { getLocalStoragePrefixKey, LocalStorageKeyName } from '@renderer/store/s
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[renderer-state]", ...args);
 };
 
@@ -46,13 +46,14 @@ function load(): RendererState {
     Object.assign(def, obj)
     debug('state after assign:', def)
   } catch {
+    // ignore
   }
   return def
 }
 const rendererState = load()
 
 let delaySaveRequested = false;
-function delaySave() {
+function delaySave(): void {
   if (! delaySaveRequested) {
     delaySaveRequested = true
     setTimeout(() => {
@@ -67,13 +68,13 @@ function delaySave() {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // main component
-export namespace MainRendererState {
+export const MainRendererState = (() => {
 
-  export function isCurrentAppLaunch(): boolean {
+  function isCurrentAppLaunch(): boolean {
     return !!EnvRenderer.appLaunchId && (rendererState.appLaunchId === EnvRenderer.appLaunchId)
   }
 
-  export function updateRendererState(muted: boolean): void {
+  function updateRendererState(muted: boolean): void {
     if (EnvRenderer.isAssist) {
       return ;
     }
@@ -83,7 +84,9 @@ export namespace MainRendererState {
     delaySave()
   }
 
-  export function getMuted(): boolean {
+  function getMuted(): boolean {
     return rendererState.muted
   }
-}
+
+  return { isCurrentAppLaunch, updateRendererState, getMuted }
+})()

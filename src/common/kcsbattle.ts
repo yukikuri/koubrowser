@@ -14,7 +14,7 @@ import type {
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[KcBattle]", ...args);
 };
 
@@ -32,6 +32,12 @@ export interface EnemyState {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // type checkers
+const hasAirBaseInjection = (
+  battle: ApiMiddayBattleType
+): battle is ApiBattle & { api_air_base_injection: NonNullable<ApiBattle['api_air_base_injection']> } => {
+  return (battle as ApiBattle).api_air_base_injection !== undefined
+}
+
 const hasInjectionKouku = (
   battle: ApiMiddayBattleType
 ): battle is ApiBattle & { api_injection_kouku: NonNullable<ApiBattle['api_injection_kouku']> } => {
@@ -249,6 +255,23 @@ export function calcMiddayFtoEDamage(hps: number[], api_battle: ApiMiddayBattleT
   const stage3_edam_combined = api_battle.api_kouku?.api_stage3_combined?.api_edam
 
   //
+  if (hasAirBaseInjection(api_battle)) {
+    const air_base_injection = api_battle.api_air_base_injection
+    const stage3_edam = air_base_injection?.api_stage3?.api_edam
+    const stage3_edam_combined = air_base_injection?.api_stage3_combined?.api_edam
+
+    //
+    debug('>> airbase injection stage3 dam(FtoE):', stage3_edam, 'hps:', hps);
+    damaged(hps, stage3_edam)
+    debug('<< airbase injection stage3 dam(FtoE) hps:', hps);
+
+    //
+    debug('>> airbase injection stage3 dam combined(FtoE):', stage3_edam_combined, 'hps:', hps);
+    damaged(hps, stage3_edam_combined, 6)
+    debug('<< airbase injection stage3 dam combined(FtoE) hps:', hps);
+  }
+
+  //
   if (hasInjectionKouku(api_battle)) {
     const injection_kouku = api_battle.api_injection_kouku
     const stage3_edam = injection_kouku?.api_stage3?.api_edam
@@ -456,27 +479,41 @@ export function calcFleetHps(arg: PrvBattleInfo): AfterBattleFleetHps {
   const nowhps = f_nowhps.concat()
   let combined = false
 
-  const pushCombined = (battle: any): void => {
-    if (Array.isArray(battle.api_f_nowhps_combined)) {
-      if(!combined) {
-        combined = true
+  type BattleWithCombinedHps = {
+    api_f_nowhps_combined?: unknown
+  }
 
-        // 6隻に満たない場合NaNで6隻まで追加
-        // api_fdamが12要素あるため
-        while (nowhps.length < 6) {
-          nowhps.push(NaN)
-        }
-      }
-      nowhps.push(...(battle.api_f_nowhps_combined as number[]))
+  const hasCombinedHps = (battle: unknown): battle is BattleWithCombinedHps => {
+    return (
+      !!battle &&
+      typeof battle === 'object' &&
+      'api_f_nowhps_combined' in battle &&
+      Array.isArray((battle as BattleWithCombinedHps).api_f_nowhps_combined)
+    )
+  }
+
+  const pushCombined = (battle: unknown): void => {
+    if (!hasCombinedHps(battle)) {
+      return
     }
+    if(!combined) {
+      combined = true
+
+      // 6隻に満たない場合NaNで6隻まで追加
+      // api_fdamが12要素あるため
+      while (nowhps.length < 6) {
+        nowhps.push(NaN)
+      }
+    }
+    nowhps.push(...(battle.api_f_nowhps_combined as number[]))
   }
 
   // 連合艦隊の場合、味方HPを追加
   if (arg.midday) {
-    pushCombined(arg.midday as any)
+    pushCombined(arg.midday)
     debug('calc fleet hps(midday combined):', nowhps)
   } else if (arg.midnight) {
-    pushCombined(arg.midnight as any)
+    pushCombined(arg.midnight)
     debug('calc fleet hps(midnight combined):', nowhps)
   }
 
@@ -529,19 +566,34 @@ export function calcEnemyHps(arg: PrvBattleInfo): EnemyState[] {
 
   debug('ship_ke', ship_ke, apiNowhps)
 
-  const pushCombined = (battle: any): void => {
-    if (Array.isArray(battle.api_ship_ke_combined) && Array.isArray(battle.api_e_nowhps_combined)) {
+  type BattleWithCombinedHps = {
+    api_ship_ke_combined?: unknown
+    api_e_nowhps_combined?: unknown
+  }
+
+  const hasCombinedHps = (battle: unknown): battle is BattleWithCombinedHps => {
+    return (
+      !!battle &&
+      typeof battle === 'object' &&
+     'api_ship_ke_combined' in battle &&
+      Array.isArray((battle as BattleWithCombinedHps).api_ship_ke_combined) &&
+      'api_e_nowhps_combined' in battle &&
+      Array.isArray((battle as BattleWithCombinedHps).api_e_nowhps_combined)
+    )
+  }
+
+  const pushCombined = (battle: unknown): void => {
+    if (hasCombinedHps(battle)) {
       ship_ke.push(...(battle.api_ship_ke_combined as number[]))
       apiNowhps.push(...(battle.api_e_nowhps_combined as number[]))
     }
   }
 
-
   if (arg.midday) {
-    pushCombined(arg.midday as any)
+    pushCombined(arg.midday)
     debug('calc enemy hps. ship_ke2:', ship_ke, apiNowhps)
   } else if (arg.midnight) {
-    pushCombined(arg.midnight as any)
+    pushCombined(arg.midnight)
     debug('calc enemy hps. ship_ke3', ship_ke, apiNowhps)
   }
 

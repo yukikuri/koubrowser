@@ -1,0 +1,42 @@
+{
+  "mapId": 625,
+  "cellId": 68,
+  "isBoss": true,
+  "enemyFormation": 14,
+  "mapLv": 4,
+  "shipId": 78,
+  "shipName": "金剛",
+  "shipCounts": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "rank": "S",
+  "questName": "ブレスト沖/大西洋/イギリス本土沖/バルト海",
+  "enemyDeckName": "深海欧州艦隊 侵攻部隊旗艦戦隊",
+  "exp": 400,
+  "baseExp": 600,
+  "teitokuLv": 120,
+  "firstClear": false,
+  "enemyShips1": [
+    2394,
+    2119,
+    2382,
+    1956,
+    1862,
+    1862
+  ],
+  "enemyShips2": [
+    2318,
+    2052,
+    2052,
+    1624,
+    1624,
+    1624
+  ],
+  "origin": "koubrowser/1.0.9",
+  "itemId": -1,
+  "itemCount": 0,
+  "date": "2026-09-04T09:00:00+09:00"
+}

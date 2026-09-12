@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeUnmount, computed, watch, toRaw, Ref } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, computed, watch, toRaw, Ref, ComputedRef, onUnmounted } from 'vue'
 import { Const } from '@common/const'
 import { DispSeikuText, getFormationText, TacticsText } from '@common/locale'
 import { Env } from '@common/env'
@@ -10,7 +10,7 @@ import TimelineImage from '@assets/img/titlebar/timeline.svg'
 import ShowAssistImage from '@assets/img/titlebar/show-assist.svg'
 import OptionImage from '@assets/img/titlebar/option.svg'
 import RecImage from '@assets/img/titlebar/rec.svg'
-import RefreshAssistImage from '@assets/img/titlebar/refresh-assist.svg'
+//import RefreshAssistImage from '@assets/img/titlebar/refresh-assist.svg'
 import OpenCaptureFolderImage from '@assets/img/titlebar/open-capture-folder.svg'
 import CaptureImage from '@assets/img/titlebar/capture.svg'
 import ReloadImage from '@assets/img/titlebar/reload.svg'
@@ -32,7 +32,6 @@ import {
   ApiTactics,
   KcsUtil,
   ApiEventId,
-  ShipHpState,
   ApiMissionId,
   AirBaseActionKind,
   ApiItemId
@@ -48,7 +47,7 @@ import { AssistUIState } from '@renderer/store/ui_state'
 // デバッグログ
 const DEBUG = false;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[TitleBar]", ...args);
 };
 
@@ -68,7 +67,7 @@ const todayBattleScoreDialOffsets = ref<number[]>([])
 const titlebarEl = ref<HTMLElement | null>(null)
 
 const props = defineProps<{
-  timeline_pressed: boolean
+  timelinePressed: boolean
 }>()
 
 let cb_port: number = 0
@@ -247,7 +246,7 @@ const tacticsText = computed((): string => {
 
 let onTimelineHandler: ((_event: Event) => void) | null = null
 
-function styleWidthHolder() {
+function styleWidthHolder(): { width: Ref<number>, getStyle: ComputedRef<string> } {
   const width = ref(0);
   const getStyle = computed(() => `--width: ${width.value}px`);
   return { width, getStyle };
@@ -264,7 +263,7 @@ const { width: notSupplyAirBaseWidth, getStyle: notSupplyAirBaseStyle } = styleW
 const { width: waySupportWidth, getStyle: waySupportStyle } = styleWidthHolder();
 const { width: bossSupportWidth, getStyle: bossSupportStyle } = styleWidthHolder();
 
-const setSlideEffectElementSize = (selector: string, holder: Ref<number>) => {
+const setSlideEffectElementSize = (selector: string, holder: Ref<number>): void => {
   if(titlebarEl.value) {
     const el = titlebarEl.value.querySelector(selector) as HTMLElement;
     if (el) {
@@ -288,10 +287,10 @@ const setSlideEffectElementSize = (selector: string, holder: Ref<number>) => {
 }
 
 onMounted(() => {
-  debug('titlebar mounted', taiha_singeki.value)
+  debug('mounted', taiha_singeki.value)
   setTimelineClickEvent(true)
 
-  //
+  // 
   cb_port = ApiCallback.set([Api.PORT_PORT, () => onPort()])
   cb_map_start = ApiCallback.set([Api.REQ_MAP_START, () => onMapStart()])
   cb_map_next = ApiCallback.set([Api.REQ_MAP_NEXT, () => onMapNext()])
@@ -312,6 +311,15 @@ onMounted(() => {
   setSlideEffectElementSize('.way-support-content', waySupportWidth);
   setSlideEffectElementSize('.boss-support-content', bossSupportWidth);
 })
+
+onUnmounted(() => {
+  debug('unmounted')
+  ApiCallback.unset(cb_port)
+  ApiCallback.unset(cb_map_start);
+  ApiCallback.unset(cb_map_next);
+  ApiCallback.unset(cb_battle_start);
+})
+
 
 function onPort(): void {
   inBattle.value = false
@@ -396,7 +404,7 @@ function setTimelineClickEvent(set: boolean): void {
 }
 
 watch(
-  () => props.timeline_pressed,
+  () => props.timelinePressed,
   (newVal: boolean) => {
     // prevent show timeline tip
     debug(
@@ -421,7 +429,7 @@ const emit = defineEmits<{
 }>()
 
 function onTimeline(event: Event): void {
-  debug('on timeline timeline_pressed', props.timeline_pressed, event)
+  debug('on timeline timeline_pressed', props.timelinePressed, event)
   setTimelineClickEvent(false)
   event.stopPropagation()
   emit('timeline')
@@ -429,7 +437,7 @@ function onTimeline(event: Event): void {
 
 const isDragable = (): boolean => {
   //debug('isDragable', this.timeline_pressed);
-  return !props.timeline_pressed
+  return !props.timelinePressed
 }
 
 const isAssistShown = computed((): boolean => {
@@ -479,7 +487,7 @@ const onRec = (): void => {
   }
 }
 
-const onRefreshAssist = (): void => {
+const _onRefreshAssist = (): void => {
   window.api.refreshAssist()
 }
 
@@ -888,7 +896,7 @@ function animateTodayBattleScore(target: number): void {
   }
 
   const step = target > current ? 1 : -1
-  const tick = () => {
+  const tick = (): void => {
     const currentValue = todayBattleScore.value
 
     const next = currentValue + step
@@ -902,9 +910,9 @@ function animateTodayBattleScore(target: number): void {
   todayBattleScoreAnimTimer = setTimeout(tick, 70)
 }
 
-let v = 95;
-function updateTodayBattleScore() {
-  if (! todayExpFetched) {
+let _v = 95;
+function updateTodayBattleScore(): void {
+  if (! todayExpFetched.value) {
     debug('today exp updated before fetched')
     return
   }
@@ -920,11 +928,11 @@ function updateTodayBattleScore() {
   // test code
   // setInterval(() => {
   //   animateTodayBattleScore(v)
-  //   v+= 2;
+  //   _v+= 2;
   // }, 4000)
 }
 
-function fetchTodayExp() {
+function fetchTodayExp(): void {
   if (todayExpFetched.value) {
     return
   }
@@ -998,14 +1006,14 @@ onBeforeUnmount(() => {
 /////////////////////////////////////////////////////////////////////////////////////
 // battle score reset timer
 let bsResetTimerId :undefined | number = undefined
-function clearDailyBattleScoreResetTimer() {
+function clearDailyBattleScoreResetTimer(): void {
   if (bsResetTimerId !== undefined) {
     clearTimeout(bsResetTimerId)
     bsResetTimerId = undefined
   }
 }
 
-function setDailyBattleScoreResetTimer() {
+function setDailyBattleScoreResetTimer(): void {
   clearDailyBattleScoreResetTimer()
 
   const now = new Date()
@@ -1033,7 +1041,7 @@ if (EnvRenderer.isTestMode) {
 </script>
 
 <template>
-  <div class="titlebar" :class="{ 'is-taiha-singeki': taiha_singeki }" ref="titlebarEl">
+  <div ref="titlebarEl" class="titlebar" :class="{ 'is-taiha-singeki': taiha_singeki }">
     <div>
       <div class="icon-container" :style="iconContainerStyle">
         <img class="icon app" src="../assets/img/titlebar/app-icon.png" />
@@ -1067,8 +1075,9 @@ if (EnvRenderer.isTestMode) {
         </button>
       </transition>
       <transition name="slide-effect" appear>
-        <span class="caption-content for-calc-size gimmick-clear-content" 
+        <span 
           v-show="isGimmickClear"
+          class="caption-content for-calc-size gimmick-clear-content" 
           :style="gimmickClearStyle">&nbsp;&nbsp;<span 
             class="g">ギミック</span>解除音<span 
               v-if="isGimmickClear" class="tag-circle yellow">有</span><span 
@@ -1076,47 +1085,55 @@ if (EnvRenderer.isTestMode) {
                 class="is-map">MAP</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
-        <span class="caption-content for-calc-size not-supply-content" 
+        <span 
           v-show="isNotSupplyDeck"
+          class="caption-content for-calc-size not-supply-content" 
           :style="notSupplyStyle">&nbsp;&nbsp;未補給</span>
       </transition>
       <transition name="slide-effect" appear>
-         <span class="caption-content for-calc-size not-supply-deck1"
+         <span 
            v-show="isNotSupplyDeck1"
+           class="caption-content for-calc-size not-supply-deck1"
            :style="notSupplyDeck1Style"><span class="tag-circle yellow deck">第一</span></span>
       </transition>
       <transition name="slide-effect" appear>
-         <span class="caption-content for-calc-size not-supply-deck2"
+         <span 
            v-show="isNotSupplyDeck2"
+           class="caption-content for-calc-size not-supply-deck2"
            :style="notSupplyDeck2Style"><span class="tag-circle yellow deck">第二</span></span>
       </transition>
       <transition name="slide-effect" appear>
-         <span class="caption-content for-calc-size not-supply-deck3"
+         <span 
            v-show="isNotSupplyDeck3"
+           class="caption-content for-calc-size not-supply-deck3"
            :style="notSupplyDeck3Style"><span class="tag-circle yellow deck">第三</span></span>
       </transition>
       <transition name="slide-effect" appear>
-         <span class="caption-content for-calc-size not-supply-deck4"
+         <span 
            v-show="isNotSupplyDeck4"
+           class="caption-content for-calc-size not-supply-deck4"
            :style="notSupplyDeck4Style"><span class="tag-circle yellow deck">第四</span></span>
       </transition>
       <transition name="slide-effect" appear>
-        <span class="caption-content for-calc-size not-supply-airbase-content" 
+        <span 
           v-show="isNotSupplyAirBaseExist"
+          class="caption-content for-calc-size not-supply-airbase-content" 
           :style="notSupplyAirBaseStyle">&nbsp;&nbsp;基地未補給<span 
             v-if="isNotSupplyAirBase" class="tag-circle yellow">有</span><span 
             v-if="isNotSupplyAirBaseEvent" class="tag-circle yellow">有<span class="is-event">E</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
-        <span class="caption-content for-calc-size way-support-content" 
+        <span 
           v-show="isWaySupport"
+          class="caption-content for-calc-size way-support-content" 
           :style="waySupportStyle">&nbsp;&nbsp;前衛支援<span 
             class="tag-circle red">出<span 
             v-if="isEventWaySupport" class="is-event">E</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
-        <span class="caption-content for-calc-size boss-support-content" 
+        <span 
           v-show="isBossSupport"
+          class="caption-content for-calc-size boss-support-content" 
           :style="bossSupportStyle">&nbsp;&nbsp;決戦支援<span 
             class="tag-circle red">出<span 
           v-if="isEventBossSupport" class="is-event">E</span></span></span>
@@ -1126,14 +1143,19 @@ if (EnvRenderer.isTestMode) {
       <div class="mapinfo-content">
         <div class="map-in-out-img" :class="{ 'in-map': inMap }"><MapInOutImage /></div>
         <div class="map-area-route" :class="{ 'no-map-start': !mapStartOnce }">{{ mapAreaText }}{{ mapCellText }}</div>
-        <div class="timeline-button" :class="{ press: timeline_pressed }" title="タイムライン">
+        <div class="timeline-button" :class="{ press: timelinePressed }" title="タイムライン">
           <div class="battle-score-text">
             <div>戦果</div>
             <div class="score">
               <template v-if="isTodayBattleScoreCalced">
-                <span class="score-dial-digit" v-for="(offset, index) in todayBattleScoreDialOffsets" :key="todayBattleScoreDialOffsets.length - index - 1">
+                <span 
+                  v-for="(offset, index) in todayBattleScoreDialOffsets" :key="todayBattleScoreDialOffsets.length - index - 1"
+                  class="score-dial-digit">
                   <span class="score-dial-reel" :style="{ transform: `translateY(-${offset}em)` }">
-                    <span class="score-dial-char" v-for="(num, numIndex) in scoreDialReel" :key="numIndex">{{ num }}</span>
+                    <span 
+                      v-for="(num, numIndex) in scoreDialReel" :key="numIndex"
+                      class="score-dial-char"
+                      >{{ num }}</span>
                   </span>
                 </span>
               </template>

@@ -4,7 +4,7 @@ import { getMainDir } from '@main/path'
 
 export class AppStuff {
 
-  static calcGameZoomFactor(width: number) {
+  static calcGameZoomFactor(width: number): number {
     return width / Const.GameWidth
   }
 

@@ -5,39 +5,40 @@ import { RUtil } from '@renderer/util'
 const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 type Props = {
-  ship_info?: ShipInfo | null
-  mst_id?: number
-  mst_id_enemy?: number
+  shipInfo?: ShipInfo | null
+  mstId?: number
+  mstIdEnemy?: number
   dmg?: boolean
   escaped?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  ship_info: null,
-  mst_id: 0,
+  shipInfo: null,
+  mstId: 0,
+  mstIdEnemy: 0,
   dmg: false,
   escaped: false
 })
 
-const ReloadState = {
+const _ReloadState = {
   fromCache1: null as string | null,
   fromCache2: '1',
   fromApp: '2'
 } as const
 
 const src = computed<string>(() => {
-  if (props.ship_info) {
+  if (props.shipInfo) {
     return RUtil.shipBannerImg(
-      props.ship_info.mst.api_id,
-      KcsUtil.shipIsDmaged(props.ship_info.api),
+      props.shipInfo.mst.api_id,
+      KcsUtil.shipIsDmaged(props.shipInfo.api),
       true
     )
   }
-  if (props.mst_id) {
-    return RUtil.shipBannerImg(props.mst_id, props.dmg, true)
+  if (props.mstId) {
+    return RUtil.shipBannerImg(props.mstId, props.dmg, true)
   }
-  if (props.mst_id_enemy) {
-    return RUtil.eshipBannerImg(props.mst_id_enemy)
+  if (props.mstIdEnemy) {
+    return RUtil.eshipBannerImg(props.mstIdEnemy)
   }
   return RUtil.shipBannerNoCacheImg
 })
@@ -54,7 +55,7 @@ function onLoad(event: Event, _src?: string): void {
 }
 
 function onError(event: Event, _src?: string): void {
-  console.log('ship banner error', _src, 'mst_id:', props.mst_id, event);
+  console.log('ship banner error', _src, 'mst_id:', props.mstId, event);
   const target = event.target as HTMLImageElement
   target.src = TRANSPARENT_GIF;
   // const target = event.target as HTMLImageElement

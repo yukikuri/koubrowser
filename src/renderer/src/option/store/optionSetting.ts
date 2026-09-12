@@ -13,7 +13,7 @@ export const optionViewInfo: OptionViewInfo = {
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[Store/OptionSetting]", ...args);
 };
 
@@ -54,7 +54,7 @@ const syncHandle = watch(
  * 
  * @param setting 
  */
-export function setOptionSettingWithPreventSave(data: OptionData) {
+export function setOptionSettingWithPreventSave(data: OptionData): void {
   debug('set prevent save >> preventSave:', preventSave, data)
   preventSave = true;
   forWatchCall.value++;

@@ -16,7 +16,7 @@ import { computed, onMounted, toRaw } from 'vue'
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[QuestList]", ...args);
 };
 
@@ -186,9 +186,9 @@ onMounted(() => {
   <section class="questlist">
     <div class="questlist-title">任務情報 遂行中: {{ questLen }}/{{ maxQuest }}</div>
     <b-tooltip
-      always2
-      v-for="(quest, index) in quests"
+       v-for="(quest, index) in quests"
       :key="index"
+      always2
       position="is-right"
       multilined
       type="is-dark"
@@ -196,7 +196,7 @@ onMounted(() => {
       :animated="true"
       class="questtip"
     >
-      <template v-slot:content>
+      <template #content>
         <div class="quest-tip">
           <div class="tiptitle">
             <span>{{ quest.record.no }}: {{ quest.record.quest.api_title }}</span>
@@ -214,7 +214,7 @@ onMounted(() => {
         }}</span>
         <span class="quest-title">
           <span v-if="quest.is_special" class="quest-category is-special pl-1 pr-1">限定</span>
-          <span class="quest-category is-senka pl-1 pr-1" v-if="quest.senka > 0"
+          <span v-if="quest.senka > 0" class="quest-category is-senka pl-1 pr-1"
             >戦果{{ quest.senka }}</span
           >
           <span class="ml-1">{{ quest.record.quest.api_title }}</span>
@@ -230,6 +230,8 @@ onMounted(() => {
             <span class="quest-progress-text" :class="{ 'stext': quest.is_stext}">
               <span v-if="quest.deckOk == true" class="deckOk">編成:OK</span>
               <span v-if="quest.deckOk == false" class="deckNg">編成:NG</span>
+              <!-- XSS attack対象なし -->
+              <!-- eslint-disable-next-line vue/no-v-html -->
               <span v-if="quest.progressDetail" v-html="quest.progressDetail"></span>
             </span>
           </template>

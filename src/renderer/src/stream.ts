@@ -22,7 +22,7 @@ import { updateFleetHps } from '@common/kcsbattle_util'
 
 let requiredRecvedCallback: (()=> void) | null = null;
 
-function onRequired(msg: RequiredMessage) {
+function onRequired(msg: RequiredMessage): void {
   console.log('stream got required data >> is null:', msg.svdata === null)
   if (msg.svdata) {
     console.time('copy svdata')
@@ -53,13 +53,13 @@ function onRequired(msg: RequiredMessage) {
   }
 }
 
-function onApiReq(msg: ApiReqMessage) {
+function onApiReq(msg: ApiReqMessage): void {
   console.log('stream got api req >> ', 'api:', msg.api)
   svdata.setReq(msg.api, msg.data)
   console.log('stream got api req << ', 'api:', msg.api)
 }
 
-function onApiRes(msg: ApiResMessage) {
+function onApiRes(msg: ApiResMessage): void {
   console.log('stream got api res >> ', 'api:', msg.api, 'additional:', !!msg.additional)
   svdata.update(msg.api, msg.data)
 
@@ -82,27 +82,27 @@ function onApiRes(msg: ApiResMessage) {
   console.log('stream got api res << ', 'api:', msg.api)
 }
 
-function onQuests(list: Quest[]) {
+function onQuests(list: Quest[]): void {
   console.log('stream got quests >> ')
   replaceArray(quests.list, list)
   console.log('stream got quests << ')
 }
 
-function onAppSetting(setting: AppSetting) {
+function onAppSetting(setting: AppSetting): void {
   console.log('stream got app setting >> ', setting)
   setAppSettingOk(true);
   setAppSettingWithPreventSave(setting);
   console.log('stream got mission setting << ')
 }
 
-function onGlobalSetting(setting: GlobalSetting) {
+function onGlobalSetting(setting: GlobalSetting): void {
   console.log('stream got global setting >> ', setting)
   setGlobalSettingWithPreventSave(setting);
   console.log('stream got global setting << ')
 }
 
 let port: MessagePort | null = null;
-export function streamInitialize(cb: ()=> void) {
+export function streamInitialize(cb: ()=> void): void {
   requiredRecvedCallback = cb;
 
   // recv stream port from main

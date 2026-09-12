@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, toRaw } from 'vue'
+import { computed, ref, toRaw, type Ref } from 'vue'
 import { onMounted, onUnmounted } from 'vue'
 import Highcharts, { AxisLabelsFormatterContextObject, SeriesFlagsOptions, SeriesOptionsType, Tooltip, XAxisOptions, YAxisOptions } from 'highcharts/highstock'
 import noDataToDisplay from 'highcharts/modules/no-data-to-display'
 import { 
   BattleRecord, 
+  BattleRecordQuery, 
   ClearItemGetRecord, 
   DbName, 
   PortRecord, 
@@ -38,11 +39,17 @@ type DateRangeStr = {
   end: string;
 }
 
+type PressStateHolder = {
+  pressed: Ref<boolean>;
+  presseStart: () => void;
+  pressEmd: () => void;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[BattleScore]", ...args);
 };
 
@@ -79,7 +86,7 @@ const isForecastScore = ref(
   sesStorage.getBoolean(SessionStorageKeyName.BattleScoreIsForecast) ?? false
 );
 
-function toggleForecastScore() {
+function toggleForecastScore(): void {
   isForecastScore.value = ! isForecastScore.value
   sesStorage.setBoolean(
     SessionStorageKeyName.BattleScoreIsForecast,
@@ -208,7 +215,7 @@ const questClearStateList = () : QuestClearState[] => {
 }
 const questClearStates = ref<QuestClearState[]>(questClearStateList());
 
-function updateQuestClearState(clears: QuestClears, states: { quarterly: Quest[], yearly: Quest[] }) {
+function updateQuestClearState(clears: QuestClears, states: { quarterly: Quest[], yearly: Quest[] }): void {
   const quests = states.quarterly.concat(states.yearly);
   questClearStates.value.forEach((q) => {
     let rec = clears.alreadyCompleted.find((e) => e.no === q.no);
@@ -286,7 +293,7 @@ function getGuageInfo(mapId: number): {count: number, countMax: number} | undefi
   return undefined;
 }
 
-function updateEoClearState(clears: EoClearRecord[]) {
+function updateEoClearState(clears: EoClearRecord[]): void {
 
   eoClearStates.value.forEach((q) => {
     const rec = clears.find((e) => e.mapId === q.mapId);
@@ -321,7 +328,7 @@ const SeriesTypes = {
   forecastEo: 'forecastEo',
   forecastQuest: 'forecastQuest',
 } as const;
-type SeriesTypes = (typeof SeriesTypes)[keyof typeof SeriesTypes]
+type SeriesTypesType = (typeof SeriesTypes)[keyof typeof SeriesTypes]
 
 let chart: Highcharts.Chart | undefined
 
@@ -634,7 +641,7 @@ const seriasColors = [
   '#fa4fed' // 予測値
 ]
 
-const colorFromSeriesType = (type: SeriesTypes, isValue: boolean): string => {
+const colorFromSeriesType = (type: SeriesTypesType, isValue: boolean): string => {
   if (type === SeriesTypes.total) {
     return seriasColors[0];
   }
@@ -674,7 +681,7 @@ const colorFromSeriesType = (type: SeriesTypes, isValue: boolean): string => {
   return '#ffffff';
 }
 
-function hexToRgba(hex: string, alpha = 1) {
+function hexToRgba(hex: string, alpha = 1): string {
   let h = hex.replace('#','');
   if (h.length === 3) h = h.split('').map(c => c + c).join('');
   const r = parseInt(h.slice(0,2), 16);
@@ -691,7 +698,7 @@ const getWeekDayText = (year: number, month: number, date: number): string => {
 
 function shareTooltipFormatter(
   ctx: Highcharts.TooltipFormatterContextObject, 
-  tooltip: Tooltip) {
+  tooltip: Tooltip): string {
 
   const info = tooltip.chart.__chartInfo;
   if (!info || ! ctx.points || !ctx.points.length ) {
@@ -752,7 +759,7 @@ function shareTooltipFormatter(
     }
 
     // カラム名色
-    const color = colorFromSeriesType(userOptions.id as SeriesTypes, false);
+    const color = colorFromSeriesType(userOptions.id as SeriesTypesType, false);
     if (val) {
       if (index !== 0) {
         val = '+'+val;
@@ -763,7 +770,7 @@ function shareTooltipFormatter(
 
     // カラム値色
     // 予測値の場合、値色を変える
-    const isForecast = (userOptions.id as SeriesTypes).startsWith('forecast');
+    const isForecast = (userOptions.id as SeriesTypesType).startsWith('forecast');
     const valColor = isForecast ? 'color:'+colorFromSeriesType(SeriesTypes.forecastTotal, true)+';' : '';
 
     return `<tr>
@@ -776,7 +783,7 @@ function shareTooltipFormatter(
 
 function flagTooltipFormatter(
   ctx: Highcharts.TooltipFormatterContextObject, 
-  tooltip: Tooltip) {
+  tooltip: Tooltip): string {
 
   const info = tooltip.chart.__chartInfo;
   if (!info || ctx.point.options.id !== SeriesTypes.flags) {
@@ -824,7 +831,7 @@ function flagTooltipFormatter(
   // Quest records
   if (questRecords.length > 0) {
 
-    function formatQuestTags(records: QuestClearRecord[], isQuarterly: boolean) {
+    function formatQuestTags(records: QuestClearRecord[], isQuarterly: boolean): void {
       const prefix = isQuarterly ? 'クオータリー' : 'イヤーリー'
       tags.push(`<tr><td colspan="2" style="color:#e54bfa;font-size:12.5px;padding-top:8px;padding-bottom:4px;">`+
       `${prefix}任務達成報酬</td></tr>`);
@@ -844,7 +851,7 @@ function flagTooltipFormatter(
         </tr>`);
       });
     }
-    function formatEtcQuestTags(records: QuestClearRecord[]) {
+    function formatEtcQuestTags(records: QuestClearRecord[]): void {
       const color = '#60fa4b';
       tags.push(`<tr><td colspan="2" style="color:${color};font-size:12.5px;padding-top:8px;padding-bottom:4px;">`+
       `戦果任務達成報酬</td></tr>`);
@@ -879,7 +886,7 @@ function flagTooltipFormatter(
   return tags.join('');
 }
 
-function drawChart(info: ChartInfo, isNew: boolean) {
+function drawChart(info: ChartInfo, isNew: boolean): void {
 
   const stops: Array<Highcharts.GradientColorStopObject> = [
     [0, '#fa4fed'],
@@ -945,7 +952,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
       shared: true,
       useHTML: true,
       followPointer: true,
-      positioner: function (_labelWidth, _labelHeight) {
+      positioner: function (_labelWidth, _labelHeight): { x: number, y: number } {
         // plot左上に固定
         const chart = this.chart;
         return {
@@ -961,7 +968,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
         color: tooltipFontColor,
         fontFamily: tooltipFontfamily,
       },
-      formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Tooltip) {
+      formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Tooltip): string {
         //debug('tooltip formatter this:', this, tooltip);
         if (this.points && this.points.length > 0) {
           return shareTooltipFormatter(this, tooltip);
@@ -988,7 +995,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
             color: '#00000',
             textShadow: '0 0 6px #bbb',
           },
-          formatter() {
+          formatter(): string {
             const val = Math.floor(this.y!)
             if (! val || val === 0) {
               return ''
@@ -1008,7 +1015,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
             color: '#000000',
             textShadow: '0 0 6px #bbb',
           },
-          formatter() { return String(Math.floor(this.y!)) }
+          formatter(): string { return String(Math.floor(this.y!)) }
         },
         lineWidth: 1,
         marker: { enabled: true },
@@ -1016,7 +1023,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
       series: {
         events: {
           // legendクリック無効化
-          legendItemClick: function (e) {
+          legendItemClick: function (e): boolean {
             e.preventDefault(); // 明示的に止める
             return false;       // 旧来互換でも確実に止まる
           }
@@ -1039,7 +1046,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
       //rotation: 0,               // 明示的に回転を 0 に
       //autoRotation: false,       // 自動回転を無効化
       //autoRotationLimit: 0,      // しきい値を 0 にして回転判定されないように
-      formatter : function (this: AxisLabelsFormatterContextObject, _ctx: AxisLabelsFormatterContextObject) {
+      formatter : function (this: AxisLabelsFormatterContextObject, _ctx: AxisLabelsFormatterContextObject): string {
         const date = Number(this.value)+1
         const now = new Date();
         const isToday = now.getFullYear() === info.year && (now.getMonth() + 1) === info.month && (
@@ -1062,7 +1069,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
           color: axisFontColor, 
           fontSize: yAxisFontSize, 
         },
-        formatter: function () {
+        formatter: function (): string {
           //debug('axis formtter:', this.axis.min, this.axis.max, this.value, this);
           // title指定だと位置調整が難しいことから
           // 最大値ラベルにタイトル追加
@@ -1096,7 +1103,7 @@ function drawChart(info: ChartInfo, isNew: boolean) {
           color: axisFontColor, 
           fontSize: yAxisFontSize,
         },
-        formatter: function () {
+        formatter: function (): string {
           // title指定だと位置調整が難しいことから
           // 最大値ラベルにタイトル追加
           if (this.value === this.axis.max) {
@@ -1453,7 +1460,7 @@ async function fetchEoClearRecord(year: number, month: number):Promise<EoClearRe
 
   async function fetchBattleEoClear() : Promise<EoClearRecord[]> {
     return new Promise((resolve, reject) => {
-      const query = { 
+      const query: BattleRecordQuery  = { 
         dbName: DbName.battle, 
         find: { 
           mapId: {
@@ -1567,7 +1574,6 @@ function dateInRange(dateStr: string, range: DateRange): boolean {
 }
 
 function calcQuestClearRate(r: ClearItemGetRecord, range: DateRange | undefined): number {
-  const date = new Date(r.date);
   return r.bonuses!.reduce((acc, el) => {
 
     // 戦果任務で前月末14:00 ～ 当月13:59までを計上する
@@ -1584,7 +1590,7 @@ function calcQuestClearRate(r: ClearItemGetRecord, range: DateRange | undefined)
 }
 
 
-function rangeToRecordDate(range: DateRange): DateRangeStr {
+function _rangeToRecordDate(range: DateRange): DateRangeStr {
   return {
     start: toRecordDate(range.start),
     end: toRecordDate(range.end),
@@ -1791,7 +1797,7 @@ async function fetchFirstExpRecord(): Promise<PortRecord | null> {
   })
 }
 
-function dataFor(year: number, month: number, isNew: boolean) {
+function dataFor(year: number, month: number, isNew: boolean): void {
   const expTask = fetchExpRecord(year, month);
   const eoClearTask = fetchEoClearRecord(year, month);
   const questClearTask = fetchQuestClearRecord(year, month);
@@ -1861,7 +1867,7 @@ function dataFor(year: number, month: number, isNew: boolean) {
 }
 
 
-function updateContent() {
+function updateContent(): void {
   debug('updateContent. isloading', 
     isLoading.value, indexYearMonth.value, yearMonthList.value.length-1);
 
@@ -1927,7 +1933,7 @@ const selectedMonth = ref<Date>(new Date());
 const currentYear = ref(0);
 const dropdownActive = ref(false);
 
-function dropdownActiveChange(isActive: boolean) {
+function dropdownActiveChange(isActive: boolean): void {
   debug('dropdownActiveChange:', isActive);
   dropdownActive.value = isActive;
   if (isActive) {
@@ -1941,7 +1947,7 @@ function dropdownActiveChange(isActive: boolean) {
   }
 }
 
-function buildYearMonthList(firstExpRecord: PortRecord | null) {
+function buildYearMonthList(firstExpRecord: PortRecord | null): void {
   let startYear: number, startMonth: number;
 
   const now = new Date();
@@ -1983,7 +1989,7 @@ const selectedPeriod = computed(() => {
   return yearMonthList.value[indexYearMonth.value];
 });
 
-function applyPeriod(isNewChart: boolean) {
+function applyPeriod(isNewChart: boolean): void {
   debug('applyPeriod:', indexYearMonth.value)
 
   const period = yearMonthList.value[indexYearMonth.value]
@@ -2004,7 +2010,7 @@ const selectableMonths = computed((): Array<Date> => {
   return dates;
 })
 
-function monthSelected(value: Date) {
+function monthSelected(value: Date): void {
   debug('periodSelected:', value);
 
   const index = yearMonthList.value.findIndex(ymStr => {
@@ -2025,7 +2031,7 @@ function monthSelected(value: Date) {
   applyPeriod(true);
 }
 
-function changeYear(year: number) {
+function changeYear(year: number): void {
   debug('changeYear:', year);
   currentYear.value = year;
 }
@@ -2046,7 +2052,7 @@ const isYearMax = computed(() => {
   return (currentYear.value === maxDate.getFullYear());
 });
 
-function monthSelectSetToday() {
+function monthSelectSetToday(): void {
   debug('monthSelectSetToday');
   const now = new Date();
   selectedMonth.value = now;
@@ -2058,25 +2064,28 @@ function monthSelectSetToday() {
 const inheritScores = ref<MonthScores>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 const inheritScoreForRestore: MonthScores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 const inheritYear = ref(0)
+
 const isCurrentYear = computed((): boolean => {
   if (! yearMonthListOk.value) {
     return false;
   }
   const yearMonth = yearMonthList.value[indexYearMonth.value];
   const [yStr, _mStr] = yearMonth.split('/');
-  const year = Number(yStr);
-
-  const now = new Date();
-  if (year === now.getFullYear()) {
-    inheritYear.value = year;
-    return true;
-  }
-  return false;
+  return Number(yStr) === new Date().getFullYear()
 });
 
 const isShowInheritScoreInput = ref(false);
-function showInheritScoreInput() {
+
+function showInheritScoreInput(): void {
+
+  if (!isCurrentYear.value) return
+
+  const yearMonth = yearMonthList.value[indexYearMonth.value]
+  const [yStr] = yearMonth.split('/')
+  inheritYear.value = Number(yStr)
+
   debug('showInheritScoreInput', inheritYear.value);
+
   const scores = inheritScoreList.inheritScores.find(s => s.year === inheritYear.value);
   if (scores) {
     debug('found existing inherit scores:', scores);
@@ -2085,19 +2094,20 @@ function showInheritScoreInput() {
     debug('no existing inherit scores for year, initializing to zero');
     inheritScores.value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   }
+
   replaceArray(inheritScoreForRestore, toRaw(inheritScores.value))
   debug('showInheritScoreInput2', toRaw(inheritScores.value), inheritScoreForRestore);
   isShowInheritScoreInput.value = true;
 }
 
-function restoreInheritScores() {
+function restoreInheritScores(): void {
   debug('restoreInheritScores', toRaw(inheritScores.value), inheritScoreForRestore);
   inheritScoreForRestore.forEach((v, i) => {
     inheritScores.value[i] = v;
   });
 }
 
-function applyInheritScores() {
+function applyInheritScores(): void {
   debug('applyInheritScores:', inheritYear.value, inheritScores.value);
   const existing = inheritScoreList.inheritScores.find(s => s.year === inheritYear.value);
   if (existing) {
@@ -2125,10 +2135,10 @@ const isInputBlockerActive = computed((): boolean => {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // ボタン押下状態管理
-function pressStateHolder() {
+function pressStateHolder(): PressStateHolder {
   const pressed = ref(false);
-  const presseStart = () => { pressed.value = true; }
-  const pressEmd = () => { pressed.value = false; }
+  const presseStart = (): void => { pressed.value = true; }
+  const pressEmd = (): void => { pressed.value = false; }
   return { pressed, presseStart, pressEmd  };
 }
 
@@ -2139,7 +2149,7 @@ const {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // 仮達成関連
-function tempClearChanged() {
+function tempClearChanged(): void {
   debug('tempClearChanged');
 
   // save session storage
@@ -2160,7 +2170,7 @@ function tempClearChanged() {
   applyPeriod(false);
 }
 
-function toggleTempClear(ev: Event, task: ForecastableTask) {
+function toggleTempClear(ev: Event, task: ForecastableTask): void {
   debug('toggleTempClear is forecast:', isForecastScore.value, ev);
 
   if (! isForecastScore.value) {
@@ -2188,7 +2198,7 @@ function toggleTempClear(ev: Event, task: ForecastableTask) {
   tempClearChanged();
 }
 
-function setAllTempCleared() {
+function setAllTempCleared(): void {
   debug('setAllTempCleared');
   eoProgress.value.forEach(e => {
     e.setTempCleared = true;
@@ -2199,7 +2209,7 @@ function setAllTempCleared() {
   tempClearChanged();
 }
 
-function unsetAllTempCleared() {
+function unsetAllTempCleared(): void {
   debug('unsetAllTempCleared');
   eoProgress.value.forEach(e => {
     e.setTempCleared = false;
@@ -2211,14 +2221,6 @@ function unsetAllTempCleared() {
 }
 
 </script>
-
-
-<style scoped lang="scss">
-.highcharts-tooltip {
-  font-variant-numeric: tabular-nums;  // 等幅数字
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-</style>
 
 <template>
   <div v-if="isLoading" class="battlescore-root is-loading">
@@ -2248,7 +2250,6 @@ function unsetAllTempCleared() {
         <b-carousel
           v-if="yearMonthListOk"
           v-model="indexYearMonth"
-          @change="applyPeriod"
           :animated="'fade'"
           :autoplay="false"
           :has-drag="false"
@@ -2257,6 +2258,7 @@ function unsetAllTempCleared() {
           :icon-pack="'fa'"
           :ison-size="'is-small'"
           :indicator="false"
+          @change="applyPeriod"
         >
           <b-carousel-item v-for="(_item, i) in yearMonthList" :key="i" class="period-item">
           </b-carousel-item>
@@ -2283,6 +2285,7 @@ function unsetAllTempCleared() {
               >
                 <span class="dropdown-title">表示年月の選択</span>
                 <b-datepicker
+                    v-model="selectedMonth"
                     type="month"
                     size="is-small"
                     icon-pack="fa"
@@ -2293,8 +2296,7 @@ function unsetAllTempCleared() {
                     :selectable-dates="selectableMonths"
                     :min-date="selectableMonths[0]"
                     :max-date="selectableMonths[selectableMonths.length -1]"
-                    v-model="selectedMonth"
-                    @update:modelValue="monthSelected"
+                    @update:model-value="monthSelected"
                     @change-year="changeYear"
                 >
                 <div class="container">
@@ -2311,25 +2313,27 @@ function unsetAllTempCleared() {
       戦果チャート表示部分
     -->
     <div class="battlescore-chart">
-      <div class="chart-content" ref="chartEl"></div>
+      <div ref="chartEl" class="chart-content"></div>
     </div>
 
     <!-- 現在月では進行中任務を表示する -->
-    <div class="tasks-content" v-if="taskContentsOk" :class="{ 'is-visible': taskContentsVisible }">
+    <div v-if="taskContentsOk" class="tasks-content" :class="{ 'is-visible': taskContentsVisible }">
       <div v-if="isPeriodCurrentMonth" class="task-content is-progress">
         <div class="task-header"><span 
           class="header-title">未達成 EO: {{ eoProgress.length }} 戦果任務: {{ questsProgress.length }}
           <transition name="fade-effect" appear>
             <span 
+              v-if="isForecastScore"
               class="temp-compted-ctl-buttons" 
-              v-if="isForecastScore"><b-button 
+              ><b-button 
                 @click="setAllTempCleared">すべて仮達成</b-button><b-button 
                 @click="unsetAllTempCleared">仮達成クリア</b-button></span>
           </transition></span></div>
 
         <div class="task-grid">
           <template v-for="e in eoProgress" :key="`eo-p-${e.mapId}`">
-            <div class="task-item eo" :title="e.name"
+            <div 
+              class="task-item eo" :title="e.name"
               @click="(ev) => toggleTempClear(ev, e)"
             >
               <div class="task-title">{{ e.name }}</div>
@@ -2338,11 +2342,11 @@ function unsetAllTempCleared() {
                 <span class="badge date">{{ e.clearDateDisplay }}</span>
               </div>
               <transition name="fade-effect" appear>
-                <div class="temp-cleared-checkbox" v-if="isForecastScore">
+                <div v-if="isForecastScore" class="temp-cleared-checkbox">
                   <b-checkbox
-                    size="is-small" 
                     v-model="e.setTempCleared"
-                    @update:modelValue="tempClearChanged"
+                    size="is-small" 
+                    @update:model-value="tempClearChanged"
                   ><span class="button-text">仮達成</span></b-checkbox>
                 </div>
               </transition>
@@ -2357,15 +2361,17 @@ function unsetAllTempCleared() {
               <div class="task-title">{{ e.name }}</div>
               <div class="task-meta">
                 <span class="badge rate">+{{ e.rate }}</span>
+                <!-- XSS attack対象なし -->
+                <!-- eslint-disable-next-line vue/no-v-html -->
                 <span v-if="e.progressDetail" class="badge state" v-html="e.progressDetail"></span>
                 <span v-else class="badge date">{{ e.clearDateDisplay }}</span>
               </div>
               <transition name="fade-effect" appear>
-                <div class="temp-cleared-checkbox" v-if="isForecastScore">
+                <div v-if="isForecastScore" class="temp-cleared-checkbox">
                   <b-checkbox
-                    size="is-small" 
                     v-model="e.setTempCleared"
-                    @update:modelValue="tempClearChanged"
+                    size="is-small" 
+                    @update:model-value="tempClearChanged"
                   ><span class="button-text">仮達成</span></b-checkbox>
                 </div>
               </transition>
@@ -2405,12 +2411,12 @@ function unsetAllTempCleared() {
       引継ぎ戦果入力ボタン
     -->
     <transition name="fade-effect" appear>
-      <div class="control-button input-inherit-score-button" v-if="isCurrentYear">
+      <div v-if="isCurrentYear" class="control-button input-inherit-score-button">
         <b-button 
           size="is-small" 
           outlined 
-          @click="showInheritScoreInput"
           :class="{ 'is-pressed': isInheritButtonPressed }"
+          @click="showInheritScoreInput"
           @mousedown="inheritButtonPressStart"
           @mouseup="inheritButtonPressEnd"
           @mouseleave="inheritButtonPressEnd">
@@ -2422,13 +2428,14 @@ function unsetAllTempCleared() {
       戦果予測表示ボタン
     -->
     <transition name="fade-effect" appear>
-      <div class="control-button forecast-score-button" v-if="isPeriodCurrentMonth">
+      <div v-if="isPeriodCurrentMonth" class="control-button forecast-score-button">
         <b-button 
           size="is-small" 
           outlined 
-          @click="toggleForecastScore" 
           :disabled="!isCurrentMonthDataAvailable"
-          :class="{ 'is-active': isForecastScore }">
+          :class="{ 'is-active': isForecastScore }"
+          @click="toggleForecastScore" 
+        >
           <ForecastChartImage /><span class="button-text">戦果予測</span></b-button>
       </div>
     </transition>
@@ -2437,7 +2444,7 @@ function unsetAllTempCleared() {
       引継ぎ戦果入力モーダル
     -->
     <transition name="fade-effect" appear>
-      <div class="input-inherit-score-content" v-if="isShowInheritScoreInput">
+      <div v-if="isShowInheritScoreInput" class="input-inherit-score-content">
         <b-message
           :title="'引継ぎ戦果'"
           :type="'is-info'"
@@ -2455,11 +2462,11 @@ function unsetAllTempCleared() {
                 <div class="inherit-item">
                   <label class="month-label">{{ i }}月</label>
                   <input 
+                    v-model.number="inheritScores[i-1]" 
                     type="number" 
                     min="0" 
                     max="9999" 
                     class="input is-small month-input" 
-                    v-model.number="inheritScores[i-1]" 
                     @keydown.enter.prevent="applyInheritScores"
                     />
                 </div>
@@ -2478,3 +2485,10 @@ function unsetAllTempCleared() {
     
   </section>
 </template>
+
+<style scoped lang="scss">
+.highcharts-tooltip {
+  font-variant-numeric: tabular-nums;  // 等幅数字
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+</style>

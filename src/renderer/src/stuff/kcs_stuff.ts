@@ -1,16 +1,24 @@
 import { svdata } from "@renderer/store/svdata";
 import { mapInfo as storeMapInfo } from '@renderer/store/mapinfo'
-import { ApiDeckPort, ApiDeckPortId, ApiEventId, ApiEventKind, ApiGaugeType, ApiShip, KcsUtil, ShipHpState, SvData } from "@common/kcs";
-import { computed } from "vue";
+import { 
+  ApiDeckPort, 
+  ApiDeckPortId, 
+  ApiEventId, 
+  ApiGaugeType, 
+  ApiShip, 
+  KcsUtil, 
+  ShipHpState, 
+  SvData } from "@common/kcs";
+import { computed, ComputedRef } from "vue";
 
-export function isGimmickFlagDetected() {
+export function isGimmickFlagDetected(): { computed: ComputedRef<boolean> } {
   const ret = computed<boolean>(() => {
     return svdata.svdataRaw.gimmickFlagDetected;
   })
   return {computed: ret};
 }
 
-export function isMapChangeDetected() {
+export function isMapChangeDetected(): { computed: ComputedRef<boolean> } {
   const ret = computed<boolean>(() => {
     return svdata.svdataRaw.mapChangeDetected;
   })
@@ -20,7 +28,7 @@ export function isMapChangeDetected() {
 // 輸送ゲージマップがある場合、輸送値を表示する
 // 輸送値は常には表示しない
 // 常に表示しないのは、表示が煩雑になることを避けるため
-export function isShowYusou() {
+export function isShowYusou(): { computed: ComputedRef<boolean> } {
   const ret = computed<boolean>(() => {
     const svdataMapInfos = svdata.mapinfos;
     if (svdataMapInfos.length) {

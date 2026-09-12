@@ -6392,6 +6392,7 @@ export const ApiItemId = {
   latest_overseas_warship_technology: 100, // 海外艦最新技術
   night_skilled_crew_member: 101, // 夜戦熟練搭乗員
   special_aviation_ration: 102, // 特別航空戦食
+  arsenal_resources: 104, // 工廠資源
   hangar_expansion: 105, // 格納庫増設
 
   // private
@@ -7314,27 +7315,27 @@ interface ApiSlotDeprive {
 }
 
 // req slot deprive param
-// interface ApiSlotDepriveParam {
-//   readonly api_verno: string
-//   readonly api_unset_idx: string
-//   readonly api_set_slot_kind: string
-//   readonly api_unset_slot_kind: string
-//   readonly api_unset_ship: string
-//   readonly api_set_idx: string
-//   readonly api_set_ship: string
-// }
+interface _ApiSlotDepriveParam {
+  readonly api_verno: string
+  readonly api_unset_idx: string
+  readonly api_set_slot_kind: string
+  readonly api_unset_slot_kind: string
+  readonly api_unset_ship: string
+  readonly api_set_idx: string
+  readonly api_set_ship: string
+}
 
 // req remodeling
-// interface ApiRemodelingParam {
-//   readonly api_verno: string
-//   readonly api_id: string
-// }
+interface _ApiRemodelingParam {
+  readonly api_verno: string
+  readonly api_id: string
+}
 
 // req marrige param
-// interface ApiMarrigeParam {
-//   readonly api_verno: string
-//   readonly api_id: string
-// }
+interface _ApiMarrigeParam {
+  readonly api_verno: string
+  readonly api_id: string
+}
 
 // req marrige
 interface ApiMarrige extends ApiShip {}
@@ -7453,13 +7454,33 @@ interface ApiRemodelSlotlistDetail {
   api_change_flag: number
 }
 
+// api req kousyou remodel slot recover param
+interface ApiRemodelSlotRecoverParam {
+  readonly api_verno: string
+  readonly api_menu_id: string
+  readonly api_slot_id: string
+  readonly api_dev_num: string // 状態回復開発資材数
+}
+
+// api req kousyou remodel slot recover
+interface ApiRemodelSlotRecover {
+  api_recover_flag: number // 0: failed  1: succeeded
+  api_after_slot?: { // 失敗だと存在しない
+    api_id: number
+    api_slotitem_id: number
+    api_locked: number
+    api_level: number
+  }
+}
+
 // api req kousyou remodel slot param
 interface ApiRemodelSlotParam {
   readonly api_verno: string
   readonly api_id: string
   readonly api_slot_id: string
-  readonly api_certain_flag: string //0: 確実化なし 1: 確実化
+  readonly api_certain_flag: string // 0: 確実化なし 1: 確実化
 }
+
 //
 interface ApiRemodelSlot {
   readonly api_remodel_flag: number // 0: failed 1: succeeded
@@ -8121,6 +8142,7 @@ export interface ApiSupportInfo {
 }
 
 export interface ApiBattle extends ApiBattleNormal {
+  readonly api_air_base_injection?: ApiInjectionKouku  // 基地墳式強襲
   readonly api_injection_kouku?: ApiInjectionKouku  // 墳式強襲
   readonly api_air_base_attack?: ApiAirBaseAttack[] // 空襲で存在しない場合有り
   readonly api_support_flag?: number                // 空襲で存在しない場合有り
@@ -8277,6 +8299,20 @@ export interface ApiAirBaseAttack {
   readonly api_stage2: ApiStage2 | null
   readonly api_stage3: ApiStage3 | null
   readonly api_stage3_combined?: ApiStage3
+}
+
+export interface ApiAirBaseInjection {
+  readonly api_plane_from: unknown[]
+  readonly api_air_base_data: ApiAirBaseData[]
+  readonly api_stage1: ApiStage1
+  readonly api_stage2: ApiStage2
+  readonly api_stage3: ApiStage3
+  readonly api_stage3_combined?: ApiStage3
+}
+
+export interface ApiAirBaseData {
+  readonly api_mst_id: number
+  readonly api_count: number
 }
 
 export interface ApiInjectionKouku {
@@ -8970,6 +9006,10 @@ export class SvData {
 
         case KcsApi.Api.REQ_KOUSYOU_REMODEL_SLOTLIST_DETAIL:
           this.reqKousyouRemodelSlotlistDetail(api_data as ApiRemodelSlotlistDetail)
+          break
+
+        case KcsApi.Api.REQ_KOUSYOU_REMODEL_SLOT_RECOVER:
+          this.reqKousyouRemodelSlotRecover(api_data as ApiRemodelSlotRecover)
           break
 
         case KcsApi.Api.REQ_KOUSYOU_REMODEL_SLOT:
@@ -9901,7 +9941,32 @@ export class SvData {
     }
   }
 
+  private reqKousyouRemodelSlotRecover(api_data: ApiRemodelSlotRecover): void {
+
+    // 工廠資源デクリメント
+    this.useitemAdd(ApiItemId.arsenal_resources, -1)
+
+    // slotitme状態更新
+    if (api_data.api_after_slot) {
+      const slotitem = this.slotitem(api_data.api_after_slot.api_id)
+      if (slotitem) {
+        Object.assign(slotitem, api_data.api_after_slot)
+      }
+
+      // 開発資材更新
+      const query = this.getReq(KcsApi.Api.REQ_KOUSYOU_REMODEL_SLOT_RECOVER)
+      if (query) {
+        const req: ApiRemodelSlotRecoverParam = qsParse(query)
+        const api_dev_num = parseInt(req.api_dev_num)
+        if (isFinite(api_dev_num)) {
+          this.updateMaterialById(ApiMaterialId.BUILD_KIT, -api_dev_num, true)
+        }
+      }
+    }
+  }
+
   private reqKousyouRemodelSlot(api_data: ApiRemodelSlot): void {
+
     const query = this.getReq(KcsApi.Api.REQ_KOUSYOU_REMODEL_SLOT)
     this.updateMaterial(api_data.api_after_material, false)
     if (api_data.api_use_slot_id) {
@@ -9924,10 +9989,12 @@ export class SvData {
 
     // use item
     if (api_data.api_remodel_flag === 1) {
-      this.useitemAdd(
-        this.apiData.api_remodel_slot_detail?.api_req_useitem_id,
-        -1 * (this.apiData.api_remodel_slot_detail?.api_req_useitem_num ?? 0)
-      )
+      const detail = this.apiData.api_remodel_slot_detail;
+      if (detail && 
+        detail.api_req_useitem_id !== undefined &&
+        detail.api_req_useitem_num !== undefined) {
+        this.useitemAdd(detail.api_req_useitem_id, -1 * detail.api_req_useitem_num)
+      }
     }
 
     if (query && SvDataPrivate.arg_remodel_slotitem) {
@@ -10909,7 +10976,7 @@ export class SvData {
     return this.apiData.api_useitem
   }
 
-  public useitemAdd(id: number | undefined, count: number): void {
+  public useitemAdd(id: number, count: number): void {
     const item = this.useitem(id)
     if (item) {
       Object.assign(item, { api_count: item.api_count + count })

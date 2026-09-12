@@ -26,9 +26,9 @@ import { appSetting } from '@renderer/store/app_setting';
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
-const DEBUG = false;
+const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[DropHistoryCell]", ...args);
 };
 
@@ -133,9 +133,9 @@ function onShipTypeSelectChange(type: AggregateShipType, selected: boolean): voi
 
 const props = withDefaults(
   defineProps<{
-    area_id: number
-    area_no: number
-    selected_spot: Spot | null
+    areaId: number
+    areaNo: number
+    selectedSpot: Spot | null
   }>(),
   {
   }
@@ -195,7 +195,7 @@ const isRareMatch = (
   }
 }
 
-function updateShipTypePieData() {
+function updateShipTypePieData(): void {
   debug('updateShipTypePieData called. shipType calced count:', 
     calcedShipTypeDrop.length, 'rankGroup:', rankGroup.value, 'pie chart length:', shipTypePieDatas.value.length);
 
@@ -209,7 +209,7 @@ function updateShipTypePieData() {
   shipTypePieDatas.value = datas;
 }
 
-function updateTableDatas() {
+function updateTableDatas(): void {
   type DataType = (typeof datas.value)[number];
   const newList: DataType[]= [];
   const filterShipTypes = selectedShipTypes.value;
@@ -285,13 +285,13 @@ const resetTableScrollPos = (): void => {
   }
 }
 
-function fetchRecord(spot: Spot) {
-  currentFetchMapId = toRecordMapId(props.area_id, props.area_no);
+function fetchRecord(spot: Spot): void {
+  currentFetchMapId = toRecordMapId(props.areaId, props.areaNo);
   const query: DropRecordQuery = {
     dbName: DbName.drop,
     find: {
       mapId: currentFetchMapId,
-      cellId: { $in: mapInfoCache.findCellNos(props.area_id, props.area_no, spot.no) },
+      cellId: { $in: mapInfoCache.findCellNos(props.areaId, props.areaNo, spot.no) },
       rank: { $in: ['S', 'A', 'B'] }
     },
     projection: {
@@ -336,7 +336,7 @@ function fetchRecord(spot: Spot) {
 }
 
 watch(
-  () => [props.area_id, props.area_no, props.selected_spot],
+  () => [props.areaId, props.areaNo, props.selectedSpot],
   ([area_id, area_no, selected_spot]) => {
     debug(
       'drop histoy area no change. cell info updated.',
@@ -344,8 +344,8 @@ watch(
       area_no,
       selected_spot
     )
-    if (props.selected_spot) {
-      fetchRecord(props.selected_spot);
+    if (props.selectedSpot) {
+      fetchRecord(props.selectedSpot);
     } else {
       // clear data
       calcedShipDrop = [];
@@ -362,15 +362,15 @@ const listHeight = computed<number>(() => {
 })
 
 onMounted(() => {
-  debug('drop history cell mounted', props.area_id, props.area_no)
+  debug('drop history cell mounted', props.areaId, props.areaNo)
 })
 
 onUnmounted(() => {
-  debug('drop history cell destroyed', props.area_id, props.area_no)
+  debug('drop history cell destroyed', props.areaId, props.areaNo)
 })
 
 const emptyText = computed<string>(() => {
-  if (! props.selected_spot) {
+  if (! props.selectedSpot) {
     return '';//マップ上のセルを選択してください';
   }
   if (recordFetching.value) {
@@ -424,12 +424,12 @@ const buildRankHtml = (data: AggregatedShipDrop): string => {
   return ret.length > 0 ? ret.join(' ') : '-';
 }
 
-function onRareFilterChanged() {
+function onRareFilterChanged(): void {
   debug('rare filter changed to:', rareGroup.value);
   updateTableDatas();
 }
 
-function onRankFilterChanged() {
+function onRankFilterChanged(): void {
   debug('rank filter changed to:', rankGroup.value);
   updateShipTypePieData();
   updateTableDatas();
@@ -439,10 +439,10 @@ function onRankFilterChanged() {
 
 <template>
   <section class="drop-history-cell-root">
-    <div v-if="!props.selected_spot" class="overlay-help">マップ上のセルを選択するとドロップ情報が表示されます</div>
-    <div v-if="!props.selected_spot" class="overlay-background"></div>
+    <div v-if="!props.selectedSpot" class="overlay-help">マップ上のセルを選択するとドロップ情報が表示されます</div>
+    <div v-if="!props.selectedSpot" class="overlay-background"></div>
     <div class="columns">
-      <div class="column" ref="tableColumn">
+      <div ref="tableColumn" class="column">
         <b-table
           :data="datas"
           :paginated="false"
@@ -457,16 +457,17 @@ function onRankFilterChanged() {
           :height="listHeight"
           @sort="onSort"
         >
-          <b-table-column centered 
-            header-class="drop-rare" sortable field="backs" cell-class="drop-rare">
+          <b-table-column 
+            centered header-class="drop-rare" sortable field="backs" cell-class="drop-rare">
             <template #header>
               <span>レア度<span v-if="isSortedField('backs')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
-            <template #default="props">
-              <span :class="{
-                'is-rare': isShipRare(props.row.backs), 
-                'is-unique': isShipUnique(props.row.backs)          
-              }">{{ getShipRareText(props.row.backs) }}</span>
+            <template #default="slotProps">
+              <span 
+                :class="{
+                'is-rare': isShipRare(slotProps.row.backs), 
+                'is-unique': isShipUnique(slotProps.row.backs)          
+              }">{{ getShipRareText(slotProps.row.backs) }}</span>
             </template>
           </b-table-column>
 
@@ -474,12 +475,13 @@ function onRankFilterChanged() {
             <template #header>
               <span>艦名<span v-if="isSortedField('shipName')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
-            <template #default="props">
-              <span :class="{
-                'is-rare': isShipRare(props.row.backs), 
-                'is-unique': isShipUnique(props.row.backs)          
+            <template #default="slotProps">
+              <span 
+                :class="{
+                'is-rare': isShipRare(slotProps.row.backs), 
+                'is-unique': isShipUnique(slotProps.row.backs)          
               }"
-              :title="getShipNameTitle(props.row)">{{ props.row.shipName }}</span>
+              :title="getShipNameTitle(slotProps.row)">{{ slotProps.row.shipName }}</span>
             </template>
           </b-table-column>
 
@@ -487,8 +489,8 @@ function onRankFilterChanged() {
             <template #header>
               <span>確率<span v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
-            <template #default="props">
-              <span>{{ props.row.rate }}%</span>
+            <template #default="slotProps">
+              <span>{{ slotProps.row.rate }}%</span>
             </template>
           </b-table-column>
 
@@ -497,8 +499,8 @@ function onRankFilterChanged() {
               <span>ドロップ数<span 
                 v-if="totalCount > 0">(合計: {{ totalCount }})</span><span v-if="isSortedField('count')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
-            <template #default="props">
-              <span>{{ props.row.count }} (S:{{ props.row.counts[RankDropCountIndex.S] }} A:{{ props.row.counts[RankDropCountIndex.A] }} B:{{ props.row.counts[RankDropCountIndex.B] }})</span>
+            <template #default="slotProps">
+              <span>{{ slotProps.row.count }} (S:{{ slotProps.row.counts[RankDropCountIndex.S] }} A:{{ slotProps.row.counts[RankDropCountIndex.A] }} B:{{ slotProps.row.counts[RankDropCountIndex.B] }})</span>
             </template>
           </b-table-column>
 
@@ -506,14 +508,16 @@ function onRankFilterChanged() {
             <template #header>
               <span>勝利ランク<span v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
-            <template #default="props">
-              <span v-html="buildRankHtml(props.row)"></span>
+            <template #default="slotProps">
+              <!-- 固定の勝利ランクタグのみを生成し、外部の文字列を含めない -->
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <span v-html="buildRankHtml(slotProps.row)"></span>
             </template>
           </b-table-column>
 
           <template #empty>
             <div class="has-text-centered">{{ emptyText }}</div>
-            <img v-if="!props.selected_spot" src="../assets/img/app/drop-history-cell-table.png"/>
+            <img v-if="!props.selectedSpot" src="../assets/img/app/drop-history-cell-table.png"/>
           </template>
 
         </b-table>
@@ -523,23 +527,53 @@ function onRankFilterChanged() {
           <div class="filter-content rare">
             <div class="filter-title">レア度</div>
             <b-field class="filters" grouped>
-              <b-checkbox-button size="is-small" v-model="rareGroup" native-value="unique" 
-                @change="onRareFilterChanged" type="is-checked">ユニーク</b-checkbox-button>
-              <b-checkbox-button size="is-small" v-model="rareGroup" native-value="rare" 
-                @change="onRareFilterChanged" type="is-checked">レア</b-checkbox-button>
-              <b-checkbox-button size="is-small" v-model="rareGroup" native-value="common" 
-                @change="onRareFilterChanged" type="is-checked">コモン</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rareGroup" 
+                size="is-small" 
+                native-value="unique" 
+                type="is-checked"
+                @change="onRareFilterChanged" 
+                >ユニーク</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rareGroup" 
+                size="is-small" 
+                native-value="rare" 
+                type="is-checked"
+                @change="onRareFilterChanged" 
+                >レア</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rareGroup" 
+                size="is-small" 
+                native-value="common" 
+                type="is-checked"
+                @change="onRareFilterChanged" 
+                >コモン</b-checkbox-button>
             </b-field>
           </div>
           <div class="filter-content">
             <div class="filter-title">勝利ランク</div>
             <b-field class="filters" grouped>
-              <b-checkbox-button size="is-small" v-model="rankGroup" native-value="S" 
-                @change="onRankFilterChanged" type="is-checked">S</b-checkbox-button>
-              <b-checkbox-button size="is-small" v-model="rankGroup" native-value="A" 
-                @change="onRankFilterChanged" type="is-checked">A</b-checkbox-button>
-              <b-checkbox-button size="is-small" v-model="rankGroup" native-value="B" 
-                @change="onRankFilterChanged" type="is-checked">B</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rankGroup" 
+                size="is-small" 
+                native-value="S" 
+                type="is-checked"
+                @change="onRankFilterChanged" 
+                >S</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rankGroup" 
+                size="is-small" 
+                native-value="A" 
+                type="is-checked"
+                @change="onRankFilterChanged" 
+                >A</b-checkbox-button>
+              <b-checkbox-button 
+                v-model="rankGroup" 
+                size="is-small" 
+                native-value="B" 
+                type="is-checked"
+                @change="onRankFilterChanged" 
+                >B</b-checkbox-button>
             </b-field>
           </div>
         </div>
@@ -547,7 +581,7 @@ function onRankFilterChanged() {
           <ShipTypePie
             v-if="isShipTypePieEnable"
             :key="pieKey"
-            :seriesData="shipTypePieDatas"
+            :series-data="shipTypePieDatas"
             @ship-type-select-change="onShipTypeSelectChange"
           /><img v-else class="blur-img" src="../assets/img/app/ship-type-pie-chart.png"/>
         </div>

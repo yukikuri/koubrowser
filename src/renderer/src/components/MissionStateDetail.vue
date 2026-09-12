@@ -343,7 +343,7 @@ const getSlots = (ship: ShipInfoMission): SlotWithOnSlot[] => {
   return KcsUtil.getSlotsWithOnSlot(ship)
 }
 
-function emitContentHeight() {
+function emitContentHeight(): void {
   const rect = elRoot.value?.getBoundingClientRect()
   emit('update:contentHeight', rect?.height ?? 0)
 }
@@ -357,17 +357,18 @@ onUpdated(() => {
 })
 </script>
 <template>
-  <div class="mission-state-detail" ref="elRoot">
+  <div ref="elRoot" class="mission-state-detail">
     <div class="mission-title-content">
       <div class="mission-state-title">
         <span v-if="isCleared" class="tag state-text">済</span>
         <span v-if="isMonthly" class="tag state-monthly">月</span>
         <span class="mission-title" :title="missionName">{{missionName}}</span>
-        <span :class="{
-          'result-text': true,
-          'is-failed': isFailed, 
-          'is-succeeded': isSucceeded, 
-          'is-succeeded2': isSucceeded2 }"><CheckOnlyImage v-if="isShowCheckBox"/>{{missionCheckResult}}</span>
+        <span 
+          :class="{
+            'result-text': true,
+            'is-failed': isFailed, 
+            'is-succeeded': isSucceeded, 
+            'is-succeeded2': isSucceeded2 }"><CheckOnlyImage v-if="isShowCheckBox"/>{{missionCheckResult}}</span>
         <span class="mission-time"><component :is="durationImage"/>{{missionTime}}</span>
       </div>
       <div class="mission-state-title">
@@ -388,50 +389,50 @@ onUpdated(() => {
     <div class="mission-check">
       <span :class="[ isFlagshipLvClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isFlagshipLvClear" />
-        <check-error-img class="error" v-if="!isFlagshipLvClear" />旗艦Lv:{{deckFlagshipLv}}({{reqFlagshipLv}})</span>
+        <check-error-img v-if="!isFlagshipLvClear" class="error" />旗艦Lv:{{deckFlagshipLv}}({{reqFlagshipLv}})</span>
       <span v-if="isReqTotalLv" :class="[ isTotalLvClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalLvClear" />
-        <check-error-img class="error" v-if="!isTotalLvClear" />合計Lv:{{deckTotalLv}}({{reqTotalLv}})</span>
+        <check-error-img v-if="!isTotalLvClear" class="error" />合計Lv:{{deckTotalLv}}({{reqTotalLv}})</span>
       <span v-if="isReqFlagshipType" :class="[ isFlagshipTypeClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isFlagshipTypeClear" />
-        <check-error-img class="error" v-if="!isFlagshipTypeClear" />旗艦艦種:{{reqFlagshipType}}</span>
+        <check-error-img v-if="!isFlagshipTypeClear" class="error" />旗艦艦種:{{reqFlagshipType}}</span>
       <span v-if="isReqShipType" :class="[ isShipTypeClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isShipTypeClear" />
-        <check-error-img class="error" v-if="!isShipTypeClear" />艦種:{{reqShipType}}</span>
+        <check-error-img v-if="!isShipTypeClear" class="error" />艦種:{{reqShipType}}</span>
       <span v-if="isReqDrumShipCount" :class="[ isDrumShipCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isDrumShipCountClear" />
-        <check-error-img class="error" v-if="!isDrumShipCountClear" />ドラム缶搭載隻数:{{deckDrumShipCount}}({{reqDrumShipCount}})</span>
+        <check-error-img  v-if="!isDrumShipCountClear" class="error" />ドラム缶搭載隻数:{{deckDrumShipCount}}({{reqDrumShipCount}})</span>
       <span v-if="isReqDrumSlotCount" :class="[ isDrumSlotCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isDrumSlotCountClear" />
-        <check-error-img class="error" v-if="!isDrumSlotCountClear" />ドラム缶数:{{deckDrumSlotCount}}({{reqDrumSlotCount}})</span>
+        <check-error-img v-if="!isDrumSlotCountClear" class="error" />ドラム缶数:{{deckDrumSlotCount}}({{reqDrumSlotCount}})</span>
       <span :class="[ isShipCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isShipCountClear" />
-        <check-error-img class="error" v-if="!isShipCountClear" />隻数:{{deckShipCount}}({{reqShipCount}})</span>
+        <check-error-img v-if="!isShipCountClear" class="error" />隻数:{{deckShipCount}}({{reqShipCount}})</span>
       <span v-if="isReqTotalFire" :class="[ isTotalFireClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalFireClear" />
-        <check-error-img class="error" v-if="!isTotalFireClear" />火力:{{deckTotalFire}}<span v-if="deckTotalRemodelFire!='0'" class="remodel-text">+{{deckTotalRemodelFire}}</span>({{reqTotalFire}})</span>
+        <check-error-img v-if="!isTotalFireClear" class="error" />火力:{{deckTotalFire}}<span v-if="deckTotalRemodelFire!='0'" class="remodel-text">+{{deckTotalRemodelFire}}</span>({{reqTotalFire}})</span>
       <span v-if="isReqTotalTor" :class="[ isTotalTorClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalTorClear" />
-        <check-error-img class="error" v-if="!isTotalTorClear" />雷撃:{{deckTotalTor}}({{reqTotalTor}})</span>
+        <check-error-img v-if="!isTotalTorClear" class="error" />雷撃:{{deckTotalTor}}({{reqTotalTor}})</span>
       <span v-if="isReqTotalAa"  :class="[ isTotalAaClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalAaClear" />
-        <check-error-img class="error" v-if="!isTotalAaClear" />対空:{{deckTotalAa}}<span v-if="deckTotalRemodelAa!='0'" class="remodel-text">+{{deckTotalRemodelAa}}</span>({{reqTotalAa}})</span>
+        <check-error-img v-if="!isTotalAaClear" class="error" />対空:{{deckTotalAa}}<span v-if="deckTotalRemodelAa!='0'" class="remodel-text">+{{deckTotalRemodelAa}}</span>({{reqTotalAa}})</span>
       <span v-if="isReqTotalAsw"  :class="[ isTotalAswClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalAswClear" />
-        <check-error-img class="error" v-if="!isTotalAswClear" />対潜:{{deckTotalAsw}}<span v-if="deckTotalRemodelAsw!='0'" class="remodel-text">+{{deckTotalRemodelAsw}}</span>({{reqTotalAsw}})</span>
+        <check-error-img v-if="!isTotalAswClear" class="error" />対潜:{{deckTotalAsw}}<span v-if="deckTotalRemodelAsw!='0'" class="remodel-text">+{{deckTotalRemodelAsw}}</span>({{reqTotalAsw}})</span>
       <span v-if="isReqTotalLos" :class="[ isTotalLosClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalLosClear" />
-        <check-error-img class="error" v-if="!isTotalLosClear" />索敵:{{deckTotalLos}}<span v-if="deckTotalRemodelLos!='0'" class="remodel-text">+{{deckTotalRemodelLos}}</span>({{reqTotalLos}})</span>
+        <check-error-img v-if="!isTotalLosClear" class="error" />索敵:{{deckTotalLos}}<span v-if="deckTotalRemodelLos!='0'" class="remodel-text">+{{deckTotalRemodelLos}}</span>({{reqTotalLos}})</span>
     </div>
     <div class="ships">
-      <div class="ship" v-for="(ship, ship_index) in ships" :key="ship_index">
+      <div v-for="(ship, ship_index) in ships" :key="ship_index" class="ship">
         <div class="ship-content">
           <div class="line1">
             <span class="ship-banner-content">
-              <ShipBanner :ship_info="ship" />
+              <ShipBanner :ship-info="ship" />
             </span>
             <span class="slots">
-              <SlotItem v-for="(slot, slot_index) in getSlots(ship)" :slotitem="slot" :key="slot_index" />
+              <SlotItem v-for="(slot, slot_index) in getSlots(ship)" :key="slot_index" :slotitem="slot" />
             </span>
           </div>
           <div class="line2">
@@ -447,4 +448,4 @@ onUpdated(() => {
       </div>
     </div>
   </div>
- </template>
+</template>

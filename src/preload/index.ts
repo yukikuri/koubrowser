@@ -171,19 +171,19 @@ const api: Api = {
   },
 
   onUpdateStateChanged(cb: (state: UpdateStateSnapshot) => void): () => void {
-    const handler = (_event: Electron.IpcRendererEvent, state: UpdateStateSnapshot) => cb(state)
+    const handler = (_event: Electron.IpcRendererEvent, state: UpdateStateSnapshot): void => cb(state)
     ipcRenderer.on(MainMessage.update_state_changed, handler)
     return () => ipcRenderer.removeListener(MainMessage.update_state_changed, handler)
   },
 
   onUpdateDownloadProgress(cb: (percent: number) => void): () => void {
-    const handler = (_event: Electron.IpcRendererEvent, percent: number) => cb(percent)
+    const handler = (_event: Electron.IpcRendererEvent, percent: number): void => cb(percent)
     ipcRenderer.on(MainMessage.update_download_progress, handler)
     return () => ipcRenderer.removeListener(MainMessage.update_download_progress, handler)
   },
 
   onStartupUpdateChecked(cb: (result: UpdateCheckResult) => void): () => void {
-    const handler = (_event: Electron.IpcRendererEvent, result: UpdateCheckResult) => cb(result)
+    const handler = (_event: Electron.IpcRendererEvent, result: UpdateCheckResult): void => cb(result)
     ipcRenderer.on(MainMessage.startup_update_checked, handler)
     return () => ipcRenderer.removeListener(MainMessage.startup_update_checked, handler)
   },

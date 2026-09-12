@@ -68,9 +68,9 @@ function indicatorClick(event: Event): void {
       <b-carousel-item v-for="(area_no, index) in areaNos" :key="index">
         <DropArea
           v-if="area_index === index"
-          v-model:selected_spot="selected_spot"
-          :area_id="areaId"
-          :area_no="area_no"
+          v-model:selected-spot="selected_spot"
+          :area-id="areaId"
+          :area-no="area_no"
         />
       </b-carousel-item>
       <template #indicators="slotProps">
@@ -83,7 +83,7 @@ function indicatorClick(event: Event): void {
       </template>
     </b-carousel>
     <div class="drop-history-cell-container">
-      <DropHistoryCell :area_id="areaId" :area_no="areaNo" :selected_spot="selected_spot" />
+      <DropHistoryCell :area-id="areaId" :area-no="areaNo" :selected-spot="selected_spot" />
     </div>
   </div>
 </template>

@@ -260,7 +260,7 @@ class RUtilImpl {
    * @param id
    * @param dmg
    */
-  public shipBannerImg(id: number | string, dmg: boolean, isCache: boolean): string {
+  public shipBannerImg(id: number | string, dmg: boolean, _isCache: boolean): string {
     // todo: get img src from cache
     //if (isCache) {
     //  return Schemas.buildShipBannerUrl(id, dmg);
@@ -521,7 +521,7 @@ class RUtilImpl {
 }
 export const RUtil = new RUtilImpl()
 
-interface AAMap {
+interface _AAMap {
   [name: number]: number | undefined
 }
 

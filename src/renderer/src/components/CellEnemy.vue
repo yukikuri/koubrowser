@@ -22,7 +22,7 @@ import { mapInfoCache } from '@renderer/common/mapinfo'
 // 
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[CellEnemy]", ...args);
 };
 
@@ -30,13 +30,13 @@ const debug = (...args: any[]) => {
 // 
 const props = withDefaults(
   defineProps<{
-    area_id: number
-    area_no: number
-    cell_no: number
-    deck_index?: number
+    areaId: number
+    areaNo: number
+    cellNo: number
+    deckIndex?: number
   }>(),
   {
-    deck_index: 0
+    deckIndex: 0
   }
 )
 
@@ -56,7 +56,7 @@ const prefixText = computed<string>(() => {
 })
 
 watch(
-  () => [props.area_id, props.area_no],
+  () => [props.areaId, props.areaNo],
   ([area_id, area_no]) => {
     mapInfoCache.get(area_id, area_no).then((info) => {
       cell_info.value = info
@@ -105,13 +105,13 @@ const items = computed<EnemyInfo[]>(() => {
   return items_.value
 })
 
-function updateItems() {
+function updateItems(): void {
   battle_index.value = -1
   const spots = CommonMap.spotsFromLevel(
     cell_info.value,
-    svdata.mapLevel(props.area_id, props.area_no)
+    svdata.mapLevel(props.areaId, props.areaNo)
   )
-  const cell = spots.find((spot) => spot.no === props.cell_no)
+  const cell = spots.find((spot) => spot.no === props.cellNo)
   if (!cell) {
     replaceArray(items_.value, [])
     return
@@ -121,19 +121,19 @@ function updateItems() {
   const battle = svdata.lastBattle
   if (battle) {
     if (
-      battle.map.api_maparea_id === props.area_id &&
-      battle.map.api_mapinfo_no === props.area_no
+      battle.map.api_maparea_id === props.areaId &&
+      battle.map.api_mapinfo_no === props.areaNo
     ) {
       const spot = CommonMap.findSpotForLabel(spots, battle.cell_no)
-      inBattle = spot?.no === props.cell_no
+      inBattle = spot?.no === props.cellNo
     }
   }
   const sk = toRaw(ship_ke.value)
   const list = cell.enemy.map((el, i) => {
     const info: EnemyInfo = {
-      area_id: props.area_id as MapAreaId,
-      area_no: props.area_no,
-      cell_no: props.cell_no,
+      area_id: props.areaId as MapAreaId,
+      area_no: props.areaNo,
+      cell_no: props.cellNo,
       enemy: el,
       aa: cell.aa[i]
     }
@@ -157,12 +157,12 @@ function updateItems() {
   )
 }
 
-function onBattleStart(arg: ApiBattleStartType) {
+function onBattleStart(arg: ApiBattleStartType): void {
   debug(
     'cell enemy on battle start',
-    props.area_id,
-    props.area_no,
-    props.cell_no,
+    props.areaId,
+    props.areaNo,
+    props.cellNo,
     JSON.stringify(arg.api_ship_ke)
   )
   setShipKe()
@@ -170,21 +170,21 @@ function onBattleStart(arg: ApiBattleStartType) {
   updateItems()
 }
 
-function setShipKe() {
+function setShipKe(): void {
   const battle = svdata.lastBattle
   debug('cell enemy set ship ke. battle:', toRaw(battle))
 
   if (battle) {
     if (
-      battle.map.api_maparea_id === props.area_id &&
-      battle.map.api_mapinfo_no === props.area_no
+      battle.map.api_maparea_id === props.areaId &&
+      battle.map.api_mapinfo_no === props.areaNo
     ) {
       const spots = CommonMap.spotsFromLevel(
         cell_info.value,
-        svdata.mapLevel(props.area_id, props.area_no)
+        svdata.mapLevel(props.areaId, props.areaNo)
       )
       const spot = CommonMap.findSpotForLabel(spots, battle.cell_no)
-      if (spot?.no === props.cell_no) {
+      if (spot?.no === props.cellNo) {
         if (battle.midday) {
           replaceArray(ship_ke.value, battle.midday.api_ship_ke)
         } else if (battle.midnight) {
@@ -197,7 +197,7 @@ function setShipKe() {
   }
 }
 
-function selectBattleTab() {
+function selectBattleTab(): void {
   if (!svdata.inMap) {
     return
   }
@@ -205,7 +205,7 @@ function selectBattleTab() {
   if (!battle) {
     return
   }
-  if (battle.map.api_maparea_id !== props.area_id || battle.map.api_mapinfo_no !== props.area_no) {
+  if (battle.map.api_maparea_id !== props.areaId || battle.map.api_mapinfo_no !== props.areaNo) {
     return
   }
   if (ship_ke.value.length === 0) {
@@ -213,10 +213,10 @@ function selectBattleTab() {
   }
   const spots = CommonMap.spotsFromLevel(
     cell_info.value,
-    svdata.mapLevel(props.area_id, props.area_no)
+    svdata.mapLevel(props.areaId, props.areaNo)
   )
   const spot = CommonMap.findSpotForLabel(spots, battle.cell_no)
-  if (spot?.no !== props.cell_no) return
+  if (spot?.no !== props.cellNo) return
   const sk = ship_ke.value
   const i = spot.enemy.findIndex((el) => {
     if (el.length !== sk.length) return false
@@ -230,11 +230,11 @@ function selectBattleTab() {
 }
 
 onBeforeMount(() => {
-  debug('cell enemy before mount. ship ke set.', props.area_id, props.area_no, ship_ke.value)
+  debug('cell enemy before mount. ship ke set.', props.areaId, props.areaNo, ship_ke.value)
 })
 
 onMounted(() => {
-  debug('cell enemy mounted', props.area_id, props.area_no, 'deck_index:', props.deck_index)
+  debug('cell enemy mounted', props.areaId, props.areaNo, 'deck_index:', props.deckIndex)
   cb_battle_start = ApiCallback.set([
     'battle-start',
     (arg: ApiBattleStartType) => onBattleStart(arg)
@@ -245,17 +245,17 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  debug('cell enemy destroyed', props.area_id, props.area_no, props.cell_no)
+  debug('cell enemy destroyed', props.areaId, props.areaNo, props.cellNo)
   ApiCallback.unset(cb_battle_start)
 })
 
 onBeforeUpdate(() => {
   debug(
     'cell enemy before update',
-    props.area_id,
-    props.area_no,
+    props.areaId,
+    props.areaNo,
     'deck_index:',
-    props.deck_index,
+    props.deckIndex,
     'battle_index:',
     battle_index.value,
     'items:',
@@ -267,10 +267,10 @@ onBeforeUpdate(() => {
 onUpdated(() => {
   debug(
     'cell enemy updated',
-    props.area_id,
-    props.area_no,
+    props.areaId,
+    props.areaNo,
     'deck_index:',
-    props.deck_index,
+    props.deckIndex,
     'battle_index:',
     battle_index.value,
     'items:',
@@ -282,11 +282,11 @@ onUpdated(() => {
 
 <template>
   <div>
-    <b-tabs v-if="isCellInfoOk" size="is-small" expanded class="enemy-list-tabs" v-model="index">
+    <b-tabs v-if="isCellInfoOk" v-model="index" size="is-small" expanded class="enemy-list-tabs">
       <b-tab-item
         v-for="(item, item_index) in items"
         :key="item_index"
-        headerClass="enemy-list-tab"
+        header-class="enemy-list-tab"
       >
         <template #header>
           <span
@@ -304,7 +304,7 @@ onUpdated(() => {
           </div>
         </template>
         <div v-if="index === item_index">
-          <EnemyList :info="item" :deck_index="deck_index" />
+          <EnemyList :info="item" :deck-index="deckIndex" />
         </div>
       </b-tab-item>
     </b-tabs>

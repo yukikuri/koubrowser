@@ -701,7 +701,7 @@ function rowClass(row: DeckShip | null): string {
         @mouseenter="shipMouseEnter"
       >
         <!-- todo: load image error draw ship name -->
-        <ShipBanner :ship_info="ship.ship" :escaped="ship.escaped" />
+        <ShipBanner :ship-info="ship.ship" :escaped="ship.escaped" />
         <span class="slots">
           <img
             v-for="(slot, slotIndex) in ship.ship.slots"

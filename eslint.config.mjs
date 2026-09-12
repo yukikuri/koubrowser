@@ -4,7 +4,15 @@ import eslintPluginVue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
 
 export default tseslint.config(
-  { ignores: ['**/node_modules', '**/dist', '**/out'] },
+  { 
+    ignores: [
+      '**/node_modules', 
+      '**/dist', 
+      '**/out',
+      'src/main/orval/generated/**',
+      'scripts/**'
+    ] 
+  },
   tseslint.configs.recommended,
   eslintPluginVue.configs['flat/recommended'],
   {
@@ -38,7 +46,12 @@ export default tseslint.config(
   eslintConfigPrettier,
   {
     rules: {
-      'prettier/prettier': 'off'
+      'prettier/prettier': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_'
+      }]
     }
   }
 )

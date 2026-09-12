@@ -11,9 +11,9 @@ import { Env } from '@common/env'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = false;
+const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[Areas]", ...args);
 };
 
@@ -21,13 +21,13 @@ const debug = (...args: any[]) => {
 // 
 const props = withDefaults(
   defineProps<{
-    area_id: number
-    deck_index?: number
-    single_row?: boolean
+    areaId: number
+    deckIndex?: number
+    singleRow?: boolean
   }>(),
   {
-    deck_index: 0,
-    single_row: false
+    deckIndex: 0,
+    singleRow: false
   }
 )
 
@@ -36,22 +36,29 @@ const selected_label = ref('')
 let cb_map_start = 0
 
 const areas = computed<MstMapinfo[]>(() =>
-  svdata.mstMapInfos.filter((el) => el.api_maparea_id === props.area_id)
+  svdata.mstMapInfos.filter((el) => el.api_maparea_id === props.areaId)
 )
 const areaNos = computed<number[]>(() => areas.value.map((el) => el.api_no).sort())
 const areaNo = computed<number>(() => areaNos.value[area_index.value])
-const isEventMap = computed<boolean>(() => props.area_id > 40)
+const isEventMap = computed<boolean>(() => props.areaId > 40)
 
 function getBattleTabIndex(): number {
   if (!svdata.inMap) {
     debug('areas select tab: not in map')
     return 0
   }
+
   const map_start = svdata.mapStart
   if (! map_start) {
     debug('areas select tab: no map start data')
     return 0
   }
+
+  if (map_start.api_maparea_id !== props.areaId) {
+    debug('areas select tab: map start area id mismatch', map_start.api_maparea_id, props.areaId)
+    return 0
+  }  
+
   const ret = map_start.api_mapinfo_no - 1
   if (ret < 0) {
     return 0
@@ -78,19 +85,19 @@ function onMapStart(): void {
 }
 
 onMounted(() => {
-  debug('areas mounted area', props.area_id, area_index.value)
+  debug('areas mounted area', props.areaId, area_index.value)
   cb_map_start = ApiCallback.set([Api.REQ_MAP_START, () => onMapStart()])
 })
 
 onUnmounted(() => {
-  debug('areas destroyed', props.area_id, area_index.value)
+  debug('areas destroyed', props.areaId, area_index.value)
   ApiCallback.unset(cb_map_start)
 })
 
-function onChange(value: number) {
+function onChange(value: number): void {
   debug(
     'area change old value',
-    props.area_id,
+    props.areaId,
     area_index.value,
     value,
     'event-map',
@@ -101,13 +108,13 @@ function onChange(value: number) {
 
 function areaNoText(index: number): string {
   if (isEventMap.value) return `E-${index + 1}`
-  return `${props.area_id}-${index + 1}`
+  return `${props.areaId}-${index + 1}`
 }
 
 function isBattleArea(index: number): boolean {
   if (!svdata.inMap) return false
   const map_start = svdata.mapStart
-  if (map_start?.api_maparea_id !== props.area_id) return false
+  if (map_start?.api_maparea_id !== props.areaId) return false
   return index === map_start.api_mapinfo_no - 1
 }
 
@@ -116,7 +123,7 @@ function isAreaLocked(index: number): boolean {
     return false
   }
 
-  if (props.area_id === 1 && index === 0) {
+  if (props.areaId === 1 && index === 0) {
     return false
   }
 
@@ -124,7 +131,7 @@ function isAreaLocked(index: number): boolean {
   const id = areas.value[index].api_id
   debug(areas.value)
   debug(
-    'area locked area_id:' ,props.area_id, 'api_id:', id, 'exist:', 
+    'area locked area_id:' ,props.areaId, 'api_id:', id, 'exist:', 
     mapinfos.some((el) => el.api_id === id)
   )
   return !mapinfos.some((el) => el.api_id === id)
@@ -144,38 +151,38 @@ function lockClick(event: Event): void {
 <template>
   <div class="areas-root">
     <b-carousel
+      v-model="area_index"
       class="areas"
       :arrow="false"
       :autoplay="false"
       @change="onChange"
-      v-model="area_index"
     >
       <b-carousel-item v-for="(area_no, index) in areaNos" :key="index">
         <Area
           v-if="area_index === index"
-          :area_id="area_id"
-          :area_no="area_no"
-          v-model:selected_label="selected_label"
+          v-model:selected-label="selected_label"
+          :area-id="areaId"
+          :area-no="area_no"
         />
       </b-carousel-item>
-      <template #indicators="props">
+      <template #indicators="slotProps">
         <span
           class="areas-indicator"
+          :class="{ 'is-battle': isBattleArea(slotProps.i), 'is-locked': isAreaLocked(slotProps.i) }"
           @click="indicatorClick"
-          :class="{ 'is-battle': isBattleArea(props.i), 'is-locked': isAreaLocked(props.i) }"
         >
-          <LockImage v-if="isAreaLocked(props.i)" @click="lockClick" />
-          {{ areaNoText(props.i) }}
+          <LockImage v-if="isAreaLocked(slotProps.i)" @click="lockClick" />
+          {{ areaNoText(slotProps.i) }}
         </span>
       </template>
     </b-carousel>
     <div class="areas-cell-enemies">
       <CellEnemies
-        :area_id="area_id"
-        :area_no="areaNo"
-        :selected_label="selected_label"
-        :deck_index="deck_index"
-        :single_row="single_row"
+        :area-id="areaId"
+        :area-no="areaNo"
+        :selected-label="selected_label"
+        :deck-index="deckIndex"
+        :single-row="singleRow"
       />
     </div>
   </div>

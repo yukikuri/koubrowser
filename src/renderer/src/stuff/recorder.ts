@@ -48,7 +48,7 @@ class Recorder {
     console.log('recorder ready', stream)
   }
 
-  private async onDataavailable(event: BlobEvent) {
+  private async onDataavailable(event: BlobEvent): Promise<void> {
     console.log('recorder dataavailable', event, this.recorder.state)
     const buffer = await event.data.arrayBuffer()
     window.api.storeRec(Buffer.from(buffer), this.isEnd)
@@ -69,7 +69,7 @@ class Recorder {
     console.log('recorder error', event, this.recorder.state)
   }
 
-  public start() {
+  public start(): void {
     console.log('recorder start stream active', this.recorder.stream.active, this.recorder.state)
     if (this.recorder.state !== 'recording') {
       // data save per msec.
@@ -91,6 +91,7 @@ class RecorderStuffRenderer {
   private recorder: Recorder | undefined
 
   constructor() {
+    // nothing
   }
 
   private setSource(sourceId: string): void {

@@ -3,9 +3,9 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import moment from 'moment'
 
 type Props = {
-  complete_time: number
-  progress_text: string
-  completed_text: string
+  completeTime: number
+  progressText: string
+  completedText: string
 }
 
 const props = defineProps<Props>()
@@ -15,7 +15,7 @@ let timeoutId: number | undefined
 
 const completed = computed(() => dur.value.asMilliseconds() <= 0)
 
-const timeText = computed(() => (completed.value ? props.completed_text : props.progress_text))
+const timeText = computed(() => (completed.value ? props.completedText : props.progressText))
 
 function clearTimer(): void {
   if (timeoutId !== undefined) {
@@ -31,7 +31,7 @@ function onCompleted(): void {
 
 function setupTimer(): void {
   clearTimer()
-  dur.value = moment.duration(moment(props.complete_time).diff(moment()))
+  dur.value = moment.duration(moment(props.completeTime).diff(moment()))
 
   if (completed.value) {
     return
@@ -41,7 +41,7 @@ function setupTimer(): void {
 }
 
 watch(
-  () => props.complete_time,
+  () => props.completeTime,
   () => {
     setupTimer()
   },

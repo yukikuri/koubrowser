@@ -1,0 +1,30 @@
+{
+  "mapId": 42,
+  "cellId": 2,
+  "isBoss": false,
+  "enemyFormation": 4,
+  "mapLv": 0,
+  "shipId": -1,
+  "shipName": "",
+  "shipCounts": [
+    
+  ],
+  "rank": "A",
+  "questName": "カレー洋海域",
+  "enemyDeckName": "敵潜水教導艦隊",
+  "exp": 96,
+  "baseExp": 190,
+  "teitokuLv": 120,
+  "firstClear": false,
+  "enemyShips1": [
+    1533,
+    1533,
+    1530,
+    1530,
+    1520
+  ],
+  "origin": "koubrowser/1.0.9",
+  "itemId": -1,
+  "itemCount": 0,
+  "date": "2026-09-03T09:00:00+09:00"
+}
