@@ -4389,6 +4389,7 @@ export class KcsUtil {
     const iskutiku = ApiShipType.kutikukan === info.mst.api_stype
     const isCanYakanZuiunCI = ([
       ApiShipType.keijyun, 
+      ApiShipType.raijyun,
       ApiShipType.koujyun, 
       ApiShipType.koukuu_senkan,
       ApiShipType.suibo] as number[]).includes(info.mst.api_stype)
@@ -4760,6 +4761,15 @@ export class KcsUtil {
       case ApiShipType.sensuibokan: // 潜水母艦
         break
       default:
+        {
+          // 特殊
+          const faokShipIds = [
+            1071, // kitakami kaisan
+          ];
+          if (faokShipIds.includes(info.mst.api_id)) {
+            break
+          }
+        }
         return []
     }
 
@@ -4787,6 +4797,7 @@ export class KcsUtil {
               acc.teie++
             }
           }
+
           if (isegatakaini) {
             if (type === SlotitemType.DiveBomber && KcsUtil.hasSuisei634(slot.mst.api_id)) {
               acc.sui++
