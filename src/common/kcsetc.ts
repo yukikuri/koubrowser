@@ -3587,6 +3587,16 @@ export const ShipEtcs: ShipEtc[] = [
     api_kaihi: [37, 75],
   },
   {
+    api_id: 748,
+    api_sakuteki: [24, 61],
+    api_kaihi: [34, 70],
+  },
+  {
+    api_id: 749,
+    api_sakuteki: [25, 60],
+    api_kaihi: [35, 70],
+  },
+  {
     api_id: 877,
     api_sakuteki: [6, 29],
     api_kaihi: [21, 40],
@@ -4310,6 +4320,11 @@ export const ShipEtcs: ShipEtc[] = [
     api_id: 1070,
     api_sakuteki: [17, 38],
     api_kaihi: [15, 35],
+  },
+  {
+    api_id: 1071,
+    api_sakuteki: [14, 56],
+    api_kaihi: [44, 86],
   },
   {
     api_id: 1496,
