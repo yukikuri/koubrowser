@@ -8153,7 +8153,7 @@ export interface ApiSupportInfo {
 }
 
 export interface ApiBattle extends ApiBattleNormal {
-  readonly api_air_base_injection?: ApiInjectionKouku  // 基地墳式強襲
+  readonly api_air_base_injection?: ApiInjectionKouku  // 墳式強襲(基地)
   readonly api_injection_kouku?: ApiInjectionKouku  // 墳式強襲
   readonly api_air_base_attack?: ApiAirBaseAttack[] // 空襲で存在しない場合有り
   readonly api_support_flag?: number                // 空襲で存在しない場合有り
@@ -9957,7 +9957,7 @@ export class SvData {
     // 工廠資源デクリメント
     this.useitemAdd(ApiItemId.arsenal_resources, -1)
 
-    // slotitme状態更新
+    // slotitem状態更新
     if (api_data.api_after_slot) {
       const slotitem = this.slotitem(api_data.api_after_slot.api_id)
       if (slotitem) {

@@ -123,7 +123,7 @@ export class DbStuff {
    * @param query
    * @returns 
    */
-  queryOne<T>(query: Query): Promise<T> {
+  queryOne<T>(query: Query): Promise<T | null> {
     const db = this.dbs.get(query.dbName)
     return new Promise((resolve, reject) => {
       if (! db) {
