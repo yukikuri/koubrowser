@@ -218,7 +218,7 @@ let cb_port = 0
 let cb_mapNext = 0
 let cb_mapStart = 0;
 const home_location_setted = ref(false)
-const target_label = ref<[string, string, string]>(['-', '-', '-'])
+//const target_label = ref<[string, string, string]>(['-', '-', '-'])
 const target_spot_loaded = ref(false)
 const target_spot_invoked = ref(false)
 const areaGetItems = ref<AreaItemInfo[]>([])
@@ -226,6 +226,50 @@ const areaGetItems = ref<AreaItemInfo[]>([])
 const area_id_no = computed(
   () => props.areaId.toString().padStart(3, '0') + '_' + props.areaNo.toString().padStart(2, '0')
 )
+
+/**
+ * 基地航空隊が設定できるマップで、基地航空隊のスポット情報を取得する
+ * 仮でボスマスとする
+ */
+const airbaseTargetLabel = computed<string>((): string => {
+
+  if (! hasAirbase.value) {
+    debug('airbaseTargetLabel: no airbase')
+    return '-'
+  }
+
+  const spots = cell_info.spots
+  if (!spots || spots.length === 0) {
+    debug('airbaseTargetLabel: no spots found')
+    return '-'
+  }
+
+  const airbaseSpotInfo: {
+    mapId: number
+    label: string
+  }[] = [
+    {
+      mapId: 74,
+      label: 'P'
+    },
+    {
+      mapId: 64,
+      label: 'N'
+    },
+    {
+      mapId: 65,
+      label: 'M'
+    }
+  ] as const
+
+  const mapId = props.areaId * 10 + props.areaNo
+  const info = airbaseSpotInfo.find((info) => info.mapId === mapId)
+  if (!info) {
+    debug('initializeAirBaseSpots: no airbase spot info for map', mapId)
+    return '-'
+  }
+  return info.label
+})
 
 onMounted(() => {
   debug('area mounted1', area_id_no.value, 'set home', home_location_setted.value)
@@ -729,10 +773,14 @@ function spotAirBase(spot: Spot): AirBaseSeiku[] | undefined {
   if (isEventMap.value) return undefined
 
   if (!hasAirbase.value) return undefined
+
+  const targetLabel = airbaseTargetLabel.value
+
   const bases = airbases.value
-    .filter((airbase, index) => {
+    .filter((airbase, _index) => {
       if (airbase.api_action_kind !== AirBaseActionKind.syutugeki) return false
-      return target_label.value[index] === spot.label
+      //return target_label.value[index] === spot.label
+      return targetLabel === spot.label
     })
     .slice(0, airbaseDecks.value)
   if (bases.length === 0) return undefined
@@ -1366,7 +1414,7 @@ function onChangeAirbaseSpot(value: boolean): void {
           :key="`airbase${index}`"
           :airbase="airbase"
           :index="index"
-          :target-label="target_label[index]"
+          :target-label="airbaseTargetLabel"
         />
       </div>
       <!-- todo 基地航空隊のマップ表示がに見くいため要見直し -->
