@@ -45,8 +45,8 @@ const api: Api = {
     ipcRenderer.invoke(MainChannel.open_capture_folder)
   },
 
-  saveCapture(date: Date, buffer: Buffer) {
-    ipcRenderer.invoke(MainChannel.save_capture, date, buffer)
+  saveCapture(date: Date, buffer: Buffer): Promise<string> {
+    return ipcRenderer.invoke(MainChannel.save_capture, date, buffer)
   },
 
   openOption(): void {

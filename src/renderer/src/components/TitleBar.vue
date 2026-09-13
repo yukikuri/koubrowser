@@ -65,6 +65,8 @@ const todayBattleScoreDialOffsets = ref<number[]>([])
 /////////////////////////////////////////////////////////////////////////////////////
 // 
 const titlebarEl = ref<HTMLElement | null>(null)
+const screenshotToastFilename = ref('')
+let screenshotToastTimer: ReturnType<typeof setTimeout> | null = null
 
 const props = defineProps<{
   timelinePressed: boolean
@@ -423,7 +425,7 @@ const emit = defineEmits<{
   (e: 'timeline'): void
   (e: 'rec'): void
   (e: 'recStop'): void
-  (e: 'screenshot'): void
+  (e: 'screenshot', onSaved: (filename: string) => void): void
   (e: 'gameDevtool'): void
   (e: 'mute'): void
 }>()
@@ -499,8 +501,24 @@ const onOpenOption = (): void => {
   window.api.openOption()
 }
 
+const clearScreenshotToastTimer = (): void => {
+  if (screenshotToastTimer !== null) {
+    clearTimeout(screenshotToastTimer)
+    screenshotToastTimer = null
+  }
+}
+
+const showScreenshotToast = (filename: string): void => {
+  screenshotToastFilename.value = filename
+  clearScreenshotToastTimer()
+  screenshotToastTimer = setTimeout(() => {
+    screenshotToastFilename.value = ''
+    screenshotToastTimer = null
+  }, 4000)
+}
+
 const onScreenshot = (): void => {
-  emit('screenshot')
+  emit('screenshot', showScreenshotToast)
 }
 
 const onReload = (): void => {
@@ -1001,6 +1019,7 @@ watch(
 onBeforeUnmount(() => {
   clearTodayBattleScoreAnimTimer()
   clearDailyBattleScoreResetTimer()
+  clearScreenshotToastTimer()
 })
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1273,5 +1292,10 @@ if (EnvRenderer.isTestMode) {
         </div>
       </div>
     </div>
+    <transition name="screenshot-toast">
+      <div v-if="screenshotToastFilename" class="screenshot-toast">
+        スクリーンショットを保存しました: {{ screenshotToastFilename }}
+      </div>
+    </transition>
   </div>
 </template>

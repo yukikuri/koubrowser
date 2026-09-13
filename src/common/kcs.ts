@@ -4389,6 +4389,7 @@ export class KcsUtil {
     const iskutiku = ApiShipType.kutikukan === info.mst.api_stype
     const isCanYakanZuiunCI = ([
       ApiShipType.keijyun, 
+      ApiShipType.raijyun,
       ApiShipType.koujyun, 
       ApiShipType.koukuu_senkan,
       ApiShipType.suibo] as number[]).includes(info.mst.api_stype)
@@ -4760,6 +4761,15 @@ export class KcsUtil {
       case ApiShipType.sensuibokan: // 潜水母艦
         break
       default:
+        {
+          // 特殊
+          const faokShipIds = [
+            1071, // kitakami kaisan
+          ];
+          if (faokShipIds.includes(info.mst.api_id)) {
+            break
+          }
+        }
         return []
     }
 
@@ -4787,6 +4797,7 @@ export class KcsUtil {
               acc.teie++
             }
           }
+
           if (isegatakaini) {
             if (type === SlotitemType.DiveBomber && KcsUtil.hasSuisei634(slot.mst.api_id)) {
               acc.sui++
@@ -8142,7 +8153,7 @@ export interface ApiSupportInfo {
 }
 
 export interface ApiBattle extends ApiBattleNormal {
-  readonly api_air_base_injection?: ApiInjectionKouku  // 基地墳式強襲
+  readonly api_air_base_injection?: ApiInjectionKouku  // 墳式強襲(基地)
   readonly api_injection_kouku?: ApiInjectionKouku  // 墳式強襲
   readonly api_air_base_attack?: ApiAirBaseAttack[] // 空襲で存在しない場合有り
   readonly api_support_flag?: number                // 空襲で存在しない場合有り
@@ -9946,7 +9957,7 @@ export class SvData {
     // 工廠資源デクリメント
     this.useitemAdd(ApiItemId.arsenal_resources, -1)
 
-    // slotitme状態更新
+    // slotitem状態更新
     if (api_data.api_after_slot) {
       const slotitem = this.slotitem(api_data.api_after_slot.api_id)
       if (slotitem) {

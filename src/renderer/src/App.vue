@@ -141,11 +141,15 @@ const onRecStop = (): void => {
   )
 }
 
-const onScreenShot = (): void => {
+const onScreenShot = (onSaved: (filename: string) => void): void => {
   console.log('screenshot')
   const webview = getGame()?.getWebview()
   if (webview) {
     captureStuff.capture(webview)
+      .then((filename) => onSaved(filename))
+      .catch((err: unknown) => {
+        console.error('failed to capture screenshot', err)
+      })
   }
 }
 

@@ -1482,13 +1482,13 @@ export class KcApp {
    * @param date
    * @param buffer
    */
-  private onChannelSaveCapture(date: Date, buffer: Buffer): void {
+  private async onChannelSaveCapture(date: Date, buffer: Buffer): Promise<string> {
     const capture_dir = PathStuff.capturePath(true)
     const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.png`
     debug(MainChannel.save_capture, 'date:', date, filename, capture_dir)
-    fs.writeFile(path.join(capture_dir, filename), buffer, {}, (err) => {
-      debug('save writed to file', filename, err)
-    })
+    await fs.promises.writeFile(path.join(capture_dir, filename), buffer, {})
+    debug('save writed to file', filename)
+    return filename
   }
 
   private closeRecorder(): void {
