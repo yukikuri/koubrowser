@@ -260,7 +260,7 @@ const airbaseTargetLabel = computed<string>((): string => {
       mapId: 65,
       label: 'M'
     }
-  ] as const
+  ]
 
   const mapId = props.areaId * 10 + props.areaNo
   const info = airbaseSpotInfo.find((info) => info.mapId === mapId)
