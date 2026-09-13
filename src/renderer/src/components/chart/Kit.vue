@@ -24,7 +24,10 @@ interface SeriesSet { visible: boolean; first: number; last: number }
 type SeriesStates = { [key in SeriesType]: SeriesSet }
 
 type XAxisDateFormatType = 'day' | 'hour' | 'millisecond' | 'minute' | 'month' | 'second' | 'week' | 'year'
-type XAxisLabelContext = any
+type XAxisLabelContext =
+  Highcharts.AxisLabelsFormatterContextObject & {
+    dateTimeLabelFormat: XAxisDateFormatType
+}
 const formaXAxisDateLabel = (type: XAxisDateFormatType, value: number): string => {
   const date = moment(value)
   if (type === 'second') return date.format('HH:mm:ss')
@@ -95,11 +98,14 @@ function drawChart(datas: KitChartData): void {
 
   function TooltipFormatter(
     this: Highcharts.TooltipFormatterContextObject, 
-    tooltip: Highcharts.Tooltip): (false|string|Array<(string|null|undefined)>|null|undefined) {
+    _tooltip: Highcharts.Tooltip): (false|string|Array<(string|null|undefined)>|null|undefined) {
     const date = moment(this.x)
     const date_str = '<div class="tip-text date">' + date.format('YYYY.MM.DD') + ' ' + date.format('HH:mm') + '</div>'
 
-    const findPrevPoint = (point: any, points: any[]): any | null => {
+    const findPrevPoint = (
+      point: Highcharts.Point, points: Highcharts.Point[]
+    ): Highcharts.Point | null => {
+
       if (!points.length) return null
       const offset = points[0].index > 0 ? points[0].index : 0
       const index = point.index - 1 - offset
@@ -113,7 +119,7 @@ function drawChart(datas: KitChartData): void {
       return `<span class="minus">(${v})</span>`
     }
 
-    const htmls = this.points?.reduce((acc: string[], el: any) => {
+    const htmls = this.points?.reduce((acc: string[], el) => {
       const series_type: SeriesType = el.point.series.userOptions.id! as SeriesType
       const prev_point = findPrevPoint(el.point, el.point.series.points)
       const value = Math.floor(el.point.y!)
@@ -159,13 +165,30 @@ function drawChart(datas: KitChartData): void {
 
   chart = Highcharts.stockChart(options);
 }
+type SeriesWithProcessedYData = Highcharts.Series & {
+  processedYData?: unknown
+}
 
-function setMinMaxData(ctx: XAxisLabelContext): void {
-  const findProcessedYData = (ctx: any, type: string): Array<number> | undefined => {
-    const datas = (ctx.axis.series.find((el) => el.name === type) as any)?.processedYData
-    if (Array.isArray(datas)) return datas as Array<number>
+function setMinMaxData(ctx: Highcharts.AxisLabelsFormatterContextObject): void {
+
+  const findProcessedYData = (
+    ctx: Highcharts.AxisLabelsFormatterContextObject, 
+    type: string
+  ): Array<number> | undefined => {
+
+    const series = ctx.axis.series.find((el) => el.name === type)
+    const datas = (series as SeriesWithProcessedYData | undefined)?.processedYData
+
+    if (
+      Array.isArray(datas) &&
+      datas.every((value): value is number => typeof value === 'number')
+    ) {
+      return datas
+    }
+
     return undefined
   }
+
   if (ctx.isFirst) {
     Object.values(SeriesTypes).forEach((el) => {
       const ydatas = findProcessedYData(ctx, el)
@@ -180,10 +203,10 @@ function setMinMaxData(ctx: XAxisLabelContext): void {
 }
 
 function toggleSeries(id: SeriesType): void {
-  const series = chart?.get(id) as any
-  if (series) {
-    series.setVisible(!series.visible)
-    series_state[id].visible = series.visible
+  const series = chart?.get(id);
+  if (series instanceof Highcharts.Series) {
+    series.setVisible(!series.visible);
+    series_state[id].visible = series.visible;
   }
 }
 
@@ -239,18 +262,18 @@ onUnmounted(() => {
 <template>
   <div class="kit-chart top-line">
     <div class="chart-container">
-      <div class="chart-content" id="chart-kit">
+      <div id="chart-kit" class="chart-content">
         <b-loading
-          :is-full-page="false"
           v-model="isLoading"
+          :is-full-page="false"
           :can-cancel="false"
         ></b-loading>
       </div>
       <div class="chart-material-buttons">
-        <button @click="toggleSeries('fast-repair')" class="fuel" :class="{ 'is-visible': isSeriesFastRepairVisible }"><span class="s-icon titlebar-fast-repair"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('fast-build')" class="bull" :class="{ 'is-visible': isSeriesFastBuildVisible }"><span class="s-icon titlebar-fast-build"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('build-kit')" class="steel" :class="{ 'is-visible': isSeriesBuildKitVisible }"><span class="s-icon titlebar-build-kit"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('remodel-kit')" class="buxite" :class="{ 'is-visible': isSeriesRemodelKitVisible }"><span class="s-icon titlebar-remodel-kit"><span class="line-word"></span></span></button>
+        <button class="fuel" :class="{ 'is-visible': isSeriesFastRepairVisible }" @click="toggleSeries('fast-repair')"><span class="s-icon titlebar-fast-repair"><span class="line-word"></span></span></button>
+        <button class="bull" :class="{ 'is-visible': isSeriesFastBuildVisible }" @click="toggleSeries('fast-build')"><span class="s-icon titlebar-fast-build"><span class="line-word"></span></span></button>
+        <button class="steel" :class="{ 'is-visible': isSeriesBuildKitVisible }" @click="toggleSeries('build-kit')"><span class="s-icon titlebar-build-kit"><span class="line-word"></span></span></button>
+        <button class="buxite" :class="{ 'is-visible': isSeriesRemodelKitVisible }" @click="toggleSeries('remodel-kit')"><span class="s-icon titlebar-remodel-kit"><span class="line-word"></span></span></button>
       </div>
       <div v-if="isValidDateRange" class="chart-material-detail">
         <ChartImage class="chart-image" /> 資材チャート: {{ dateFrom }} ～ {{ dateTo }}

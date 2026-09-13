@@ -32,7 +32,7 @@ import {
   getYSCutinText
 } from '@common/locale'
 
-type Props = { ship_id: number }
+type Props = { shipId: number }
 const props = defineProps<Props>()
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -47,7 +47,7 @@ const remodelText = (slots: Slot[], func: (mst: MstSlotitem, level: number) => n
   return add ? `+${MathUtil.floor(add, 2)}` : ''
 }
 
-const api = computed<ApiShip>(() => svdata.ship(props.ship_id)!)
+const api = computed<ApiShip>(() => svdata.ship(props.shipId)!)
 const mst = computed<MstShip>(() => svdata.mstShip(api.value.api_ship_id)!)
 const slots = computed<Slot[]>(() => svdata.slots(api.value))
 const shipInfo = computed<ShipInfo>(() => ({
@@ -57,11 +57,11 @@ const shipInfo = computed<ShipInfo>(() => ({
 }))
 
 const deckShipIds = computed<number[]>(() => {
-  const deck = svdata.deckPorts.find((d) => d.api_ship.includes(props.ship_id))
-  return deck ? deck.api_ship : [props.ship_id]
+  const deck = svdata.deckPorts.find((d) => d.api_ship.includes(props.shipId))
+  return deck ? deck.api_ship : [props.shipId]
 })
 const shipSps = computed<ShipInfoSp[]>(() => svdata.shipInfoSps(deckShipIds.value))
-const shipSp = computed<ShipInfoSp | undefined>(() => shipSps.value.find((s) => s.api.api_id === props.ship_id))
+const shipSp = computed<ShipInfoSp | undefined>(() => shipSps.value.find((s) => s.api.api_id === props.shipId))
 
 const sokuText = computed(() => SokuText[api.value.api_soku / 5] ?? '')
 const syateiText = computed(() => SyateiText[api.value.api_leng] ?? '')
@@ -383,7 +383,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="shipTooltip" ref="rootEl">
+  <!-- XSS attack対象なし -->
+  <!-- eslint-disable vue/no-v-html -->
+  <div ref="rootEl" class="shipTooltip">
     <div>
       Lv. {{ api.api_lv }} <span class="name">{{ mst.api_name }}</span>
       <span class="exp"
@@ -428,57 +430,58 @@ onMounted(() => {
       <span class="s-icon luck">運: {{ api.api_lucky[0] }}</span>
     </div>
     <hr class="hr" />
-    <div class="slot" v-for="(slot, index) in slots" :key="index">
+    <div v-for="(slot, index) in slots" :key="index" class="slot">
       <span class="slot-onslot mr-1"><span v-html="slotOnSlotHtml(index)"></span></span>
       <span class="slot-img"><img v-if="slot !== undefined" :src="slotTypeImg(slot)" /></span>
-      <span class="slot-text" v-if="slot !== undefined"
+      <span v-if="slot !== undefined" class="slot-text" 
         >{{ slot.mst.api_name }}
         <img v-if="!!slot.api.api_alv" class="slot-alv-img" :src="slotAlvImg(slot)" />
         <span v-if="!!slot.api.api_level" class="slot-level">★{{ slotLevelText(slot) }}</span>
       </span>
     </div>
-    <hr class="hr" v-if="hasSp"/>
-    <div class="sp-parts" v-if="htmlTH">
+    <hr v-if="hasSp" class="hr" />
+    <div v-if="htmlTH" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title one-line">特殊砲撃</div>
         <div class="sp-content" v-html="htmlTH"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlFA">
+    <div v-if="htmlFA" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title">弾着<br>観測射撃</div>
         <div class="sp-content" v-html="htmlFA"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlAA">
+    <div v-if="htmlAA" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title">空母<br>カットイン</div>
         <div class="sp-content" v-html="htmlAA"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlTK">
+    <div v-if="htmlTK" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title">対空<br>カットイン</div>
         <div class="sp-content" v-html="htmlTK"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlYC">
+    <div v-if="htmlYC" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title">夜戦<br>カットイン</div>
         <div class="sp-content" v-html="htmlYC"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlYS">
+    <div v-if="htmlYS" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title">夜襲<br>カットイン</div>
         <div class="sp-content" v-html="htmlYS"></div>
       </div>
     </div>
-    <div class="sp-parts" v-if="htmlEtc">
+    <div v-if="htmlEtc" class="sp-parts">
       <div class="sp-container">
         <div class="sp-title one-line">その他</div>
         <div class="sp-content" v-html="htmlEtc"></div>
       </div>
     </div>
   </div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

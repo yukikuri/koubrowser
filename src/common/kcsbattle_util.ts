@@ -6,7 +6,7 @@ import { calcFleetHps } from "@common/kcsbattle";
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[KcBattleUtil]", ...args);
 };
 

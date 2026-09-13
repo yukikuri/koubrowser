@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { RUtil } from '@renderer/util'
 import { computed } from 'vue'
 
-const ReloadState = {
+const _ReloadState = {
   fromCache: null,
   fromApp: '2'
 } as const
 
-const props = defineProps<{ mst_id: number }>()
+defineProps<{ mstId: number }>()
 
 // const src = computed(() => RUtil.weaponImg(props.mst_id, true))
 // const srcFallback = computed(() => RUtil.weaponImgNoCache)
@@ -15,14 +14,14 @@ const props = defineProps<{ mst_id: number }>()
 const src = computed(() => 'noimg.png');
 const srcFallback = computed(() => 'noimg.png')
 
-function onLoad(event: Event): void {
+function onLoad(_event: Event): void {
   // const target = event.target as HTMLImageElement
   // if (target.classList.contains('reloaded')) {
   //   target.classList.remove('loading', 'reloaded')
   // }
 }
 
-function onError(event: Event): void {
+function onError(_event: Event): void {
   // const target = event.target as HTMLImageElement
   // const reloaded = target.getAttribute('reloaded')
   // switch (reloaded) {

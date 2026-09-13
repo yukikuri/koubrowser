@@ -50,8 +50,12 @@ function reply<T extends Type>(id: number, res: ResTypes<T>): void {
  * @param req 
  * @param e 
  */
-function replyError(req: ReqMsg, e: any): void {
-  const res: ResError = { ok: false, type: 'error', error: e?.message ?? String(e) }
+function replyError(req: ReqMsg, e: unknown): void {
+  const res: ResError = { 
+    ok: false, 
+    type: 'error', 
+    error: e instanceof Error ? e.message : String(e)
+  }
   reply(req.id, res);
 }
 
@@ -61,7 +65,7 @@ let dbStuff: DbStuff | null = null
  * 
  * @param value 
  */
-function checkDbStuff(value: DbStuff | null): asserts value is DbStuff {
+function checkDbStuff(_value: DbStuff | null): asserts _value is DbStuff {
   if (! dbStuff) {
     throw new Error('DB not initialized')
   }
@@ -71,7 +75,7 @@ function checkDbStuff(value: DbStuff | null): asserts value is DbStuff {
  * 
  * @param req 
  */
-function shutdown(id: number, req: ReqShutdown) {
+function shutdown(id: number, req: ReqShutdown): void {
   //setTimeout(() => { 
     //console.log('worker thread shutting down2')
     reply(id, { ok: true, type: req.type })
@@ -83,7 +87,7 @@ function shutdown(id: number, req: ReqShutdown) {
  * 
  * @param req 
  */
-function dbInit(id: number, req: ReqDbInit) {
+function dbInit(id: number, req: ReqDbInit): void {
   if (! dbStuff) {
     dbStuff = createDbStuff()
     dbStuff.load(req.userDir, req.dbs, (results) => {
@@ -100,7 +104,7 @@ function dbInit(id: number, req: ReqDbInit) {
  * @param req 
  * @returns 
  */
-function dbInsert(id: number, req: ReqDbInsert) {
+function dbInsert(id: number, req: ReqDbInsert): void {
   checkDbStuff(dbStuff)
   dbStuff.insert(req.doc).then((doc) => {
     reply(id, { ok: true, type: req.type, inserted: doc })
@@ -114,7 +118,7 @@ function dbInsert(id: number, req: ReqDbInsert) {
  * @param req 
  * @returns 
  */
-function dbQuery(id: number, req: ReqDbQuery) {
+function dbQuery(id: number, req: ReqDbQuery): void {
   checkDbStuff(dbStuff)
   dbStuff.query(req.query).then((docs) => {
     reply(id, { ok: true, type: req.type, docs })
@@ -128,7 +132,7 @@ function dbQuery(id: number, req: ReqDbQuery) {
  * @param req 
  * @returns 
  */
-function dbQueryOne(id: number, req: ReqDbQueryOne) {
+function dbQueryOne(id: number, req: ReqDbQueryOne): void {
   checkDbStuff(dbStuff)
   dbStuff.queryOne(req.query).then((doc) => {
     reply(id, { ok: true, type: req.type, doc })
@@ -142,7 +146,7 @@ function dbQueryOne(id: number, req: ReqDbQueryOne) {
  * @param id 
  * @param req 
  */
-function dbUpdate(id: number, req: ReqDbUpdate) {
+function dbUpdate(id: number, req: ReqDbUpdate): void {
   checkDbStuff(dbStuff)
   dbStuff.update(req.update).then(({ num, affectedDocs, upsert }) => {
     reply(id, { ok: true, type: req.type, res: { num, affectedDocs, upsert } })
@@ -156,7 +160,7 @@ function dbUpdate(id: number, req: ReqDbUpdate) {
  * @param req 
  * @returns 
  */
-function dbRemove(id: number, req: ReqDbRemove) {
+function dbRemove(id: number, req: ReqDbRemove): void {
   checkDbStuff(dbStuff)
   dbStuff.remove(req.remove).then((num) => {
     reply(id, { ok: true, type: req.type, num })
@@ -170,7 +174,7 @@ function dbRemove(id: number, req: ReqDbRemove) {
  * @param req 
  * @returns 
  */
-function dbOperation(id: number, req: ReqDbOperation) {
+function dbOperation(id: number, req: ReqDbOperation): void {
   checkDbStuff(dbStuff)
   try {
     dbStuff.operation(req.operation);
@@ -180,7 +184,7 @@ function dbOperation(id: number, req: ReqDbOperation) {
   }
 }
 
-function calcPortChartData(id: number, req: ReqCalcPortChartData) {
+function calcPortChartData(id: number, req: ReqCalcPortChartData): void {
   checkDbStuff(dbStuff)
 
   // query port record 
@@ -236,7 +240,7 @@ function calcPortChartData(id: number, req: ReqCalcPortChartData) {
   })
 }
 
-function aggregateRankByArea(id: number, req: ReqAggregateRankByArea) {
+function aggregateRankByArea(id: number, req: ReqAggregateRankByArea): void {
   checkDbStuff(dbStuff)
 
   console.log('agg threadId:', threadId, 'dirname:', getMainDir())
@@ -262,7 +266,7 @@ function aggregateRankByArea(id: number, req: ReqAggregateRankByArea) {
     }
   };
 
-  dbStuff.query(query).then((records: DropRecord[]) => {
+  dbStuff.query<DropRecord>(query).then((records: DropRecord[]) => {
     const calced = RecordCalculator.aggregateCellRank(records);
     const datas = RecordCalculator.aggregateCellRankMerge(calced, cellInfo);
     reply(id, { ok: true, type: req.type, datas });
@@ -271,7 +275,7 @@ function aggregateRankByArea(id: number, req: ReqAggregateRankByArea) {
   })
 }
 
-function aggregateShipDrop(id: number, req: ReqAggregateShipDrop) {
+function aggregateShipDrop(id: number, req: ReqAggregateShipDrop): void {
   checkDbStuff(dbStuff)
   console.log('aggregateShipDrop threadId:', threadId, 'id:', id, 
     'currentProcessingId:', processingAggregateShipDropId, 'req:', req)
@@ -298,7 +302,7 @@ function aggregateShipDrop(id: number, req: ReqAggregateShipDrop) {
           isBoss: 1,
         }
       };
-      dbStuff.query(query).then((records: DropRecord[]) => {
+      dbStuff.query<DropRecord>(query).then((records: DropRecord[]) => {
 
         if (processingAggregateShipDropId !== id) {
           console.log('aggregateShipDrop cancelled(by mapid). threadId:', threadId, 'id:', id, 
@@ -360,30 +364,27 @@ function aggregateShipDrop(id: number, req: ReqAggregateShipDrop) {
     //   });
     // })
 
-    return new Promise<AggregatedCellShipDrop[]>(async (resolve, reject) => {
-      try {
-        let ret: AggregatedCellShipDrop[] = [];
-        // 各マップごとに集計する
-        // 全マップ集計ではドロップ数によりメモリ使用量が膨れ上がる恐れがあるため
-        let index = 0;
-        while(index < mapIds.length) {
-          console.log('>> aggregateShipDrop processing map index:', index, 'of', mapIds.length, 'shipId:', shipId);
-          const datas =  await fetchByMapId(shipId, mapIds[index++]);
-          console.log('<< aggregateShipDrop processing map index:', index, 'of', mapIds.length, 'shipId:', shipId);
-          if (processingAggregateShipDropId !== id) {
-            console.log('aggregateShipDrop cancelled(by mapids). threadId:', threadId, 'id:', id, 
-              'currentProcessingId:', processingAggregateShipDropId);
-            resolve([]);
-            return;
-          }
-          ret = ret.concat(datas);
+    try {
+      let ret: AggregatedCellShipDrop[] = [];
+      // 各マップごとに集計する
+      // 全マップ集計ではドロップ数によりメモリ使用量が膨れ上がる恐れがあるため
+      let index = 0;
+      while(index < mapIds.length) {
+        console.log('>> aggregateShipDrop processing map index:', index, 'of', mapIds.length, 'shipId:', shipId);
+        const datas =  await fetchByMapId(shipId, mapIds[index++]);
+        console.log('<< aggregateShipDrop processing map index:', index, 'of', mapIds.length, 'shipId:', shipId);
+        if (processingAggregateShipDropId !== id) {
+          console.log('aggregateShipDrop cancelled(by mapids). threadId:', threadId, 'id:', id, 
+            'currentProcessingId:', processingAggregateShipDropId);
+          return []
         }
-        resolve(ret);
-      } catch (err) {
-        console.error('error fetching drop records for ship id:', shipId, err);
-        reject(err);
+        ret = ret.concat(datas);
       }
-    });
+      return ret
+    } catch (err) {
+      console.error('error fetching drop records for ship id:', shipId, err);
+      throw err;
+    }
   }
 
   async function fetchDropMapIds(shipId: number): Promise<number[]> {
@@ -407,7 +408,7 @@ function aggregateShipDrop(id: number, req: ReqAggregateShipDrop) {
       };
 
       console.time('drop record shipid for mapid query time:'+shipId);
-      dbStuff.query(query).then((records: DropRecord[]) => {
+      dbStuff.query<DropRecord>(query).then((records: DropRecord[]) => {
         console.timeEnd('drop record shipid for mapid query time:'+shipId);
         const mapIds = [...new Set(records.map((rec) => rec.mapId))];
         console.log('drop mapid record queried. record count:', mapIds, 'for ship id:', shipId);
@@ -472,7 +473,7 @@ parentPort.on('message', async (msg: ReqMsg) => {
       default:
         throw new Error(`Unknown request type: ${type}`)
     }
-  } catch (e: any) {
+  } catch (e) {
     replyError(msg, e)
   }
 })

@@ -28,7 +28,6 @@ interface SeriesSet {
 type SeriesStates = { [key in SeriesType]: SeriesSet };
 
 type XAxisDateFormatType = 'day' | 'hour' | 'millisecond' | 'minute' | 'month' | 'second' | 'week' | 'year';
-type XAxisLabelContext = any
 
 const formaXAxisDateLabel = (type: XAxisDateFormatType, value: number): string => {
   const date = moment(value);
@@ -92,12 +91,17 @@ let date_to = 0
 function drawChart(datas: MaterialChartData): void {
   console.log('material record len', datas[0].length);
 
-  function yAxisFormatter(this: any): string {
+  function yAxisFormatter(this): string {
     return this.value.toString();
   }
 
-  function xAxisFormatter(this: any): string {
-    const ctx = this as any
+  type XAxisFormatterContext =
+    Highcharts.AxisLabelsFormatterContextObject & {
+    dateTimeLabelFormat: XAxisDateFormatType
+  }
+
+  function xAxisFormatter(this: Highcharts.AxisLabelsFormatterContextObject): string {
+    const ctx = this as XAxisFormatterContext
     setMinMaxData(ctx)
     return formaXAxisDateLabel(ctx.dateTimeLabelFormat, ctx.value as number);
   }
@@ -143,7 +147,9 @@ function drawChart(datas: MaterialChartData): void {
     const date = moment(this.x);
     const date_str = '<div class="tip-text date">' + date.format('YYYY.MM.DD') + ' ' + date.format('HH:mm') + '</div>';
 
-    const findPrevPoint = (point: any, points: any[]): any | null => {
+    const findPrevPoint = (
+      point: Highcharts.Point, 
+      points: Highcharts.Point[]): Highcharts.Point | null => {
       if (! points.length) {
         return null;
       }
@@ -167,7 +173,7 @@ function drawChart(datas: MaterialChartData): void {
       return `<span class="minus">(${v})</span>`;
     };
 
-    const htmls = this.points?.reduce((acc: string[], el: any) => {
+    const htmls = this.points?.reduce((acc: string[], el) => {
       const series_type: SeriesType = el.point.series.userOptions.id! as SeriesType;
       const prev_point = findPrevPoint(el.point, el.point.series.points);
       const value = Math.floor(el.point.y!);
@@ -249,11 +255,11 @@ function drawChart(datas: MaterialChartData): void {
 }
 
 function toggleSeries(id: SeriesType): void {
-    const series = chart?.get(id) as any;
-    if (series) {
-        series.setVisible(!series.visible);
-        series_state[id].visible = series.visible;
-    }
+  const series = chart?.get(id);
+  if (series instanceof Highcharts.Series) {
+    series.setVisible(!series.visible);
+    series_state[id].visible = series.visible;
+  }
 }
 
 const dateFrom = computed<string>(() => {
@@ -268,12 +274,29 @@ const dateTo = computed<string>(() => {
   return to.format('YYYY.MM.DD')
 })
 
-function setMinMaxData(ctx: any): void {
-  const findProcessedYData = (ctx: any, type: string): Array<number> | undefined => {
-    const datas = (ctx.axis.series.find((el) => el.name === type) as any)?.processedYData
-    if (Array.isArray(datas)) return datas as Array<number>
+type SeriesWithProcessedYData = Highcharts.Series & {
+  processedYData?: unknown
+}
+
+function setMinMaxData(ctx: Highcharts.AxisLabelsFormatterContextObject): void {
+
+  const findProcessedYData = (
+    ctx: Highcharts.AxisLabelsFormatterContextObject, 
+    type: string
+  ): Array<number> | undefined => {
+    const series = ctx.axis.series.find((el) => el.name === type)
+    const datas = (series as SeriesWithProcessedYData | undefined)?.processedYData
+
+    if (
+      Array.isArray(datas) &&
+      datas.every((value): value is number => typeof value === 'number')
+    ) {
+      return datas
+    }
+
     return undefined
   }
+
   if (ctx.isFirst) {
     Object.keys(SeriesTypes).forEach((el) => {
       const ydatas = findProcessedYData(ctx, el)
@@ -360,18 +383,18 @@ defineExpose({
 <template>
   <div class="material-chart">
     <div class="chart-container">
-      <div class="chart-content" id="chart-material">
+      <div id="chart-material" class="chart-content">
         <b-loading
-          :is-full-page="false"
           v-model="isLoading"
+          :is-full-page="false"
           :can-cancel="false"
         ></b-loading>
       </div>
       <div class="chart-material-buttons">
-        <button @click="toggleSeries('fuel')" class="fuel" :class="{ 'is-visible': isSeriesFuelVisible}"><span class="s-icon titlebar-fuel"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('bull')" class="bull" :class="{ 'is-visible': isSeriesBullVisible}"><span class="s-icon titlebar-bull"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('steel')" class="steel" :class="{ 'is-visible': isSeriesSteelVisible}"><span class="s-icon titlebar-steel"><span class="line-word"></span></span></button>
-        <button @click="toggleSeries('buxite')" class="buxite" :class="{ 'is-visible': isSeriesBuxiteVisible}"><span class="s-icon titlebar-buxite"><span class="line-word"></span></span></button>
+        <button class="fuel" :class="{ 'is-visible': isSeriesFuelVisible}" @click="toggleSeries('fuel')"><span class="s-icon titlebar-fuel"><span class="line-word"></span></span></button>
+        <button class="bull" :class="{ 'is-visible': isSeriesBullVisible}" @click="toggleSeries('bull')"><span class="s-icon titlebar-bull"><span class="line-word"></span></span></button>
+        <button class="steel" :class="{ 'is-visible': isSeriesSteelVisible}" @click="toggleSeries('steel')"><span class="s-icon titlebar-steel"><span class="line-word"></span></span></button>
+        <button class="buxite" :class="{ 'is-visible': isSeriesBuxiteVisible}" @click="toggleSeries('buxite')"><span class="s-icon titlebar-buxite"><span class="line-word"></span></span></button>
       </div>
       <div v-if="isValidDateRange" class="chart-material-detail">
         <ChartImage class="chart-image" /> 資源チャート: {{dateFrom}} ～ {{dateTo}}

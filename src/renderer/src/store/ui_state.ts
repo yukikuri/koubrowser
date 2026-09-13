@@ -6,7 +6,7 @@ import { getLocalStoragePrefixKey, LocalStorageKeyName } from '@renderer/store/s
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[ui-state]", ...args);
 };
 
@@ -101,13 +101,14 @@ function load(): UIState {
     Object.assign(def, obj)
     debug('state after assign:', def)
   } catch {
+    // ignore
   }
   return def
 }
 const uiState = load()
 
 let delaySaveRequested = false;
-function delaySave() {
+function delaySave(): void {
   if (! delaySaveRequested) {
     delaySaveRequested = true
     setTimeout(() => {
@@ -122,66 +123,70 @@ function delaySave() {
 
 /////////////////////////////////////////////////////////////////////////////////////
 // assist component
-export namespace AssistUIState {
-
-  export const tabOrder: AssistTabName[] = (() => {
-    const ret: AssistTabName[] = []
-    ret.push('deckport')
-    ret.push('missioncheck')
-    ret.push('battletab')
-    ret.push('shipitems')
-    ret.push('dropbymap')
-    ret.push('dropbyship')
-    if (EnvRenderer.isAssist) {
-      ret.push('dockquestlist')
-    }
-    ret.push('chart')
-    ret.push('about')
-    return ret
-  })()
-
-  export const tabIndex = ref(getTabIndex(uiState.tabName))
-  export const tabRequest = ref<AssistTabName | null>(null)
-
-  export function requestTab(tabName: AssistTabName): void {
-    tabRequest.value = tabName
+const assistTabOrder: AssistTabName[] = (() => {
+  const ret: AssistTabName[] = []
+  ret.push('deckport')
+  ret.push('missioncheck')
+  ret.push('battletab')
+  ret.push('shipitems')
+  ret.push('dropbymap')
+  ret.push('dropbyship')
+  if (EnvRenderer.isAssist) {
+    ret.push('dockquestlist')
   }
+  ret.push('chart')
+  ret.push('about')
+  return ret
+})()
 
-  function getTabIndex(tabName: string): number {
-    const index = tabOrder.findIndex((el) => el === tabName)
-    debug('getting tab index for tab name:', tabName, 'tab order:', tabOrder, 'index:', index)
-    return index >= 0 ? index : 0
-  }
+function getAssistTabIndex(tabName: string): number {
+  const index = assistTabOrder.findIndex((el) => el === tabName)
+  debug('getting tab index for tab name:', tabName, 'tab order:', assistTabOrder, 'index:', index)
+  return index >= 0 ? index : 0
+}
 
-  export const isTabVisibleByName = (tabName: AssistTabName): boolean => {
-    const index = tabOrder.indexOf(tabName)
-    return tabIndex.value === index
-  }
+const assistTabIndex = ref(getAssistTabIndex(uiState.tabName))
+const assistTabRequest = ref<AssistTabName | null>(null)
 
-  export function getTabName(index: number): AssistTabName | undefined {
-    return tabOrder[index]
-  }
+export const AssistUIState = {
+  tabOrder: assistTabOrder,
+  tabIndex: assistTabIndex,
+  tabRequest: assistTabRequest,
 
-  export function saveTabName(tabName: AssistTabName): void {
+  requestTab(tabName: AssistTabName): void {
+    assistTabRequest.value = tabName
+  },
+
+  isTabVisibleByName(tabName: AssistTabName): boolean {
+    const index = assistTabOrder.indexOf(tabName)
+    return assistTabIndex.value === index
+  },
+
+  getTabName(index: number): AssistTabName | undefined {
+    return assistTabOrder[index]
+  },
+
+  saveTabName(tabName: AssistTabName): void {
     uiState.tabName = tabName
+
     if (EnvRenderer.isAssist) {
       delaySave()
     }
-  }
+  },
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 // battletab component
-export namespace BattleTabUIState {
+export const BattleTabUIState = (() => {
 
-  export const tabOrder: BattleTabName[] = (() => {
+  const tabOrder: BattleTabName[] = (() => {
     const ret: BattleTabName[] = []
     ret.push('score')
     ret.push('history')
     return ret
   })()
 
-  export const tabIndex = ref(getTabIndex(uiState.battletab.tabName))
+  const tabIndex = ref(getTabIndex(uiState.battletab.tabName))
 
   function getTabIndex(tabName: string): number {
     const index = tabOrder.findIndex((el) => el === tabName)
@@ -189,28 +194,29 @@ export namespace BattleTabUIState {
     return index >= 0 ? index : 0
   }
 
-  export const isTabVisibleByName = (tabName: BattleTabName): boolean => {
+  const isTabVisibleByName = (tabName: BattleTabName): boolean => {
     const index = tabOrder.indexOf(tabName)
     return tabIndex.value === index
   }
 
-  export function getTabName(index: number): BattleTabName | undefined {
+  function getTabName(index: number): BattleTabName | undefined {
     return tabOrder[index]
   }
 
-  export function saveTabName(tabName: BattleTabName): void {
+  function saveTabName(tabName: BattleTabName): void {
     uiState.battletab.tabName = tabName
     if (EnvRenderer.isAssist) {
       delaySave()
     }
   }
-}
+  return { tabOrder, tabIndex, isTabVisibleByName, getTabName, saveTabName }
+})()
 
 /////////////////////////////////////////////////////////////////////////////////////
 // shipitems component
-export namespace ShipItemsTabUIState {
+export const ShipItemsTabUIState = (() => {
 
-  export const tabOrder: ShipItemsTabName[] = (() => {
+  const tabOrder: ShipItemsTabName[] = (() => {
     const ret: ShipItemsTabName[] = []
     ret.push('shiplist')
     ret.push('slotitemlist')
@@ -218,7 +224,7 @@ export namespace ShipItemsTabUIState {
     return ret
   })()
 
-  export const tabIndex = ref(getTabIndex(uiState.shipitems.tabName))
+  const tabIndex = ref(getTabIndex(uiState.shipitems.tabName))
 
   function getTabIndex(tabName: string): number {
     const index = tabOrder.findIndex((el) => el === tabName)
@@ -226,28 +232,29 @@ export namespace ShipItemsTabUIState {
     return index >= 0 ? index : 0
   }
 
-  export const isTabVisibleByName = (tabName: ShipItemsTabName): boolean => {
+  const isTabVisibleByName = (tabName: ShipItemsTabName): boolean => {
     const index = tabOrder.indexOf(tabName)
     return tabIndex.value === index
   }
 
-  export function getTabName(index: number): ShipItemsTabName | undefined {
+  function getTabName(index: number): ShipItemsTabName | undefined {
     return tabOrder[index]
   }
 
-  export function saveTabName(tabName: ShipItemsTabName): void {
+  function saveTabName(tabName: ShipItemsTabName): void {
     uiState.shipitems.tabName = tabName
     if (EnvRenderer.isAssist) {
       delaySave()
     }
   }
-}
+  return { tabOrder, tabIndex, isTabVisibleByName, getTabName, saveTabName }
+})()
 
 /////////////////////////////////////////////////////////////////////////////////////
 // dropbyship component
-export namespace DropByShipTabUIState {
+export const DropByShipTabUIState = (() => {
 
-  export const tabOrder: DropByShipTabName[] = (() => {
+  const tabOrder: DropByShipTabName[] = (() => {
     const ret: DropByShipTabName[] = []
     ret.push('senkan')
     ret.push('kubo')
@@ -260,7 +267,7 @@ export namespace DropByShipTabUIState {
     return ret
   })()
 
-  export const tabIndex = ref(getTabIndex(uiState.dropbyship.tabName))
+  const tabIndex = ref(getTabIndex(uiState.dropbyship.tabName))
 
   function getTabIndex(tabName: string): number {
     const index = tabOrder.findIndex((el) => el === tabName)
@@ -268,19 +275,20 @@ export namespace DropByShipTabUIState {
     return index >= 0 ? index : 0
   }
 
-  export const isTabVisibleByName = (tabName: DropByShipTabName): boolean => {
+  const isTabVisibleByName = (tabName: DropByShipTabName): boolean => {
     const index = tabOrder.indexOf(tabName)
     return tabIndex.value === index
   }
 
-  export function getTabName(index: number): DropByShipTabName | undefined {
+  function getTabName(index: number): DropByShipTabName | undefined {
     return tabOrder[index]
   }
 
-  export function saveTabName(tabName: DropByShipTabName): void {
+  function saveTabName(tabName: DropByShipTabName): void {
     uiState.dropbyship.tabName = tabName
     if (EnvRenderer.isAssist) {
       delaySave()
     }
   }
-}
+  return { tabOrder, tabIndex, isTabVisibleByName, getTabName, saveTabName }
+})()

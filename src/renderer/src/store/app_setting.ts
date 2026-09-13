@@ -23,7 +23,7 @@ const syncHandle = watch(
   { deep: true }
 )
 
-export function setAppSettingWithPreventSave(setting: AppSetting) {
+export function setAppSettingWithPreventSave(setting: AppSetting): void {
   console.log('setAppSettingWithPreventSave >> prevent save:', preventSave, setting)
   preventSave = true;
   forWatchCall.value++;

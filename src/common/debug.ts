@@ -7,7 +7,7 @@ export const nowString = (): string => {
 /**
  * 深い階層を探索して最初に見つかったキー名の値を返す
  */
-export const findOne = (obj: any, keyNames: string[]): any | undefined => {
+export const findOne = (obj: unknown, keyNames: string[]): unknown | undefined => {
   if (typeof obj !== "object" || obj === null) return undefined;
 
   for (const [key, value] of Object.entries(obj)) {

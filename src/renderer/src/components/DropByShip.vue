@@ -5,7 +5,7 @@ import { KcsUtil } from '@common/kcs';
 import { getAreaName, getEventPeriodName } from '@common/area_name';
 import DropByShipArea from '@renderer/components/DropByShipArea.vue';
 import { DropShipMapInfo } from '@renderer/common/drop-ship';
-import DropByShipControl from './DropByShipControl.vue';
+import DropByShipControl from '@renderer/components/DropByShipControl.vue';
 import { svdata } from '@renderer/store/svdata';
 import { MapLvText } from '@common/locale';
 
@@ -65,16 +65,37 @@ function onSelect(row: ShipDropTableData | null, rowOld: ShipDropTableData | nul
 
 // -----------------------------------------------------------------
 // sorting state
-const currentSortField = ref<string>('')
+type SortField =
+  | 'areaId'
+  | 'rate'
+  | 'dropCount'
+  | 'rankDropCount'
+  | 'rankOrder'
+const currentSortField = ref<SortField | ''>('')
 const currentSortOrder = ref<'asc' | 'desc' | ''>('')
+
+const isSortField = (field: string): field is SortField => {
+  return (
+    field === 'areaId' ||
+    field === 'rate' ||
+    field === 'dropCount' ||
+    field === 'rankDropCount' ||
+    field === 'rankOrder'
+  )
+}
 
 function onSort(field: string, order:'asc' | 'desc'): void {
   console.log('ship list onSort sorting:', order, 'sorting.field:', field)
+  if (! isSortField(field)) {
+    console.warn('ship list onSort unknown field:', field)
+    return;
+  }
+
   currentSortField.value = field
   currentSortOrder.value = order
 }
 
-function isSortedField(field: string): boolean {
+function isSortedField(field: SortField): boolean {
   return currentSortField.value === field
 }
 
@@ -206,8 +227,8 @@ watch(dropShipId, (newShipId) => {
       if (currentSortField.value) {
         console.log('applying current sort to fetched data:', currentSortField.value, currentSortOrder.value);
         localDatas.sort((a, b) => {
-          const valA: number = (a as any)[currentSortField.value];
-          const valB: number = (b as any)[currentSortField.value];
+          const valA: number = a[currentSortField.value];
+          const valB: number = b[currentSortField.value];
           // number 比較
           if (currentSortOrder.value === 'asc') {
             return valA - valB;
@@ -359,12 +380,13 @@ const isInitialState = computed<boolean>(() => {
 <template>
   <section class="drop-history-ship-root">
     <div class="ship-select-control-content">
-      <DropByShipControl v-model:selected_ship_id="dropShipId"/>
+      <DropByShipControl v-model:selected-ship-id="dropShipId"/>
     </div>
     <div v-if="isOverlayHelpVisible" class="overlay-background"></div>
     <div v-if="isOverlayHelpVisible" class="overlay-help">{{ helpText }}</div>
-    <div class="ship-drop-table" ref="tableEl">
+    <div ref="tableEl" class="ship-drop-table">
       <b-table
+        v-model:selected="selectedData"
         :data="datas"
         :paginated="false"
         :show-detail-icon="false"
@@ -374,16 +396,16 @@ const isInitialState = computed<boolean>(() => {
         :hoverable="false"
         :mobile-cards="false"
         :sticky-header="true"
-        v-model:selected="selectedData"
         focusable
-        @select="onSelect"
         default-sort-direction="desc"
         :height="listHeight"
+        @select="onSelect"
         @sort="onSort"
       >
         <b-table-column centered header-class="drop-area" sortable field="areaId" cell-class="drop-area">
           <template #header>
-            <span>{{ shipHeaderText }} ドロップ海域<span v-if="isSortedField('areaId')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>{{ shipHeaderText }} ドロップ海域<span 
+              v-if="isSortedField('areaId')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
             <div class="area-content"><div 
@@ -394,7 +416,8 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-rate" sortable field="rate" cell-class="drop-rate">
           <template #header>
-            <span>確率<span v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>確率<span 
+              v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
             <span>{{ props.row.rate }}%</span>
@@ -403,7 +426,9 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-count" sortable field="dropCount" cell-class="drop-count">
           <template #header>
-            <span>ドロップ数<span v-if="totalDropCount >= 0">({{ totalDropCount }})</span><span v-if="isSortedField('dropCount')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>ドロップ数<span 
+              v-if="totalDropCount >= 0">({{ totalDropCount }})</span><span 
+              v-if="isSortedField('dropCount')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
             <span>{{ props.row.dropCount }}</span>
@@ -412,7 +437,8 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="rank-drop-count" sortable field="rankDropCount" cell-class="rank-drop-count">
           <template #header>
-            <span>ランク別ドロップ数<span v-if="isSortedField('rankDropCount')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>ランク別ドロップ数<span 
+              v-if="isSortedField('rankDropCount')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
             <span>{{ getRankDropCountText(props.row) }}</span>
@@ -421,9 +447,12 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-rank" sortable field="rankOrder" cell-class="drop-rank">
           <template #header>
-            <span>勝利ランク<span v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>勝利ランク<span 
+              v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
+            <!-- 固定の勝利ランクタグのみを生成し、外部の文字列を含めない -->
+             <!-- eslint-disable-next-line vue/no-v-html -->
             <span v-html="buildRankHtml(props.row)"></span>
           </template>
         </b-table-column>

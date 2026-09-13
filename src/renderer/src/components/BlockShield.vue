@@ -7,7 +7,7 @@ import { EnvRenderer } from '@renderer/common/env-renderer'
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[block shield]", ...args);
 };
 
@@ -74,7 +74,8 @@ defineExpose({
 
 </script>
 <template>
-  <div class="button-cover" 
+  <div 
+    class="button-cover" 
     title="大破進撃防止" 
     :class="{ 'is-guard-hit': isGuardHit }"
     :style="buttonCoverStyle"

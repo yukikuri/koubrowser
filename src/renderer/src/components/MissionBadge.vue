@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
-import { ApiDeckPort, ApiMissionState, MissionState } from '@common/kcs'
+import { ApiDeckPort, MissionState } from '@common/kcs'
 import DoneImg from '@renderer/assets/img/done.svg'
 import moment from 'moment'
 import { svdata } from '@renderer/store/svdata'

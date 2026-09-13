@@ -7,7 +7,7 @@ const mapImgCtxKey = (area_id: number, area_no: number): string => {
 }
 export const mapImgCtx: MapImgCtx = reactive({})
 
-export const setMapImgCtx = (area_id: number, area_no: number, ctx: number) => {
+export const setMapImgCtx = (area_id: number, area_no: number, ctx: number): void => {
   mapImgCtx[mapImgCtxKey(area_id, area_no)] = ctx
 }
 export const getMapImgCtx = (area_id: number, area_no: number): number | undefined => {

@@ -12,7 +12,7 @@ interface Dmgs {
 interface ShipInfoDmg extends ShipInfo {
   readonly dmgs: Dmgs
 }
-interface RemodelInfo {
+interface _RemodelInfo {
   readonly fire: number
   readonly armor: number
   readonly tor: number
@@ -106,7 +106,7 @@ const shipDmgs = (ship: ShipInfo, ids: number[]): Dmgs =>
       if (enemy) acc[id] = calcDmg(ship, enemy)
     }
     return acc
-  }, [] as any)
+  }, {})
 
 const NaNtoString = (v: number): string => (isNaN(v) ? '?' : v.toString())
 
@@ -135,10 +135,10 @@ const eshipSlots = (enemy: EnemyEtc): EShipSlot[] => {
   }, [])
 }
 
-const props = withDefaults(defineProps<{ info: EnemyInfo; deck_index?: number }>(), {
-  deck_index: 0
+const props = withDefaults(defineProps<{ info: EnemyInfo; deckIndex?: number }>(), {
+  deckIndex: 0
 })
-const deck = computed<ApiDeckPort>(() => svdata.deckPorts[props.deck_index!])
+const deck = computed<ApiDeckPort>(() => svdata.deckPorts[props.deckIndex!])
 
 function fireText(ship: ShipInfoDmg, id_enemy: number, index: number): number {
   return ship.dmgs[id_enemy]!.hougeki!.dmg[index]
@@ -206,11 +206,11 @@ const ships = computed<ShipInfoDmg[]>(() => {
   const shipIds = shipCount >= 7 ? deckPort.api_ship.slice(0, 3) : deckPort.api_ship
   const list = svdata.shipInfoSps(shipIds)
   return list.map(
-    (ship) => ({ ...(ship as any), dmgs: shipDmgs(ship, props.info.enemy) }) as ShipInfoDmg
+    (ship) => ({ ...ship, dmgs: shipDmgs(ship, props.info.enemy) }) as ShipInfoDmg
   )
 })
 
-function eshipTitle(info: EShipInfo): string {
+function _eshipTitle(info: EShipInfo): string {
   let ret = `${info.status.api_id}: ${info.status.api_name}`
   if (info.status.api_id) {
     ret += ` 耐久: ${info.status.api_taik}`
@@ -246,23 +246,22 @@ function hpClassesTT(ship: ShipInfo): object {
         :mobile-cards="false"
       >
         <b-table-column label="" centered header-class="enemy-col0" cell-class="cell-name">
-          <template v-slot:header="{}"> </template>
-          <template v-slot="props">
-            <div :class="hpClassesTT(props.row)">
-              <div class="stype">{{ stype(props.row) }}</div>
-              <div class="name">{{ shipName(props.row) }}</div>
+          <template #header="{}"> </template>
+          <template #default="columnProps">
+            <div :class="hpClassesTT(columnProps.row)">
+              <div class="stype">{{ stype(columnProps.row) }}</div>
+              <div class="name">{{ shipName(columnProps.row) }}</div>
             </div>
           </template>
         </b-table-column>
 
         <b-table-column
-          v-for="(eship, index) in eships"
+          v-for="(eship, index) in eships" :key="index"
           centered
-          :key="index"
           :label="eship.info.status.api_id.toString()"
           header-class="enemy-col"
         >
-          <template v-slot:header="{}">
+          <template #header="{}">
             <div class="enemy-cell">
               <div v-if="eship.info.status.api_id !== 0">
                 <b-tooltip
@@ -273,7 +272,7 @@ function hpClassesTT(ship: ShipInfo): object {
                   :animated="false"
                   class="enemy-tip"
                 >
-                  <template v-slot:content>
+                  <template #content>
                     <div>
                       <div class="tip-name">
                         <span>ID:{{ eship.info.status.api_id }}&nbsp;</span
@@ -290,8 +289,7 @@ function hpClassesTT(ship: ShipInfo): object {
                           <img :src="eship.bannerImg" class="enemy-img" />
                           <div class="enemy-slots">
                             <span
-                              v-for="(slot, index) in eship.slots"
-                              :key="index"
+                              v-for="(slot, slotIndex) in eship.slots" :key="slotIndex"
                               class="slot-img"
                             >
                               <img
@@ -331,39 +329,39 @@ function hpClassesTT(ship: ShipInfo): object {
               </div>
             </div>
           </template>
-          <template v-slot="props">
-            <div v-if="props.column.label > 0" class="enemy-dmg">
-              <div v-if="isFireAttach(props.row, props.column.label)">
-                <span class="s-icon small" :class="fireIconClass(props.row, props.column.label)"
-                  >{{ fireText(props.row, props.column.label, 0) }}<span class="small-mod">～</span
-                  >{{ fireText(props.row, props.column.label, 1) }}</span
+          <template #default="columnProps">
+            <div v-if="columnProps.column.label > 0" class="enemy-dmg">
+              <div v-if="isFireAttach(columnProps.row, columnProps.column.label)">
+                <span class="s-icon small" :class="fireIconClass(columnProps.row, columnProps.column.label)"
+                  >{{ fireText(columnProps.row, columnProps.column.label, 0) }}<span class="small-mod">～</span
+                  >{{ fireText(columnProps.row, columnProps.column.label, 1) }}</span
                 >
                 <span
                   class="s-icon xxsmall hit"
-                  :class="{ 'state-plus': isFireHitMax(props.row, props.column.label) }"
-                  >{{ fireHitText(props.row, props.column.label) }}%</span
+                  :class="{ 'state-plus': isFireHitMax(columnProps.row, columnProps.column.label) }"
+                  >{{ fireHitText(columnProps.row, columnProps.column.label) }}%</span
                 >
               </div>
-              <div v-if="isTorAttach(props.row, props.column.label)">
+              <div v-if="isTorAttach(columnProps.row, columnProps.column.label)">
                 <span class="s-icon small tor-a"
-                  >{{ torText(props.row, props.column.label, 0) }}<span class="small-mod">～</span
-                  >{{ torText(props.row, props.column.label, 1) }}</span
+                  >{{ torText(columnProps.row, columnProps.column.label, 0) }}<span class="small-mod">～</span
+                  >{{ torText(columnProps.row, columnProps.column.label, 1) }}</span
                 >
                 <span
                   class="s-icon xxsmall hit"
-                  :class="{ 'state-plus': isTorHitMax(props.row, props.column.label) }"
-                  >{{ torHitText(props.row, props.column.label) }}%</span
+                  :class="{ 'state-plus': isTorHitMax(columnProps.row, columnProps.column.label) }"
+                  >{{ torHitText(columnProps.row, columnProps.column.label) }}%</span
                 >
               </div>
-              <div v-if="isAswAttach(props.row, props.column.label)">
+              <div v-if="isAswAttach(columnProps.row, columnProps.column.label)">
                 <span class="s-icon small asw-a"
-                  >{{ aswText(props.row, props.column.label, 0) }}<span class="small-mod">～</span
-                  >{{ aswText(props.row, props.column.label, 1) }}</span
+                  >{{ aswText(columnProps.row, columnProps.column.label, 0) }}<span class="small-mod">～</span
+                  >{{ aswText(columnProps.row, columnProps.column.label, 1) }}</span
                 >
                 <span
                   class="s-icon xxsmall hit"
-                  :class="{ 'state-plus': isAswHitMax(props.row, props.column.label) }"
-                  >{{ aswHitText(props.row, props.column.label) }}%</span
+                  :class="{ 'state-plus': isAswHitMax(columnProps.row, columnProps.column.label) }"
+                  >{{ aswHitText(columnProps.row, columnProps.column.label) }}%</span
                 >
               </div>
             </div>

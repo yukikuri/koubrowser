@@ -12,7 +12,7 @@ import { SlotImg } from '@renderer/stuff/imgs/slot'
 // デバッグログ
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[SlotitemList]", ...args);
 };
 
@@ -20,7 +20,7 @@ const debug = (...args: any[]) => {
  * 全フィルタcheck
  */
 function checkAllFilters(): void {
-  filterGroup.value = Object.values(FilterKey) as FilterKey[];
+  filterGroup.value = Object.values(FilterKey) as FilterKeyType[];
   currentPage.value = 1;
 }
 
@@ -80,13 +80,13 @@ const FilterKey = {
   smokeScreen: 440,
   //barrageBalloon: 450, // 数が多くsmoke screen側に表示する
 } as const
-type FilterKey = (typeof FilterKey)[keyof typeof FilterKey]
+type FilterKeyType = (typeof FilterKey)[keyof typeof FilterKey]
 
 // -----------------------------------------------------------------
 
 const currentPage = ref<number>(1);
 const slotitemNameFilter = ref<string>('');
-const filterGroup = ref<Array<FilterKey>>([
+const filterGroup = ref<Array<FilterKeyType>>([
   // for test
   //FilterKey.fighter,
   //FilterKey.seaplaneBomber
@@ -128,7 +128,7 @@ function getSlotitemALevelImg(data: SlotItemData): string {
 interface SlotItemData {
   api: ApiSlotitem
   mst: MstSlotitem 
-  key: FilterKey
+  key: FilterKeyType
   internalDetail: number
 }
 
@@ -177,7 +177,7 @@ const BuildHtmlName = {
   los: 'saku',
   armor: 'souk',
 } as const
-export type BuildHtmlName = (typeof BuildHtmlName)[keyof typeof BuildHtmlName]
+export type BuildHtmlNameType = (typeof BuildHtmlName)[keyof typeof BuildHtmlName]
 
 interface HtmlParts {
   remodels: string[]
@@ -262,7 +262,10 @@ const buildHtmlMap: { [key: string]: {
   }
 }
 
-const getBaseParam = (mst: MstSlotitem, name: BuildHtmlName): number => {
+type BaseParamName = Exclude<BuildHtmlNameType, 'kb' | 'kt' | 'raim'>
+type BaseParamKey = `api_${BaseParamName}`
+
+const getBaseParam = (mst: MstSlotitem, name: BuildHtmlNameType): number => {
   if (name === 'kb') {
     return KcsUtil.kbFromMst(mst);
   }
@@ -273,14 +276,16 @@ const getBaseParam = (mst: MstSlotitem, name: BuildHtmlName): number => {
     // invalid api data
     return 0;
   }
-  return (mst as any)['api_'+name] ?? 0
+
+  const key: BaseParamKey = `api_${name}`
+  return mst[key] ?? 0
 }
 
 const buildParamHtml = (
   data: SlotItemData, 
   parts: HtmlParts, 
-  name: BuildHtmlName,
-  remodelNames: BuildHtmlName[]): void => {
+  name: BuildHtmlNameType,
+  remodelNames: BuildHtmlNameType[]): void => {
   const stuff = buildHtmlMap[name]
   if (! stuff) {
     return
@@ -348,7 +353,7 @@ function getDetailHtml(data: SlotItemData): string {
 // -----------------------------------------------------------------
 // filter
 const equipCache = new Map<number, ApiShip | null>() // slotitem_id -> ship
-const filterCounter: Map<FilterKey, number> = new Map<FilterKey, number>() // key: FilterKey, count: number
+const filterCounter: Map<FilterKeyType, number> = new Map<FilterKeyType, number>() // key: FilterKey, count: number
 
 const isMatch = (filters: FilterCheckboxInfo[], mst: MstSlotitem): number => {
   const itemType = KcsUtil.slotitemType(mst);
@@ -548,7 +553,7 @@ interface CounterItem {
 const counters = computed<CounterItem[]>(() => {
   debug('counters called', filterCounter.size)
   //debug(filterCounter)
-  datas.value; // trigger recompute
+  void datas.value; // trigger recompute
   const ret: CounterItem[] = []
   filterCounter.forEach((count, key) => {
     const filterInfos = filterCheckboxInfos().find((info) => info.key === key)
@@ -595,7 +600,7 @@ const emptyText = computed<string>(() => {
 })
 
 interface FilterCheckboxInfo {
-  key: FilterKey
+  key: FilterKeyType
   title: string
   checkboxImgType: SlotitemImgType
   types: SlotitemType[]
@@ -1180,7 +1185,7 @@ function getFilterTypes(): FilterCheckboxInfo[] {
   return ret
 }
 
-const defOrder: BuildHtmlName[] = [
+const defOrder: BuildHtmlNameType[] = [
   BuildHtmlName.fire,
   BuildHtmlName.hit,
   BuildHtmlName.tor,
@@ -1197,7 +1202,7 @@ const defOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const MainGunOrder: BuildHtmlName[] = [
+const MainGunOrder: BuildHtmlNameType[] = [
   BuildHtmlName.fire,
   BuildHtmlName.hit,
   BuildHtmlName.aa,
@@ -1214,7 +1219,7 @@ const MainGunOrder: BuildHtmlName[] = [
   BuildHtmlName.los,
 ];
 
-const AaGunOrder: BuildHtmlName[] = [
+const AaGunOrder: BuildHtmlNameType[] = [
   BuildHtmlName.kt,
   BuildHtmlName.fire,
   BuildHtmlName.tor,
@@ -1231,7 +1236,7 @@ const AaGunOrder: BuildHtmlName[] = [
   BuildHtmlName.asw_hit,
 ];
 
-const AaDirectorOrderKt: BuildHtmlName[] = [
+const AaDirectorOrderKt: BuildHtmlNameType[] = [
   BuildHtmlName.kt,
   BuildHtmlName.kb,
   BuildHtmlName.fire,
@@ -1248,7 +1253,7 @@ const AaDirectorOrderKt: BuildHtmlName[] = [
   BuildHtmlName.tor_hit,
 ];
 
-const AviationPersonnelOrder: BuildHtmlName[] = [
+const AviationPersonnelOrder: BuildHtmlNameType[] = [
   BuildHtmlName.fire,
   BuildHtmlName.hit,
   BuildHtmlName.bom,
@@ -1265,7 +1270,7 @@ const AviationPersonnelOrder: BuildHtmlName[] = [
   BuildHtmlName.tor_hit,
 ];
 
-const AaDirectorOrderKb: BuildHtmlName[] = [
+const AaDirectorOrderKb: BuildHtmlNameType[] = [
   BuildHtmlName.kb,
   BuildHtmlName.kt,
   BuildHtmlName.fire,
@@ -1282,7 +1287,7 @@ const AaDirectorOrderKb: BuildHtmlName[] = [
   BuildHtmlName.tor_hit,
 ];
 
-const TorpedoOrder: BuildHtmlName[] =
+const TorpedoOrder: BuildHtmlNameType[] =
 [
   BuildHtmlName.tor,
   BuildHtmlName.tor_hit,
@@ -1300,7 +1305,7 @@ const TorpedoOrder: BuildHtmlName[] =
   BuildHtmlName.armor,        
 ];
 
-const FighterBuildOrder: BuildHtmlName[] = [
+const FighterBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.aa,
   BuildHtmlName.ev,
   BuildHtmlName.hit,
@@ -1317,7 +1322,7 @@ const FighterBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.kt,
 ];
 
-const DiveBomberOrder: BuildHtmlName[] = [
+const DiveBomberOrder: BuildHtmlNameType[] = [
   BuildHtmlName.bom,
   BuildHtmlName.aa,
   BuildHtmlName.asw,
@@ -1334,7 +1339,7 @@ const DiveBomberOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const TorpedoBomberOrder: BuildHtmlName[] = [
+const TorpedoBomberOrder: BuildHtmlNameType[] = [
   BuildHtmlName.tor,
   BuildHtmlName.asw,
   BuildHtmlName.fire,
@@ -1351,7 +1356,7 @@ const TorpedoBomberOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const SeaplaneBuildOrder: BuildHtmlName[] = [
+const SeaplaneBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.los,
   BuildHtmlName.tor,
   BuildHtmlName.asw,
@@ -1368,7 +1373,7 @@ const SeaplaneBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const RecSeaplaneBuildOrder: BuildHtmlName[] = [
+const RecSeaplaneBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.los,
   BuildHtmlName.hit,
   BuildHtmlName.ev,
@@ -1385,7 +1390,7 @@ const RecSeaplaneBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.kt,
 ];
 
-const SeaplaneBomberBuildOrder: BuildHtmlName[] = [
+const SeaplaneBomberBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.bom,
   BuildHtmlName.los,
   BuildHtmlName.aa,
@@ -1402,7 +1407,7 @@ const SeaplaneBomberBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const RadarBuildOrder: BuildHtmlName[] = [
+const RadarBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.hit,
   BuildHtmlName.los,
   BuildHtmlName.kb,
@@ -1419,7 +1424,7 @@ const RadarBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const SonarBuildOrder: BuildHtmlName[] = [
+const SonarBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.asw,
   BuildHtmlName.asw_hit,
   BuildHtmlName.fire,
@@ -1436,7 +1441,7 @@ const SonarBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const EngineBuildOrder: BuildHtmlName[] = [
+const EngineBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.ev,
   BuildHtmlName.fire,
   BuildHtmlName.hit,
@@ -1453,7 +1458,7 @@ const EngineBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const AutogyroOrder: BuildHtmlName[] = [
+const AutogyroOrder: BuildHtmlNameType[] = [
   BuildHtmlName.asw,
   BuildHtmlName.hit,
   BuildHtmlName.fire,
@@ -1470,7 +1475,7 @@ const AutogyroOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const AntiSubmarinePatrolAircraftOrder: BuildHtmlName[] = [
+const AntiSubmarinePatrolAircraftOrder: BuildHtmlNameType[] = [
   BuildHtmlName.asw,
   BuildHtmlName.los,
   BuildHtmlName.asw_hit,
@@ -1487,7 +1492,7 @@ const AntiSubmarinePatrolAircraftOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const ExtraArmorOrder: BuildHtmlName[] = [
+const ExtraArmorOrder: BuildHtmlNameType[] = [
   BuildHtmlName.armor,
   BuildHtmlName.fire,
   BuildHtmlName.hit,
@@ -1504,7 +1509,7 @@ const ExtraArmorOrder: BuildHtmlName[] = [
   BuildHtmlName.los,
 ];
 
-const CommandFacilityOrder: BuildHtmlName[] = [
+const CommandFacilityOrder: BuildHtmlNameType[] = [
   BuildHtmlName.fire,
   BuildHtmlName.hit,
   BuildHtmlName.los,
@@ -1521,7 +1526,7 @@ const CommandFacilityOrder: BuildHtmlName[] = [
   BuildHtmlName.asw_hit,
 ];
 
-const LandbasedFighterBuildOrder: BuildHtmlName[] = [
+const LandbasedFighterBuildOrder: BuildHtmlNameType[] = [
   BuildHtmlName.aa,
   BuildHtmlName.ev,
   BuildHtmlName.hit,
@@ -1538,7 +1543,7 @@ const LandbasedFighterBuildOrder: BuildHtmlName[] = [
   BuildHtmlName.asw_hit,
 ];
 
-const LandAttackAircraftOrder: BuildHtmlName[] = [
+const LandAttackAircraftOrder: BuildHtmlNameType[] = [
   BuildHtmlName.bom,
   BuildHtmlName.tor,
   BuildHtmlName.aa,
@@ -1555,7 +1560,7 @@ const LandAttackAircraftOrder: BuildHtmlName[] = [
   BuildHtmlName.armor,
 ];
 
-const SubmarineEquipmentOrder: BuildHtmlName[] = [
+const SubmarineEquipmentOrder: BuildHtmlNameType[] = [
   BuildHtmlName.ev,
   BuildHtmlName.hit,
   BuildHtmlName.los,
@@ -1572,7 +1577,7 @@ const SubmarineEquipmentOrder: BuildHtmlName[] = [
   BuildHtmlName.raik,
 ];
 
-const buildParamOrderMapById: Map<number, BuildHtmlName[]> = new Map<number, BuildHtmlName[]>([
+const buildParamOrderMapById: Map<number, BuildHtmlNameType[]> = new Map<number, BuildHtmlNameType[]>([
   // 224: 爆装一式戦 隼III型改(65戦隊)
   [
     224,
@@ -1580,7 +1585,7 @@ const buildParamOrderMapById: Map<number, BuildHtmlName[]> = new Map<number, Bui
   ]
 ])
 
-const buildParamOrderMapByType: Map<SlotitemType, BuildHtmlName[]> = new Map<SlotitemType, BuildHtmlName[]>([
+const buildParamOrderMapByType: Map<SlotitemType, BuildHtmlNameType[]> = new Map<SlotitemType, BuildHtmlNameType[]>([
   // 11: 水上爆撃機
   [
     SlotitemType.SeaplaneBomber,
@@ -1588,7 +1593,7 @@ const buildParamOrderMapByType: Map<SlotitemType, BuildHtmlName[]> = new Map<Slo
   ]
 ])
 
-const buildParamOrderMap: Map<SlotitemImgType, BuildHtmlName[]> = new Map<SlotitemImgType, BuildHtmlName[]>([
+const buildParamOrderMap: Map<SlotitemImgType, BuildHtmlNameType[]> = new Map<SlotitemImgType, BuildHtmlNameType[]>([
   // 1: 小口径主砲
   [
     SlotitemImgType.syuhou_syou,
@@ -1761,7 +1766,7 @@ const buildParamOrderMap: Map<SlotitemImgType, BuildHtmlName[]> = new Map<Slotit
   ],
 ])
 
-function getBuildParamOrder(data: SlotItemData): BuildHtmlName[] {
+function getBuildParamOrder(data: SlotItemData): BuildHtmlNameType[] {
   const orderById = buildParamOrderMapById.get(data.mst.api_id)
   if (orderById) {
     return orderById
@@ -1780,19 +1785,19 @@ function getBuildParamOrder(data: SlotItemData): BuildHtmlName[] {
   return defOrder
 }
 
-const remodelGun: BuildHtmlName[] = [
+const remodelGun: BuildHtmlNameType[] = [
   BuildHtmlName.fire,
   BuildHtmlName.hit,
 ];
 
-const remodelRikukou: BuildHtmlName[] =
+const remodelRikukou: BuildHtmlNameType[] =
 [
   BuildHtmlName.tor,
   BuildHtmlName.aa,
   BuildHtmlName.bom,
 ];
 
-const remodelParamMapById: Map<number, BuildHtmlName[]> = new Map<number, BuildHtmlName[]>([
+const remodelParamMapById: Map<number, BuildHtmlNameType[]> = new Map<number, BuildHtmlNameType[]>([
   // 224: 爆装一式戦 隼III型改(65戦隊)
   [
     224,
@@ -1800,7 +1805,7 @@ const remodelParamMapById: Map<number, BuildHtmlName[]> = new Map<number, BuildH
   ]
 ])
 
-const remodelParamMap: Map<SlotitemImgType, BuildHtmlName[]> = new Map<SlotitemImgType, BuildHtmlName[]>([
+const remodelParamMap: Map<SlotitemImgType, BuildHtmlNameType[]> = new Map<SlotitemImgType, BuildHtmlNameType[]>([
   [
     SlotitemImgType.syuhou_syou,
     remodelGun,
@@ -2057,7 +2062,7 @@ const remodelParamMap: Map<SlotitemImgType, BuildHtmlName[]> = new Map<SlotitemI
   ]
 ]);
 
-function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
+function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
   const orderById = remodelParamMapById.get(data.mst.api_id)
   if (orderById) {
     return orderById
@@ -2079,9 +2084,11 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
   <section class="slotitem-list-root">
     <div class="filter-content">
       <div class="inputs">
-        <label v-for="(info, index) in filterCheckboxInfos()" :key="index" 
+        <label 
+          v-for="(info, index) in filterCheckboxInfos()" :key="index" 
           class="input-checkbox" :title="info.title">
-          <b-checkbox v-model="filterGroup" :native-value="info.key" size="is-small" /><img class="type-img"
+          <b-checkbox v-model="filterGroup" :native-value="info.key" size="is-small" /><img 
+            class="type-img"
             :src="getTypeImgSrc(info.checkboxImgType)" />
         </label>
         <div class="input-buttons" title="フィルタをクリア">
@@ -2093,11 +2100,11 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
       </div>
     </div>
     <b-table
+      v-model:current-page="currentPage"
       :data="filteredDatas"
       :paginated="true"
       :per-page="perPage"
       icon-pack="fa"
-      v-model:current-page="currentPage"
       :pagination-simple="false"
       :pagination-position="'bottom'"
       :pagination-rounded="false"
@@ -2118,7 +2125,8 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
       :height="listHeight"
       @sort="onSort"
     >
-      <b-table-column centered sortable field="mst.api_id"
+      <b-table-column 
+        centered sortable field="mst.api_id"
         header-class="slotitem-id" 
         cell-class="slotitem-id"
       >
@@ -2130,7 +2138,8 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
         </template>
       </b-table-column>
 
-      <b-table-column centered sortable field="api.api_locked"
+      <b-table-column 
+        centered sortable field="api.api_locked"
         header-class="slotitem-locked" 
         cell-class="slotitem-locked">
         <template #header>
@@ -2141,7 +2150,8 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
         </template>
       </b-table-column>
 
-      <b-table-column centered sortable field="api.api_level"
+      <b-table-column 
+        centered sortable field="api.api_level"
         header-class="slotitem-star"
         cell-class="slotitem-star"
         >
@@ -2153,7 +2163,8 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
         </template>
       </b-table-column>
 
-      <b-table-column sortable field="mst.api_name"
+      <b-table-column 
+        sortable field="mst.api_name"
         header-class="slotitem-name" 
         cell-class="slotitem-name"
         >
@@ -2172,7 +2183,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
               @click.stop
               @select="onSelectSlotitemNameCandidate"
             >
-              <template v-slot="props">
+              <template #default="props">
                 <div class="slotitem-autocomplete-option">
                   <span class="type-img-content"><img 
                     class="type-img" 
@@ -2191,7 +2202,8 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
         </template>
       </b-table-column>
 
-      <b-table-column centered sortable field="mst.api_rare"
+      <b-table-column 
+        centered sortable field="mst.api_rare"
         header-class="slotitem-rare"
         cell-class="slotitem-rare"
         >
@@ -2203,17 +2215,21 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
         </template>
       </b-table-column>
 
-      <b-table-column sortable field="internalDetail"
+      <b-table-column 
+        sortable field="internalDetail"
         header-class="slotitem-detail"
         cell-class="slotitem-detail"
         >
         <template #header>
           <span>アイテム詳細<span v-if="isSortedField('internalDetail')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
+        <!-- XSS attack対象なし -->
+        <!-- eslint-disable vue/no-v-html -->
         <template #default="props">
           <div class="detail-content"><span 
             class="details" :class="detailsClass(props.row)" v-html="getDetailHtml(props.row)"></span></div>
         </template>
+        <!-- eslint-enable vue/no-v-html -->
       </b-table-column>
 
       <b-table-column header-class="slotitem-equiped" cell-class="slotitem-equiped">
@@ -2221,7 +2237,9 @@ function getRemodelNames(data: SlotItemData): BuildHtmlName[] {
           <span>装備艦</span>
         </template>
         <template #default="props">
-          <div class="equiped" v-if="getEquipShipExists(props.row)" 
+          <div 
+            v-if="getEquipShipExists(props.row)"
+            class="equiped"  
             :title="getEquipShipTitle(props.row)"><div 
               class="lv">Lv {{ getEquipShipLv(props.row) }} {{ getEquipShipDeckNo(props.row) }}</div><div 
               class="name">{{ getEquipShipName(props.row) }}</div></div>

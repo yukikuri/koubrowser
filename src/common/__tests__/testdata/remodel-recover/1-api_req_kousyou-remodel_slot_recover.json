@@ -1,0 +1,13 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_recover_flag": 1,
+  "api_after_slot": {
+   "api_id": 192473,
+   "api_slotitem_id": 2,
+   "api_locked": 0,
+   "api_level": 0
+  }
+ }
+}

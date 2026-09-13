@@ -50,10 +50,10 @@ const level = computed<string>(() => {
   <span class="slot-item" :title="slotTitle">
     <img class="slot-img" src="../assets/img/slot/slot.png" />
     <span class="slot-border"></span>
-    <img loading="lazy" class="slot-type-img" v-if="hasSlot" :src="typeImg" />
-    <span class="slot-onslot" v-if="hasOnSlot" :class="{ 'has-alv': hasAlv }"><span 
+    <img v-if="hasSlot" loading="lazy" class="slot-type-img" :src="typeImg" />
+    <span v-if="hasOnSlot" class="slot-onslot" :class="{ 'has-alv': hasAlv }"><span 
       :class="{ slotplus: isSlotPlus }">{{ onslot }}</span></span>
-    <img class="slot-alv-img" v-if="hasAlv" :src="alvImg" />
-    <span class="slot-level" v-if="hasLevel" :class="{ max: isLevelMax }">{{ level }}</span>
+    <img v-if="hasAlv" class="slot-alv-img" :src="alvImg" />
+    <span v-if="hasLevel" class="slot-level" :class="{ max: isLevelMax }">{{ level }}</span>
   </span>
 </template>

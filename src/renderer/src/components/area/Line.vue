@@ -4,9 +4,9 @@ import * as place from '@renderer/stuff/place';
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = false;
+const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[area/line]", ...args);
 };
 
@@ -16,7 +16,7 @@ const dur = '2.2s'; // アニメーション時間
 const maskr = 10; // マスク円の半径
 const minWH = 3; // 最小幅・高さ
 const anims = ref<SVGAnimateElement[]>([])
-const setAnimRef = (el) => {
+const setAnimRef = (el): void => {
   if (el) {
     anims.value.push(el)
   }
@@ -36,7 +36,12 @@ const props = defineProps<{
 const lineWidth = Math.abs(props.x2 - props.x1)
 const lineHeight = Math.abs(props.y2 - props.y1)
 const direction = place.getDirection(props.x1, props.y1, props.x2, props.y2);
-let x1: number, y1: number, x2: number, y2: number;
+const svgCoords = {
+  x1: 0,
+  y1: 0,
+  x2: 0,
+  y2: 0
+}
 
 interface ViewBox {
   minX: number; 
@@ -87,10 +92,10 @@ let ani: Ani | null = null;
 if (direction === place.Direction.RightDown) {
   const heightFrom = viewbox.minY < 0 ? viewboxHeight : 0
   const widthFrom = viewbox.minX < 0 ? viewboxWidth : 0
-  x1 = 0
-  y1 = 0
-  x2 = lineWidth;
-  y2 = lineHeight;
+  svgCoords.x1 = 0
+  svgCoords.y1 = 0
+  svgCoords.x2 = lineWidth;
+  svgCoords.y2 = lineHeight;
   ani = {
     x: viewbox.minX, 
     y: viewbox.minY,
@@ -102,10 +107,10 @@ if (direction === place.Direction.RightDown) {
 } else if (direction === place.Direction.RightUp) {
   const widthFrom = viewbox.minX < 0 ? viewboxWidth : 0
   const yFrom = viewbox.minY < 0 ? viewbox.minY : viewbox.maxY
-  x1 = 0;
-  y1 = lineHeight;
-  x2 = lineWidth;
-  y2 = 0;
+  svgCoords.x1 = 0;
+  svgCoords.y1 = lineHeight;
+  svgCoords.x2 = lineWidth;
+  svgCoords.y2 = 0;
   ani = {
     x: viewbox.minX, 
     y: yFrom,
@@ -117,10 +122,10 @@ if (direction === place.Direction.RightDown) {
 } else if (direction === place.Direction.LeftDown) {
   const xFrom = viewbox.minX < 0 ? viewbox.minX : viewbox.maxX
   const heightFrom = viewbox.minY < 0 ? viewboxHeight : 0
-  x1 = lineWidth;
-  y1 = 0;
-  x2 = 0;
-  y2 = lineHeight;
+  svgCoords.x1 = lineWidth;
+  svgCoords.y1 = 0;
+  svgCoords.x2 = 0;
+  svgCoords.y2 = lineHeight;
   ani = {
     x: xFrom,
     y: viewbox.minY,
@@ -132,10 +137,10 @@ if (direction === place.Direction.RightDown) {
 } else { // LeftUp
   const xFrom = viewbox.minX < 0 ? viewbox.minX : viewbox.maxX  
   const yFrom = viewbox.minY < 0 ? viewbox.minY : viewbox.maxY
-  x1 = lineWidth;
-  y1 = lineHeight;
-  x2 = 0;
-  y2 = 0;
+  svgCoords.x1 = lineWidth;
+  svgCoords.y1 = lineHeight;
+  svgCoords.x2 = 0;
+  svgCoords.y2 = 0;
   ani = {
     x: xFrom, 
     y: yFrom,
@@ -146,7 +151,7 @@ if (direction === place.Direction.RightDown) {
   };
 }
 
-function calcStyle() {
+function calcStyle(): { '--left': string; '--top': string; '--width': string; '--height': string } {
   const left = Math.min(props.x1, props.x2) + viewbox.minX
   const top = Math.min(props.y1, props.y2) + viewbox.minY
   return {
@@ -179,22 +184,6 @@ const maskId = `linemask-${Date.now().toString(36)}${Math.random().toString(36).
 
 </script>
 
-<style scoped lang="scss">
-.area-line {
-  position: absolute;
-  left: var(--left);
-  top: var(--top);
-  width: var(--width);
-  height: var(--height);
-  z-index: 0;
-  svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-}
-</style>
-
 <template>
   <div class="area-line" :style="styleValue">
     <svg :viewBox="viewboxValue" preserveAspectRatio="none" :width="viewboxWidth" :height="viewboxHeight">
@@ -210,13 +199,13 @@ const maskId = `linemask-${Date.now().toString(36)}${Math.random().toString(36).
           <rect v-if="!props.isAnimate" :x="viewbox.minX" :y="viewbox.minY" width="100%" height="100%" fill="white" />
 
           <!-- 開始・終了部分を1/4円マスクで非表示-->
-          <circle :cx="x1" :cy="y1" :r="maskr" fill="black" />
-          <circle :cx="x2" :cy="y2" :r="maskr" fill="black" />
+          <circle :cx="svgCoords.x1" :cy="svgCoords.y1" :r="maskr" fill="black" />
+          <circle :cx="svgCoords.x2" :cy="svgCoords.y2" :r="maskr" fill="black" />
 
         </mask>
       </defs>
       <line
-        :x1="x1" :y1="y1" :x2="x2" :y2="y2"
+        :x1="svgCoords.x1" :y1="svgCoords.y1" :x2="svgCoords.x2" :y2="svgCoords.y2"
         :stroke="props.color"
         stroke-width="3"
         :stroke-dasharray="props.dashed ? dasharray : ''"
@@ -226,3 +215,19 @@ const maskId = `linemask-${Date.now().toString(36)}${Math.random().toString(36).
     </svg>
   </div>
 </template>
+
+<style scoped lang="scss">
+.area-line {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  width: var(--width);
+  height: var(--height);
+  z-index: 0;
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>

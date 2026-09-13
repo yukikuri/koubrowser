@@ -139,7 +139,7 @@ const filterKeyword = ref<string>('');
 const debouncedKeyword = ref<string>('')
 const debounceMs = 300
 let debounceTimer: number | null = null
-function onInputKeyword(input) {
+function onInputKeyword(input): void {
   console.log('on keyword input', input)
   if (debounceTimer !== null) {
     clearTimeout(debounceTimer)
@@ -153,7 +153,7 @@ onUnmounted(() => {
   if (debounceTimer !== null) clearTimeout(debounceTimer)
 })
 
-function onFilterClear() {
+function onFilterClear(): void {
   filterSenkan.value = false
   filterKuubo.value = false
   filterJyujyun.value = false
@@ -407,8 +407,9 @@ const perPage = ref<number>(28);
           <b-checkbox v-model="filterHojyo" size="is-small" /><span class="filter-label">補助艦艇</span>
         </label>
         <label class="input-keyword">
-          <b-input v-model="filterKeyword" placeholder="艦名・装備を入力"  size="is-small" 
-          @input="onInputKeyword"
+          <b-input 
+            v-model="filterKeyword" placeholder="艦名・装備を入力"  size="is-small" 
+            @input="onInputKeyword"
           />
         </label>
         <label class="input-clear">
@@ -417,11 +418,11 @@ const perPage = ref<number>(28);
       </b-field>
     </div>
     <b-table
+      v-model:current-page="currentPage"
       :data="datas"
       :paginated="true"
       :per-page="perPage"
       icon-pack="fa"
-      v-model:current-page="currentPage"
       :pagination-simple="false"
       :pagination-position="'bottom'"
       :pagination-rounded="false"
@@ -441,8 +442,8 @@ const perPage = ref<number>(28);
       :height="listHeight"
       @sort="onSort"
     >
-
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-id" sortable field="mst.api_id"
         cell-class="ship-base-param"
         >
@@ -456,7 +457,9 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column v-if="inEvent()" centered 
+      <b-table-column 
+        v-if="inEvent()" 
+        centered 
         header-class="ship-base-param ship-sally-area" sortable field="api.api_sally_area"
         cell-class="ship-base-param"
         >
@@ -486,7 +489,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-lv" sortable field="api.api_lv"
         cell-class="ship-base-param"
         >
@@ -494,7 +498,8 @@ const perPage = ref<number>(28);
           <span>Lv<span v-if="isSortedField('api.api_lv')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <span class="ship-lv" 
+          <span 
+            class="ship-lv" 
             :class="{
               'state-plus': props.row.api.api_lv >= 100,
               'state-max': props.row.api.api_lv === KcsConst.MaxLv,
@@ -502,7 +507,9 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column centered header-class="ship-hp" sortable field="api.api_nowhp"
+      <b-table-column 
+        centered 
+        header-class="ship-hp" sortable field="api.api_nowhp"
         cell-class="ship-hp"
         >
         <template #header>
@@ -524,7 +531,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-cond" sortable field="api.api_cond"
         cell-class="ship-base-param"
         >
@@ -532,7 +540,8 @@ const perPage = ref<number>(28);
           <span>Cd<span v-if="isSortedField('api.api_cond')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <span class="ship-cond" 
+          <span 
+            class="ship-cond" 
             :class="{
               'state-plus': props.row.api.api_cond >= 50,
               'state-max': props.row.api.api_cond === 100,
@@ -540,7 +549,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-fire" sortable field="ship_fire"
         cell-class="ship-base-param"
         >
@@ -548,14 +558,17 @@ const perPage = ref<number>(28);
           <span>火力<span v-if="isSortedField('ship_fire')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-fire"><div class="value" :class="{
-            'state-plus': isPlusedFire(props.row)
-            }">{{ props.row.ship_fire }}</div><div v-if="isPlusedFire(props.row)" 
-            class="added state-plus">+{{ plusedFireValue(props.row) }}</div></div>
+          <div class="ship-fire"><div 
+            class="value" :class="{
+              'state-plus': isPlusedFire(props.row)
+            }">{{ props.row.ship_fire }}</div><div 
+              v-if="isPlusedFire(props.row)" 
+              class="added state-plus">+{{ plusedFireValue(props.row) }}</div></div>
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-armor" sortable field="ship_armor"
         cell-class="ship-base-param"
         >
@@ -563,14 +576,17 @@ const perPage = ref<number>(28);
           <span>装甲<span v-if="isSortedField('ship_armor')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-armor"><div class="value" :class="{
+          <div class="ship-armor"><div 
+            class="value" :class="{
               'state-plus': isPlusedArmor(props.row)
-            }">{{ props.row.ship_armor }}</div><div v-if="isPlusedArmor(props.row)" 
+            }">{{ props.row.ship_armor }}</div><div 
+            v-if="isPlusedArmor(props.row)" 
             class="added state-plus">+{{ plusedArmorValue(props.row) }}</div></div>
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-tor" sortable field="ship_tor"
         cell-class="ship-base-param"
         >
@@ -578,14 +594,17 @@ const perPage = ref<number>(28);
           <span>雷装<span v-if="isSortedField('ship_tor')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-tor"><div class="value" :class="{
-              'state-plus': isPlusedTor(props.row)
-            }">{{ props.row.ship_tor}}</div><div v-if="isPlusedTor(props.row)" 
-            class="added state-plus">+{{ plusedTorValue(props.row) }}</div></div>
+          <div class="ship-tor"><div
+            class="value" :class="{
+            'state-plus': isPlusedTor(props.row)
+            }">{{ props.row.ship_tor}}</div><div 
+              v-if="isPlusedTor(props.row)" 
+              class="added state-plus">+{{ plusedTorValue(props.row) }}</div></div>
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column
+        centered 
         header-class="ship-base-param ship-ev" sortable field="ship_ev"
         cell-class="ship-base-param"
         >
@@ -593,14 +612,17 @@ const perPage = ref<number>(28);
           <span>回避<span v-if="isSortedField('ship_ev')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-ev"><div class="value" :class="{
-              'state-plus': isPlusedEv(props.row)
-            }">{{ props.row.ship_ev }}</div><div v-if="isPlusedEv(props.row)"
-            class="added state-plus">+{{ plusedEvValue(props.row) }}</div></div>
+          <div class="ship-ev"><div 
+            class="value" :class="{
+            'state-plus': isPlusedEv(props.row)
+            }">{{ props.row.ship_ev }}</div><div 
+              v-if="isPlusedEv(props.row)"
+              class="added state-plus">+{{ plusedEvValue(props.row) }}</div></div>
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-aa" sortable field="ship_aa"
         cell-class="ship-base-param"
         >
@@ -612,7 +634,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column>
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-asw" sortable field="ship_asw"
         cell-class="ship-base-param"
         >
@@ -620,7 +643,8 @@ const perPage = ref<number>(28);
           <span>対潜<span v-if="isSortedField('ship_asw')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-asw"><div class="value" :class="{
+          <div class="ship-asw"><div 
+            class="value" :class="{
               'state-plus': props.row.api.api_kyouka[ApiKyoukaIndex.asw] > 0
             }">{{ props.row.ship_asw}}</div><div 
               v-if="props.row.api.api_kyouka[ApiKyoukaIndex.asw] > 0" 
@@ -640,7 +664,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column> -->
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-los" sortable field="ship_los"
         cell-class="ship-base-param"
         >
@@ -662,7 +687,8 @@ const perPage = ref<number>(28);
         </template>
       </b-table-column> -->
 
-      <b-table-column centered 
+      <b-table-column 
+        centered 
         header-class="ship-base-param ship-luck" sortable field="ship_luck"
         cell-class="ship-base-param"
         >
@@ -670,7 +696,8 @@ const perPage = ref<number>(28);
           <span>運<span v-if="isSortedField('ship_luck')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <div class="ship-luck"><div class="value" :class="{
+          <div class="ship-luck"><div 
+            class="value" :class="{
               'state-plus': props.row.api.api_kyouka[ApiKyoukaIndex.luck] > 0,
               'state-max': props.row.api.api_lucky[0] === props.row.mst.api_luck[1],
             }">{{ props.row.ship_luck }}</div><div 
@@ -686,8 +713,8 @@ const perPage = ref<number>(28);
         <template #default="props">
           <span class="slots-content"><span 
             class="slots"><SlotItem 
-              v-for="(slot, slot_index) in getSlots(props.row)" 
-              :slotitem="slot" :key="slot_index" /></span></span>
+              v-for="(slot, slot_index) in getSlots(props.row)" :key="slot_index"
+              :slotitem="slot" /></span></span>
         </template>
       </b-table-column>
 

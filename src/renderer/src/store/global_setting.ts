@@ -23,7 +23,7 @@ const syncHandle = watch(
   { deep: true }
 )
 
-export function setGlobalSettingWithPreventSave(setting: GlobalSetting) {
+export function setGlobalSettingWithPreventSave(setting: GlobalSetting): void {
   console.log('setGlobalSettingWithPreventSave >> prevent save:', preventSave, setting)
   preventSave = true;
   forWatchCall.value++;

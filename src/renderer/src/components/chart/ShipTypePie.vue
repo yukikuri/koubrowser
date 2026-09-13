@@ -29,12 +29,16 @@ const chartEl = ref<HTMLElement | null>(null);
 console.log('ShipTypePie chartEl:', !!chartEl.value, props);
 let chart: Highcharts.Chart | null = null;
 
-function handlePointSelect(pt: Highcharts.Point, selected: boolean) {
+type ShipTypePoint = Highcharts.Point & {
+  type: AggregateShipType
+}
+
+function handlePointSelect(pt: Highcharts.Point, selected: boolean): void {
   console.log('handlePointSelect:', pt, selected);
-  const type = (pt as any).type as AggregateShipType;
+  const type = (pt as ShipTypePoint).type as AggregateShipType;
 
   // 対応する legend を探して selected を更新
-  const legend = legends.value.find((el) => (el.pt as any).type === type);
+  const legend = legends.value.find((el) => (el.pt as ShipTypePoint).type === type);
   if (legend) {
     console.log('found legend for type:', type, legend);
     legend.selected = selected;
@@ -43,7 +47,7 @@ function handlePointSelect(pt: Highcharts.Point, selected: boolean) {
   }
 }
 
-function createChart() {
+function createChart(): void {
   if (!chartEl.value) return;
   chart = Highcharts.chart({
     chart: {
@@ -83,7 +87,7 @@ function createChart() {
         cursor: 'pointer',
         point: {
           events: {
-            click: function (e: any) {
+            click: function (e) {
               console.log('point clicked1:', this, e);
               // 第二引数を true にすると既存選択に追加される
               this.select(undefined, true);
@@ -91,11 +95,11 @@ function createChart() {
               return false;
               //return true;
             },
-            select: function (_e: any) {
+            select: function (_e) {
               console.log('point selected:', this, _e);
               handlePointSelect(this as Highcharts.Point, true);
             },
-            unselect: function (_e: any) {
+            unselect: function (_e) {
               console.log('point unselected:', this, _e);
               handlePointSelect(this as Highcharts.Point, false);
             }
@@ -128,7 +132,7 @@ function createChart() {
   });
 }
 
-function updateChartLegends() {
+function updateChartLegends(): void {
   if (!chart) return;
 
   const serices = chart.series[0];
@@ -184,7 +188,7 @@ function onLegendClick(legend: LegendInfo, index: number): void {
   const pt = legend.pt;
   if (pt) {
     // Highcharts のポイントの選択状態を反転
-    (pt as any).select(undefined, true); 
+    pt.select(undefined, true);
   }
 }
 
@@ -215,13 +219,13 @@ watch(
     <div class="legends-content fixed-grid has-1-cols">
       <div class="grid">
         <b-field class="inputs" position="is-centered">
-          <div class="cell" v-for="(legend, index) in legends" :key="index" >
+          <div v-for="(legend, index) in legends" :key="index" class="cell">
             <b-checkbox-button
               expanded
               :style="getLegendStyle(legend)"
               :class="{ 'is-selected': legend.selected }"
               size="is-small" 
-              @click.native="onLegendClick(legend, index)"
+              @click="onLegendClick(legend, index)"
               ><span class="legend-content"><span 
                 class="legend-label"><span 
                   class="colorbox" 

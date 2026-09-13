@@ -9,7 +9,7 @@ const capture_dirname = 'capture'
 let _mainDir: string | undefined
 let _userDataDir: string | undefined
 
-export function setMainDir(appDir: string) {
+export function setMainDir(appDir: string): void {
   _mainDir = appDir
 }
 
@@ -20,7 +20,7 @@ export function getMainDir(): string {
   return _mainDir
 }
 
-export function setUserDataDir(userData: string) {
+export function setUserDataDir(userData: string): void {
   _userDataDir = path.join(userData, app_dirname)
   if (!fs.existsSync(_userDataDir)) {
     fs.mkdirSync(_userDataDir, { recursive: true })

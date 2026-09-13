@@ -135,7 +135,7 @@ export interface ResDbInit {
 /**
  * 
  */
-export interface ResDbInsert<T = any> {
+export interface ResDbInsert<T = unknown> {
   ok: true
   readonly type: typeof Types.dbInsert
   inserted: T
@@ -144,7 +144,7 @@ export interface ResDbInsert<T = any> {
 /**
  * 
  */
-export interface ResDbQuery<T = any> {
+export interface ResDbQuery<T = unknown> {
   ok: true
   readonly type: typeof Types.dbQuery
   docs: T[]
@@ -153,7 +153,7 @@ export interface ResDbQuery<T = any> {
 /**
  * 
  */
-export interface ResDbQueryOne<T = any> {
+export interface ResDbQueryOne<T = unknown> {
   ok: true
   readonly type: typeof Types.dbQueryOne
   doc: T
@@ -162,7 +162,7 @@ export interface ResDbQueryOne<T = any> {
 /**
  * 
  */
-export interface ResDbUpdate<T = any> {
+export interface ResDbUpdate<T = unknown> {
   ok: true
   readonly type: typeof Types.dbUpdate
   res: UpdateRes<T>
@@ -269,10 +269,10 @@ export type ResTypes<T extends Type> = ResByType[T]
 
 // ジェネリックなレス型を適用するヘルパー型（レス型ごとにパターンを列挙）
 export type ResOf<K extends keyof PairByType, T> =
-  PairByType[K] extends [any, infer R] ?
-    R extends ResDbQuery<any> ? ResDbQuery<T> :
-    R extends ResDbQueryOne<any> ? ResDbQueryOne<T> :
-    R extends ResDbInsert<any> ? ResDbInsert<T> :
-    R extends ResDbUpdate<any> ? ResDbUpdate<T> :
+  PairByType[K] extends [unknown, infer R] ?
+    R extends ResDbQuery<unknown> ? ResDbQuery<T> :
+    R extends ResDbQueryOne<unknown> ? ResDbQueryOne<T> :
+    R extends ResDbInsert<unknown> ? ResDbInsert<T> :
+    R extends ResDbUpdate<unknown> ? ResDbUpdate<T> :
     R
   : never

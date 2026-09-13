@@ -24,7 +24,6 @@ import { itemIdClassMap, itemIdTitleMap } from '@renderer/util'
 import { appSetting } from '@renderer/store/app_setting'
 import LockImage from '@renderer/assets/img/lock.svg'
 import { missionList } from '@renderer/store/missionList'
-import moment from 'moment'
 
 const filterArea1 = ref<boolean>(false)
 const filterArea2 = ref<boolean>(false)
@@ -115,20 +114,19 @@ const detailContentHeight = ref<number>(0)
 
 const isShowDetailed = ref<boolean>(false)
 const detailedMission = ref<MissionDetail | null>(null)
-const detailedDeckInfo = ref<ApiDeckPort | null>(null)
 const detailedDeckIndex = ref<number | null>(null)
+
+const detailedDeckInfo = computed<ApiDeckPort | null>(() => {
+  const index = detailedDeckIndex.value
+  if (index === null) return null
+
+  return svdata.deckPorts[index + 1] ?? null
+})
 
 const deckInfos = computed<DeckInfo[]>(() => {
   console.log('MissionCheck deckInfos called', 'isShowDetailed:', isShowDetailed.value)
   const decks = svdata.deckPorts.filter((_, index) => index !== 0)
-  const ret = decks.map((el) => MissionStuff.toDeckInfo(svdata, el))
-
-  // update detail dekc info
-  if (isShowDetailed.value && detailedDeckIndex.value !== null) {
-    detailedDeckInfo.value = svdata.deckPorts[detailedDeckIndex.value+1]
-    console.log('MissionCheck deckInfos updated detailedDeckInfo:', detailedDeckInfo.value)
-  }
-  return ret;
+  return decks.map((el) => MissionStuff.toDeckInfo(svdata, el))
 })
 
 const toDurationText = (minutes: number): string => {
@@ -336,7 +334,6 @@ const onClickMission = (rowIndex: number, deckIndex: number, data: MissionData):
   }
 
   detailedMission.value = data.detail
-  detailedDeckInfo.value = svdata.deckPorts[deckIndex+1] // 0 deckInfo index is deck port index of 2
   detailedDeckIndex.value = deckIndex
   isShowDetailed.value = true
   console.log('listHeight detailContentHeight:', detailContentHeight.value,)
@@ -378,27 +375,27 @@ const emptyText = '該当する遠征が見つかりません。'
     <div class="filter-content" position="is-centered" multiline>
       <b-field class="inputs" position="is-centered" multiline>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea1" /><span 
+          <b-checkbox v-model="filterArea1" size="is-small" /><span 
             class="filter-label">鎮守府海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea2" /><span 
+          <b-checkbox v-model="filterArea2" size="is-small" /><span 
             class="filter-label">南西諸島海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea3" /><span 
+          <b-checkbox v-model="filterArea3" size="is-small" /><span 
             class="filter-label">北方海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea6" /><span 
+          <b-checkbox v-model="filterArea6" size="is-small" /><span 
             class="filter-label">南西海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea4" /><span 
+          <b-checkbox v-model="filterArea4" size="is-small" /><span 
             class="filter-label">西方海域</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox size="is-small" v-model="filterArea5" /><span 
+          <b-checkbox v-model="filterArea5" size="is-small" /><span 
             class="filter-label">南方海域</span>
         </label>
         <div class="sep-vertical"></div>
@@ -406,10 +403,10 @@ const emptyText = '該当する遠征が見つかりません。'
           <div class="monthly-title">マンスリー</div>
           <div class="monthly-controls">
             <label class="input-checkbox">
-              <b-checkbox size="is-small" v-model="filterMonthly" /><span class="filter-label">表示</span>
+              <b-checkbox v-model="filterMonthly" size="is-small" /><span class="filter-label">表示</span>
             </label>
             <label class="input-checkbox">
-              <b-checkbox size="is-small" v-model="filterClearedMonthlyUnDisplay" /><span class="filter-label">クリア済非表示</span>
+              <b-checkbox v-model="filterClearedMonthlyUnDisplay" size="is-small" /><span class="filter-label">クリア済非表示</span>
             </label>
           </div>
         </div>      
@@ -434,8 +431,9 @@ const emptyText = '該当する遠征が見つかりません。'
             <div title="常に表示する"><KeepImg /></div>
           </template>
           <template #default="props">
-            <span class="mission-keep-content" title="常に表示する" @click="toggleKeep(props.row.detail.id)" ><span :class="{
-              'is-keep': isKeeped(props.row.detail.id)}"><KeepImg /></span></span>
+            <span class="mission-keep-content" title="常に表示する" @click="toggleKeep(props.row.detail.id)" ><span 
+              :class="{
+                'is-keep': isKeeped(props.row.detail.id)}"><KeepImg /></span></span>
           </template>
         </b-table-column>
 
@@ -607,7 +605,10 @@ const emptyText = '該当する遠征が見つかりません。'
 
       </b-table>
     </section>
-    <MissionStateDetail v-if="isShowDetailed" 
-      :mission="detailMission" :deckInfo="detailDeckInfo" v-model:contentHeight="detailContentHeight" />
+    <MissionStateDetail 
+      v-if="isShowDetailed" 
+      v-model:content-height="detailContentHeight"
+      :mission="detailMission" 
+      :deck-info="detailDeckInfo" />
   </div>
 </template>

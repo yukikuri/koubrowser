@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, WritableComputedRef } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
 import { optionSetting, optionViewInfo } from '@option/store/optionSetting'
 import type { NullableStringOptionKey } from '@common/option'
@@ -104,7 +104,7 @@ const isExtensionPathDefault = computed(() => {
 
 ///////////////////////////////////////////////////////////////
 // option - proxy
-function nullableStringInput(key: NullableStringOptionKey) {
+function nullableStringInput(key: NullableStringOptionKey): WritableComputedRef<string> {
   return computed({
     get: () => optionSetting[key] ?? '',
     set: (value: string) => {
@@ -222,7 +222,8 @@ const clearProxyFixedServersInput = (): void => {
                 <button class="option-path-button" type="button" @click="selectCaptureSavePath">
                   参照
                 </button>
-                <button class="option-path-button secondary" 
+                <button 
+                  class="option-path-button secondary" 
                   type="button" 
                   :disabled="isCaptureSavePathDefault"
                   @click="resetCaptureSavePath">
@@ -395,7 +396,8 @@ const clearProxyFixedServersInput = (): void => {
                 <button class="option-path-button" type="button" @click="selectExtensionPath">
                   参照
                 </button>
-                <button class="option-path-button secondary"
+                <button 
+                  class="option-path-button secondary"
                   type="button"
                   :disabled="isExtensionPathDefault"
                   @click="resetExtensionPath">

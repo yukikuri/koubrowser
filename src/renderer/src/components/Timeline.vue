@@ -9,7 +9,8 @@ import {
   toRecordDate,
   type BattleRecord,
   type PortRecord,
-  type PortRecordQueryProjection
+  type PortRecordQueryProjection,
+  BattleRecordQuery
 } from '@common/record'
 import {
   DispSeikuText,
@@ -296,7 +297,7 @@ async function fetchEoClearRecord(year: number, month: number): Promise<EoClearR
   const toStr = toRecordDate(endDate)
 
   const fetchBattleEoClear = async (): Promise<EoClearRecord[]> => {
-    const query = {
+    const query: BattleRecordQuery = {
       dbName: DbName.battle,
       find: {
         mapId: {
@@ -488,7 +489,7 @@ async function fetchCurrentMonthDailyScores(): Promise<{
   return { categories, tooltipCategories, scores, cumulativeScores }
 }
 
-function hexToRgba(hex: string, alpha = 1) {
+function hexToRgba(hex: string, alpha = 1): string {
   let h = hex.replace('#','');
   if (h.length === 3) h = h.split('').map(c => c + c).join('');
   const r = parseInt(h.slice(0,2), 16);
@@ -682,8 +683,8 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
   <div
     class="timeline-root"
     contenteditable="true"
-    @beforeinput="onBeforeInput"
     :class="{ 'is-block': isShow, 'is-no-assist': isNoAssist }"
+    @beforeinput="onBeforeInput"
     @blur="onBlur"
   >
     <section v-if="isShowQuestList">
@@ -692,8 +693,10 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
         <div v-if="isQuestsValid">{{ questCountText }}</div>
       </div>
       <div class="px-2 py-1">
-        <div class="quest-content" v-if="isQuestsValid">
-          <div class="mr-1" v-for="(quest, q_index) in quests" :key="q_index">
+        <div 
+          v-if="isQuestsValid" 
+          class="quest-content">
+          <div v-for="(quest, q_index) in quests" :key="q_index" class="mr-1">
             <span class="quest-category" :class="questCategoryClass(quest)">{{
               questCategoryText(quest)
             }}</span>
@@ -741,7 +744,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
     <section>
       <div class="timeline-title px-1">出撃履歴</div>
       <div v-if="isBattleRecordsValid">
-        <div class="card" v-for="(record, b_index) in battleRecords" :key="b_index">
+        <div v-for="(record, b_index) in battleRecords" :key="b_index" class="card">
           <div class="card-content">
             <div class="media">
               <div class="media-left">
@@ -759,7 +762,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
                 </p>
                 <p class="title is-6">
                   {{ battleMapText(record) }} {{ cellText(record) }}
-                  <span class="tag is-radiusless is-danger is-normal" v-if="record.isBoss"
+                  <span v-if="record.isBoss" class="tag is-radiusless is-danger is-normal"
                     >BOSS</span
                   >
                   {{ record.enemyDeckName }} {{ battleSeikuText(record) }}
@@ -767,7 +770,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
                   <span class="info-text">{{ getInfoText(record) }}</span>
                 </p>
               </div>
-              <div class="media-right" v-if="record.dropShipImgSrc">
+              <div v-if="record.dropShipImgSrc" class="media-right">
                 <figure>
                   <img
                     class="ship-bunner"
@@ -775,7 +778,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
                   />
                 </figure>
               </div>
-              <div class="media-right get-items" v-if="record.isItemGet">
+              <div v-if="record.isItemGet" class="media-right get-items">
                 <div class="item-info"><img 
                   class="item-img" :src="itemSrc(record)" /><span 
                   class="count">+{{ record.items![0].itemCount }}</span></div>

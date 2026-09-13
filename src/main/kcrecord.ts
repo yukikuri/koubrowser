@@ -13,10 +13,7 @@ import {
   SvData,
   ApiDeckPortId,
   ApiItemId,
-  ApiItemGetBase,
   ApiGetItem,
-  ApiItemGetUseMst,
-  ApiItemGetItemId,
   ApiQuestListWithParam,
   ApiQuestListParamTabId,
   BattleType,
@@ -104,7 +101,7 @@ export class KcRecord {
     this.regCallback();
   }
 
-  public doDispose() {
+  public doDispose(): void {
     if (svdata.isShipDataOk) {
       this.portRecord()
     }
@@ -216,7 +213,7 @@ export class KcRecord {
     if (record) {
       console.log('port record >>', nowString())
       const doc = { dbName: DbName.port, record };
-      getWorkerDriver().dbInsert(doc) .then((res) => {
+      getWorkerDriver().dbInsert(doc) .then((_res) => {
         console.log('port record inserted', nowString()) 
       }).catch((e) => {
         console.error('port record insert error', nowString(), e)
@@ -648,16 +645,32 @@ export class RecordUtil {
       return
     }
 
+    type BattleWithEnemyCombinedShips = {
+      api_ship_ke_combined?: number[]
+    }
+
+    const hasEnemyCombinedShips = (battle: unknown): battle is BattleWithEnemyCombinedShips => {
+      return (
+        !!battle &&
+        typeof battle === 'object' &&
+        'api_ship_ke_combined' in battle &&
+        Array.isArray((battle as BattleWithEnemyCombinedShips).api_ship_ke_combined)
+      )
+    }
+
     const mapId = toRecordMapIdFromApi(info.map);
     let ship_id = result.api_get_ship?.api_ship_id ?? -1
     if (ship_id < 0 && isAlwaysDropCellNo(mapId, info.cell_no)) {
       // 母港フル
       ship_id = -2
     }
-    let enemyShips2 = undefined
+    let enemyShips2: undefined | number[] = undefined
     if (KcsUtil.isEnemyCombined(info.midday)) {
-      enemyShips2 = (info.midday as any).api_ship_ke_combined ?? 
-        ((info.midnight as any).api_ship_ke_combined ?? [])
+      if (hasEnemyCombinedShips(info.midday)) {
+        enemyShips2 = info.midday.api_ship_ke_combined ?? []
+      } else if (hasEnemyCombinedShips(info.midnight)) {
+        enemyShips2 = info.midnight.api_ship_ke_combined ?? []
+      }
     }
 
     const mst_ship = svdata.mstShip(ship_id)
@@ -882,11 +895,10 @@ export class RecordUtil {
       }
     }
 
-    const eoResultExist = (arg as any)['api_itemget_eo_result'] !== undefined
-    if (eoResultExist || arg.api_itemget_eo_comment) {
+    if ('api_itemget_eo_result' in arg || arg.api_itemget_eo_comment) {
       const ret: AreaItemGetInfo[] = []
 
-      if (eoResultExist) {
+      if ('api_itemget_eo_result' in arg && arg.api_itemget_eo_result !== undefined) {
         const mapNext = arg as ApiMapNext
         const item = mapNext.api_itemget_eo_result!
         const itemId = KcsUtil.toItemGetId(item)

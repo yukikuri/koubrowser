@@ -14,6 +14,25 @@ import { RUtil } from '@renderer/util'
 import { MathUtil } from '@common/math'
 import { computed, onMounted, onUnmounted } from 'vue'
 
+/////////////////////////////////////////////////////////////////////////////////////
+// デバッグログ
+const DEBUG = 0;
+
+const debug = (...args: unknown[]): void => {
+  if (DEBUG) console.debug("[AirBase]", ...args);
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+// props
+const props = defineProps<{ 
+  airbase: ApiAirBase; 
+  index: number; 
+  targetLabel: string
+}>()
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
 interface ActionClass {
   'is-taiki'?: boolean
   'is-syutugeki'?: boolean
@@ -150,45 +169,12 @@ const getOnslotClass = (plane: ApiPlaneInfo): OnslotClass => {
   return { 'is-orange': true }
 }
 
-/*
-
-interface SlotTypeText {
-  [key: number]: string;
-}
-
-const slotTypeTexts: SlotTypeText = {  
-  6: '艦戦', // 艦上戦闘機
-  7: '艦爆', // 艦上爆撃機
-  8: '艦攻',  // 艦上攻撃機
-  9: '艦偵',  // 艦上偵察機
-  10: '水偵', // 水上偵察機
-  33: '大艇', // 大型飛行艇
-  37: '陸攻', // 陸上攻撃機
-  38: '局戦', // 局戦
-  39: '噴式', // 噴式戦闘爆撃機
-  40: '噴式', // 噴式戦闘爆撃機
-  41: '水戦', // 水上戦闘機
-  44: '陸戦', // 陸上戦闘機
-  45: '夜戦', // 夜間戦闘機
-  46: '夜攻', // 夜間攻撃機
-  47: '哨戒', // 対潜哨戒機
-  48: '重爆',//  大型陸上機
-};
-
-const slotTypeText = (mst: MstSlotitem): string => {
-  const img_type: number = KcsUtil.slotitemImgType(mst);
-  return slotTypeTexts[img_type] ?? '';
-};
-*/
-
-const props = defineProps<{ airbase: ApiAirBase; index: number; targetLabel: string }>()
-
 onMounted(() => {
-  console.log('airbase mounted', props.airbase.api_name, props.targetLabel)
+  debug('mounted', props.airbase.api_name, props.targetLabel)
 })
 
 onUnmounted(() => {
-  console.log('airbase destroyed', props.airbase.api_name)
+  debug('unmounted', props.airbase.api_name)
 })
 
 const isEmpty = computed<boolean>(() => props.airbase.api_distance.api_base === 0)
@@ -232,7 +218,7 @@ const slots = computed<(AirBaseSlot | undefined)[]>(() => {
     }
     return acc
   }, [])
-  console.log('airbase slots computed >>', ret);
+  debug('slots computed >>', ret);
   return ret;
 })
 

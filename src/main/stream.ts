@@ -40,7 +40,7 @@ class StreamManager {
     }
   }
   
-  get ports() {
+  get ports(): PortInfo[] {
     return this.ports_;
   }
 

@@ -60,13 +60,13 @@ const kdocks = computed<KDockInfo[]>(() => {
       <div v-for="(info, index) in kdocks" :key="index" class="kdock">
         <div v-if="info.isUse">
           <span class="kdock-img-wrapper">
-            <ShipBanner :mst_id="info.mst?.api_id ?? 0" :dmg="false" />
+            <ShipBanner :mst-id="info.mst?.api_id ?? 0" :dmg="false" />
             <img class="kdock-banner" :src="info.shipBanner" />
             <span class="kdock-img-help"
               ><DockStateTimer
-                :complete_time="info.kdock.api_complete_time"
-                :progress_text="'建造'"
-                :completed_text="'完了'"
+                :complete-time="info.kdock.api_complete_time"
+                :progress-text="'建造'"
+                :completed-text="'完了'"
             /></span>
           </span>
           <span class="kdock-info">
@@ -74,7 +74,7 @@ const kdocks = computed<KDockInfo[]>(() => {
               ><span v-if="info.isLargeFlag">大型建造: </span>{{ info.mst?.api_name }}</span
             >
             <span class="kdock-info-item"
-              >残り: <DockTimer :complete_time="info.kdock.api_complete_time" />
+              >残り: <DockTimer :complete-time="info.kdock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>

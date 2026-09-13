@@ -32,7 +32,7 @@ function createDummyQuest(api_no: number): Quest<null> {
 
 describe('quest stuff(106) class test', () => {
   const quest_no = 106
-  function getStuff<T = qs.QuestHensei>() {
+  function getStuff<T = qs.QuestHensei>(): T {
     return qs.getQuestStuff(quest_no) as T
   }
 
@@ -59,7 +59,7 @@ describe('quest stuff(106) class test', () => {
 
 describe('quest stuff(107) class test', () => {
   const quest_no = 107
-  function getStuff<T = qs.QuestHensei>() {
+  function getStuff<T = qs.QuestHensei>(): T {
     return qs.getQuestStuff(quest_no) as T
   }
 

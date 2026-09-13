@@ -2,7 +2,7 @@ import { CellInfo } from "@common/map";
 
 const DEBUG = 0;
 
-const debug = (...args: any[]) => {
+const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[MapInfo]", ...args);
 };
 

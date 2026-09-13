@@ -77,7 +77,7 @@ export class WorkerDriver {
   /**
    * 
    */
-  shutdown() {
+  shutdown(): Promise<boolean> {
     const req: ReqShutdown = { type: Types.shutdown }
     return this.call<ResByType[typeof req.type], boolean>(req, (res) => res.ok)
   }
@@ -87,7 +87,7 @@ export class WorkerDriver {
    * @param userDir 
    * @returns 
    */
-  dbInit(userDir: string, dbs: DbName[]) {
+  dbInit(userDir: string, dbs: DbName[]): Promise<boolean> {
     const req: ReqDbInit = { type: Types.dbInit, userDir, dbs }
     return this.call<ResByType[typeof req.type], boolean>(req, (res) => res.ok)
   }
@@ -97,7 +97,7 @@ export class WorkerDriver {
    * @param doc 
    * @returns 
    */
-  dbInsert<T>(doc: Insert) {
+  dbInsert<T>(doc: Insert): Promise<T> {
     const req: ReqDbInsert = { type: Types.dbInsert, doc }
     return this.call<ResOf<typeof req.type, T>, T>(req, (res) => res.inserted)
   }
@@ -107,7 +107,7 @@ export class WorkerDriver {
    * @param query 
    * @returns 
    */
-  dbQuery<T>(query: Query) {
+  dbQuery<T>(query: Query): Promise<T[]> {
     const req: ReqDbQuery = { type: Types.dbQuery, query }
     return this.call<ResOf<typeof req.type, T>, T[]>(req, (res) => res.docs)
   }
@@ -117,7 +117,7 @@ export class WorkerDriver {
    * @param query 
    * @returns 
    */
-  dbQueryOne<T>(query: Query) {
+  dbQueryOne<T>(query: Query): Promise<T | null> {
     const req: ReqDbQueryOne = { type: Types.dbQueryOne, query }
     return this.call<ResOf<typeof req.type, T>, T>(req, (res) => res.doc)
   }
@@ -127,7 +127,7 @@ export class WorkerDriver {
    * @param query 
    * @returns 
    */
-  dbUpdate<T>(update: Update) {
+  dbUpdate<T>(update: Update): Promise<UpdateRes<T>> {
     const req: ReqDbUpdate = { type: Types.dbUpdate, update }
     return this.call<ResOf<typeof req.type, T>, UpdateRes<T>>(req, (res) => res.res)
   }
@@ -137,7 +137,7 @@ export class WorkerDriver {
    * @param remove
    * @returns 
    */
-  dbRemove(remove: Remove) {
+  dbRemove(remove: Remove): Promise<number> {
     const req: ReqDbRemove = { type: Types.dbRemove, remove }
     return this.call<ResByType[typeof req.type], number>(req, (res) => res.num)
   }
@@ -147,7 +147,7 @@ export class WorkerDriver {
    * @param operation 
    * @returns 
    */
-  dbOperation(operation: Operation) {
+  dbOperation(operation: Operation): Promise<boolean> {
     const req: ReqDbOperation = { type: Types.dbOperation, operation }
     return this.call<ResByType[typeof req.type], boolean>(req, (res) => res.ok)
   }
@@ -156,7 +156,7 @@ export class WorkerDriver {
    * 
    * @returns 
    */
-  calcPortChartData() {
+  calcPortChartData(): Promise<PortChartData> {
     const req: ReqCalcPortChartData = { type: Types.calcPortChartData }
     return this.call<ResByType[typeof req.type], PortChartData>(req, (res) => res.data)
   }
@@ -167,7 +167,7 @@ export class WorkerDriver {
    * @param area_no 
    * @returns 
    */
-  aggregateRankByArea(area_id: number, area_no: number) {
+  aggregateRankByArea(area_id: number, area_no: number): Promise<AggregatedCellRank[]> {
     const req = { type: Types.aggregateRankByArea, area_id, area_no }
     return this.call<ResByType[typeof req.type], AggregatedCellRank[]>(req, (res) => res.datas)
   }
@@ -177,7 +177,7 @@ export class WorkerDriver {
    * @param ship_id
    * @returns 
    */
-  aggregateShipDrop(ship_id: number) {
+  aggregateShipDrop(ship_id: number): Promise<AggregatedCellShipDrop[]> {
     const req = { type: Types.aggregateShipDrop, ship_id }
     return this.call<ResByType[typeof req.type], AggregatedCellShipDrop[]>(req, (res) => res.datas)
   }
@@ -186,7 +186,8 @@ export class WorkerDriver {
    * 
    * @returns 
    */
-  terminate() {
+  terminate(): Promise<number> {
     return this.worker.terminate()
   }
+  
 }

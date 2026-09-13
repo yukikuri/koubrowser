@@ -1,0 +1,115 @@
+{
+ "api_result": 1,
+ "api_result_msg": "成功",
+ "api_data": {
+  "api_ship_id": [
+   1956,
+   1592,
+   1624,
+   1578,
+   1578,
+   1578
+  ],
+  "api_win_rank": "S",
+  "api_get_exp": 200,
+  "api_mvp": 1,
+  "api_mvp_combined": 1,
+  "api_member_lv": 120,
+  "api_member_exp": 70775813,
+  "api_get_base_exp": 250,
+  "api_get_ship_exp": [
+   -1,
+   900,
+   300,
+   300,
+   300,
+   300,
+   300
+  ],
+  "api_get_ship_exp_combined": [
+   -1,
+   900,
+   300,
+   300,
+   300,
+   300,
+   300
+  ],
+  "api_get_exp_lvup": [
+   [
+    840334,
+    851500
+   ],
+   [
+    775738,
+    851500
+   ],
+   [
+    1000000
+   ],
+   [
+    529420,
+    545500
+   ],
+   [
+    665826,
+    701500
+   ],
+   [
+    1000000
+   ]
+  ],
+  "api_get_exp_lvup_combined": [
+   [
+    248367,
+    255300
+   ],
+   [
+    3653927,
+    3799000
+   ],
+   [
+    1088330,
+    1091000
+   ],
+   [
+    835744,
+    851500
+   ],
+   [
+    4171450,
+    4360000
+   ],
+   [
+    3020390,
+    3021000
+   ]
+  ],
+  "api_dests": 6,
+  "api_destsf": 1,
+  "api_quest_name": "ブレスト沖/大西洋/イギリス本土沖/バルト海",
+  "api_quest_level": 18,
+  "api_enemy_info": {
+   "api_level": "",
+   "api_rank": "",
+   "api_deck_name": "深海バルト海艦隊 旗艦艦隊護衛"
+  },
+  "api_first_clear": 0,
+  "api_get_flag": [
+   0,
+   1,
+   0
+  ],
+  "api_get_ship": {
+   "api_ship_id": 56,
+   "api_ship_type": "軽巡洋艦",
+   "api_ship_name": "那珂",
+   "api_ship_getmes": "艦隊のアイドル、那珂（なか）ちゃんだよー！<br>よっろしくぅ！"
+  },
+  "api_get_eventflag": 0,
+  "api_get_exmap_rate": 0,
+  "api_get_exmap_useitem_id": 0,
+  "api_escape_flag": 0,
+  "api_escape": null
+ }
+}

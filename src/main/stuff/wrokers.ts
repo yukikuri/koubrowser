@@ -10,7 +10,7 @@ let workerDriverQuest: WorkerDriver | undefined = undefined
  * 
  * @param appDir 
  */
-export function start(appDir: string) {
+export function start(appDir: string): void {
 
   // singleton worker driver
   workerDriver = new WorkerDriver(appDir);
@@ -47,7 +47,7 @@ export function getWorkerDriverQuest(): WorkerDriver {
  * 
  * @returns 
  */
-export async function shutdown() {
+export async function shutdown(): Promise<unknown[]> {
   const tasks: Promise<unknown>[] = [];
 
   if (workerDriver) {
