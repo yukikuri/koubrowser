@@ -4243,7 +4243,7 @@ export const ShipEtcs: ShipEtc[] = [
   },
   {
     api_id: 1036,
-    api_sakuteki: [NaN, 84],
+    api_sakuteki: [51, 84],
     api_kaihi: [33, 65],
   },
   {
