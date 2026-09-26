@@ -6449,16 +6449,22 @@ register(
       return detailFormat(['演習A勝利以上：'], quest)
     }
     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 4) {
+        return false
+      }
+
       const ships = toShipMsts(svdata, ship_ids)
       const check_ids = [
-        svdata.shipMstIds(439),
-        svdata.shipMstIds(78),
-        svdata.shipMstIds(515),
-        svdata.shipMstIds(571),
-        svdata.shipMstIds(519),
-        svdata.shipMstIds(520)
+        svdata.shipMstIds(439), // Warspite
+        svdata.shipMstIds(78), // kongo
+        svdata.shipMstIds(515), // Ark Royal
+        svdata.shipMstIds(571), // Nelson
+        svdata.shipMstIds(519), // Jervis
+        svdata.shipMstIds(520), // Janus
+        svdata.shipMstIds(901), // Javelin
       ].flat()
-      return shipCount(ships, check_ids) === 4
+      return shipCount(ships, check_ids) >= 4
     }
   }
 )
