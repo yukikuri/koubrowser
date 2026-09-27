@@ -1,13 +1,8 @@
+import { Const } from '@common/const'
 import nodataimg from '../../assets/img/map/nodata.png'
 
-const mapImgs = import.meta.glob('../../assets/img/map/*.png', {
-  eager: true,
-  import: 'default',
-}) as Record<string, string>
-
 function getMapSrc(name: string): string {
-  const idx = `../../assets/img/map/${name}.png`
-  return mapImgs[idx] ?? nodataimg
+  return `${Const.AssetsCdnUrl}/img/map/${name}.png`
 }
 
 export class MapImg {

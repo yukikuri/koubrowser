@@ -37,6 +37,7 @@ export class Const {
   static readonly ArgIsInitMuted = '--is-init-muted'
   static readonly ArgAppLaunchId = '--app-launch-id' 
   static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
+  static readonly AssetsCdnUrl = 'https://assetsbase.link/kb'
 
   // 大破進撃ブロック関連
   static readonly TaihaSingeki = {

@@ -1,13 +1,8 @@
+import { Const } from '@common/const'
 import noimg from '../../assets/img/item/noimg.png'
 
-const itemImgs = import.meta.glob('../../assets/img/item/*.png', {
-  eager: true,
-  import: 'default',
-}) as Record<string, string>
-
 function getItemSrc(id: number): string {
-  const idx = `../../assets/img/item/item${id}.png`
-  return itemImgs[idx] ?? noimg
+  return `${Const.AssetsCdnUrl}/img/item/item${id}.png`
 }
 
 export class ItemImg {
@@ -16,4 +11,7 @@ export class ItemImg {
     return getItemSrc(id)
   }
 
+  static getNodataSrc(): string {
+    return noimg
+  }
 }
