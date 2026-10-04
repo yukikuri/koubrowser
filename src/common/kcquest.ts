@@ -6460,11 +6460,8 @@ register(
         svdata.shipMstIds(78), // kongo
         svdata.shipMstIds(515), // Ark Royal
         svdata.shipMstIds(571), // Nelson
-        svdata.shipMstIds(519), // Jervis
-        svdata.shipMstIds(520), // Janus
-        svdata.shipMstIds(901), // Javelin
       ].flat()
-      return shipCount(ships, check_ids) >= 4
+      return shipCount(ships, check_ids) + shipCategoryCount(ships, [ApiShipCategory.jervis]) >= 4
     }
   }
 )

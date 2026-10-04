@@ -31,23 +31,27 @@ describe('quest 345: 演習ティータイム！', () => {
     expect(shipCount).not.toHaveBeenCalled()
   })
 
-  it('対象艦が3隻の場合は対象外になる', () => {
+  it('対象艦とJervis型が合計3隻の場合は対象外になる', () => {
     const stuff = getQuestStuff()
     const svdata = new kcs.SvData(kcs.createSvDataRaw())
-    vi.spyOn(kcs, 'shipCount').mockReturnValue(3)
+    vi.spyOn(kcs, 'shipCount').mockReturnValue(2)
+    vi.spyOn(kcs, 'shipCategoryCount').mockReturnValue(1)
 
     expect(stuff.isDeckMatch(svdata, [1, 2, 3, 4, -1, -1])).toBe(false)
   })
 
-  it('対象艦が4隻以上の場合は対象になる', () => {
+  it('対象艦とJervis型が合計4隻以上の場合は対象になる', () => {
     const stuff = getQuestStuff()
     const svdata = new kcs.SvData(kcs.createSvDataRaw())
-    const shipCount = vi.spyOn(kcs, 'shipCount').mockReturnValue(4)
+    const shipCount = vi.spyOn(kcs, 'shipCount').mockReturnValue(3)
+    const shipCategoryCount = vi.spyOn(kcs, 'shipCategoryCount').mockReturnValue(1)
 
     expect(stuff.isDeckMatch(svdata, [1, 2, 3, 4, -1, -1])).toBe(true)
-    expect(shipCount).toHaveBeenCalledWith([], [439, 78, 515, 571, 519, 520, 901])
+    expect(shipCount).toHaveBeenCalledWith([], [439, 78, 515, 571])
+    expect(shipCategoryCount).toHaveBeenCalledWith([], [kcs.ApiShipCategory.jervis])
 
-    shipCount.mockReturnValue(5)
+    shipCount.mockReturnValue(4)
+    shipCategoryCount.mockReturnValue(0)
     expect(stuff.isDeckMatch(svdata, [1, 2, 3, 4, 5, -1])).toBe(true)
   })
 })
