@@ -46,5 +46,8 @@ describe('quest 345: 演習ティータイム！', () => {
 
     expect(stuff.isDeckMatch(svdata, [1, 2, 3, 4, -1, -1])).toBe(true)
     expect(shipCount).toHaveBeenCalledWith([], [439, 78, 515, 571, 519, 520, 901])
+
+    shipCount.mockReturnValue(5)
+    expect(stuff.isDeckMatch(svdata, [1, 2, 3, 4, 5, -1])).toBe(true)
   })
 })
