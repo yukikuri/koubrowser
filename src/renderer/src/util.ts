@@ -311,6 +311,13 @@ class RUtilImpl {
 
   /**
    *
+   */
+  public get itemImgNoImg(): string {
+    return ItemImg.getNodataSrc()
+  }
+
+  /**
+   *
    * @param ship
    */
   public condClass(ship: ApiShip): string {
