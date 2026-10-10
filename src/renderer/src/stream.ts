@@ -19,6 +19,7 @@ import { GlobalSetting } from '@common/global_setting'
 import { AppSetting } from '@common/store'
 import { Quest } from '@common/record'
 import { updateFleetHps } from '@common/kcsbattle_util'
+import { regQuestSchemaFromJson } from '@common/kcquest_schema_reg'
 
 let requiredRecvedCallback: (()=> void) | null = null;
 
@@ -101,6 +102,12 @@ function onGlobalSetting(setting: GlobalSetting): void {
   console.log('stream got global setting << ')
 }
 
+function onQuestSchema(json: string): void {
+  console.log('stream got quest schema >> json length:', json.length)
+  regQuestSchemaFromJson(json);
+  console.log('stream got quest schema << ')
+}
+
 let port: MessagePort | null = null;
 export function streamInitialize(cb: ()=> void): void {
   requiredRecvedCallback = cb;
@@ -143,6 +150,10 @@ export function streamInitialize(cb: ()=> void): void {
 
         case 'global_setting':
           onGlobalSetting(data.setting);
+          break;
+
+        case 'quest_schema':
+          onQuestSchema(data.quest_schema_json);
           break;
 
         default:

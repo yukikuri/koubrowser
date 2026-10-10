@@ -2,7 +2,7 @@ import { Const } from '@common/const'
 import noimg from '../../assets/img/item/noimg.png'
 
 function getItemSrc(id: number): string {
-  return `${Const.AssetsCdnUrl}/img/item/item${id}.png`
+  return `${Const.AssetsCdnUrl}img/item/item${id}.png`
 }
 
 export class ItemImg {

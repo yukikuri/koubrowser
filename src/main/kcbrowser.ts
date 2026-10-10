@@ -57,7 +57,7 @@ import { globalSettingStore } from '@main/store'
 import { getMainDir, PathStuff } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
-import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestsMessage, RequiredMessage } from '@common/message'
+import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestSchemaMessage, QuestsMessage, RequiredMessage } from '@common/message'
 import { gameSetting, gameSettingProxy, gameState } from '@main/settings'
 import path from 'node:path'
 import { getWorkerDriver, start as WorkersStart } from '@main/stuff/wrokers'
@@ -73,6 +73,13 @@ import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
 import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
 import { getAfterBattleFleetHpsInfo, updateFleetHps } from '@common/kcsbattle_util'
+import { DevEnv } from '@common/devenv'
+import { fetchQuestSchemaFile, FetchQuestSchemaResult } from './kcquest_schema_fetcher'
+import { UrlStuff } from '@main/url'
+import { regQuestSchemaFromFile } from '@main/kcquest'
+import * as qs from '@common/kcquest'
+import { QuestSchemaHolder } from '@common/kcquest_schema_holder'
+import { loadQuestSchemaJson } from '@common/kcquest_schema_loader'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -98,13 +105,13 @@ const setUseragent = (): void => {
  * $env:KOU_UPDATE_URL='http://localhost:8080/releases'
  * 
  * httpサーバは
- * scripts/run-http-server-for-update-check.bat
- * から起動できる。scriptsフォルダ配下に更新用ファイルを配置する
+ * scripts/run-dev-http-server.bat
+ * から起動できる。scripts/releasesフォルダ配下に更新用ファイルを配置する
  * 
  * 後は開発モードで動かせばよい(npm run dev)
  */
 const getUpdateFeedUrl = (): string | null => {
-  const overrideUrl = process.env.KOU_UPDATE_URL?.trim()
+  const overrideUrl = DevEnv.updateUrl
   if (Env.isDevelopment && overrideUrl) return overrideUrl
   return null
 }
@@ -241,7 +248,7 @@ export const getKcApp = (): KcApp | undefined => {
 }
 
 /**
- *
+ * 甲ブラウザアプリ
  */
 export class KcApp {
   private main_window: BrowserWindow
@@ -267,6 +274,8 @@ export class KcApp {
   }
   private taihaSingekiBlockStates: TaihaSingekiBlockState[] = []
   private ctrl_key_state: boolean = false
+  private questSchemaFetchTask: Promise<FetchQuestSchemaResult> | null = null
+  private questSchemaFetched: boolean = false
 
   public get mainWindow(): BrowserWindow {
     return this.main_window
@@ -320,6 +329,12 @@ export class KcApp {
 
     // イベントやIPCハンドラ設定
     this.setupHandlers()
+
+    // reg quest schema
+    regQuestSchemaFromFile()
+
+    // fetch quest schema
+    this.fetchQuestSchema();
 
     // detect restricted assist
     gameSetting.setAssistRestricted(isAssistRestricted())
@@ -1181,6 +1196,9 @@ export class KcApp {
 
     // connect stream port
     streamManager.connect(webContents);
+
+    // send quest schema json to renderer
+    this.postQuestSchema(webContents, null);
   }
 
   /**
@@ -1593,6 +1611,114 @@ export class KcApp {
       this.notifyStartupUpdateChecked(result)
     })
   } 
+
+  /**
+   * quest schema json取得
+   */
+  private fetchQuestSchema(): void {
+
+    // 外部クエスト達成条件取得に時間がかかってもアプリ動作は止めない以下の設計とする
+    // アプリ動作を止めない：取得完了を起動・初期表示の必須条件にしない
+    // 
+    // 1) 任務判定開始前に達成条件更新を行った場合
+    //    影響なし
+    // 2）任務判定開始後に達成条件更新を行った場合
+    //    更新タイミングで任務達成判定に影響が出る
+    //    更新前に任務達成判定が動作：内部クエスト達成判定が動作
+    //    更新後に任務達成判定が動作：外部クエスト達成判定が動作
+    //    
+    //    ここで
+    //      内部クエスト達成判定が誤りであれば、誤った判定が動作
+    //    する。
+    //    外部クエスト達成判定は内部クエスト達成判定が誤りであった場合に対応することが
+    //    目的に含まれることから、外部クエスト達成条件が取得中であることを画面で分かる
+    //    ようにする
+    //       画面表示内容：取得中/取得エラー
+    //    画面表示により任務を進めない方が良いことを伝えることができる。
+    //    
+    //    2が出る状況として回線速度やネットワーク関連での通信異常を想定する。
+    //    
+
+    if (this.questSchemaFetchTask) {
+      debug('fetchQuestSchema already running, skip')
+      return
+    }
+
+    this.questSchemaFetched = false
+    this.questSchemaFetchTask = fetchQuestSchemaFile(UrlStuff.questSchema, false)
+    this.questSchemaFetchTask.then((result) => {
+      this.questSchemaFetchTask = null
+      this.questSchemaFetched = true
+
+      // 取得結果をファイルに保存
+      if (result.success) {
+
+        // スキーマ解析
+        const schemas = loadQuestSchemaJson(result.jsonText)
+        if (! schemas.success) {
+          debug('fetchQuestSchema loadQuestSchemaJson failed', schemas.error)
+          return
+        }
+
+        // 更新する必要が無い場合は、スキーマ登録を行わない
+        if (! QuestSchemaHolder.needsUpdate(schemas.meta)) {
+          return 
+        }
+
+        // ファイル保存
+        let saved = false
+        try {
+          const filepath = PathStuff.questSchemaFilePath
+          fs.writeFileSync(filepath, result.jsonText, 'utf8')
+          saved = true
+          debug('fetchQuestSchema saved to file', filepath)
+        } catch (err) {
+          debug('fetchQuestSchema write file error', err)
+        }
+
+        if (! saved) {
+          debug('fetchQuestSchema save failed, skip schema update')
+          return
+        }
+
+        // スキーマ登録
+        for (const schema of schemas.quests) {
+          qs.questRegisterReplace(schema.no, schema.stuff)
+        }
+
+        // 登録したスキーマmeta設定
+        QuestSchemaHolder.setMeta(schemas.meta)
+
+        // 任務状況再初期化
+        this.kcrecord?.rebuildQuestUpdaters()
+
+        // スキーマをレンダラに送信
+        this.postQuestSchema(null, result.jsonText)
+      }
+    })
+  }
+
+  /**
+   * 
+   * @param webContents 
+   */
+  private postQuestSchema(webContents: WebContents | null, jsonText: string | null): void {
+        
+    const filepath = PathStuff.questSchemaFilePath
+    if (fs.existsSync(filepath)) {
+      try {
+        const quest_schema_json = jsonText ?? fs.readFileSync(filepath, 'utf8')
+        const msg: QuestSchemaMessage = { type: 'quest_schema', quest_schema_json }
+        if (webContents) {
+          streamManager.postToRendererA(webContents, msg);
+        } else {
+          streamManager.postToRenderers(msg);
+        }
+      } catch (err) {
+        debug('postQuestSchema read file error', err)
+      }
+    }
+  }
 
   /**
    * 
@@ -2209,11 +2335,11 @@ export class KcApp {
    */
   private onQuestList(args: ApiQuestListWithParam): void {
     if (args.api_tab_id === ApiQuestListParamTabId.all) {
-      const { api_tab_id: _api_tab_id, ...questlist }: ApiQuestListWithParam = args
       if (Env.isTestMode) {
         console.log('test mode: skip save quest list')
         return ;
       }
+      const { api_tab_id: _api_tab_id, ...questlist }: ApiQuestListWithParam = args
       questListStoreLoader.save(questlist)
     }
   }

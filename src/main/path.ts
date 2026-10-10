@@ -104,7 +104,11 @@ class PathStuffImpl {
     return ret
   }
 
-  public setCapturePath(path: string | null): void {
+  /**
+   * 
+   * @param path 
+   */
+  setCapturePath(path: string | null): void {
     this.capturePath_ = path
   }
 
@@ -113,6 +117,13 @@ class PathStuffImpl {
    */
   get storeUser(): string {
     return path.join(this.storeApp, svdata.serverId + '_' + svdata.basic.api_member_id)
+  }
+
+  /**
+   * 
+   */
+  get questSchemaFilePath(): string {
+    return path.join(this.storeGlobal, 'quest-schema.json')
   }
 }
 

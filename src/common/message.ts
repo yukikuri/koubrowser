@@ -15,6 +15,7 @@ export const MessageType = {
   quests: 'quests',
   app_setting: 'app_setting',
   global_setting: 'global_setting',
+  quest_schema: 'quest_schema',
 } as const
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
 
@@ -84,6 +85,13 @@ export interface GlobalSettingMessage{
   readonly setting: GlobalSetting;
 }
 
+/**
+ * quest schema message
+ */
+export interface QuestSchemaMessage{
+  readonly type: 'quest_schema'
+  readonly quest_schema_json: string;
+}
 
 /**
  * メッセージ別の型
@@ -95,6 +103,7 @@ export type MessageByType = {
   quests: QuestsMessage
   app_setting: AppSettingMessage
   global_setting: GlobalSettingMessage
+  quest_schema: QuestSchemaMessage
 }
 
 /**

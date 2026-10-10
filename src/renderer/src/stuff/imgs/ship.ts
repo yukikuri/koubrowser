@@ -2,15 +2,15 @@ import { Const } from '@common/const'
 import nocacheimg from '../../assets/img/ship/nocache.png'
 
 function getShipSrc(id: number | string): string {
-  return `${Const.AssetsCdnUrl}/img/ship/s${id}.png`
+  return `${Const.AssetsCdnUrl}img/ship/s${id}.png`
 }
 
 function getShipDmgSrc(id: number | string): string {
-  return `${Const.AssetsCdnUrl}/img/ship-dmg/s${id}.png`
+  return `${Const.AssetsCdnUrl}img/ship-dmg/s${id}.png`
 }
 
 function getEnemySrc(id: number): string {
-  return `${Const.AssetsCdnUrl}/img/enemy/s${id}.png`
+  return `${Const.AssetsCdnUrl}img/enemy/s${id}.png`
 }
 
 export class ShipImg {

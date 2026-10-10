@@ -403,6 +403,46 @@ export class KcRecord {
     })
   }
 
+  /**
+   * 既存の進捗を引き継ぎ、最新の任務定義でupdaterを再作成する。
+   * 未対応任務の新規追加や、進捗形式の変更は対象外。
+   */
+  public rebuildQuestUpdaters(): void {
+    if (this.quest_updaters.length === 0) return
+
+    let rebuilt = false
+
+    for (let index = 0; index < this.quest_updaters.length; index++) {
+      const current = this.quest_updaters[index]
+
+      // 進捗が初期化されていない場合は差し替えない
+      if (!current.record) continue
+
+      // recordを渡さず、状態補正とコールバック登録を行わずに生成する
+      const next = QuestUpdater.create(
+        current.quest,
+        (updater): void => this.questUpdated(updater)
+      )
+
+      if (!next) continue
+
+      // 現在の進捗と、初期読み込み後の一時状態を引き継ぐ
+      next.record = current.record
+      next.tmpRecord = current.tmpRecord
+      next.apiData = current.apiData
+
+      current.unsetCallback()
+      this.quest_updaters[index] = next
+      next.setCallback()
+
+      rebuilt = true
+    }
+
+    if (rebuilt) {
+      this.cbQuestUpdated()
+    }
+  }
+
   private onApiQuestList(arg: ApiQuestListWithParam): void {
     console.log('kcrecord: ApiQuestList called. api_tab_id:', arg.api_tab_id)
 
