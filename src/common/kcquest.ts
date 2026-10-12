@@ -6575,39 +6575,40 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 359: Halloween艦隊 実りの秋、強襲演習！
-register(
-  359,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [5]
-    static key = QuestKey.daily
-    static need_win_rank: PracticeWinRank = 'A'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習A勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(114), // abukuma
-        svdata.shipMstIds(93), // 朧
-        svdata.shipMstIds(45), // 夕立
-        svdata.shipMstIds(44), // murasame
-        svdata.shipMstIds(415), // nowaki
-        svdata.shipMstIds(95), // 朝潮
-        svdata.shipMstIds(528), // hayanami
-        svdata.shipMstIds(484), // hamanami
-        svdata.shipMstIds(921), // 鵜来
-        svdata.shipMstIds(922), // 稲木
-        svdata.shipMstIds(519), // Jervis
-        svdata.shipMstIds(562), // Johnston
-        svdata.shipMstIds(881), // 伊201
-      ].flat()
-      return shipCount(ships, check_ids) >= 4
-    }
-  }
-)
+// register(
+//   359,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [5]
+//     static key = QuestKey.daily
+//     static need_win_rank: PracticeWinRank = 'A'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習A勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(114), // abukuma
+//         svdata.shipMstIds(93), // 朧
+//         svdata.shipMstIds(45), // 夕立
+//         svdata.shipMstIds(44), // murasame
+//         svdata.shipMstIds(415), // nowaki
+//         svdata.shipMstIds(95), // 朝潮
+//         svdata.shipMstIds(528), // hayanami
+//         svdata.shipMstIds(484), // hamanami
+//         svdata.shipMstIds(921), // 鵜来
+//         svdata.shipMstIds(922), // 稲木
+//         svdata.shipMstIds(519), // Jervis
+//         svdata.shipMstIds(562), // Johnston
+//         svdata.shipMstIds(881), // 伊201
+//       ].flat()
+//       return shipCount(ships, check_ids) >= 4
+//     }
+//   }
+// )
 
 // 360: 第一線航空母艦「鳳翔改二」、演習開始！
 register(
@@ -12488,125 +12489,129 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 984:【期間限定任務】12年目の秋、南瓜祭り始め！
-register(
-  984,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 3, 'S'],
-      [1, 4, 'S'],
-      [1, 5, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids)
-      const ids = [
-        svdata.shipMstIds(93),
-        svdata.shipMstIds(921),
-        svdata.shipMstIds(922),
-        svdata.shipMstIds(45),
-        svdata.shipMstIds(95),
-        svdata.shipMstIds(410),
-        svdata.shipMstIds(555)
-      ].flat()
-      if (!shipCount([msts[0]], ids)) return false
-      return shipCount(msts, ids) > 1
-    }
-  }
-)
+// register(
+//   984,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 3, 'S'],
+//       [1, 4, 'S'],
+//       [1, 5, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids)
+//       const ids = [
+//         svdata.shipMstIds(93),
+//         svdata.shipMstIds(921),
+//         svdata.shipMstIds(922),
+//         svdata.shipMstIds(45),
+//         svdata.shipMstIds(95),
+//         svdata.shipMstIds(410),
+//         svdata.shipMstIds(555)
+//       ].flat()
+//       if (!shipCount([msts[0]], ids)) return false
+//       return shipCount(msts, ids) > 1
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 985:【期間限定任務】礼号作戦部隊、西へ！
-register(
-  985,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [4, 1, 'S'],
-      [4, 2, 'S'],
-      [4, 3, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ids = [
-        svdata.shipMstIds(49),
-        svdata.shipMstIds(64),
-        svdata.shipMstIds(183),
-        svdata.shipMstIds(425),
-        svdata.shipMstIds(410)
-      ].flat()
-      return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
-    }
-  }
-)
+// register(
+//   985,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [4, 1, 'S'],
+//       [4, 2, 'S'],
+//       [4, 3, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ids = [
+//         svdata.shipMstIds(49),
+//         svdata.shipMstIds(64),
+//         svdata.shipMstIds(183),
+//         svdata.shipMstIds(425),
+//         svdata.shipMstIds(410)
+//       ].flat()
+//       return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 986:【期間限定任務】南瓜祭り艦隊、南西諸島へ！
-register(
-  986,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [ [ 3, 1, 'S' ], [ 2, 4, 'A' ], [ 6, 1, 'A' ] ];
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ids = [
-        svdata.shipMstIds(544), // Gambier Bay
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(923), // Tuscaloosa
-        svdata.shipMstIds(896), // Brooklyn
-        svdata.shipMstIds(562), // Johnston
-        svdata.shipMstIds(535), // Luigi Torelli
-      ].flat()
-      return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
-    }
-  }
-)
+// register(
+//   986,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [ [ 3, 1, 'S' ], [ 2, 4, 'A' ], [ 6, 1, 'A' ] ];
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ids = [
+//         svdata.shipMstIds(544), // Gambier Bay
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(923), // Tuscaloosa
+//         svdata.shipMstIds(896), // Brooklyn
+//         svdata.shipMstIds(562), // Johnston
+//         svdata.shipMstIds(535), // Luigi Torelli
+//       ].flat()
+//       return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 987:【週間拡張任務】秋の南瓜祭り! Buono!
-register(
-  987,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [ [ 4, 2, 'S' ], [ 4, 3, 'S' ], [ 4, 4, 'S' ],];
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids);
-      const shipIds = [
-        svdata.shipMstIds(442), // Roma
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(44), // murasame
-        svdata.shipMstIds(45), // yuudati
-        svdata.shipMstIds(93), // oboro
-        svdata.shipMstIds(15), // akebono
-        svdata.shipMstIds(575), // Maestrale
-        svdata.shipMstIds(614), // Grecale
-        svdata.shipMstIds(443), // Libeccio
-        svdata.shipMstIds(653), // Scirocco
-        svdata.shipMstIds(519), // Jervis
-        svdata.shipMstIds(535), // Luigi Torelli
-      ].flat();
-      if (!shipCount([msts[0]], shipIds)) {
-        return false;
-      }
-      return shipCount(msts, shipIds) >= 3;
-    }
-  }
-)
+// register(
+//   987,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [ [ 4, 2, 'S' ], [ 4, 3, 'S' ], [ 4, 4, 'S' ],];
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids);
+//       const shipIds = [
+//         svdata.shipMstIds(442), // Roma
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(44), // murasame
+//         svdata.shipMstIds(45), // yuudati
+//         svdata.shipMstIds(93), // oboro
+//         svdata.shipMstIds(15), // akebono
+//         svdata.shipMstIds(575), // Maestrale
+//         svdata.shipMstIds(614), // Grecale
+//         svdata.shipMstIds(443), // Libeccio
+//         svdata.shipMstIds(653), // Scirocco
+//         svdata.shipMstIds(519), // Jervis
+//         svdata.shipMstIds(535), // Luigi Torelli
+//       ].flat();
+//       if (!shipCount([msts[0]], shipIds)) {
+//         return false;
+//       }
+//       return shipCount(msts, shipIds) >= 3;
+//     }
+//   }
+// )
 
 // 988:【Xmas限定任務】聖夜の哨戒線
 register(
@@ -12926,38 +12931,39 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1002: 【期間限定任務】南瓜祭り2024、拡張作戦！
-register(
-  1002,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [ [ 3, 2, 'S' ], [ 3, 5, 'S' ], [ 6, 4, 'S' ],];
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids);
-      const ids = [
-        svdata.shipMstIds(544), // Gambier Bay
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(923), // Tuscaloosa
-        svdata.shipMstIds(519), // Jervis
-        svdata.shipMstIds(93), // oboro
-        svdata.shipMstIds(45), // yuudati
-        svdata.shipMstIds(44), // murasame
-        svdata.shipMstIds(95), // asasio
-        svdata.shipMstIds(415), // nowaki
-        svdata.shipMstIds(671), // makinami
-      ].flat()
-      if (!shipCount([msts[0]], ids)) {
-        return false;
-      }
-      return shipCount(msts, ids) >= 3;
-    }
-  }
-)
+// register(
+//   1002,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [ [ 3, 2, 'S' ], [ 3, 5, 'S' ], [ 6, 4, 'S' ],];
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids);
+//       const ids = [
+//         svdata.shipMstIds(544), // Gambier Bay
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(923), // Tuscaloosa
+//         svdata.shipMstIds(519), // Jervis
+//         svdata.shipMstIds(93), // oboro
+//         svdata.shipMstIds(45), // yuudati
+//         svdata.shipMstIds(44), // murasame
+//         svdata.shipMstIds(95), // asasio
+//         svdata.shipMstIds(415), // nowaki
+//         svdata.shipMstIds(671), // makinami
+//       ].flat()
+//       if (!shipCount([msts[0]], ids)) {
+//         return false;
+//       }
+//       return shipCount(msts, ids) >= 3;
+//     }
+//   }
+// )
 
 // 1003: 【潜水艦任務】潜水艦、戦闘哨戒！
 register(
@@ -13988,70 +13994,72 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1039:【期間限定任務】Halloween海上護衛隊出撃！
-register(
-  1039,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMapOrCell[] = [
-      [1, 2, 'S'],
-      [1, 4, 'S'],
-      [1, 5, 'S'],
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids)
-      const ids = [
-        svdata.shipMstIds(114), // abukuma
-        svdata.shipMstIds(15), // akebono
-        svdata.shipMstIds(95), // asasio
-        svdata.shipMstIds(671), // makinami
-        svdata.shipMstIds(484), // hamanami
-        svdata.shipMstIds(921), // ukuru
-        svdata.shipMstIds(922), // inagi
-        svdata.shipMstIds(904), // noumi
-        svdata.shipMstIds(637), // dai4gou
-        svdata.shipMstIds(638), // dai30gou
-        svdata.shipMstIds(898), // dai22gou
-      ].flat()
-      return shipCount(msts, ids) >= 4
-    }
-  }
-)
+// register(
+//   1039,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMapOrCell[] = [
+//       [1, 2, 'S'],
+//       [1, 4, 'S'],
+//       [1, 5, 'S'],
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids)
+//       const ids = [
+//         svdata.shipMstIds(114), // abukuma
+//         svdata.shipMstIds(15), // akebono
+//         svdata.shipMstIds(95), // asasio
+//         svdata.shipMstIds(671), // makinami
+//         svdata.shipMstIds(484), // hamanami
+//         svdata.shipMstIds(921), // ukuru
+//         svdata.shipMstIds(922), // inagi
+//         svdata.shipMstIds(904), // noumi
+//         svdata.shipMstIds(637), // dai4gou
+//         svdata.shipMstIds(638), // dai30gou
+//         svdata.shipMstIds(898), // dai22gou
+//       ].flat()
+//       return shipCount(msts, ids) >= 4
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1040:【期間限定任務】Halloween狼隊、夜の襲撃！
-register(
-  1040,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMapOrCell[] = [
-      [2, 1, 'S'],
-      [2, 2, 'S'],
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids)
-      const ids = [
-        svdata.shipMstIds(923), // Tuscaloosa
-        svdata.shipMstIds(93), // oboro
-        svdata.shipMstIds(45), // yuudati
-        svdata.shipMstIds(415), // nowaki
-        svdata.shipMstIds(528), // hayanami
-        svdata.shipMstIds(943), // kumanomaru
-        svdata.shipMstIds(639), // jingeikai
-      ].flat()
-      return shipCount([msts[0]], ids) > 0 && shipCount(msts, ids) >= 3
-    }
-  }
-)
+// register(
+//   1040,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMapOrCell[] = [
+//       [2, 1, 'S'],
+//       [2, 2, 'S'],
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids)
+//       const ids = [
+//         svdata.shipMstIds(923), // Tuscaloosa
+//         svdata.shipMstIds(93), // oboro
+//         svdata.shipMstIds(45), // yuudati
+//         svdata.shipMstIds(415), // nowaki
+//         svdata.shipMstIds(528), // hayanami
+//         svdata.shipMstIds(943), // kumanomaru
+//         svdata.shipMstIds(639), // jingeikai
+//       ].flat()
+//       return shipCount([msts[0]], ids) > 0 && shipCount(msts, ids) >= 3
+//     }
+//   }
+// )
 
 // 1041: 三十二駆「早波改二」、元気に出撃せよ！
 register(
@@ -14809,26 +14817,27 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1119: 【期間限定任務】Halloweenはお掃除も！
-register(
-  1119,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [8, 8, 8]
-    static key = QuestKey.infer
-    static id_or_types = [
-      { type: SlotitemType.SmallMainGun },
-      { type: SlotitemType.MediumMainGun },
-      { type: SlotitemType.RecSeaplane }
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 小口径：', '中口径：', '水上偵察機：'], quest)
-    }
-    static getCondition(_svdata: SvData): undefined {
-      return undefined
-    }
-  }
-)
+// register(
+//   1119,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [8, 8, 8]
+//     static key = QuestKey.infer
+//     static id_or_types = [
+//       { type: SlotitemType.SmallMainGun },
+//       { type: SlotitemType.MediumMainGun },
+//       { type: SlotitemType.RecSeaplane }
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 小口径：', '中口径：', '水上偵察機：'], quest)
+//     }
+//     static getCondition(_svdata: SvData): undefined {
+//       return undefined
+//     }
+//   }
+// )
 
 // 1120: 【工廠任務】新装備開発計画III
 register(
@@ -15604,41 +15613,43 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1156: 【初夏限定任務】海軍工廠の再編
-register(1156, class {
-  static readonly questType = QuestType.destroyItemIdOrType;
-  static max = [12, 12, 12];
-  static key = QuestKey.yearly
-  static id_or_types = [
-    { type: SlotitemType.DiveBomber },
-    { type: SlotitemType.TorpedoBomber },
-    { type: SlotitemType.RecSeaplane },
-  ];
-  static formatter(quest: Quest): string {
-    return detailFormat(['破棄 爆撃機：', '攻撃機：', '水偵：'], quest)
-  }
-  static getCondition(_svdata: SvData): undefined {
-    return undefined
-  }
-})
+// register(1156, class {
+//   static readonly questType = QuestType.destroyItemIdOrType;
+//   static max = [12, 12, 12];
+//   static key = QuestKey.yearly
+//   static id_or_types = [
+//     { type: SlotitemType.DiveBomber },
+//     { type: SlotitemType.TorpedoBomber },
+//     { type: SlotitemType.RecSeaplane },
+//   ];
+//   static formatter(quest: Quest): string {
+//     return detailFormat(['破棄 爆撃機：', '攻撃機：', '水偵：'], quest)
+//   }
+//   static getCondition(_svdata: SvData): undefined {
+//     return undefined
+//   }
+// })
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1157: 【重南瓜祭り拡張任務】対潜装備も整理整頓！
-register(1157, class {
-  static readonly questType = QuestType.destroyItemIdOrType;
-  static max = [6, 6, 6];
-  static key = QuestKey.yearly
-  static id_or_types = [
-    { id: 44 },
-    { id: 45 },
-    { id: 346 },
-  ];
-  static formatter(quest: Quest): string {
-    return detailFormat(['爆雷破棄 九四式：', '三式：', '二式：'], quest)
-  }
-  static getCondition(_svdata: SvData): undefined {
-    return undefined
-  }
-})
+// register(1157, class {
+//   static readonly questType = QuestType.destroyItemIdOrType;
+//   static max = [6, 6, 6];
+//   static key = QuestKey.yearly
+//   static id_or_types = [
+//     { id: 44 },
+//     { id: 45 },
+//     { id: 346 },
+//   ];
+//   static formatter(quest: Quest): string {
+//     return detailFormat(['爆雷破棄 九四式：', '三式：', '二式：'], quest)
+//   }
+//   static getCondition(_svdata: SvData): undefined {
+//     return undefined
+//   }
+// })
 
 // 1158: 第三十二駆逐隊「早波」、改装準備！
 register(1158, class {
