@@ -5,7 +5,7 @@ import { PreferredQuestSchemaVersion } from "@common/kcquest_schema_file"
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
-const DEBUG = 1;
+const DEBUG = 0;
 
 const debug = (...args: unknown[]): void => {
   if (DEBUG) console.info("[Urls]", ...args);
