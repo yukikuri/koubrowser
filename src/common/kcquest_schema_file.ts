@@ -1,7 +1,7 @@
 import type { QuestSchema } from '@common/kcquest_definition'
 
 /** 現アプリが読み込み可能なバージョン */
-export const SupportedQuestSchemaVersions = [1,2] as const
+export const SupportedQuestSchemaVersions = [1] as const
 
 /** 現アプリが読み込み可能なバージョン一覧 */
 type SupportedQuestSchemaVersion =
