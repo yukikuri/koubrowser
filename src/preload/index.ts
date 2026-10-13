@@ -10,6 +10,7 @@ import type { Query, QueryReturn, PortChartData } from '@common/record'
 import type { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import type { AppSetting, InheritScoreList } from '@common/store'
 import type { GlobalSetting } from '@common/global_setting'
+import type { QuestSchemaCheckState } from '@common/option'
 
 // Custom APIs for renderer
 const api: Api = {
@@ -51,6 +52,9 @@ const api: Api = {
 
   openOption(): void {
     ipcRenderer.invoke(MainChannel.openOption)
+  },
+  applyQuestSchema(): Promise<QuestSchemaCheckState> {
+    return ipcRenderer.invoke(MainChannel.applyQuestSchema)
   },
 
   openAssist(): void {

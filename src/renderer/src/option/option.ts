@@ -4,7 +4,7 @@ import '@assets/option.scss'
 
 import OptionApp from '@option/components/OptionApp.vue'
 import { setOptionSettingWithPreventSave } from '@option/store/optionSetting'
-import { type OptionData, defaultOptionSetting } from '@common/option'
+import { type OptionData, defaultOptionSetting, defaultQuestSchemaCheckState } from '@common/option'
 
 async function main(): Promise<void> {
   let data: OptionData
@@ -16,7 +16,8 @@ async function main(): Promise<void> {
     data = {
       setting: defaultOptionSetting(),
       viewInfo: {
-        defaultCaptureSavePath: ''
+        defaultCaptureSavePath: '',
+        ...defaultQuestSchemaCheckState()
       }
     }
     isError = true

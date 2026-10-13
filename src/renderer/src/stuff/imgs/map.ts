@@ -2,7 +2,7 @@ import { Const } from '@common/const'
 import nodataimg from '../../assets/img/map/nodata.png'
 
 function getMapSrc(name: string): string {
-  return `${Const.AssetsCdnUrl}/img/map/${name}.png`
+  return `${Const.AssetsCdnUrl}img/map/${name}.png`
 }
 
 export class MapImg {

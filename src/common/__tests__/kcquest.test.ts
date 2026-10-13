@@ -1,24 +1,54 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as kcs from '@common/kcs'
 import * as kcquest from '@common/kcquest'
+import * as kcquest_types from '@common/kcquest_types'
+import { tryParseQuestSchemas } from '@common/kcquest_parser'
+import { convertToQuest } from '@common/kcquest_converter'
 
-describe('quest 345: 演習ティータイム！', () => {
-  const questNo = 345
+function createQuest345FromSchema(): kcquest.QuestPracticeDeck {
+  const jsonText = JSON.stringify({
+    no: 345,
+    questType: 'practiceDeck',
+    max: [4],
+    key: 'daily',
+    need_win_rank: 'A',
+    formatter: ['演習A勝利以上：'],
+    definitions: [[
+      { type: 'deckShipCount', operator: 'gte', value: 4 },
+      {
+        type: 'shipCountSum', operator: 'gte', value: 4,
+        shipIds: [439, 78, 515, 571], shipCategories: [kcs.ApiShipCategory.jervis],
+      },
+    ]],
+  })
+  const parsed = tryParseQuestSchemas(jsonText)
+  if (!parsed.success) throw parsed.error
+  expect(parsed.schemas).toHaveLength(1)
+  const schema = parsed.schemas[0]
+  expect(schema.no).toBe(345)
+  if (schema.questType !== 'practiceDeck') throw new Error('Unexpected quest type')
+  const converted = convertToQuest(schema)
+  if (!converted.success) throw converted.error
+  return converted.stuff
+}
 
-  function getQuestStuff(): kcquest.QuestPracticeDeck {
-    return kcquest.getQuestStuff(questNo) as kcquest.QuestPracticeDeck
-  }
+describe.each([
+  { name: '既存クラス版', getQuestStuff: (): kcquest.QuestPracticeDeck =>
+    kcquest.getQuestStuff(345) as kcquest.QuestPracticeDeck },
+  { name: 'QuestSchema版', getQuestStuff: createQuest345FromSchema },
+])('quest 345: 演習ティータイム！ ($name)', ({ getQuestStuff }) => {
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('演習艦隊条件付きクエストとして登録されている', () => {
+  it('演習艦隊条件付きクエストの設定を持つ', () => {
     const stuff = getQuestStuff()
 
     expect(stuff).toBeDefined()
-    expect(stuff.questType).toBe(kcquest.QuestType.practiceDeck)
+    expect(stuff.questType).toBe(kcquest_types.QuestType.practiceDeck)
     expect(stuff.max).toEqual([4])
+    expect(stuff.key).toBe(kcquest_types.QuestKey.daily)
     expect(stuff.need_win_rank).toBe('A')
   })
 

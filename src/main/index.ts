@@ -183,6 +183,7 @@ app.on('before-quit', async (event) => {
     beforeQuitHandled = true
     const kcapp = getKcApp()
     if (kcapp) {
+      kcapp.stopQuestSchemaScheduler()
       kcapp.saveAppState()
       event.preventDefault()
       try {

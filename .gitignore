@@ -19,3 +19,4 @@ src/renderer/src/generated/bundled-licenses.ts
 scripts/releases/**
 !scripts/releases/
 !scripts/releases/.gitkeep
+scripts/quest-schema/**/*.json

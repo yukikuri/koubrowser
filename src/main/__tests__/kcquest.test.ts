@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as kcs from '@common/kcs'
 import * as kcdate from '@common/kcdate'
-import * as qs from '@common/kcquest'
+import * as kcquest from '@common/kcquest'
+import * as kcquest_types from '@common/kcquest_types'
 import { Quest } from '@common/record'
 import { generateDateKey, QuestUpdater } from '@main/kcquest'
 
@@ -41,74 +42,74 @@ describe('QuestUpdater tests', () => {
 
 describe('Quest key tests', () => {
   it('questDateKey test', () => {
-    const stuff: qs.QuestCommon = {
+    const stuff: kcquest.QuestCommon = {
       max: [],
-      key: qs.QuestKey.quarterly,
+      key: kcquest_types.QuestKey.quarterly,
     }
     const r = createDummyQuest(1)
 
     const checks: {
-      keyType: qs.QuestKey,
+      keyType: kcquest_types.QuestKey,
       dateParam: Date,
       expectKey: string
     }[] = [
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 0, 10),
         expectKey: 'quarterly-2025-4',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 1, 10),
         expectKey: 'quarterly-2025-4',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 2, 10),
         expectKey: 'quarterly-2026-1',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 3, 10),
         expectKey: 'quarterly-2026-1',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 4, 10),
         expectKey: 'quarterly-2026-1',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 5, 10),
         expectKey: 'quarterly-2026-2',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 6, 10),
         expectKey: 'quarterly-2026-2',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 7, 10),
         expectKey: 'quarterly-2026-2',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 8, 10),
         expectKey: 'quarterly-2026-3',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 9, 10),
         expectKey: 'quarterly-2026-3',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 10, 10),
         expectKey: 'quarterly-2026-3',
       },
       {
-        keyType: qs.QuestKey.quarterly,
+        keyType: kcquest_types.QuestKey.quarterly,
         dateParam: new Date(2026, 11, 10),
         expectKey: 'quarterly-2026-4',
       },
