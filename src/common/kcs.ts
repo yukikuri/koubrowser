@@ -6567,6 +6567,7 @@ export interface ApiEventObject {
 
 const InvalidApiEventObject = (): ApiEventObject => ({
   api_m_flag: 0,
+  api_m_flag2: undefined,
   api_c_num: 0
 })
 

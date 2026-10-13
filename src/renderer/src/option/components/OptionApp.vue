@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, WritableComputedRef } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, WritableComputedRef } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
-import { optionSetting, optionViewInfo } from '@option/store/optionSetting'
+import QuestSchemaInfo from './QuestSchemaInfo.vue'
+import { optionSetting, optionViewInfo, setQuestSchemaCheckState } from '@option/store/optionSetting'
 import type { NullableStringOptionKey } from '@common/option'
 
 // 何らかの要因で設定が読み取れないときはエラー状態とし閉じるのみ可能とする
@@ -14,7 +15,7 @@ const props = withDefaults(
   }
 )
 
-type CategoryKey = 'general' | 'network' | 'extension';
+type CategoryKey = 'general' | 'quest' | 'network' | 'extension';
 interface CategoryInfo {
   readonly key: CategoryKey
   readonly title: string
@@ -26,6 +27,11 @@ const categories: CategoryInfo[] = [
     key: 'general',
     title: '一般',
     description: '基本的な動作に関する設定'
+  },
+  {
+    key: 'quest',
+    title: '任務データ',
+    description: '任務データに関する設定'
   },
   {
     key: 'network',
@@ -62,6 +68,51 @@ const isCurrentCategory = (key: CategoryKey): boolean => {
 
 const close = (): void => {
   window.optionApi.close()
+}
+
+const questCheckPending = ref(false)
+let stopQuestSchemaListener: (() => void) | undefined
+let disposed = false
+
+onMounted(async () => {
+  if (props.isError) return
+  let receivedState = false
+  stopQuestSchemaListener = window.optionApi.onQuestSchemaStateChanged((state) => {
+    receivedState = true
+    setQuestSchemaCheckState(state)
+  })
+  try {
+    const state = await window.optionApi.getQuestSchemaState()
+    // 初期情報取得中に届いた新しい通知を、古いスナップショットで上書きしない。
+    if (!disposed && !receivedState) setQuestSchemaCheckState(state)
+  } catch {
+    if (!disposed && !receivedState) {
+      optionViewInfo.questSchemaCheckStatus = 'error'
+      optionViewInfo.questSchemaError = '任務データの確認状態を取得できませんでした。'
+    }
+  }
+})
+
+onUnmounted(() => {
+  disposed = true
+  stopQuestSchemaListener?.()
+})
+
+async function checkQuestSchemaNow(applyPending = false): Promise<void> {
+  if (questCheckPending.value || optionViewInfo.questSchemaCheckStatus === 'checking') return
+  questCheckPending.value = true
+  try {
+    // 確認結果は状態通知で反映する。起動時確認の結果も同じ経路で受け取る。
+    if (applyPending) await window.optionApi.applyQuestSchema()
+    else await window.optionApi.checkQuestSchema()
+  } catch {
+    if (!disposed) {
+      optionViewInfo.questSchemaCheckStatus = 'error'
+      optionViewInfo.questSchemaError = '任務データの更新確認を要求できませんでした。'
+    }
+  } finally {
+    questCheckPending.value = false
+  }
 }
 
 ///////////////////////////////////////////////////////////////
@@ -185,6 +236,13 @@ const clearProxyFixedServersInput = (): void => {
             @click="selectedCategoryKey = category.key"
           >
             {{ category.title }}
+            <span
+              v-if="category.key === 'quest' && optionViewInfo.questSchemaError"
+              class="quest-schema-error-dot"
+              role="img"
+              aria-label="任務データにエラーがあります"
+              :title="optionViewInfo.questSchemaError"
+            />
           </button>
         </nav>
       </aside>
@@ -198,7 +256,7 @@ const clearProxyFixedServersInput = (): void => {
         </header>
 
         <div class="option-panel">
-
+          
           <!-- 一般 -->
           <section v-if="isCurrentCategory('general')" class="option-section">
             <div class="section-title">保存パス</div>
@@ -270,6 +328,21 @@ const clearProxyFixedServersInput = (): void => {
               </label>
             </div>
           </section>
+
+          <!-- 任務データ -->
+          <QuestSchemaInfo
+            v-if="isCurrentCategory('quest')"
+            v-model:check-interval-hours="optionSetting.questSchemaCheckIntervalHours"
+            v-model:check-notify-only="optionSetting.questSchemaCheckNotifyOnly"
+            :meta="optionViewInfo.questSchemaMeta"
+            :error-message="optionViewInfo.questSchemaError"
+            :check-status="optionViewInfo.questSchemaCheckStatus"
+            :last-checked-at="optionViewInfo.questSchemaLastCheckedAt"
+            :check-pending="questCheckPending"
+            :pending-meta="optionViewInfo.questSchemaPendingMeta"
+            @check="checkQuestSchemaNow()"
+            @apply="checkQuestSchemaNow(true)"
+          />
 
           <!-- 通信設定 -->
           <section v-if="isCurrentCategory('network')" class="option-section">
@@ -411,3 +484,15 @@ const clearProxyFixedServersInput = (): void => {
     </main>
   </div>
 </template>
+
+<style scoped>
+.quest-schema-error-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  vertical-align: middle;
+}
+</style>

@@ -64,13 +64,27 @@ const items = computed<ItemInfo[]>(() => {
 
   return ret.sort((a, b) => a.api.api_id - b.api.api_id)
 })
+
+function onItemImageError(event: Event): void {
+  const errimg = RUtil.itemImgNoImg
+  const img = event.currentTarget as HTMLImageElement
+
+  // 代替画像も読み込めない場合の繰り返しを防ぐ
+  if (img.getAttribute('src') === errimg) return
+
+  img.src = errimg
+}
+
 </script>
 <template>
   <div class="item-list">
     <div v-if="isDataOk" class="item-grid">
       <div v-for="(item, index) in items" :key="index" :title="item.name">
         <span>
-          <img class="item-img" :src="item.src" />
+          <img 
+            class="item-img" 
+            :src="item.src" 
+            @error="onItemImageError" />
         </span>
         <div class="item-count">{{ item.api.api_count }}</div>
       </div>

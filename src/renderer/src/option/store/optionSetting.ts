@@ -1,13 +1,18 @@
 import { reactive, toRaw, watch, ref } from 'vue'
-import { type OptionData, type OptionSetting, type OptionViewInfo, defaultOptionSetting } from '@common/option'
+import { type OptionData, type OptionSetting, type OptionViewInfo, type QuestSchemaCheckState, defaultOptionSetting, defaultQuestSchemaCheckState } from '@common/option'
 export const optionSetting: OptionSetting = reactive(
   defaultOptionSetting()
 )
 
-// 画面から値が更新されないことから、OptionViewInfoはreactiveにしない
-export const optionViewInfo: OptionViewInfo = {
-  defaultCaptureSavePath: ''
-} 
+// mainからの確認結果通知で更新する。設定保存のwatch対象には含めない。
+export const optionViewInfo: OptionViewInfo = reactive({
+  defaultCaptureSavePath: '',
+  ...defaultQuestSchemaCheckState()
+})
+
+export function setQuestSchemaCheckState(state: QuestSchemaCheckState): void {
+  Object.assign(optionViewInfo, state)
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ

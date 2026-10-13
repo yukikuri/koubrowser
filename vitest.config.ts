@@ -58,6 +58,7 @@ export default defineConfig({
           alias: {
             '@global': resolve('src/global'),
             '@renderer': resolve(__dirname, 'src/renderer/src'),
+            '@option': resolve(__dirname, 'src/renderer/src/option'),
             '@assets': resolve('src/renderer/src/assets')
           },
         },

@@ -1,6 +1,7 @@
 import { expect, describe, it, vi } from 'vitest'
 import * as kcs from '@common/kcs'
-import * as qs from '@common/kcquest'
+import * as kcquest from '@common/kcquest'
+import { QuestType } from '@common/kcquest_types'
 import { Quest } from '@common/record'
 
 function createDummyApiQuest(api_no): kcs.ApiQuest {
@@ -32,14 +33,14 @@ function createDummyQuest(api_no: number): Quest<null> {
 
 describe('quest stuff(106) class test', () => {
   const quest_no = 106
-  function getStuff<T = qs.QuestHensei>(): T {
-    return qs.getQuestStuff(quest_no) as T
+  function getStuff<T = kcquest.QuestHensei>(): T {
+    return kcquest.getQuestStuff(quest_no) as T
   }
 
   it('check stuff', () => {
     const stuff = getStuff()
     expect(stuff).toBeDefined()
-    expect(stuff?.questType).toBe(qs.QuestType.hensei)
+    expect(stuff?.questType).toBe(QuestType.hensei)
   })
 
   it('check method', () => {
@@ -59,14 +60,14 @@ describe('quest stuff(106) class test', () => {
 
 describe('quest stuff(107) class test', () => {
   const quest_no = 107
-  function getStuff<T = qs.QuestHensei>(): T {
-    return qs.getQuestStuff(quest_no) as T
+  function getStuff<T = kcquest.QuestHensei>(): T {
+    return kcquest.getQuestStuff(quest_no) as T
   }
 
   it('check stuff', () => {
     const stuff = getStuff()
     expect(stuff).toBeDefined()
-    expect(stuff?.questType).toBe(qs.QuestType.hensei)
+    expect(stuff?.questType).toBe(QuestType.hensei)
   })
 
   it('check method', () => {

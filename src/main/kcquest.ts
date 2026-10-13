@@ -35,12 +35,17 @@ import {
   currentRecordDate,
 } from '@common/record'
 import * as qs from '@common/kcquest'
+import { QuestType, QuestKey } from '@common/kcquest_types'
 import { svdata } from '@main/svdata'
 import moment from 'moment'
 import { getWorkerDriverQuest } from '@main/stuff/wrokers'
 import { calcEnemyHps } from '@common/kcsbattle'
 import { currentServerDate } from '@common/kcdate'
 import { Env } from '@common/env'
+import { QuestMap, QuestMapCell } from '@common/kcquest_definition'
+import fs from 'node:fs'
+import { PathStuff } from '@main/path'
+import { regQuestSchemaFromJson, regQuestSchemaResult } from '@common/kcquest_schema_reg'
 
 function buildQuery(findParam): QuestRecordQuery {
   return {
@@ -223,19 +228,19 @@ const randomDateKey = (): string => 'notsupport-' + new Date().getTime().toStrin
 // export for test
 export function generateDateKey(stuff: qs.QuestCommon, quest: ApiQuest): string {
   switch (stuff.key) {
-    case qs.QuestKey.infer:
+    case QuestKey.infer:
       return questDateKey(quest.api_type, quest.api_label_type)
-    case qs.QuestKey.single:
+    case QuestKey.single:
       return questDateKey(ApiQuestType.single, quest.api_label_type)
-    case qs.QuestKey.daily:
+    case QuestKey.daily:
       return questDateKey(ApiQuestType.daily, quest.api_label_type)
-    case qs.QuestKey.weekly:
+    case QuestKey.weekly:
       return questDateKey(ApiQuestType.weekly, quest.api_label_type)
-    case qs.QuestKey.monthly:
+    case QuestKey.monthly:
       return questDateKey(ApiQuestType.monthly, quest.api_label_type)
-    case qs.QuestKey.quarterly:
+    case QuestKey.quarterly:
       return questDateKey(ApiQuestType.quarterly, quest.api_label_type)
-    case qs.QuestKey.yearly:
+    case QuestKey.yearly:
       return yearlyQuesyKey()
   }
 }
@@ -678,7 +683,7 @@ class QuestItem extends QuestAnyCounter {
 }
 
 function matchMap(
-  area_and_rank: (qs.QuestMap | qs.QuestMapCell)[],
+  area_and_rank: (QuestMap | QuestMapCell)[],
   map: Pick<ApiMap, 'api_event_id' | 'api_no'>,
   win_rank?: string
 ): number {
@@ -1808,103 +1813,103 @@ const createQuestUpdater = (
   // create updater
   let updater: QuestUpdater | null = null
   switch (stuff.questType) {
-    case qs.QuestType.practice:
+    case QuestType.practice:
       updater = new QuestPractice({ quest, updated }, stuff)
       break
-    case qs.QuestType.practiceDeck:
+    case QuestType.practiceDeck:
       updater = new QuestPracticeDeck({ quest, updated }, stuff)
       break
-    case qs.QuestType.collectItem:
+    case QuestType.collectItem:
       updater = new QuestItem({ quest, updated }, stuff)
       break
-    case qs.QuestType.collectItemCondition:
+    case QuestType.collectItemCondition:
       updater = new QuestItem({ quest, updated }, stuff)
       break
-    case qs.QuestType.nyukyo:
+    case QuestType.nyukyo:
       updater = new QuestNyukyo({ quest, updated }, stuff)
       break
-    case qs.QuestType.mapStart:
+    case QuestType.mapStart:
       updater = new QuestMapStart({ quest, updated }, stuff)
       break
-    case qs.QuestType.mapStartDeck:
+    case QuestType.mapStartDeck:
       updater = new QuestMapStartDeck({ quest, updated }, stuff)
       break
-    case qs.QuestType.battle:
+    case QuestType.battle:
       updater = new QuestBattle({ quest, updated }, stuff)
       break
-    case qs.QuestType.battleEnemy:
+    case QuestType.battleEnemy:
       updater = new QuestBattleEnemy({ quest, updated }, stuff)
       break
-    case qs.QuestType.battle214:
+    case QuestType.battle214:
       updater = new QuestBattle214({ quest, updated }, stuff)
       break
-    case qs.QuestType.battleMap:
+    case QuestType.battleMap:
       updater = new QuestBattleMap({ quest, updated }, stuff)
       break
-    case qs.QuestType.battleMapDeck:
+    case QuestType.battleMapDeck:
       updater = new QuestBattleMapDeck({ quest, updated }, stuff)
       break
-    case qs.QuestType.mapGoal:
+    case QuestType.mapGoal:
       updater = new QuestMapGoal({ quest, updated }, stuff)
       break
-    case qs.QuestType.gaugeClear:
+    case QuestType.gaugeClear:
       updater = new QuestBattleGaugeClear({ quest, updated }, stuff)
       break
-    case qs.QuestType.missionStart:
+    case QuestType.missionStart:
       updater = new QuestMissionStart({ quest, updated }, stuff)
       break
-    case qs.QuestType.mission:
+    case QuestType.mission:
       updater = new QuestMission({ quest, updated }, stuff)
       break
-    case qs.QuestType.missionSpecific:
+    case QuestType.missionSpecific:
       updater = new QuestMissionSpecific({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisou:
+    case QuestType.kaisou:
       updater = new QuestKaisou({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseType:
+    case QuestType.kaisouUseType:
       updater = new QuestKaisouUseType({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseId:
+    case QuestType.kaisouUseId:
       updater = new QuestKaisouUseId({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseIdToId:
+    case QuestType.kaisouUseIdToId:
       updater = new QuestKaisouUseIdToId({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseTypeToId:
+    case QuestType.kaisouUseTypeToId:
       updater = new QuestKaisouUseTypeToId({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseCategoryToCategory:
+    case QuestType.kaisouUseCategoryToCategory:
       updater = new QuestKaisouUseCategoryToCategory({ quest, updated }, stuff)
       break
-    case qs.QuestType.kaisouUseCategoryToType:
+    case QuestType.kaisouUseCategoryToType:
       updater = new QuestKaisouUseCategoryToType({ quest, updated }, stuff)
       break
-    case qs.QuestType.hokyu:
+    case QuestType.hokyu:
       updater = new QuestHokyu({ quest, updated }, stuff)
       break
-    case qs.QuestType.remodel:
+    case QuestType.remodel:
       updater = new QuestRemodel({ quest, updated }, stuff)
       break
-    case qs.QuestType.createItem:
+    case QuestType.createItem:
       updater = new QuestCreateItem({ quest, updated }, stuff)
       break
-    case qs.QuestType.destroyItem:
+    case QuestType.destroyItem:
       updater = new QuestDestroyItem({ quest, updated }, stuff)
       break
-    case qs.QuestType.destroyItemIdOrType:
+    case QuestType.destroyItemIdOrType:
       updater = new QuestDestroyItemIdOrType({ quest, updated }, stuff)
       break
-    case qs.QuestType.createShip:
+    case QuestType.createShip:
       updater = new QuestCreateShip({ quest, updated }, stuff)
       break
-    case qs.QuestType.destroyShip:
+    case QuestType.destroyShip:
       updater = new QuestDestroyShip({ quest, updated }, stuff)
       break
-    case qs.QuestType.hensei:
+    case QuestType.hensei:
       updater = new QuestHensei({ quest, updated }, stuff)
       break
-    case qs.QuestType.slotitemCondition:
+    case QuestType.slotitemCondition:
       updater = new QuestSlotitemCondition({ quest, updated }, stuff)
       break
   }
@@ -1925,4 +1930,18 @@ const createQuestUpdater = (
   }
 
   return updater
+}
+
+export function regQuestSchemaFromFile(): regQuestSchemaResult {
+  const filepath = PathStuff.questSchemaFilePath
+  if (!fs.existsSync(filepath)) {
+    return 'error'
+  }
+
+  try {
+    return regQuestSchemaFromJson(fs.readFileSync(filepath, 'utf8'))
+  } catch (err: unknown) {
+    console.error('Failed to read quest schema file.', err)
+  }
+  return 'error'
 }

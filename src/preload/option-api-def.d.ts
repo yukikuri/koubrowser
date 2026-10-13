@@ -1,4 +1,10 @@
+import type { OptionData, OptionSetting, QuestSchemaCheckState } from '@common/option'
+
 export interface OptionApi {
+  checkQuestSchema(): Promise<QuestSchemaCheckState>
+  applyQuestSchema(): Promise<QuestSchemaCheckState>
+  getQuestSchemaState(): Promise<QuestSchemaCheckState>
+  onQuestSchemaStateChanged(callback: (state: QuestSchemaCheckState) => void): () => void
   getCurrentSetting(): Promise<OptionData>
   readyToShow(): Promise<void>
   selectCaptureSavePath(): Promise<string | null>

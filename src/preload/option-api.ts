@@ -1,9 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { OptionChannel } from '@common/channel'
-import { type OptionSetting, type OptionData } from '@common/option'
+import { type OptionSetting, type OptionData, type QuestSchemaCheckState } from '@common/option'
 import { type OptionApi } from './option-api-def'
 
 const optionApi: OptionApi = {
+  applyQuestSchema(): Promise<QuestSchemaCheckState> {
+    return ipcRenderer.invoke(OptionChannel.applyQuestSchema)
+  },
+  checkQuestSchema(): Promise<QuestSchemaCheckState> {
+    return ipcRenderer.invoke(OptionChannel.checkQuestSchema)
+  },
+  getQuestSchemaState(): Promise<QuestSchemaCheckState> {
+    return ipcRenderer.invoke(OptionChannel.getQuestSchemaState)
+  },
+  onQuestSchemaStateChanged(callback): () => void {
+    const listener = (_event: Electron.IpcRendererEvent, state: QuestSchemaCheckState): void => callback(state)
+    ipcRenderer.on(OptionChannel.questSchemaStateChanged, listener)
+    return (): void => { ipcRenderer.removeListener(OptionChannel.questSchemaStateChanged, listener) }
+  },
   getCurrentSetting(): Promise<OptionData> {
     return ipcRenderer.invoke(OptionChannel.getCurrentSetting)
   },

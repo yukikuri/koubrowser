@@ -57,7 +57,7 @@ import { globalSettingStore } from '@main/store'
 import { getMainDir, PathStuff } from '@main/path'
 import iconv from 'iconv-lite'
 import * as  kcapi_debug from '@main/kcapi_debug'
-import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestsMessage, RequiredMessage } from '@common/message'
+import type { ApiReqMessage, ApiResMessage, ApiResMessageAdditional, QuestSchemaMessage, QuestsMessage, RequiredMessage } from '@common/message'
 import { gameSetting, gameSettingProxy, gameState } from '@main/settings'
 import path from 'node:path'
 import { getWorkerDriver, start as WorkersStart } from '@main/stuff/wrokers'
@@ -73,6 +73,15 @@ import * as RectUtil from '@common/rect_util'
 import crypto from 'node:crypto'
 import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
 import { getAfterBattleFleetHpsInfo, updateFleetHps } from '@common/kcsbattle_util'
+import { DevEnv } from '@common/devenv'
+import { fetchQuestSchemaFile } from './kcquest_schema_fetcher'
+import { QuestSchemaUpdater } from './kcquest_schema_updater'
+import { QuestSchemaScheduler } from './kcquest_schema_scheduler'
+import type { QuestSchemaCheckState } from '@common/option'
+import { UrlStuff } from '@main/url'
+import { regQuestSchemaFromFile } from '@main/kcquest'
+import * as qs from '@common/kcquest'
+import { QuestSchemaHolder } from '@common/kcquest_schema_holder'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -98,13 +107,13 @@ const setUseragent = (): void => {
  * $env:KOU_UPDATE_URL='http://localhost:8080/releases'
  * 
  * httpサーバは
- * scripts/run-http-server-for-update-check.bat
- * から起動できる。scriptsフォルダ配下に更新用ファイルを配置する
+ * scripts/run-dev-http-server.bat
+ * から起動できる。scripts/releasesフォルダ配下に更新用ファイルを配置する
  * 
  * 後は開発モードで動かせばよい(npm run dev)
  */
 const getUpdateFeedUrl = (): string | null => {
-  const overrideUrl = process.env.KOU_UPDATE_URL?.trim()
+  const overrideUrl = DevEnv.updateUrl
   if (Env.isDevelopment && overrideUrl) return overrideUrl
   return null
 }
@@ -241,7 +250,7 @@ export const getKcApp = (): KcApp | undefined => {
 }
 
 /**
- *
+ * 甲ブラウザアプリ
  */
 export class KcApp {
   private main_window: BrowserWindow
@@ -267,6 +276,35 @@ export class KcApp {
   }
   private taihaSingekiBlockStates: TaihaSingekiBlockState[] = []
   private ctrl_key_state: boolean = false
+  private readonly questSchemaUpdater = new QuestSchemaUpdater({
+    fetch: () => fetchQuestSchemaFile(UrlStuff.questSchema, false),
+    save: (json): void => fs.writeFileSync(PathStuff.questSchemaFilePath, json, 'utf8'),
+    register: (quests): void => {
+      for (const schema of quests) qs.questRegisterReplace(schema.no, schema.stuff)
+    },
+    didApply: (json): void => {
+      this.kcrecord?.rebuildQuestUpdaters()
+      this.postQuestSchema(null, json)
+    },
+    notify: (state): void => {
+      streamManager.postToRenderers({ type: 'quest_schema_update', available: state.questSchemaPendingMeta !== null })
+      const win = this.option_window
+      if (win && !win.isDestroyed() && !win.webContents.isDestroyed()) {
+        win.webContents.send(OptionChannel.questSchemaStateChanged, state)
+      }
+    }
+  })
+
+  private readonly questSchemaScheduler = new QuestSchemaScheduler(() => {
+    void this.questSchemaUpdater.check(this.questSchemaCheckNotifyOnly).catch((err) => debug('periodic quest schema check failed', err))
+  })
+  private questSchemaCheckNotifyOnly = defaultOptionSetting().questSchemaCheckNotifyOnly
+  private questSchemaIntervalConfigured = false
+
+  public stopQuestSchemaScheduler(): void {
+    this.questSchemaIntervalConfigured = true
+    this.questSchemaScheduler.dispose()
+  }
 
   public get mainWindow(): BrowserWindow {
     return this.main_window
@@ -320,6 +358,23 @@ export class KcApp {
 
     // イベントやIPCハンドラ設定
     this.setupHandlers()
+
+    // reg quest schema
+    const localSchemaResult = regQuestSchemaFromFile()
+    if (localSchemaResult === 'error' && fs.existsSync(PathStuff.questSchemaFilePath)) {
+      QuestSchemaHolder.setError('保存済みの任務データを読み込めませんでした。')
+    }
+
+    // fetch quest schema
+    void this.fetchQuestSchema();
+    // 読み込み中の設定変更・終了を、古い読み込み結果で上書きしない。
+    void optionSettingStore.loadAsync(defaultOptionSetting()).catch(() => defaultOptionSetting()).then((setting) => {
+      if (!this.questSchemaIntervalConfigured) {
+        this.questSchemaCheckNotifyOnly = setting.questSchemaCheckNotifyOnly === true
+        this.questSchemaIntervalConfigured = true
+        this.questSchemaScheduler.configure(setting.questSchemaCheckIntervalHours)
+      }
+    })
 
     // detect restricted assist
     gameSetting.setAssistRestricted(isAssistRestricted())
@@ -781,6 +836,11 @@ export class KcApp {
       this.onChannelSaveCapture(date, buffer)
     )
     ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
+    ipcMain.handle(MainChannel.applyQuestSchema, (event) => {
+      const trusted = event.sender === this.main_window?.webContents || event.sender === this.assist_window?.webContents
+      if (!trusted || event.senderFrame !== event.sender.mainFrame) throw new Error('Invalid app window')
+      return this.questSchemaUpdater.applyPending()
+    })
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -862,6 +922,18 @@ export class KcApp {
     }
 
     // option
+    ipcMain.handle(OptionChannel.checkQuestSchema, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.fetchQuestSchema()
+    })
+    ipcMain.handle(OptionChannel.applyQuestSchema, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.questSchemaUpdater.applyPending()
+    })
+    ipcMain.handle(OptionChannel.getQuestSchemaState, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.questSchemaUpdater.getState()
+    })
     ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
     ipcMain.handle(OptionChannel.readyToShow, () => this.onChannelOptionReadyToShow())
     ipcMain.handle(OptionChannel.selectCaptureSavePath, () => this.onChannelOptionSelectCaptureSavePath())
@@ -1181,6 +1253,12 @@ export class KcApp {
 
     // connect stream port
     streamManager.connect(webContents);
+
+    // send quest schema json to renderer
+    this.postQuestSchema(webContents, null);
+    streamManager.postToRendererA(webContents, {
+      type: 'quest_schema_update', available: this.questSchemaUpdater.getState().questSchemaPendingMeta !== null
+    })
   }
 
   /**
@@ -1373,7 +1451,8 @@ export class KcApp {
         resolve({
           setting: data,
           viewInfo: {
-            defaultCaptureSavePath: PathStuff.defaultCapturePath
+            defaultCaptureSavePath: PathStuff.defaultCapturePath,
+            ...this.questSchemaUpdater.getState()
           }
         })
       }, (err) => reject(err))
@@ -1461,6 +1540,9 @@ export class KcApp {
   private onChannelOptionSaveSetting(setting: OptionSetting): void {
     debug(OptionChannel.saveSetting, setting)
     optionSettingStore.save(setting)
+    this.questSchemaCheckNotifyOnly = setting.questSchemaCheckNotifyOnly === true
+    this.questSchemaIntervalConfigured = true
+    this.questSchemaScheduler.configure(setting.questSchemaCheckIntervalHours)
 
     // キャプチャ保存先更新する
     PathStuff.setCapturePath(setting.captureSavePath)
@@ -1593,6 +1675,58 @@ export class KcApp {
       this.notifyStartupUpdateChecked(result)
     })
   } 
+
+  /**
+   * quest schema json取得
+   */
+  private fetchQuestSchema(): Promise<QuestSchemaCheckState> {
+
+    // 外部クエスト達成条件取得に時間がかかってもアプリ動作は止めない以下の設計とする
+    // アプリ動作を止めない：取得完了を起動・初期表示の必須条件にしない
+    // 
+    // 1) 任務判定開始前に達成条件更新を行った場合
+    //    影響なし
+    // 2）任務判定開始後に達成条件更新を行った場合
+    //    更新タイミングで任務達成判定に影響が出る
+    //    更新前に任務達成判定が動作：内部クエスト達成判定が動作
+    //    更新後に任務達成判定が動作：外部クエスト達成判定が動作
+    //    
+    //    ここで
+    //      内部クエスト達成判定が誤りであれば、誤った判定が動作
+    //    する。
+    //    外部クエスト達成判定は内部クエスト達成判定が誤りであった場合に対応することが
+    //    目的に含まれることから、外部クエスト達成条件が取得中であることを画面で分かる
+    //    ようにする
+    //       画面表示内容：取得中/取得エラー
+    //    画面表示により任務を進めない方が良いことを伝えることができる。
+    //    
+    //    2が出る状況として回線速度やネットワーク関連での通信異常を想定する。
+    //    
+
+    return this.questSchemaUpdater.check()
+  }
+
+  /**
+   * 
+   * @param webContents 
+   */
+  private postQuestSchema(webContents: WebContents | null, jsonText: string | null): void {
+        
+    const filepath = PathStuff.questSchemaFilePath
+    if (fs.existsSync(filepath)) {
+      try {
+        const quest_schema_json = jsonText ?? fs.readFileSync(filepath, 'utf8')
+        const msg: QuestSchemaMessage = { type: 'quest_schema', quest_schema_json }
+        if (webContents) {
+          streamManager.postToRendererA(webContents, msg);
+        } else {
+          streamManager.postToRenderers(msg);
+        }
+      } catch (err) {
+        debug('postQuestSchema read file error', err)
+      }
+    }
+  }
 
   /**
    * 
@@ -2209,11 +2343,11 @@ export class KcApp {
    */
   private onQuestList(args: ApiQuestListWithParam): void {
     if (args.api_tab_id === ApiQuestListParamTabId.all) {
-      const { api_tab_id: _api_tab_id, ...questlist }: ApiQuestListWithParam = args
       if (Env.isTestMode) {
         console.log('test mode: skip save quest list')
         return ;
       }
+      const { api_tab_id: _api_tab_id, ...questlist }: ApiQuestListWithParam = args
       questListStoreLoader.save(questlist)
     }
   }
@@ -2325,6 +2459,7 @@ export class KcApp {
    *
    */
   private onClosed(): void {
+    this.stopQuestSchemaScheduler()
     debug('main window closed. data ok:', svdata.isShipDataOk)
     this.kcrecord?.doDispose()
     this.closeRecorder()

@@ -6,6 +6,7 @@ import type { Spot, CellInfo } from '@common/map'
 import type { AppSetting, InheritScoreList } from '@common/store'
 import type { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import type { GlobalSetting } from '@common/global_setting'
+import type { QuestSchemaCheckState } from '@common/option'
 
 export interface Api {
   rendererReady(): void
@@ -18,6 +19,7 @@ export interface Api {
   openCaptureFolder(): void
   saveCapture(date: Date, buffer: Buffer): Promise<string>
   openOption(): void
+  applyQuestSchema(): Promise<QuestSchemaCheckState>
   openAssist(): void
   topmost(): void
   notifyMuteState(muted: boolean): void
