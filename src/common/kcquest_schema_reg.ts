@@ -8,6 +8,7 @@ export function regQuestSchemaFromJson(json: string): regQuestSchemaResult {
   // スキーマ解析
   const schemas = loadQuestSchemaJson(json)
   if (! schemas.success) {
+    QuestSchemaHolder.setError('任務データの形式を確認できませんでした。')
     return 'error'
   }
 
@@ -23,6 +24,9 @@ export function regQuestSchemaFromJson(json: string): regQuestSchemaResult {
 
   // 登録したスキーマmeta設定
   QuestSchemaHolder.setMeta(schemas.meta)
+  QuestSchemaHolder.setError(schemas.skipped.length > 0
+    ? `${schemas.skipped.length}件の任務データを読み込めませんでした。対応できた任務のみ適用しています。`
+    : null)
 
   return 'reged'
 }

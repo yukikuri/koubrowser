@@ -1,11 +1,19 @@
-
+import type { QuestSchemaMetaV1 } from '@common/kcquest_schema_file'
 // electron default 'system'
 export type ProxyMode = 'direct' | 'auto_detect' | 'pac_script' | 'fixed_servers' | 'system';
+
+export type QuestSchemaCheckIntervalHours = 0 | 1 | 3 | 6 | 12
 
 /**
  * オプション画面で設定可能な項目
  */
 export interface OptionSetting {
+
+  /** 任務データの定期確認間隔（時間）。0は起動時のみ。既定値は6。 */
+  questSchemaCheckIntervalHours: QuestSchemaCheckIntervalHours
+
+  /** 定期確認で更新があった際、適用せずタイトルバーに通知する。起動時・手動確認は適用する。既定値：false */
+  questSchemaCheckNotifyOnly: boolean
 
   // capture save path (default: null). When null, use the app's default capture path.
   captureSavePath: string | null
@@ -39,10 +47,32 @@ export interface ExtensionInfo {
 /**
  * オプション画面で設定可能ではなく表示のみの値
  */
-export interface OptionViewInfo {
+export type QuestSchemaCheckStatus = 'idle' | 'checking' | 'latest' | 'partial' | 'older' | 'error' | 'available'
+
+export interface QuestSchemaCheckState {
+  questSchemaPendingMeta: Readonly<QuestSchemaMetaV1> | null
+  questSchemaMeta: Readonly<QuestSchemaMetaV1> | null
+  questSchemaError: string | null
+  questSchemaCheckStatus: QuestSchemaCheckStatus
+  /** 配信データの解析・比較に成功した日時。取得失敗時は更新しない。 */
+  questSchemaLastCheckedAt: string | null
+}
+
+export function defaultQuestSchemaCheckState(): QuestSchemaCheckState {
+  return {
+    questSchemaPendingMeta: null,
+    questSchemaMeta: null,
+    questSchemaError: null,
+    questSchemaCheckStatus: 'idle',
+    questSchemaLastCheckedAt: null
+  }
+}
+
+export interface OptionViewInfo extends QuestSchemaCheckState {
 
   // default capture save path
   defaultCaptureSavePath: string
+
 }
 
 /**
@@ -56,6 +86,8 @@ export interface OptionData {
 // def or init value
 export function defaultOptionSetting(): OptionSetting {
   return {
+    questSchemaCheckIntervalHours: 6,
+    questSchemaCheckNotifyOnly: false,
     captureSavePath: null,
     proxyMode: 'system',
     proxyPacScript: null,

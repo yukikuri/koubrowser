@@ -12,6 +12,7 @@ export const MainChannel = {
   open_capture_folder: 'open_capture_folder',
   save_capture: 'save_capture',
   openOption: 'openOption',
+  applyQuestSchema: 'main:apply-quest-schema',
   openAssist: 'openAssist',
   topmost: 'topmost',
   notify_mute_state: 'notify_mute_state',
@@ -107,6 +108,10 @@ export type TimelineResult = [QuestContext, BattleRecord[]]
  * from option to main
  */
 export const OptionChannel = {
+  checkQuestSchema: 'option:check-quest-schema',
+  applyQuestSchema: 'option:apply-quest-schema',
+  getQuestSchemaState: 'option:get-quest-schema-state',
+  questSchemaStateChanged: 'option:quest-schema-state-changed',
   getCurrentSetting: 'option:get-current-setting',
   readyToShow: 'option:ready-to-show',
   selectCaptureSavePath: 'option:select-capture-save-path', 

@@ -1,6 +1,6 @@
 import type { QuestStuffClass } from '@common/kcquest'
 import type { QuestType } from '@common/kcquest_types'
-import type { QuestSchemaMetaV1 } from '@common/kcquest_schema_file'
+import type { QuestSchemaMetaInfo, QuestSchemaMetaV1 } from '@common/kcquest_schema_file'
 import { isQuestSchema } from '@common/kcquest_parser'
 import { convertToQuest } from '@common/kcquest_converter'
 
@@ -47,12 +47,17 @@ const handlers: ReadonlyMap<number, QuestSchemaHandler> = new Map([
   [1, { parseAndConvert: parseAndConvertV1 }],
 ])
 
+function isMetaInfo(value: unknown): value is QuestSchemaMetaInfo {
+  return isObject(value) && questNumber(value) !== undefined && typeof value.info === 'string'
+}
+
 function isMetaV1(value: Record<string, unknown>): value is Record<string, unknown> & QuestSchemaMetaV1 {
   return value.schemaVersion === 1 &&
     typeof value.revision === 'number' && Number.isSafeInteger(value.revision) && value.revision >= 0 &&
     typeof value.updatedAt === 'string' &&
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value.updatedAt) &&
-    Number.isFinite(Date.parse(value.updatedAt))
+    Number.isFinite(Date.parse(value.updatedAt)) &&
+    (value.questInfos === undefined || (Array.isArray(value.questInfos) && value.questInfos.every(isMetaInfo)))
 }
 
 function questNumber(value: unknown): number | undefined {
@@ -105,5 +110,10 @@ export function loadQuestSchemaJson(jsonText: string): LoadQuestSchemaResult {
     }
   }
   const { schemaVersion, revision, updatedAt } = data.meta
-  return { success: true, meta: { schemaVersion, revision, updatedAt }, quests, skipped }
+  const meta: QuestSchemaMetaV1 = { schemaVersion, revision, updatedAt,
+    ...(data.meta.questInfos === undefined ? {} : {
+      questInfos: data.meta.questInfos.map(({ no, info }) => ({ no, info }))
+    })
+  }
+  return { success: true, meta, quests, skipped }
 }

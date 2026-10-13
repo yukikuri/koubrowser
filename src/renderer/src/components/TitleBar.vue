@@ -42,6 +42,7 @@ import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@co
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
+import { questSchemaUpdateAvailable, questSchemaApplying, questSchemaApplyError, applyQuestSchemaUpdate } from '@renderer/store/quest_schema_update'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -1082,6 +1083,12 @@ if (EnvRenderer.isTestMode) {
     </div>
     <div class="title-content" :class="{ dragable: isDragable }">
       <span class="main-text">{{ title }}</span>
+      <button
+        v-if="questSchemaUpdateAvailable" type="button" class="quest-schema-update-notice"
+        :disabled="questSchemaApplying"
+        :title="questSchemaApplyError ?? 'クリックして任務データの更新を適用します。'"
+        @click="applyQuestSchemaUpdate"
+      >{{ questSchemaApplying ? '任務データ適用中…' : questSchemaApplyError ? '任務データ適用失敗（再試行）' : '任務データ更新あり' }}</button>
       <transition name="slide-effect" appear>
         <button
           v-show="isStartupUpdateAvailable"
@@ -1299,3 +1306,26 @@ if (EnvRenderer.isTestMode) {
     </transition>
   </div>
 </template>
+
+<style scoped>
+.quest-schema-update-notice {
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  margin: 0 4px;
+  padding: 1px 4px;
+  border: 1px solid #f0d56b;
+  border-radius: 3px;
+  background: #293225;
+  color: #ffe78b;
+  font-size: 11px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.quest-schema-update-notice:hover {
+  background: #414c35;
+}
+.quest-schema-update-notice:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+</style>

@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { mergeStoredData } from '@main/store'
+import { defaultOptionSetting } from '@common/option'
 
 describe('mergeStoredData', () => {
+  it('defaults the quest schema interval for older option files', () => {
+    const loaded = { proxyMode: 'system' }
+    expect(mergeStoredData(defaultOptionSetting(), loaded).questSchemaCheckIntervalHours).toBe(6)
+  })
+
+  it.each([0, 1, 3, 6, 12])('preserves a saved quest schema interval of %i', (interval) => {
+    const loaded = JSON.parse(JSON.stringify({ questSchemaCheckIntervalHours: interval }))
+    expect(mergeStoredData(defaultOptionSetting(), loaded).questSchemaCheckIntervalHours).toBe(interval)
+  })
+
   it('keeps default object keys that are missing from loaded data', () => {
     const defaults = {
       width: 1024,

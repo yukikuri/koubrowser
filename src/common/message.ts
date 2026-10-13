@@ -16,6 +16,7 @@ export const MessageType = {
   app_setting: 'app_setting',
   global_setting: 'global_setting',
   quest_schema: 'quest_schema',
+  quest_schema_update: 'quest_schema_update',
 } as const
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
 
@@ -97,6 +98,7 @@ export interface QuestSchemaMessage{
  * メッセージ別の型
  */
 export type MessageByType = {
+  quest_schema_update: { readonly type: 'quest_schema_update'; readonly available: boolean }
   required: RequiredMessage
   api_req: ApiReqMessage
   api_res: ApiResMessage

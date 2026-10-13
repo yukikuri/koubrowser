@@ -20,6 +20,7 @@ import { AppSetting } from '@common/store'
 import { Quest } from '@common/record'
 import { updateFleetHps } from '@common/kcsbattle_util'
 import { regQuestSchemaFromJson } from '@common/kcquest_schema_reg'
+import { questSchemaUpdateAvailable, questSchemaApplyError } from '@renderer/store/quest_schema_update'
 
 let requiredRecvedCallback: (()=> void) | null = null;
 
@@ -154,6 +155,11 @@ export function streamInitialize(cb: ()=> void): void {
 
         case 'quest_schema':
           onQuestSchema(data.quest_schema_json);
+          break;
+
+        case 'quest_schema_update':
+          questSchemaUpdateAvailable.value = data.available
+          if (!data.available) questSchemaApplyError.value = null
           break;
 
         default:

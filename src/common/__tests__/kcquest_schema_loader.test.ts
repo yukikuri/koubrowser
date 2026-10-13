@@ -9,6 +9,17 @@ const quest = { no: 261, questType: 'battleMap', max: [3], key: 'infer', formatt
 afterEach(() => vi.restoreAllMocks())
 
 describe('loadQuestSchemaFile', () => {
+  it.each([[], [{ no: 261, info: 'Map conditions', extra: 'ignored' }]].map(questInfos => ({ questInfos })))('accepts optional quest descriptions %#', ({ questInfos }) => {
+    const result = loadQuestSchemaJson(JSON.stringify({ meta: { ...meta, questInfos }, quests: [quest] }))
+    if (!result.success) throw result.error
+    expect(result.meta.questInfos).toEqual(questInfos.map(({ no, info }) => ({ no, info })))
+  })
+
+  it.each([null, {}, [{ no: 0, info: 'text' }], [{ no: 1.5, info: 'text' }], [{ no: '261', info: 'text' }], [{ no: 261 }], [{ no: 261, info: 1 }]].map(questInfos => ({ questInfos })))(
+    'rejects malformed quest descriptions %#', ({ questInfos }) => {
+      expect(loadQuestSchemaJson(JSON.stringify({ meta: { ...meta, questInfos }, quests: [quest] })).success).toBe(false)
+    }
+  )
   it('converts v1 quests without modifying the registry', () => {
     const registered = getQuestStuff(261)
     const result = loadQuestSchemaJson(JSON.stringify({ meta, quests: [quest] }))

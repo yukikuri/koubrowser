@@ -74,12 +74,14 @@ import crypto from 'node:crypto'
 import { defaultOptionSetting, OptionData, OptionSetting } from '@common/option'
 import { getAfterBattleFleetHpsInfo, updateFleetHps } from '@common/kcsbattle_util'
 import { DevEnv } from '@common/devenv'
-import { fetchQuestSchemaFile, FetchQuestSchemaResult } from './kcquest_schema_fetcher'
+import { fetchQuestSchemaFile } from './kcquest_schema_fetcher'
+import { QuestSchemaUpdater } from './kcquest_schema_updater'
+import { QuestSchemaScheduler } from './kcquest_schema_scheduler'
+import type { QuestSchemaCheckState } from '@common/option'
 import { UrlStuff } from '@main/url'
 import { regQuestSchemaFromFile } from '@main/kcquest'
 import * as qs from '@common/kcquest'
 import { QuestSchemaHolder } from '@common/kcquest_schema_holder'
-import { loadQuestSchemaJson } from '@common/kcquest_schema_loader'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // debug
@@ -274,8 +276,35 @@ export class KcApp {
   }
   private taihaSingekiBlockStates: TaihaSingekiBlockState[] = []
   private ctrl_key_state: boolean = false
-  private questSchemaFetchTask: Promise<FetchQuestSchemaResult> | null = null
-  private questSchemaFetched: boolean = false
+  private readonly questSchemaUpdater = new QuestSchemaUpdater({
+    fetch: () => fetchQuestSchemaFile(UrlStuff.questSchema, false),
+    save: (json): void => fs.writeFileSync(PathStuff.questSchemaFilePath, json, 'utf8'),
+    register: (quests): void => {
+      for (const schema of quests) qs.questRegisterReplace(schema.no, schema.stuff)
+    },
+    didApply: (json): void => {
+      this.kcrecord?.rebuildQuestUpdaters()
+      this.postQuestSchema(null, json)
+    },
+    notify: (state): void => {
+      streamManager.postToRenderers({ type: 'quest_schema_update', available: state.questSchemaPendingMeta !== null })
+      const win = this.option_window
+      if (win && !win.isDestroyed() && !win.webContents.isDestroyed()) {
+        win.webContents.send(OptionChannel.questSchemaStateChanged, state)
+      }
+    }
+  })
+
+  private readonly questSchemaScheduler = new QuestSchemaScheduler(() => {
+    void this.questSchemaUpdater.check(this.questSchemaCheckNotifyOnly).catch((err) => debug('periodic quest schema check failed', err))
+  })
+  private questSchemaCheckNotifyOnly = defaultOptionSetting().questSchemaCheckNotifyOnly
+  private questSchemaIntervalConfigured = false
+
+  public stopQuestSchemaScheduler(): void {
+    this.questSchemaIntervalConfigured = true
+    this.questSchemaScheduler.dispose()
+  }
 
   public get mainWindow(): BrowserWindow {
     return this.main_window
@@ -331,10 +360,21 @@ export class KcApp {
     this.setupHandlers()
 
     // reg quest schema
-    regQuestSchemaFromFile()
+    const localSchemaResult = regQuestSchemaFromFile()
+    if (localSchemaResult === 'error' && fs.existsSync(PathStuff.questSchemaFilePath)) {
+      QuestSchemaHolder.setError('保存済みの任務データを読み込めませんでした。')
+    }
 
     // fetch quest schema
-    this.fetchQuestSchema();
+    void this.fetchQuestSchema();
+    // 読み込み中の設定変更・終了を、古い読み込み結果で上書きしない。
+    void optionSettingStore.loadAsync(defaultOptionSetting()).catch(() => defaultOptionSetting()).then((setting) => {
+      if (!this.questSchemaIntervalConfigured) {
+        this.questSchemaCheckNotifyOnly = setting.questSchemaCheckNotifyOnly === true
+        this.questSchemaIntervalConfigured = true
+        this.questSchemaScheduler.configure(setting.questSchemaCheckIntervalHours)
+      }
+    })
 
     // detect restricted assist
     gameSetting.setAssistRestricted(isAssistRestricted())
@@ -796,6 +836,11 @@ export class KcApp {
       this.onChannelSaveCapture(date, buffer)
     )
     ipcMain.handle(MainChannel.openOption, async () => this.onChannelOpenOption())
+    ipcMain.handle(MainChannel.applyQuestSchema, (event) => {
+      const trusted = event.sender === this.main_window?.webContents || event.sender === this.assist_window?.webContents
+      if (!trusted || event.senderFrame !== event.sender.mainFrame) throw new Error('Invalid app window')
+      return this.questSchemaUpdater.applyPending()
+    })
     ipcMain.handle(MainChannel.refresh_assist, async () => this.onChannelRefreshAssist())
     ipcMain.handle(MainChannel.store_rec, async (_event, buffer, isEnd) =>
       this.onChannelStoreRec(buffer, isEnd)
@@ -877,6 +922,18 @@ export class KcApp {
     }
 
     // option
+    ipcMain.handle(OptionChannel.checkQuestSchema, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.fetchQuestSchema()
+    })
+    ipcMain.handle(OptionChannel.applyQuestSchema, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.questSchemaUpdater.applyPending()
+    })
+    ipcMain.handle(OptionChannel.getQuestSchemaState, (event) => {
+      if (event.sender !== this.option_window?.webContents) throw new Error('Invalid option window')
+      return this.questSchemaUpdater.getState()
+    })
     ipcMain.handle(OptionChannel.getCurrentSetting, async () => this.onChannelOptionGetCurrentSetting())
     ipcMain.handle(OptionChannel.readyToShow, () => this.onChannelOptionReadyToShow())
     ipcMain.handle(OptionChannel.selectCaptureSavePath, () => this.onChannelOptionSelectCaptureSavePath())
@@ -1199,6 +1256,9 @@ export class KcApp {
 
     // send quest schema json to renderer
     this.postQuestSchema(webContents, null);
+    streamManager.postToRendererA(webContents, {
+      type: 'quest_schema_update', available: this.questSchemaUpdater.getState().questSchemaPendingMeta !== null
+    })
   }
 
   /**
@@ -1391,7 +1451,8 @@ export class KcApp {
         resolve({
           setting: data,
           viewInfo: {
-            defaultCaptureSavePath: PathStuff.defaultCapturePath
+            defaultCaptureSavePath: PathStuff.defaultCapturePath,
+            ...this.questSchemaUpdater.getState()
           }
         })
       }, (err) => reject(err))
@@ -1479,6 +1540,9 @@ export class KcApp {
   private onChannelOptionSaveSetting(setting: OptionSetting): void {
     debug(OptionChannel.saveSetting, setting)
     optionSettingStore.save(setting)
+    this.questSchemaCheckNotifyOnly = setting.questSchemaCheckNotifyOnly === true
+    this.questSchemaIntervalConfigured = true
+    this.questSchemaScheduler.configure(setting.questSchemaCheckIntervalHours)
 
     // キャプチャ保存先更新する
     PathStuff.setCapturePath(setting.captureSavePath)
@@ -1615,7 +1679,7 @@ export class KcApp {
   /**
    * quest schema json取得
    */
-  private fetchQuestSchema(): void {
+  private fetchQuestSchema(): Promise<QuestSchemaCheckState> {
 
     // 外部クエスト達成条件取得に時間がかかってもアプリ動作は止めない以下の設計とする
     // アプリ動作を止めない：取得完了を起動・初期表示の必須条件にしない
@@ -1639,63 +1703,7 @@ export class KcApp {
     //    2が出る状況として回線速度やネットワーク関連での通信異常を想定する。
     //    
 
-    if (this.questSchemaFetchTask) {
-      debug('fetchQuestSchema already running, skip')
-      return
-    }
-
-    this.questSchemaFetched = false
-    this.questSchemaFetchTask = fetchQuestSchemaFile(UrlStuff.questSchema, false)
-    this.questSchemaFetchTask.then((result) => {
-      this.questSchemaFetchTask = null
-      this.questSchemaFetched = true
-
-      // 取得結果をファイルに保存
-      if (result.success) {
-
-        // スキーマ解析
-        const schemas = loadQuestSchemaJson(result.jsonText)
-        if (! schemas.success) {
-          debug('fetchQuestSchema loadQuestSchemaJson failed', schemas.error)
-          return
-        }
-
-        // 更新する必要が無い場合は、スキーマ登録を行わない
-        if (! QuestSchemaHolder.needsUpdate(schemas.meta)) {
-          return 
-        }
-
-        // ファイル保存
-        let saved = false
-        try {
-          const filepath = PathStuff.questSchemaFilePath
-          fs.writeFileSync(filepath, result.jsonText, 'utf8')
-          saved = true
-          debug('fetchQuestSchema saved to file', filepath)
-        } catch (err) {
-          debug('fetchQuestSchema write file error', err)
-        }
-
-        if (! saved) {
-          debug('fetchQuestSchema save failed, skip schema update')
-          return
-        }
-
-        // スキーマ登録
-        for (const schema of schemas.quests) {
-          qs.questRegisterReplace(schema.no, schema.stuff)
-        }
-
-        // 登録したスキーマmeta設定
-        QuestSchemaHolder.setMeta(schemas.meta)
-
-        // 任務状況再初期化
-        this.kcrecord?.rebuildQuestUpdaters()
-
-        // スキーマをレンダラに送信
-        this.postQuestSchema(null, result.jsonText)
-      }
-    })
+    return this.questSchemaUpdater.check()
   }
 
   /**
@@ -2451,6 +2459,7 @@ export class KcApp {
    *
    */
   private onClosed(): void {
+    this.stopQuestSchemaScheduler()
     debug('main window closed. data ok:', svdata.isShipDataOk)
     this.kcrecord?.doDispose()
     this.closeRecorder()

@@ -9,6 +9,28 @@ const meta: QuestSchemaMetaV1 = {
 }
 
 describe('QuestSchemaHolder', () => {
+  it('copies description arrays and objects on write and read without affecting revision checks', () => {
+    const input = { ...meta, questInfos: [{ no: 261, info: 'original' }] }
+    QuestSchemaHolder.setMeta(input)
+    input.questInfos[0].info = 'changed'
+    input.questInfos.push({ no: 230, info: 'new' })
+    const result = QuestSchemaHolder.getMeta()!
+    expect(result.questInfos).toEqual([{ no: 261, info: 'original' }])
+    Object.assign(result.questInfos![0], { info: 'mutated' })
+    expect(QuestSchemaHolder.getMeta()!.questInfos![0].info).toBe('original')
+    expect(QuestSchemaHolder.needsUpdate(input)).toBe(false)
+  })
+  it('stores errors separately from metadata and clears recovered errors', () => {
+    QuestSchemaHolder.setMeta(meta)
+    QuestSchemaHolder.setError('取得失敗')
+    expect(QuestSchemaHolder.getError()).toBe('取得失敗')
+    expect(QuestSchemaHolder.getMeta()).toEqual(meta)
+    QuestSchemaHolder.setError(null)
+    expect(QuestSchemaHolder.getError()).toBeNull()
+    QuestSchemaHolder.setError('保存失敗')
+    QuestSchemaHolder.clear()
+    expect(QuestSchemaHolder.getError()).toBeNull()
+  })
   beforeEach(() => QuestSchemaHolder.clear())
 
   it('requires application when no metadata is stored, including revision zero', () => {
