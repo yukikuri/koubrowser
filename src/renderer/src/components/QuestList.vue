@@ -11,6 +11,7 @@ import {
 } from '@common/kcquest'
 import { MathUtil } from '@common/math'
 import { computed, onMounted, toRaw } from 'vue'
+import { EnvRenderer } from '@renderer/common/env-renderer'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -184,13 +185,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="questlist">
+  <section 
+    class="questlist"
+    :class="{ 'questlist-assist': EnvRenderer.isAssist }"
+    >
     <div class="questlist-title">任務情報 遂行中: {{ questLen }}/{{ maxQuest }}</div>
     <b-tooltip
        v-for="(quest, index) in quests"
       :key="index"
       always2
-      position="is-right"
+      :position="EnvRenderer.isAssist ? 'is-bottom' : 'is-right'"
       multilined
       type="is-dark"
       :square="true"
