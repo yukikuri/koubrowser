@@ -11,6 +11,7 @@ export const MainChannel = {
   reload: 'reload',
   open_capture_folder: 'open_capture_folder',
   save_capture: 'save_capture',
+  open_capture: 'open_capture',
   openOption: 'openOption',
   applyQuestSchema: 'main:apply-quest-schema',
   openAssist: 'openAssist',

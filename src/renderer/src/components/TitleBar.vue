@@ -67,6 +67,11 @@ const todayBattleScoreDialOffsets = ref<number[]>([])
 // 
 const titlebarEl = ref<HTMLElement | null>(null)
 const screenshotToastFilename = ref('')
+const screenshotToastPath = ref('')
+const screenshotToastError = ref('')
+const screenshotOpening = ref(false)
+let screenshotToastHovered = false
+let screenshotToastVersion = 0
 let screenshotToastTimer: ReturnType<typeof setTimeout> | null = null
 
 const props = defineProps<{
@@ -426,7 +431,7 @@ const emit = defineEmits<{
   (e: 'timeline'): void
   (e: 'rec'): void
   (e: 'recStop'): void
-  (e: 'screenshot', onSaved: (filename: string) => void): void
+  (e: 'screenshot', onSaved: (result: import('@common/capture').CaptureResult) => void): void
   (e: 'gameDevtool'): void
   (e: 'mute'): void
 }>()
@@ -509,13 +514,59 @@ const clearScreenshotToastTimer = (): void => {
   }
 }
 
-const showScreenshotToast = (filename: string): void => {
-  screenshotToastFilename.value = filename
+const startScreenshotToastTimer = (): void => {
   clearScreenshotToastTimer()
+  if (!screenshotToastFilename.value || screenshotToastHovered || screenshotOpening.value) return
   screenshotToastTimer = setTimeout(() => {
     screenshotToastFilename.value = ''
     screenshotToastTimer = null
   }, 4000)
+}
+
+const showScreenshotToast = (result: import('@common/capture').CaptureResult): void => {
+  screenshotToastVersion++
+  screenshotToastFilename.value = result.filename
+  screenshotToastPath.value = result.filepath
+  screenshotToastError.value = ''
+  screenshotOpening.value = false
+  startScreenshotToastTimer()
+}
+
+const onScreenshotToastEnter = (): void => {
+  screenshotToastHovered = true
+  clearScreenshotToastTimer()
+}
+
+const onScreenshotToastLeave = (): void => {
+  screenshotToastHovered = false
+  startScreenshotToastTimer()
+}
+
+const openScreenshot = async (): Promise<void> => {
+  if (screenshotOpening.value) return
+  const version = screenshotToastVersion
+  screenshotOpening.value = true
+  screenshotToastError.value = ''
+  clearScreenshotToastTimer()
+  try {
+    const error = await window.api.openCapture(screenshotToastPath.value)
+    if (version !== screenshotToastVersion) return
+    if (error) {
+      screenshotToastError.value = `画像を開けませんでした: ${error}`
+    } else {
+      screenshotToastFilename.value = ''
+      screenshotToastHovered = false
+    }
+  } catch {
+    if (version === screenshotToastVersion) {
+      screenshotToastError.value = '画像を開けませんでした。再度お試しください。'
+    }
+  } finally {
+    if (version === screenshotToastVersion) {
+      screenshotOpening.value = false
+      if (screenshotToastFilename.value) startScreenshotToastTimer()
+    }
+  }
 }
 
 const onScreenshot = (): void => {
@@ -1018,6 +1069,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  screenshotToastVersion++
   clearTodayBattleScoreAnimTimer()
   clearDailyBattleScoreResetTimer()
   clearScreenshotToastTimer()
@@ -1300,8 +1352,20 @@ if (EnvRenderer.isTestMode) {
       </div>
     </div>
     <transition name="screenshot-toast">
-      <div v-if="screenshotToastFilename" class="screenshot-toast">
-        スクリーンショットを保存しました: {{ screenshotToastFilename }}
+      <div
+        v-if="screenshotToastFilename"
+        class="screenshot-toast"
+        @mouseenter="onScreenshotToastEnter"
+        @mouseleave="onScreenshotToastLeave"
+      >
+        <div class="screenshot-toast-row">
+          <span class="screenshot-toast-message">
+            スクリーンショットを保存しました:<br>
+            {{ screenshotToastFilename }}
+          </span>
+          <button type="button" :disabled="screenshotOpening" @click.stop="openScreenshot">open</button>
+        </div>
+        <div v-if="screenshotToastError" class="screenshot-toast-error" role="alert">{{ screenshotToastError }}</div>
       </div>
     </transition>
   </div>

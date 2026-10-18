@@ -10,6 +10,7 @@ import type { Query, QueryReturn, PortChartData } from '@common/record'
 import type { AggregatedCellRank, AggregatedCellShipDrop } from '@common/calc_record'
 import type { AppSetting, InheritScoreList } from '@common/store'
 import type { GlobalSetting } from '@common/global_setting'
+import type { CaptureResult } from '@common/capture'
 import type { QuestSchemaCheckState } from '@common/option'
 
 // Custom APIs for renderer
@@ -46,8 +47,12 @@ const api: Api = {
     ipcRenderer.invoke(MainChannel.open_capture_folder)
   },
 
-  saveCapture(date: Date, buffer: Buffer): Promise<string> {
+  saveCapture(date: Date, buffer: Buffer): Promise<CaptureResult> {
     return ipcRenderer.invoke(MainChannel.save_capture, date, buffer)
+  },
+  
+  openCapture(filepath: string): Promise<string> {
+    return ipcRenderer.invoke(MainChannel.open_capture, filepath)
   },
 
   openOption(): void {
