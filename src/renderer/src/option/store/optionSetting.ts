@@ -1,3 +1,4 @@
+import { normalizeLanguage } from '@common/i18n'
 import { reactive, toRaw, watch, ref } from 'vue'
 import { type OptionData, type OptionSetting, type OptionViewInfo, type QuestSchemaCheckState, defaultOptionSetting, defaultQuestSchemaCheckState } from '@common/option'
 export const optionSetting: OptionSetting = reactive(
@@ -66,7 +67,7 @@ export function setOptionSettingWithPreventSave(data: OptionData): void {
 
   // set setting
   syncHandle.pause()
-  Object.assign(optionSetting, data.setting)
+  Object.assign(optionSetting, { ...data.setting, language: normalizeLanguage(data.setting.language) })
   syncHandle.resume()
 
   // set view info

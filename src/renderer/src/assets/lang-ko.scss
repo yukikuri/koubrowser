@@ -1,0 +1,71 @@
+// Korean-only layout adjustments. The Japanese layout is not affected.
+// Long names that do not fit their columns are condensed by fit-text.ts.
+
+html[lang='ko'] {
+  // Korean breaks lines between words, not inside them.
+  body {
+    word-break: keep-all;
+  }
+  // Table columns and kanji badges keep their original line breaking.
+  table,
+  .quest-type {
+    word-break: normal;
+  }
+
+  // Titlebar: ship and equipment counts are labelled with text instead of the 艦 / 装 icons.
+  .titlebar .s-icon {
+    &.titlebar-ship::before,
+    &.titlebar-slotitem::before {
+      content: var(--text-titlebar-ship);
+      width: auto;
+      height: auto;
+      padding: 0 2px;
+      background-image: none;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 3px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 12px;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 2px #000;
+      transform: translateY(-1px);
+    }
+    &.titlebar-slotitem::before {
+      content: var(--text-titlebar-slotitem);
+    }
+  }
+
+  // Quest progress such as "3-1S:완료" stays on one line; five maps still fit in two lines.
+  .badge.state {
+    > span {
+      white-space: nowrap;
+    }
+    &:has(> span:nth-of-type(5)) {
+      font-size: 10px;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  // Battle history counters ("출격 횟수:", "보스 도달:")
+  .battle-history-control .char4 {
+    width: auto;
+    min-width: 56px;
+    white-space: nowrap;
+  }
+
+  // LoS check labels on the map ("색적계수:4 / 63 / 69 / 51.9") stay as wide as the Japanese ones.
+  .maplos .state {
+    letter-spacing: -0.03em;
+  }
+
+  // Sea area names in the battle history clip by themselves so they can be condensed.
+  td.battle-area > span {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+}

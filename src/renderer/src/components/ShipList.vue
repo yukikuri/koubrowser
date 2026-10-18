@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, shipText, t } from '../i18n'
+
 import { computed, onUnmounted, ref } from 'vue'
 import { ApiKyoukaIndex, ApiShip, ApiShipType, ApiShipTypeHojoClasses, ApiShipTypeJyujyunClasses, ApiShipTypeKaiboukanClasses, ApiShipTypeKeijyunClasses, ApiShipTypeKuboClasses, ApiShipTypeKutikukanClasses, ApiShipTypeSenkanClasses, ApiShipTypeSensuikanClasses, ApiSpEffectItemKind, KcsConst, KcsUtil, MstShip, SlotWithOnSlot } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
@@ -27,11 +29,11 @@ interface ShipInfoData  {
 }
 
 const getSallyAreaText = (data: ShipInfoData): string => {
-  return data.api.api_sally_area ? '札'+data.api.api_sally_area : '-'
+  return data.api.api_sally_area ? t('札')+data.api.api_sally_area : '-'
 }
 
 const getTypeName = (data: ShipInfoData): string => {
-  return KcsUtil.getShipTypeName(data.mst.api_stype).longName
+  return gameText(KcsUtil.getShipTypeName(data.mst.api_stype).longName)
 }
 
 const isDeckShip = (data: ShipInfoData): boolean => {
@@ -166,7 +168,7 @@ function onFilterClear(): void {
   debouncedKeyword.value = ''
 }
 
-const emptyText = '該当する艦船が見つかりません';
+const emptyText = t('該当する艦船が見つかりません');
 
 const getFilterType = (): ApiShipType[] => {
   const types: ApiShipType[] = []
@@ -212,13 +214,13 @@ const isMatchKeyword = (api: ApiShip, mst: MstShip, keyword: string): boolean =>
 
   // check shipname
   const name = mst.api_name.trim().toLowerCase()
-  if(name.includes(keyword)) {
+  if(name.includes(keyword) || shipText(mst.api_name).toLowerCase().includes(keyword)) {
     return true
   }
 
   // check type name
   const typeName = KcsUtil.getShipTypeName(mst.api_stype).longName.toLowerCase()
-  if (typeName.includes(keyword)) {
+  if (typeName.includes(keyword) || gameText(KcsUtil.getShipTypeName(mst.api_stype).longName).toLowerCase().includes(keyword)) {
     return true
   }
 
@@ -229,7 +231,7 @@ const isMatchKeyword = (api: ApiShip, mst: MstShip, keyword: string): boolean =>
       const mst_slot = svdata.mstSlotitem(api_slot.api_slotitem_id)
       if (mst_slot) {
         const eqName = mst_slot.api_name.trim().toLowerCase()
-        if (eqName.includes(keyword)) {
+        if (eqName.includes(keyword) || gameText(mst_slot.api_name).toLowerCase().includes(keyword)) {
           return true
         }
       }
@@ -332,33 +334,33 @@ const filteredByTypeCount = computed<string>(() => {
   })
 
   if (filterTypes.length === 0) {
-    return `戦:${counts.sen} 空:${counts.kuubo} 重:${counts.jyujyun} 軽:${counts.keijyun} 駆:${counts.kutikukan} 海防:${counts.kaiboukan} 潜:${counts.sensuikan} 補:${counts.hojyo}`
+    return t('戦:{0} 空:{1} 重:{2} 軽:{3} 駆:{4} 海防:{5} 潜:{6} 補:{7}', [counts.sen, counts.kuubo, counts.jyujyun, counts.keijyun, counts.kutikukan, counts.kaiboukan, counts.sensuikan, counts.hojyo])
   }
 
   let ret = ''
   if (filterSenkan.value) {
-    ret += `戦:${counts.sen} `
+    ret += t('戦:{0} ', [counts.sen])
   }
   if (filterKuubo.value) {
-    ret += `空:${counts.kuubo} `
+    ret += t('空:{0} ', [counts.kuubo])
   }
   if (filterJyujyun.value) {
-    ret += `重:${counts.jyujyun} `
+    ret += t('重:{0} ', [counts.jyujyun])
   }
   if (filterKeijyun.value) {
-    ret += `軽:${counts.keijyun} `
+    ret += t('軽:{0} ', [counts.keijyun])
   }
   if (filterKutikukan.value) {
-    ret += `駆:${counts.kutikukan} `
+    ret += t('駆:{0} ', [counts.kutikukan])
   }
   if (filterKaiboukan.value) {
-    ret += `海防:${counts.kaiboukan} `
+    ret += t('海防:{0} ', [counts.kaiboukan])
   }
   if (filterSensuikan.value) {
-    ret += `潜:${counts.sensuikan} `
+    ret += t('潜:{0} ', [counts.sensuikan])
   }
   if (filterHojyo.value) {
-    ret += `補:${counts.hojyo} `
+    ret += t('補:{0} ', [counts.hojyo])
   }
   return ret.trim()
 })
@@ -383,37 +385,37 @@ const perPage = ref<number>(28);
     <div class="filter-content">
       <b-field class="inputs" position="is-centered" multiline>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterSenkan" size="is-small" /><span class="filter-label">戦艦級</span>
+          <b-checkbox v-model="filterSenkan" size="is-small" /><span class="filter-label">{{ t('戦艦級') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterKuubo" size="is-small" /><span class="filter-label">航空母艦</span>
+          <b-checkbox v-model="filterKuubo" size="is-small" /><span class="filter-label">{{ t('航空母艦') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterJyujyun" size="is-small" /><span class="filter-label">重巡級</span>
+          <b-checkbox v-model="filterJyujyun" size="is-small" /><span class="filter-label">{{ t('重巡級') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterKeijyun" size="is-small" /><span class="filter-label">軽巡級</span>
+          <b-checkbox v-model="filterKeijyun" size="is-small" /><span class="filter-label">{{ t('軽巡級') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterKutikukan" size="is-small" /><span class="filter-label">駆逐艦</span>
+          <b-checkbox v-model="filterKutikukan" size="is-small" /><span class="filter-label">{{ t('駆逐艦') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterKaiboukan" size="is-small" /><span class="filter-label">海防艦</span>
+          <b-checkbox v-model="filterKaiboukan" size="is-small" /><span class="filter-label">{{ t('海防艦') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterSensuikan" size="is-small" /><span class="filter-label">潜水艦</span>
+          <b-checkbox v-model="filterSensuikan" size="is-small" /><span class="filter-label">{{ t('潜水艦') }}</span>
         </label>
         <label class="input-checkbox">
-          <b-checkbox v-model="filterHojyo" size="is-small" /><span class="filter-label">補助艦艇</span>
+          <b-checkbox v-model="filterHojyo" size="is-small" /><span class="filter-label">{{ t('補助艦艇') }}</span>
         </label>
         <label class="input-keyword">
           <b-input 
-            v-model="filterKeyword" placeholder="艦名・装備を入力"  size="is-small" 
+            v-model="filterKeyword" :placeholder="t('艦名・装備を入力')"  size="is-small"
             @input="onInputKeyword"
           />
         </label>
         <label class="input-clear">
-          <b-button size="is-small" @click="onFilterClear">条件クリア</b-button>
+          <b-button size="is-small" @click="onFilterClear">{{ t('条件クリア') }}</b-button>
         </label>
       </b-field>
     </div>
@@ -453,7 +455,7 @@ const perPage = ref<number>(28);
         <template #default="props">
           <span 
             class="ship-id" 
-            :title="'内部ID: '+props.row.api.api_id">{{ props.row.mst.api_id }}</span>
+            :title="t('内部ID: ')+props.row.api.api_id">{{ props.row.mst.api_id }}</span>
         </template>
       </b-table-column>
 
@@ -464,7 +466,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>札<span v-if="isSortedField('api.api_sally_area')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('札') }}<span v-if="isSortedField('api.api_sally_area')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <span class="ship-sally-area">{{ getSallyAreaText(props.row) }}</span>
@@ -475,12 +477,12 @@ const perPage = ref<number>(28);
         :header-class="shipNameClassName" sortable field="mst.api_name"
         :cell-class="shipNameClassName">
         <template #header>
-          <div>艦名<span v-if="isSortedField('mst.api_name')" class="order-text">{{ getOrderText() }}</span></div>
+          <div>{{ t('艦名') }}<span v-if="isSortedField('mst.api_name')" class="order-text">{{ getOrderText() }}</span></div>
         </template>
         <template #default="props">
-          <div class="name-content" :class="{ 'in-event': inEvent() }" :title="props.row.mst.api_name"><div 
+          <div class="name-content" :class="{ 'in-event': inEvent() }" :title="shipText(props.row.mst.api_name)"><div
               class="type">{{ getTypeName(props.row) }}</div><div 
-              class="name">{{ props.row.mst.api_name }}</div><span 
+              class="name">{{ shipText(props.row.mst.api_name) }}</div><span
                 v-if="isDeckShip(props.row)" 
                 class="deck-no">/{{ getDeckNo(props.row) }}</span>
               <span 
@@ -555,7 +557,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>火力<span v-if="isSortedField('ship_fire')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('火力') }}<span v-if="isSortedField('ship_fire')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-fire"><div 
@@ -573,7 +575,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>装甲<span v-if="isSortedField('ship_armor')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('装甲') }}<span v-if="isSortedField('ship_armor')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-armor"><div 
@@ -591,7 +593,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>雷装<span v-if="isSortedField('ship_tor')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('雷装') }}<span v-if="isSortedField('ship_tor')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-tor"><div
@@ -609,7 +611,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>回避<span v-if="isSortedField('ship_ev')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('回避') }}<span v-if="isSortedField('ship_ev')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-ev"><div 
@@ -627,7 +629,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>対空<span v-if="isSortedField('ship_aa')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('対空') }}<span v-if="isSortedField('ship_aa')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <span class="ship-aa">{{ props.row.ship_aa}}</span>
@@ -640,7 +642,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>対潜<span v-if="isSortedField('ship_asw')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('対潜') }}<span v-if="isSortedField('ship_asw')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-asw"><div 
@@ -670,7 +672,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>索敵<span v-if="isSortedField('ship_los')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('索敵') }}<span v-if="isSortedField('ship_los')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <span class="ship-los">{{ props.row.ship_los }}</span>
@@ -693,7 +695,7 @@ const perPage = ref<number>(28);
         cell-class="ship-base-param"
         >
         <template #header>
-          <span>運<span v-if="isSortedField('ship_luck')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('運') }}<span v-if="isSortedField('ship_luck')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <div class="ship-luck"><div 
@@ -708,7 +710,7 @@ const perPage = ref<number>(28);
 
       <b-table-column centered header-class="ship-slots" cell-class="ship-slots">
         <template #header>
-          <span>装備</span>
+          <span>{{ t('装備') }}</span>
         </template>
         <template #default="props">
           <span class="slots-content"><span 
@@ -719,7 +721,7 @@ const perPage = ref<number>(28);
       </b-table-column>
 
       <div class="counter">
-        <div>艦船数：{{ datas.length }}</div>
+        <div>{{ t('艦船数：') }}{{ datas.length }}</div>
         <div class="byType">{{ filteredByTypeCount }}</div>
       </div>
 

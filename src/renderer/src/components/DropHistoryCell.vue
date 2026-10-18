@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { shipText, t } from '../i18n'
+
 import { Spot } from '@common/map';
 import { DbName, DropRecord, DropRecordQuery, toRecordMapId } from '@common/record';
 import { mapInfoCache } from '@renderer/common/mapinfo';
@@ -13,7 +15,7 @@ import {
   RecordCalculator, 
   AggregatedShipDrop, 
   AggregatedShipTypeDrop } from '@common/calc_record';
-import { getShipRareText, ShipTypeText } from '@common/locale';
+import { getShipRareText, ShipTypeText } from '@renderer/locale';
 import { 
   ApiShipBacks, 
   MstShip, 
@@ -219,7 +221,7 @@ function updateTableDatas(): void {
   calcedShipDrop.forEach((el) => {
     //debug('shipId:', el.shipId, 'data:', el.counts);
     const mst = el.shipId > 0 ? svdata.mstShip(el.shipId) : null;
-    const shipName = el.shipId > 0 ? (mst ? mst.api_name : '????') : 'ドロップ無し';
+    const shipName = el.shipId > 0 ? (mst ? shipText(mst.api_name) : '????') : t('ドロップ無し');
     let aggType
     if (el.shipId >= 0) {
       aggType = mst ? RecordCalculator.getAggregateShipType(mst) : undefined;
@@ -374,7 +376,7 @@ const emptyText = computed<string>(() => {
     return '';//マップ上のセルを選択してください';
   }
   if (recordFetching.value) {
-    return '履歴を取得中です...';
+    return t('履歴を取得中です...');
   }
 
   const filterShipTypes = selectedShipTypes.value;
@@ -391,9 +393,9 @@ const emptyText = computed<string>(() => {
     isFiltered = true;
   }
   if (isFiltered) {
-    return '該当する履歴が見つかりません（フィルタ指定有り）';
+    return t('該当する履歴が見つかりません（フィルタ指定有り）');
   }
-  return '該当する履歴が見つかりません';
+  return t('該当する履歴が見つかりません');
 })
 
 const isShipTypePieEnable = computed<boolean>(() => {
@@ -439,7 +441,7 @@ function onRankFilterChanged(): void {
 
 <template>
   <section class="drop-history-cell-root">
-    <div v-if="!props.selectedSpot" class="overlay-help">マップ上のセルを選択するとドロップ情報が表示されます</div>
+    <div v-if="!props.selectedSpot" class="overlay-help">{{ t('マップ上のセルを選択するとドロップ情報が表示されます') }}</div>
     <div v-if="!props.selectedSpot" class="overlay-background"></div>
     <div class="columns">
       <div ref="tableColumn" class="column">
@@ -460,7 +462,7 @@ function onRankFilterChanged(): void {
           <b-table-column 
             centered header-class="drop-rare" sortable field="backs" cell-class="drop-rare">
             <template #header>
-              <span>レア度<span v-if="isSortedField('backs')" class="order-text">{{ getOrderText() }}</span></span>
+              <span>{{ t('レア度') }}<span v-if="isSortedField('backs')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
             <template #default="slotProps">
               <span 
@@ -473,7 +475,7 @@ function onRankFilterChanged(): void {
 
           <b-table-column centered header-class="drop-ship-name" sortable field="shipName" cell-class="drop-ship-name">
             <template #header>
-              <span>艦名<span v-if="isSortedField('shipName')" class="order-text">{{ getOrderText() }}</span></span>
+              <span>{{ t('艦名') }}<span v-if="isSortedField('shipName')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
             <template #default="slotProps">
               <span 
@@ -487,7 +489,7 @@ function onRankFilterChanged(): void {
 
           <b-table-column centered header-class="drop-rate" sortable field="rate" cell-class="drop-rate">
             <template #header>
-              <span>確率<span v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
+              <span>{{ t('確率') }}<span v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
             <template #default="slotProps">
               <span>{{ slotProps.row.rate }}%</span>
@@ -496,8 +498,8 @@ function onRankFilterChanged(): void {
 
           <b-table-column centered header-class="drop-count" sortable field="count" cell-class="drop-count">
             <template #header>
-              <span>ドロップ数<span 
-                v-if="totalCount > 0">(合計: {{ totalCount }})</span><span v-if="isSortedField('count')" class="order-text">{{ getOrderText() }}</span></span>
+              <span>{{ t('ドロップ数') }}<span
+                v-if="totalCount > 0">{{ t('(合計: ') }}{{ totalCount }})</span><span v-if="isSortedField('count')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
             <template #default="slotProps">
               <span>{{ slotProps.row.count }} (S:{{ slotProps.row.counts[RankDropCountIndex.S] }} A:{{ slotProps.row.counts[RankDropCountIndex.A] }} B:{{ slotProps.row.counts[RankDropCountIndex.B] }})</span>
@@ -506,7 +508,7 @@ function onRankFilterChanged(): void {
 
           <b-table-column centered header-class="drop-rank" sortable field="rankOrder" cell-class="drop-rank">
             <template #header>
-              <span>勝利ランク<span v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
+              <span>{{ t('勝利ランク') }}<span v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
             </template>
             <template #default="slotProps">
               <!-- 固定の勝利ランクタグのみを生成し、外部の文字列を含めない -->
@@ -525,7 +527,7 @@ function onRankFilterChanged(): void {
       <div class="column">
         <div class="filter-container">
           <div class="filter-content rare">
-            <div class="filter-title">レア度</div>
+            <div class="filter-title">{{ t('レア度') }}</div>
             <b-field class="filters" grouped>
               <b-checkbox-button 
                 v-model="rareGroup" 
@@ -533,25 +535,25 @@ function onRankFilterChanged(): void {
                 native-value="unique" 
                 type="is-checked"
                 @change="onRareFilterChanged" 
-                >ユニーク</b-checkbox-button>
+                >{{ t('ユニーク') }}</b-checkbox-button>
               <b-checkbox-button 
                 v-model="rareGroup" 
                 size="is-small" 
                 native-value="rare" 
                 type="is-checked"
                 @change="onRareFilterChanged" 
-                >レア</b-checkbox-button>
+                >{{ t('レア') }}</b-checkbox-button>
               <b-checkbox-button 
                 v-model="rareGroup" 
                 size="is-small" 
                 native-value="common" 
                 type="is-checked"
                 @change="onRareFilterChanged" 
-                >コモン</b-checkbox-button>
+                >{{ t('コモン') }}</b-checkbox-button>
             </b-field>
           </div>
           <div class="filter-content">
-            <div class="filter-title">勝利ランク</div>
+            <div class="filter-title">{{ t('勝利ランク') }}</div>
             <b-field class="filters" grouped>
               <b-checkbox-button 
                 v-model="rankGroup" 

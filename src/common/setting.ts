@@ -1,7 +1,10 @@
+import { type Language } from '@common/i18n'
 import { SupportCodecs } from '@common/const'
 import { type OptionSetting } from '@common/option'
 
 export class GameSetting {
+  public language: Language = 'ja'
+
   public zoom_factor: number = 1.0
   public topmost: boolean = false
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { shipText, t } from '../i18n'
+
 import { ApiShipType, ApiShipTypeHojoClasses, ApiShipTypeJyujyunClasses, ApiShipTypeKaiboukanClasses, ApiShipTypeKeijyunClasses, ApiShipTypeKuboClasses, ApiShipTypeKutikukanClasses, ApiShipTypeSenkanClasses, ApiShipTypeSensuikanClasses, MstShip, MstShipIdBeginEnemy } from '@common/kcs';
 import { svdata } from '@renderer/store/svdata';
 import { onMounted, onUnmounted, computed, ref, toRaw, nextTick } from 'vue';
@@ -31,14 +33,14 @@ interface TabInfo {
   types: ApiShipType[];
 }
 const tabNames: TabInfo[] = [
-  { name: '戦艦級', types: ApiShipTypeSenkanClasses },
-  { name: '航空母艦', types: ApiShipTypeKuboClasses },  
-  { name: '重巡級', types: ApiShipTypeJyujyunClasses },
-  { name: '軽巡級', types: ApiShipTypeKeijyunClasses },
-  { name: '駆逐艦', types: ApiShipTypeKutikukanClasses },
-  { name: '海防艦', types: ApiShipTypeKaiboukanClasses },
-  { name: '潜水艦', types: ApiShipTypeSensuikanClasses },
-  { name: '補助艦艇', types: ApiShipTypeHojoClasses },
+  { name: t('戦艦級'), types: ApiShipTypeSenkanClasses },
+  { name: t('航空母艦'), types: ApiShipTypeKuboClasses },
+  { name: t('重巡級'), types: ApiShipTypeJyujyunClasses },
+  { name: t('軽巡級'), types: ApiShipTypeKeijyunClasses },
+  { name: t('駆逐艦'), types: ApiShipTypeKutikukanClasses },
+  { name: t('海防艦'), types: ApiShipTypeKaiboukanClasses },
+  { name: t('潜水艦'), types: ApiShipTypeSensuikanClasses },
+  { name: t('補助艦艇'), types: ApiShipTypeHojoClasses },
 ];
 
 // -----------------------------------------------------------------
@@ -236,11 +238,11 @@ function onTabChange(valueNew: number): void {
             <span 
               :id="'ship-selector-'+ship.mst.api_id"
               class="ship-selector"
-              :title="ship.mst.api_id.toString() + ' ' + ship.mst.api_name"
+              :title="ship.mst.api_id.toString() + ' ' + shipText(ship.mst.api_name)"
               @click="shipSelected(ship.mst.api_id)"
             ><ShipBanner 
               :mst-id="ship.mst.api_id" /><span 
-              class="ship-name">{{ ship.mst.api_name }}</span></span>
+              class="ship-name">{{ shipText(ship.mst.api_name) }}</span></span>
           </span>
         </div>
       </b-tab-item>

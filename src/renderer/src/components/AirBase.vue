@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, t } from '../i18n'
+
 import {
   ApiAirBase,
   ApiPlaneInfo,
@@ -7,7 +9,7 @@ import {
   SlotInfo,
   SlotitemType
 } from '@common/kcs'
-import { AirbaseActionKindText } from '@common/locale'
+import { AirbaseActionKindText } from '@renderer/locale'
 import { svdata } from '@renderer/store/svdata'
 import { RUtil } from '@renderer/util'
 // import SlotItemImage from '@renderer/components/SlotItemImage.vue'
@@ -97,57 +99,57 @@ const planeStatus = (slot: SlotInfo): Status[] => {
   const type = KcsUtil.slotitemType(mst)
 
   if (mst.api_houg) {
-    ret.push({ name: '火力', status: mst.api_houg.toString() })
+    ret.push({ name: t('火力'), status: mst.api_houg.toString() })
   }
 
   if (mst.api_raig) {
-    ret.push({ name: '雷撃', status: mst.api_raig.toString() })
+    ret.push({ name: t('雷撃'), status: mst.api_raig.toString() })
   }
 
   if (mst.api_baku) {
-    ret.push({ name: '爆装', status: mst.api_baku.toString() })
+    ret.push({ name: t('爆装'), status: mst.api_baku.toString() })
   }
 
   if (mst.api_tyku) {
-    ret.push({ name: '対空', status: mst.api_tyku.toString() })
+    ret.push({ name: t('対空'), status: mst.api_tyku.toString() })
   }
 
   if (mst.api_tais) {
-    ret.push({ name: '対潜', status: mst.api_tais.toString() })
+    ret.push({ name: t('対潜'), status: mst.api_tais.toString() })
   }
 
   if (mst.api_houm) {
     ret.push({
-      name: type === SlotitemType.LandFighter ? '対爆' : '命中',
+      name: type === SlotitemType.LandFighter ? t('対爆') : t('命中'),
       status: mst.api_houm.toString()
     })
   }
 
   if (mst.api_houk) {
     ret.push({
-      name: type === SlotitemType.LandFighter ? '追撃' : '回避',
+      name: type === SlotitemType.LandFighter ? t('追撃') : t('回避'),
       status: mst.api_houk.toString()
     })
   }
 
   if (type === SlotitemType.LandFighter) {
     ret.push({
-      name: '出撃',
+      name: t('出撃'),
       status: MathUtil.floor(mst.api_tyku + mst.api_houk * 1.5, 1).toString()
     })
-    ret.push({ name: '防空', status: (mst.api_tyku + mst.api_houk + mst.api_houm * 2).toString() })
+    ret.push({ name: t('防空'), status: (mst.api_tyku + mst.api_houk + mst.api_houm * 2).toString() })
   }
 
   if (mst.api_saku) {
-    ret.push({ name: '索敵', status: mst.api_saku.toString() })
+    ret.push({ name: t('索敵'), status: mst.api_saku.toString() })
   }
 
   if (mst.api_souk) {
-    ret.push({ name: '装甲', status: mst.api_souk.toString() })
+    ret.push({ name: t('装甲'), status: mst.api_souk.toString() })
   }
 
   if (mst.api_distance) {
-    ret.push({ name: '半径', status: mst.api_distance.toString() })
+    ret.push({ name: t('半径'), status: mst.api_distance.toString() })
   }
 
   return ret
@@ -261,8 +263,8 @@ const targetLabelText2 = computed<string>(() => {
     <div class="airbase-info">
       <!--<span class="airbase-no">{{noText}}</span>-->
       <span class="airbase-action" :class="actionClass">{{ actionText }}</span>
-      <span class="airbase-range">半:{{ distanceBaseText }}{{ distanceBonusText }}</span>
-      <span class="airbase-aa">制空:{{ seikuText }}</span>
+      <span class="airbase-range">{{ t('半:') }}{{ distanceBaseText }}{{ distanceBonusText }}</span>
+      <span class="airbase-aa">{{ t('制空:') }}{{ seikuText }}</span>
       <span class="airbase-spot">{{ targetLabelText1 }}</span>
       <span class="airbase-spot">{{ targetLabelText2 }}</span>
     </div>
@@ -280,12 +282,12 @@ const targetLabelText2 = computed<string>(() => {
         <template #content>
           <div class="slot-content">
             <div class="slot-tip-name">
-              {{ slot!.slot.mst.api_name}}<span v-if="slot!.star !== ''" class="plane-star"> ★{{ slot!.star }}</span>
+              {{ gameText(slot!.slot.mst.api_name) }}<span v-if="slot!.star !== ''" class="plane-star"> ★{{ slot!.star }}</span>
             </div>
             <div class="slot-tip-status">
               <!-- <div><SlotItemImage :mst_id="slot!.slot.mst.api_id" /></div> -->
               <div>
-                <div v-if="slot!.seiku > 0">制空: {{ slot!.seiku }}</div>
+                <div v-if="slot!.seiku > 0">{{ t('制空: ') }}{{ slot!.seiku }}</div>
                 <div class="slot-tip-grid">
                   <div v-for="(status, statusIndex) in slot!.statuses" :key="statusIndex">
                     {{ status.name }}: {{ status.status }}
@@ -309,7 +311,7 @@ const targetLabelText2 = computed<string>(() => {
             <span v-if="slot !== undefined" class="plane-seiku">{{ slot.seiku }}</span>
           </span>
           <span v-if="slot !== undefined" class="slot-name" :class="slot.slotClass">{{
-            slot.slot.mst.api_name
+            gameText(slot.slot.mst.api_name)
           }}</span>
           <span v-if="slot !== undefined && slot.star !== ''" class="plane-star"
             >★{{ slot.star }}</span

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import Highcharts from 'highcharts';
 import * as chartStuff from '@renderer/components/chart/stuff'
@@ -61,12 +63,12 @@ function createChart(): void {
       marginRight: 0,
     },
     title: { text: undefined },
-    tooltip: { 
+    tooltip: {
       outside: true, // ツールチップとラベルが重なる場合、ツールチップを前面に表示するために設定
       headerFormat: '',
       formatter: function () {
         const p = this.point;
-        const name = p.name === '-' ? 'なし' : p.name;
+        const name = p.name === '-' ? t('なし') : p.name;
         return `<span>${name}: ${p.y}</span><br/><span>${Highcharts.numberFormat(p.percentage!,1)}%</span>`;
       },
       padding: 4,
@@ -124,7 +126,7 @@ function createChart(): void {
       }
     },
     series: [{
-      name: '割合',
+      name: t('割合'),
       data: props.seriesData ?? [],
       type: 'pie',
     }],
@@ -177,7 +179,7 @@ function getLegendColorboxStyle(legend: LegendInfo): string {
 
 function getLegendText(legend: LegendInfo): string {
   const pt = legend.pt;
-  const name = pt.name === '-' ? 'なし' : pt.name;
+  const name = pt.name === '-' ? t('なし') : pt.name;
   const percentage = getPercentage(pt);
   const percentageText = percentage ? ' (' + percentage + ')' : ''
   return `${name} ${pt.y}${percentageText}`;
@@ -224,12 +226,12 @@ watch(
               expanded
               :style="getLegendStyle(legend)"
               :class="{ 'is-selected': legend.selected }"
-              size="is-small" 
+              size="is-small"
               @click="onLegendClick(legend, index)"
-              ><span class="legend-content"><span 
-                class="legend-label"><span 
-                  class="colorbox" 
-                  :style="getLegendColorboxStyle(legend)"><CheckOnlyImage 
+              ><span class="legend-content"><span
+                class="legend-label"><span
+                  class="colorbox"
+                  :style="getLegendColorboxStyle(legend)"><CheckOnlyImage
                     v-if="legend.selected"/></span>{{ getLegendText(legend) }}</span></span>
             </b-checkbox-button>
           </div>

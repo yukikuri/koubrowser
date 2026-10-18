@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import ShipList from '@renderer/components/ShipList.vue'
 import SlotitemList from '@renderer/components/SlotitemList.vue'
 import ItemList from '@renderer/components/ItemList.vue'
@@ -23,13 +25,13 @@ function onTabChange(valueNew: number): void {
       destroy-on-hide
       @update:model-value="onTabChange"
     >
-      <b-tab-item label="艦船一覧">
+      <b-tab-item :label="t('艦船一覧')">
         <ShipList />
       </b-tab-item>
-      <b-tab-item label="装備一覧">
+      <b-tab-item :label="t('装備一覧')">
         <SlotitemList />
       </b-tab-item>
-      <b-tab-item label="アイテム一覧">
+      <b-tab-item :label="t('アイテム一覧')">
         <ItemList />
       </b-tab-item>
     </b-tabs>

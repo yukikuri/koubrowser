@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { gameText } from '@renderer/i18n'
 import { computed } from 'vue'
 import { RUtil } from '@renderer/util'
 import { SlotitemInfo } from '@common/record';
@@ -11,7 +12,7 @@ const mst : MstSlotitem | undefined = svdata.mstSlotitem(props.slotitem?.slotite
 
 const slotTitle = computed<string | undefined>(() => {
   if (!mst) return undefined
-  return mst.api_name
+  return gameText(mst.api_name)
 })
 const hasSlot = !!mst
 

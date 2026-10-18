@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, shipText, t } from '../i18n'
+
 import { computed, onMounted, onUpdated, ref } from 'vue'
 import { MissionStuff, MissionDetail, DeckInfo, MissionCheckResult, MissionChecked, MissionResult } from '@common/mission'
 import { svdata } from '@renderer/store/svdata'
@@ -135,7 +137,7 @@ function getKitTitle(kitInfo: MissionKitInfo | undefined): string {
   if (!kitInfo) {
     return ''
   }
-  const title = itemIdTitleMap.get(kitInfo.api_item_id) || ''
+  const title = gameText(itemIdTitleMap.get(kitInfo.api_item_id) || '')
   if (! title) {
     return ''
   }
@@ -155,9 +157,9 @@ const itemGetCount2 = computed(() => {
     return ''
   }
   if (1 === props.mission.kitSucceeded2.count) {
-    return props.mission.kitSucceeded2.count + '(確定)'
+    return props.mission.kitSucceeded2.count + t('(確定)')
   }
-  return '1～'+props.mission.kitSucceeded2.count + '(確定)'
+  return '1～'+props.mission.kitSucceeded2.count + t('(確定)')
 })
 
 const missionTime = computed((): string => {
@@ -184,12 +186,12 @@ const result = computed<MissionCheckResult>(() => {
   return MissionStuff.checkResult(deckInfo.value, props.mission)
 })
 
-const missionName = computed(() => `${props.mission.id}:${props.mission.name}`)
+const missionName = computed(() => `${props.mission.id}:${gameText(props.mission.name)}`)
 const isFailed = computed(() => result.value.result === MissionResult.failed)
 const isSucceeded = computed(() => result.value.result === MissionResult.succeeded)
 const isSucceeded2 = computed(() => result.value.result === MissionResult.succeeded2)
 const isMonthly = computed(() => props.mission.isMonthly ?? false)
-const missionCheckResult = computed(() => MissionStuff.getMissionResultText(result.value.result))
+const missionCheckResult = computed(() => t(MissionStuff.getMissionResultText(result.value.result)))
 const isShowCheckBox = computed(() => {
   return isSucceeded.value || isSucceeded2.value
 })
@@ -211,7 +213,7 @@ const isFlagshipTypeClear = computed(() => {
 
 const reqFlagshipType = computed(() => {
   if (isFlagshipTypeClear.value) {
-    return KcsUtil.getShipTypeNameFromInfo(deckInfo.value.ships[0]).shortName
+    return gameText(KcsUtil.getShipTypeNameFromInfo(deckInfo.value.ships[0]).shortName)
   }
   let types: ApiShipType[] = []
   for (const type of props.mission.requirements.type_count ?? []) {
@@ -220,7 +222,7 @@ const reqFlagshipType = computed(() => {
     }
   }
   const names = Array.from(new Set(types)).reduce<string[]>((acc, el) => {
-    acc.push(KcsUtil.getShipTypeName(el).shortName)
+    acc.push(gameText(KcsUtil.getShipTypeName(el).shortName))
     return acc
   }, [])
   return names.join(',')
@@ -240,7 +242,7 @@ const reqShipType = computed(() => {
       : [props.mission.requirements.type_count[clear_index]]
   const ships = type_count.reduce<string[]>((acc, types) => {
     const names: string[] = types.types.map((type) => {
-      const type_names = type.ship_type.map((el) => KcsUtil.getShipTypeName(el).shortName)
+      const type_names = type.ship_type.map((el) => gameText(KcsUtil.getShipTypeName(el).shortName))
       if (type.ship_type.length === 1) {
         return `${type_names[0]}(${type.count})`
       }
@@ -360,8 +362,8 @@ onUpdated(() => {
   <div ref="elRoot" class="mission-state-detail">
     <div class="mission-title-content">
       <div class="mission-state-title">
-        <span v-if="isCleared" class="tag state-text">済</span>
-        <span v-if="isMonthly" class="tag state-monthly">月</span>
+        <span v-if="isCleared" class="tag state-text">{{ t('済', [], 'badge') }}</span>
+        <span v-if="isMonthly" class="tag state-monthly">{{ t('月') }}</span>
         <span class="mission-title" :title="missionName">{{missionName}}</span>
         <span 
           :class="{
@@ -389,40 +391,40 @@ onUpdated(() => {
     <div class="mission-check">
       <span :class="[ isFlagshipLvClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isFlagshipLvClear" />
-        <check-error-img v-if="!isFlagshipLvClear" class="error" />旗艦Lv:{{deckFlagshipLv}}({{reqFlagshipLv}})</span>
+        <check-error-img v-if="!isFlagshipLvClear" class="error" />{{ t('旗艦Lv:') }}{{deckFlagshipLv}}({{reqFlagshipLv}})</span>
       <span v-if="isReqTotalLv" :class="[ isTotalLvClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalLvClear" />
-        <check-error-img v-if="!isTotalLvClear" class="error" />合計Lv:{{deckTotalLv}}({{reqTotalLv}})</span>
+        <check-error-img v-if="!isTotalLvClear" class="error" />{{ t('合計Lv:') }}{{deckTotalLv}}({{reqTotalLv}})</span>
       <span v-if="isReqFlagshipType" :class="[ isFlagshipTypeClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isFlagshipTypeClear" />
-        <check-error-img v-if="!isFlagshipTypeClear" class="error" />旗艦艦種:{{reqFlagshipType}}</span>
+        <check-error-img v-if="!isFlagshipTypeClear" class="error" />{{ t('旗艦艦種:') }}{{reqFlagshipType}}</span>
       <span v-if="isReqShipType" :class="[ isShipTypeClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isShipTypeClear" />
-        <check-error-img v-if="!isShipTypeClear" class="error" />艦種:{{reqShipType}}</span>
+        <check-error-img v-if="!isShipTypeClear" class="error" />{{ t('艦種:') }}{{reqShipType}}</span>
       <span v-if="isReqDrumShipCount" :class="[ isDrumShipCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isDrumShipCountClear" />
-        <check-error-img  v-if="!isDrumShipCountClear" class="error" />ドラム缶搭載隻数:{{deckDrumShipCount}}({{reqDrumShipCount}})</span>
+        <check-error-img  v-if="!isDrumShipCountClear" class="error" />{{ t('ドラム缶搭載隻数:') }}{{deckDrumShipCount}}({{reqDrumShipCount}})</span>
       <span v-if="isReqDrumSlotCount" :class="[ isDrumSlotCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isDrumSlotCountClear" />
-        <check-error-img v-if="!isDrumSlotCountClear" class="error" />ドラム缶数:{{deckDrumSlotCount}}({{reqDrumSlotCount}})</span>
+        <check-error-img v-if="!isDrumSlotCountClear" class="error" />{{ t('ドラム缶数:') }}{{deckDrumSlotCount}}({{reqDrumSlotCount}})</span>
       <span :class="[ isShipCountClear ? 'is-clear' : 'not-clear' ]">
         <check-circle-img v-if="isShipCountClear" />
-        <check-error-img v-if="!isShipCountClear" class="error" />隻数:{{deckShipCount}}({{reqShipCount}})</span>
+        <check-error-img v-if="!isShipCountClear" class="error" />{{ t('隻数:') }}{{deckShipCount}}({{reqShipCount}})</span>
       <span v-if="isReqTotalFire" :class="[ isTotalFireClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalFireClear" />
-        <check-error-img v-if="!isTotalFireClear" class="error" />火力:{{deckTotalFire}}<span v-if="deckTotalRemodelFire!='0'" class="remodel-text">+{{deckTotalRemodelFire}}</span>({{reqTotalFire}})</span>
+        <check-error-img v-if="!isTotalFireClear" class="error" />{{ t('火力:') }}{{deckTotalFire}}<span v-if="deckTotalRemodelFire!='0'" class="remodel-text">+{{deckTotalRemodelFire}}</span>({{reqTotalFire}})</span>
       <span v-if="isReqTotalTor" :class="[ isTotalTorClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalTorClear" />
-        <check-error-img v-if="!isTotalTorClear" class="error" />雷撃:{{deckTotalTor}}({{reqTotalTor}})</span>
+        <check-error-img v-if="!isTotalTorClear" class="error" />{{ t('雷撃:') }}{{deckTotalTor}}({{reqTotalTor}})</span>
       <span v-if="isReqTotalAa"  :class="[ isTotalAaClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalAaClear" />
-        <check-error-img v-if="!isTotalAaClear" class="error" />対空:{{deckTotalAa}}<span v-if="deckTotalRemodelAa!='0'" class="remodel-text">+{{deckTotalRemodelAa}}</span>({{reqTotalAa}})</span>
+        <check-error-img v-if="!isTotalAaClear" class="error" />{{ t('対空:') }}{{deckTotalAa}}<span v-if="deckTotalRemodelAa!='0'" class="remodel-text">+{{deckTotalRemodelAa}}</span>({{reqTotalAa}})</span>
       <span v-if="isReqTotalAsw"  :class="[ isTotalAswClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalAswClear" />
-        <check-error-img v-if="!isTotalAswClear" class="error" />対潜:{{deckTotalAsw}}<span v-if="deckTotalRemodelAsw!='0'" class="remodel-text">+{{deckTotalRemodelAsw}}</span>({{reqTotalAsw}})</span>
+        <check-error-img v-if="!isTotalAswClear" class="error" />{{ t('対潜:') }}{{deckTotalAsw}}<span v-if="deckTotalRemodelAsw!='0'" class="remodel-text">+{{deckTotalRemodelAsw}}</span>({{reqTotalAsw}})</span>
       <span v-if="isReqTotalLos" :class="[ isTotalLosClear ? 'is-clear' : 'not-clear']">
         <check-circle-img v-if="isTotalLosClear" />
-        <check-error-img v-if="!isTotalLosClear" class="error" />索敵:{{deckTotalLos}}<span v-if="deckTotalRemodelLos!='0'" class="remodel-text">+{{deckTotalRemodelLos}}</span>({{reqTotalLos}})</span>
+        <check-error-img v-if="!isTotalLosClear" class="error" />{{ t('索敵:') }}{{deckTotalLos}}<span v-if="deckTotalRemodelLos!='0'" class="remodel-text">+{{deckTotalRemodelLos}}</span>({{reqTotalLos}})</span>
     </div>
     <div class="ships">
       <div v-for="(ship, ship_index) in ships" :key="ship_index" class="ship">
@@ -436,7 +438,7 @@ onUpdated(() => {
             </span>
           </div>
           <div class="line2">
-            <span class="ship-name">Lv:{{ship.api.api_lv}} {{ship.mst.api_name}}</span>
+            <span class="ship-name">Lv:{{ship.api.api_lv}} {{ shipText(ship.mst.api_name) }}</span>
             <span class="s-icon cond" :class="condClass(ship.api)">{{ship.api.api_cond}}</span>
             <span class="s-icon fire" :class="{ 'remodel-text' : ship.remodel.fire>0 }">{{ship.api.api_karyoku[0]+ship.remodel.fire}}</span>
             <span class="s-icon tor">{{ship.api.api_raisou[0]}}</span>

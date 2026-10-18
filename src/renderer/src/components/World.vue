@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, t } from '../i18n'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ApiCallback, ApiMapAreaType } from '@common/kcs'
 import { Api } from '@common/kcsapi'
@@ -116,7 +118,7 @@ const classWorldEvent = computed((): object => {
 
 const getEventName = (): string => {
   const name = svdata.mstMapareaType(ApiMapAreaType.event)?.api_name ?? '????'
-  return name.replace('反撃！', '反撃！\n')
+  return gameText(name).replace('反撃！', '反撃！\n')
 }
 
 const eventName = computed<string>(() => getEventName())
@@ -157,49 +159,49 @@ const worldsLocked = computed(() => ({
     >
       <b-tab-item :header-class="classWorld1">
         <template #header>
-          <img class="world-img" title="1: 鎮守府海域" src="../assets/img/world/world1.png" />
+          <img class="world-img" :title="t('1: 鎮守府海域')" src="../assets/img/world/world1.png" />
         </template>
         <Areas v-if="index === 0" :area-id="1" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld2" :disabled="worldsLocked[2]">
         <template #header>
           <LockImage v-if="worldsLocked[2]" />
-          <img class="world-img" title="2: 南西諸島海域" src="../assets/img/world/world2.png" />
+          <img class="world-img" :title="t('2: 南西諸島海域')" src="../assets/img/world/world2.png" />
         </template>
         <Areas v-if="index === 1" :area-id="2" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld3" :disabled="worldsLocked[3]">
         <template #header>
           <LockImage v-if="worldsLocked[3]" />
-          <img class="world-img" title="3: 北方海域" src="../assets/img/world/world3.png" />
+          <img class="world-img" :title="t('3: 北方海域')" src="../assets/img/world/world3.png" />
         </template>
         <Areas v-if="index === 2" :area-id="3" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld7" :disabled="worldsLocked[7]">
         <template #header>
           <LockImage v-if="worldsLocked[7]" />
-          <img class="world-img" title="7: 南西海域" src="../assets/img/world/world7.png" />
+          <img class="world-img" :title="t('7: 南西海域')" src="../assets/img/world/world7.png" />
         </template>
         <Areas v-if="index === 3" :area-id="7" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld4" :disabled="worldsLocked[4]">
         <template #header>
           <LockImage v-if="worldsLocked[4]" />
-          <img class="world-img" title="4: 西方海域" src="../assets/img/world/world4.png" />
+          <img class="world-img" :title="t('4: 西方海域')" src="../assets/img/world/world4.png" />
         </template>
         <Areas v-if="index === 4" :area-id="4" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld5" :disabled="worldsLocked[5]">
         <template #header>
           <LockImage v-if="worldsLocked[5]" />
-          <img class="world-img" title="5: 南方海域" src="../assets/img/world/world5.png" />
+          <img class="world-img" :title="t('5: 南方海域')" src="../assets/img/world/world5.png" />
         </template>
         <Areas v-if="index === 5" :area-id="5" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>
       <b-tab-item :header-class="classWorld6" :disabled="worldsLocked[6]">
         <template #header>
           <LockImage v-if="worldsLocked[6]" />
-          <img class="world-img" title="6: 中部海域" src="../assets/img/world/world6.png" />
+          <img class="world-img" :title="t('6: 中部海域')" src="../assets/img/world/world6.png" />
         </template>
         <Areas v-if="index === 6" :area-id="6" :deck-index="deckIndex" :single-row="true" />
       </b-tab-item>

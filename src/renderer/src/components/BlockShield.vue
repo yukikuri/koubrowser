@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { ref, computed, useId } from 'vue'
 import { RectRate } from '@common/const'
 import { EnvRenderer } from '@renderer/common/env-renderer'
@@ -76,7 +78,7 @@ defineExpose({
 <template>
   <div 
     class="button-cover" 
-    title="大破進撃防止" 
+    :title="t('大破進撃防止')"
     :class="{ 'is-guard-hit': isGuardHit }"
     :style="buttonCoverStyle"
     @click.prevent.stop="onButtonCoverClick">

@@ -28,7 +28,11 @@
     "test:hr": "vitest",
     "@test:u command comment": "Update snapshots. Run this if a snapshot test fails and the changes are expected.",
     "test:u": "vitest --update",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "i18n:extract": "node scripts/i18n-extract.cjs",
+    "i18n:report": "node scripts/i18n-report.cjs",
+    "i18n:check": "node scripts/i18n-check.cjs",
+    "i18n:templates": "node scripts/i18n-template-check.cjs"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

@@ -3,6 +3,16 @@ import { mergeStoredData } from '@main/store'
 import { defaultOptionSetting } from '@common/option'
 
 describe('mergeStoredData', () => {
+  it('defaults older option files to Japanese while preserving existing settings', () => {
+    const old = { captureSavePath: '/original/captures', proxyMode: 'direct', extensions: [{ path: '/original/extension' }] }
+    expect(mergeStoredData(defaultOptionSetting(), old)).toEqual({ ...defaultOptionSetting(), ...old, language: 'ja' })
+  })
+
+  it('restores the Korean language from a JSON round trip without changing other options', () => {
+    const saved = { ...defaultOptionSetting(), language: 'ko' as const, captureSavePath: '/original/captures' }
+    expect(mergeStoredData(defaultOptionSetting(), JSON.parse(JSON.stringify(saved)))).toEqual(saved)
+  })
+
   it('defaults the quest schema interval for older option files', () => {
     const loaded = { proxyMode: 'system' }
     expect(mergeStoredData(defaultOptionSetting(), loaded).questSchemaCheckIntervalHours).toBe(6)

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { gameText, shipText, t } from '../i18n'
+
 import { computed, ref, watch } from 'vue'
 import { svdata } from '@renderer/store/svdata'
 import StarImage from '@renderer/assets/img/star.svg'
 import LockImage from '@renderer/assets/img/lock.svg'
 import { ApiRange, ApiShip, type ApiSlotitem, KcsUtil, type MstSlotitem, SlotitemImgType, SlotitemType } from '@common/kcs'
-import { SlotitemRareTextMap, SyateiText } from '@common/locale'
+import { SlotitemRareTextMap, SyateiText } from '@renderer/locale'
 import { RUtil } from '@renderer/util'
 import { SlotImg } from '@renderer/stuff/imgs/slot'
 
@@ -190,73 +192,73 @@ const buildHtmlMap: { [key: string]: {
   levelFunc: (mst: MstSlotitem, level: number | undefined) => number
  } } = {
   'houg': {
-    displayName: '火力',
+    displayName: t('火力'),
     className: 'fire',
     levelFunc: KcsUtil.fireFromLevel,
   },
   'houm': {
-    displayName: '命中',
+    displayName: t('命中'),
     className: 'hit',
     levelFunc: KcsUtil.hitFromLevel,
   },
   'raig': {
-    displayName: '雷装',
+    displayName: t('雷装'),
     className: 'tor',
     levelFunc: KcsUtil.torFromLevel,
   },
   'raim': {
-    displayName: '雷命',
+    displayName: t('雷命'),
     className: 'torHit',
     levelFunc: KcsUtil.torHitFromLevel,
   },
   'baku': {
-    displayName: '爆装',
+    displayName: t('爆装'),
     className: 'bom',
     levelFunc: KcsUtil.bomFromLevel,
   },
   'tyku': {
-    displayName: '対空',
+    displayName: t('対空'),
     className: 'aa',
     levelFunc: KcsUtil.aaFromLevel,
   },
   'kb': {
-    displayName: '艦防',
+    displayName: t('艦防'),
     className: 'kb',
     levelFunc: KcsUtil.kbFromLevel,
   },
   'kt': {
-    displayName: '加重',
+    displayName: t('加重'),
     className: 'kt',
     levelFunc: KcsUtil.ktFromLevel,
   },
   'tais': {
-    displayName: '対潜',
+    displayName: t('対潜'),
     className: 'asw',
     levelFunc: KcsUtil.aswFromLevel,
   },
   'asw_hit': {
-    displayName: '対命',
+    displayName: t('対命'),
     className: 'asw_hit',
     levelFunc: KcsUtil.hitAswFromLevel,
   },
 
   'houk': {
-    displayName: '回避',
+    displayName: t('回避'),
     className: 'ev',
     levelFunc: KcsUtil.evFromLevel,
   },
   'raik': {
-    displayName: '雷回',
+    displayName: t('雷回'),
     className: 'raik',
     levelFunc: KcsUtil.evTorFromLevel,
   },
   'saku': {
-    displayName: '索敵',
+    displayName: t('索敵'),
     className: 'los',
     levelFunc: KcsUtil.losFromLevel,
   },
   'souk': {
-    displayName: '装甲',
+    displayName: t('装甲'),
     className: 'armor',
     levelFunc: KcsUtil.armorFromLevel,
   }
@@ -317,7 +319,7 @@ const buildRangeHtml = (data: SlotItemData, parts: HtmlParts): void => {
   }
   const className = RangeClassMap[mst.api_leng] || ''
   const rangeText = getRangeText(mst.api_leng)
-  const html = `<span class="range nowrap-text">射程 <span class="${className}">${rangeText}</span></span>`
+  const html = t('<span class=\u0022range nowrap-text\u0022>射程 <span class=\u0022{0}\u0022>{1}</span></span>', [className, rangeText])
   parts.basics.push(html)
 }
 
@@ -450,7 +452,7 @@ const filteredSlotitemNameCandidates = computed<SlotitemNameCandidate[]>(() => {
     const ret = slotitemNameCandidates.value
     return [...ret].sort((c1, c2) => c1.mst.api_sortno - c2.mst.api_sortno)
   }
-  const ret = slotitemNameCandidates.value.filter((candidate) => candidate.mst.api_name.includes(nameFilter))
+  const ret = slotitemNameCandidates.value.filter((candidate) => (candidate.mst.api_name.includes(nameFilter) || gameText(candidate.mst.api_name).includes(nameFilter)))
   return [...ret].sort((c1, c2) => c1.mst.api_sortno - c2.mst.api_sortno)
 })
 
@@ -459,14 +461,14 @@ const filteredDatas = computed<SlotItemData[]>(() => {
   if (!nameFilter) {
     return datas.value
   }
-  return datas.value.filter((data) => data.mst.api_name.includes(nameFilter))
+  return datas.value.filter((data) => (data.mst.api_name.includes(nameFilter) || gameText(data.mst.api_name).includes(nameFilter)))
 })
 
 function onSelectSlotitemNameCandidate(candidate: SlotitemNameCandidate | null): void {
   if (!candidate) {
     return
   }
-  slotitemNameFilter.value = candidate.mst.api_name
+  slotitemNameFilter.value = gameText(candidate.mst.api_name)
 }
 
 function getCachedEquipShip(slotitem_id: number): ApiShip | undefined {
@@ -528,7 +530,7 @@ function getEquipShipDeckNo(data: SlotItemData): string {
   if (deckNo < 0) {
     return ''
   }
-  return `第${deckNo + 1}艦隊`
+  return t('第{0}艦隊', [deckNo + 1])
 }
 
 function getEquipShipLv(data: SlotItemData): string {
@@ -594,9 +596,9 @@ function getOrderText(): string {
 
 const emptyText = computed<string>(() => {
   if (filterGroup.value.length === 0) {
-    return '表示する装備種別を選択してください';
+    return t('表示する装備種別を選択してください');
   }
-  return '該当する装備が見つかりません';
+  return t('該当する装備が見つかりません');
 })
 
 interface FilterCheckboxInfo {
@@ -673,7 +675,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 小口径主砲
     {
       key: FilterKey.smallGun,
-      title: '小口径主砲',
+      title: t('小口径主砲'),
       checkboxImgType: SlotitemImgType.syuhou_syou,
       types: [
         SlotitemType.SmallMainGun,
@@ -686,7 +688,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 小口径主砲(高角砲)
     {
       key: FilterKey.smallAaGun,
-      title: '小口径主砲(高角砲)',
+      title: t('小口径主砲(高角砲)'),
       checkboxImgType: SlotitemImgType.koukakuhou,
       types: [
         SlotitemType.SmallMainGun,
@@ -699,7 +701,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 中口径主砲
     {
       key: FilterKey.mediumGun,
-      title: '中口径主砲',
+      title: t('中口径主砲'),
       checkboxImgType: SlotitemImgType.syuhou_tyuu,
       types: [
         SlotitemType.MediumMainGun,
@@ -712,7 +714,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 中口径主砲(高角砲)
     {
       key: FilterKey.mediumAaGun,
-      title: '中口径主砲(高角砲)',
+      title: t('中口径主砲(高角砲)'),
       checkboxImgType: SlotitemImgType.koukakuhou,
       types: [
         SlotitemType.MediumMainGun,
@@ -725,7 +727,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 大口径主砲
     {
       key: FilterKey.largeGun,
-      title: '大口径主砲',
+      title: t('大口径主砲'),
       checkboxImgType: SlotitemImgType.syuhou_dai,
       types: [
         SlotitemType.LargeMainGun,
@@ -735,7 +737,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 副砲
     {
       key: FilterKey.secondaryGun,
-      title: '副砲',
+      title: t('副砲'),
       checkboxImgType: SlotitemImgType.fukuhou,
       types: [
         SlotitemType.SecondaryGun,
@@ -748,7 +750,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 副砲(高角砲)
     {
       key: FilterKey.secondaryAaGun,
-      title: '副砲(高角砲)',
+      title: t('副砲(高角砲)'),
       checkboxImgType: SlotitemImgType.koukakuhou,
       types: [
         SlotitemType.SecondaryGun,
@@ -761,7 +763,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 魚雷
     {
       key: FilterKey.torpedo,
-      title: '魚雷/甲標的/潜水艦魚雷',
+      title: t('魚雷/甲標的/潜水艦魚雷'),
       checkboxImgType: SlotitemImgType.gyorai,
       types: [
         SlotitemType.Torpedo,
@@ -773,7 +775,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 艦上戦闘機
     {
       key: FilterKey.fighter,
-      title: '艦上戦闘機',
+      title: t('艦上戦闘機'),
       checkboxImgType: SlotitemImgType.kanjyou_sentouki,
       types: [
         SlotitemType.Fighter,
@@ -783,7 +785,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 艦上爆撃機
     {
       key: FilterKey.diveBomber,
-      title: '艦上爆撃機',
+      title: t('艦上爆撃機'),
       checkboxImgType: SlotitemImgType.kanjyou_bakugekiki,
       types: [
         SlotitemType.DiveBomber,
@@ -793,7 +795,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 艦上攻撃機
     {
       key: FilterKey.torpedoBomber,
-      title: '艦上攻撃機',
+      title: t('艦上攻撃機'),
       checkboxImgType: SlotitemImgType.kanjyou_kougekiki,
       types: [
         SlotitemType.TorpedoBomber,
@@ -803,7 +805,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 艦上偵察機
     {
       key: FilterKey.recAircraft,
-      title: '艦上偵察機', 
+      title: t('艦上偵察機'),
       checkboxImgType: SlotitemImgType.kanjyou_teisatuki,
       types: [
         SlotitemType.RecAircraft,
@@ -813,7 +815,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 水上偵察機
     {
       key: FilterKey.recSeaplane,
-      title: '水上偵察機',
+      title: t('水上偵察機'),
       checkboxImgType: SlotitemImgType.suitei,
       types: [
         SlotitemType.RecSeaplane,
@@ -823,7 +825,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 水上戦闘機
     {
       key: FilterKey.seaplaneFighter,
-      title: '水上戦闘機',
+      title: t('水上戦闘機'),
       checkboxImgType: SlotitemImgType.suijyou_sentouki,
       types: [
         SlotitemType.SeaplaneFighter,
@@ -833,7 +835,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 水上爆撃機
     {
       key: FilterKey.seaplaneBomber,
-      title: '水上爆撃機',
+      title: t('水上爆撃機'),
       checkboxImgType: SlotitemImgType.suitei,
       types: [
         SlotitemType.SeaplaneBomber,
@@ -843,7 +845,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 電探
     {
       key: FilterKey.radar,
-      title: '電探',
+      title: t('電探'),
       checkboxImgType: SlotitemImgType.dentan,
       types: [
         SlotitemType.SmallRadar,
@@ -854,7 +856,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 対空強化弾
     {
       key: FilterKey.aaShell,
-      title: '対空強化弾',
+      title: t('対空強化弾'),
       checkboxImgType: SlotitemImgType.sansikidan,
       types: [
         SlotitemType.AAShell,
@@ -864,7 +866,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 対艦強化弾
     {
       key: FilterKey.apShell,
-      title: '対艦強化弾',
+      title: t('対艦強化弾'),
       checkboxImgType: SlotitemImgType.tekoudan,
       types: [
         SlotitemType.APShell,
@@ -874,7 +876,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // ダメコン
     {
       key: FilterKey.emergencyRepair,
-      title: 'ダメコン',
+      title: t('ダメコン'),
       checkboxImgType: SlotitemImgType.damekon,
       types: [
         SlotitemType.EmergencyRepair,
@@ -883,7 +885,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 機銃
     {
       key: FilterKey.aaGun,
-      title: '機銃',
+      title: t('機銃'),
       checkboxImgType: SlotitemImgType.kijyu,
       types: [
         SlotitemType.AAGun,
@@ -893,7 +895,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // ソナー
     {
       key: FilterKey.sonar,
-      title: 'ソナー',
+      title: t('ソナー'),
       checkboxImgType: SlotitemImgType.sonar,
       types: [
         SlotitemType.Sonar,
@@ -904,7 +906,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 爆雷
     {
       key: FilterKey.depthCharge,
-      title: '爆雷',
+      title: t('爆雷'),
       checkboxImgType: SlotitemImgType.bakurai,
       types: [
         SlotitemType.DepthCharge,
@@ -914,7 +916,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 機関部強化
     {
       key: FilterKey.engineImp,
-      title: '機関部強化',
+      title: t('機関部強化'),
       checkboxImgType: SlotitemImgType.engine,
       types: [
         SlotitemType.EngineImp,
@@ -924,7 +926,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 上陸用舟艇
     {
       key: FilterKey.landingCraft,
-      title: '上陸用舟艇',
+      title: t('上陸用舟艇'),
       checkboxImgType: SlotitemImgType.daihatu,
       types: [
         SlotitemType.LandingCraft,
@@ -936,7 +938,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // オートジャイロ
     {
       key: FilterKey.autogyro,
-      title: 'オートジャイロ',  
+      title: t('オートジャイロ'),
       checkboxImgType: SlotitemImgType.heri,
       types: [
         SlotitemType.Autogyro,
@@ -946,7 +948,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 対潜哨戒機
     {
       key: FilterKey.aswAircraft,
-      title: '対潜哨戒機',
+      title: t('対潜哨戒機'),
       checkboxImgType: SlotitemImgType.taisensyoukaiki,
       types: [
         SlotitemType.ASBAircraft,
@@ -956,7 +958,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // バルジ
     {
       key: FilterKey.bulge,
-      title: 'バルジ',
+      title: t('バルジ'),
       checkboxImgType: SlotitemImgType.bulge,
       types: [
         SlotitemType.ExtraArmor,
@@ -968,7 +970,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 探照灯
     {
       key: FilterKey.searchlight,
-      title: '探照灯',
+      title: t('探照灯'),
       checkboxImgType: SlotitemImgType.tansyoutou,
       types: [
         SlotitemType.Searchlight,
@@ -979,7 +981,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // ドラム缶
     {
       key: FilterKey.drumcan,
-      title: 'ドラム缶',
+      title: t('ドラム缶'),
       checkboxImgType: SlotitemImgType.drumcan,
       types: [
         SlotitemType.STContainer,
@@ -988,7 +990,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 艦艇修理施設
     {
       key: FilterKey.repairFacility,
-      title: '艦艇修理施設',
+      title: t('艦艇修理施設'),
       checkboxImgType: SlotitemImgType.syuurisisetu,
       types: [
         SlotitemType.RepairFacility,
@@ -997,7 +999,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 照明弾
     {
       key: FilterKey.starShell,
-      title: '照明弾',
+      title: t('照明弾'),
       checkboxImgType: SlotitemImgType.syoumeidan,
       types: [
         SlotitemType.StarShell,
@@ -1006,7 +1008,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 司令部施設
     {
       key: FilterKey.commandFacility,
-      title: '司令部施設',
+      title: t('司令部施設'),
       checkboxImgType: SlotitemImgType.sireibu,
       types: [
         SlotitemType.CommandFacility,
@@ -1016,7 +1018,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 航空要員
     {
       key: FilterKey.aviationPersonnel,
-      title: '航空要員',
+      title: t('航空要員'),
       checkboxImgType: SlotitemImgType.supana,
       types: [
         SlotitemType.AviationPersonnel,
@@ -1026,7 +1028,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 高射装置
     {
       key: FilterKey.aaDirector,
-      title: '高射装置',
+      title: t('高射装置'),
       checkboxImgType: SlotitemImgType.kousyasouti,
       types: [
         SlotitemType.AADirector,
@@ -1036,7 +1038,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 対地装備
     {
       key: FilterKey.antiGroundEquipment,
-      title: '対地装備',
+      title: t('対地装備'),
       checkboxImgType: SlotitemImgType.taiti,
       types: [
         SlotitemType.AntiGroundEquipment,
@@ -1046,7 +1048,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 水上艦要員
     {
       key: FilterKey.shipPersonnel,
-      title: '水上艦要員',
+      title: t('水上艦要員'),
       checkboxImgType: SlotitemImgType.mihariin,
       types: [
         SlotitemType.ShipPersonnel,
@@ -1056,7 +1058,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 大型飛行艇
     {
       key: FilterKey.largeFlyingBoat,
-      title: '大型飛行艇',
+      title: t('大型飛行艇'),
       checkboxImgType: SlotitemImgType.oogata_hikoutei,
       types: [
         SlotitemType.LargeFlyingBoat,
@@ -1066,7 +1068,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 戦闘糧食
     {
       key: FilterKey.combatRation,
-      title: '戦闘糧食',
+      title: t('戦闘糧食'),
       checkboxImgType: SlotitemImgType.sentouryousyoku,
       types: [
         SlotitemType.CombatRation,
@@ -1075,7 +1077,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 補給物資
     {
       key: FilterKey.supplies,
-      title: '補給物資',
+      title: t('補給物資'),
       checkboxImgType: SlotitemImgType.hokyuubussi,
       types: [
         SlotitemType.Supplies,
@@ -1084,7 +1086,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 陸戦
     {
       key: FilterKey.landBasedFighter,
-      title: '陸上戦闘機',
+      title: t('陸上戦闘機'),
       checkboxImgType: SlotitemImgType.rikusen,
       types: [
         SlotitemType.LandFighter,
@@ -1095,7 +1097,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 陸攻
     {
       key: FilterKey.landBasedAttackAircraft,
-      title: '陸上攻撃機',
+      title: t('陸上攻撃機'),
       checkboxImgType: SlotitemImgType.rikukou,
       types: [
         SlotitemType.LandAttackAircraft,
@@ -1108,7 +1110,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 噴式戦闘爆撃機
     {
       key: FilterKey.landBasedRecAircraft,
-      title: '噴式戦闘爆撃機',
+      title: t('噴式戦闘爆撃機'),
       checkboxImgType: SlotitemImgType.funsiki1,
       types: [
         SlotitemType.JetFighter,
@@ -1134,7 +1136,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 潜水艦装備
     {
       key: FilterKey.submarineEquipment,
-      title: '潜水艦装備',
+      title: t('潜水艦装備'),
       checkboxImgType: SlotitemImgType.sensui_soubi,
       types: [
         SlotitemType.SubmarineEquipment,
@@ -1152,7 +1154,7 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
     // 発煙装置(気球込み)
     {
       key: FilterKey.smokeScreen,
-      title: '発煙装置/防空気球',
+      title: t('発煙装置/防空気球'),
       checkboxImgType: SlotitemImgType.hatuensouti,
       types: [
         SlotitemType.SurfaceShipEquipment,
@@ -2091,10 +2093,10 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
             class="type-img"
             :src="getTypeImgSrc(info.checkboxImgType)" />
         </label>
-        <div class="input-buttons" title="フィルタをクリア">
+        <div class="input-buttons" :title="t('フィルタをクリア')">
           <div class="this-buttons">
-            <b-button size="is-small" @click="checkAllFilters">全チェック</b-button>
-            <b-button size="is-small" @click="clearFilters">クリア</b-button>
+            <b-button size="is-small" @click="checkAllFilters">{{ t('全チェック') }}</b-button>
+            <b-button size="is-small" @click="clearFilters">{{ t('クリア', [], 'input') }}</b-button>
           </div>
         </div>
       </div>
@@ -2134,7 +2136,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
           <span>ID<span v-if="isSortedField('mst.api_id')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
-          <span :title="'内部ID: '+props.row.api.api_id">{{ props.row.mst.api_id }}</span>
+          <span :title="t('内部ID: ')+props.row.api.api_id">{{ props.row.mst.api_id }}</span>
         </template>
       </b-table-column>
 
@@ -2170,7 +2172,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
         >
         <template #header>
           <div class="name-header" @click.stop>
-            <span>装備名<span v-if="isSortedField('mst.api_name')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>{{ t('装備名') }}<span v-if="isSortedField('mst.api_name')" class="order-text">{{ getOrderText() }}</span></span>
             <b-autocomplete
               v-model="slotitemNameFilter"
               size="is-small"
@@ -2179,7 +2181,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
               open-on-focus
               clearable
               icon-pack="fa"
-              placeholder="装備名で絞り込み"
+              :placeholder="t('装備名で絞り込み')"
               @click.stop
               @select="onSelectSlotitemNameCandidate"
             >
@@ -2187,18 +2189,18 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
                 <div class="slotitem-autocomplete-option">
                   <span class="type-img-content"><img 
                     class="type-img" 
-                      :src="getTypeImgSrcFromMst(props.option.mst)" /></span><span>{{ props.option.mst.api_name }}</span><span 
-                      class="slotitem-count">装備数：{{ props.option.count }}</span>
+                      :src="getTypeImgSrcFromMst(props.option.mst)" /></span><span>{{ gameText(props.option.mst.api_name) }}</span><span
+                      class="slotitem-count">{{ t('装備数：') }}{{ props.option.count }}</span>
                 </div>
               </template>
             </b-autocomplete>
           </div>
         </template>
         <template #default="props">
-          <div class="name-content" :title="props.row.mst.api_name"><span 
+          <div class="name-content" :title="gameText(props.row.mst.api_name)"><span
             class="type-img-content"><img class="type-img" :src="getSlotitemImgSrc(props.row)" /><img 
             v-if="props.row.api.api_alv > 0" class="alv-img" :src="getSlotitemALevelImg(props.row)" /></span><span 
-            class="name">{{ props.row.mst.api_name }}</span></div>
+            class="name">{{ gameText(props.row.mst.api_name) }}</span></div>
         </template>
       </b-table-column>
 
@@ -2208,7 +2210,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
         cell-class="slotitem-rare"
         >
         <template #header>
-          <span>レア<span v-if="isSortedField('mst.api_rare')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('レア') }}<span v-if="isSortedField('mst.api_rare')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <template #default="props">
           <span>{{ getRareText(props.row) }}</span>
@@ -2221,7 +2223,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
         cell-class="slotitem-detail"
         >
         <template #header>
-          <span>アイテム詳細<span v-if="isSortedField('internalDetail')" class="order-text">{{ getOrderText() }}</span></span>
+          <span>{{ t('アイテム詳細') }}<span v-if="isSortedField('internalDetail')" class="order-text">{{ getOrderText() }}</span></span>
         </template>
         <!-- XSS attack対象なし -->
         <!-- eslint-disable vue/no-v-html -->
@@ -2234,7 +2236,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
 
       <b-table-column header-class="slotitem-equiped" cell-class="slotitem-equiped">
         <template #header>
-          <span>装備艦</span>
+          <span>{{ t('装備艦') }}</span>
         </template>
         <template #default="props">
           <div 
@@ -2242,7 +2244,7 @@ function getRemodelNames(data: SlotItemData): BuildHtmlNameType[] {
             class="equiped"  
             :title="getEquipShipTitle(props.row)"><div 
               class="lv">Lv {{ getEquipShipLv(props.row) }} {{ getEquipShipDeckNo(props.row) }}</div><div 
-              class="name">{{ getEquipShipName(props.row) }}</div></div>
+              class="name">{{ shipText(getEquipShipName(props.row)) }}</div></div>
         </template>
       </b-table-column>
 

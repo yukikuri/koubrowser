@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { gameText, localizeProgressHtml, t } from '../i18n'
+
 import { KcsUtil, ApiQuestState } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
 import { quests as questsStore } from '@renderer/store/quests'
 import { Quest, QuestCounter, questProgress } from '@common/record'
 import { RUtil } from '@renderer/util'
-import { QuestCategoryText } from '@common/locale'
+import { QuestCategoryText } from '@renderer/locale'
 import {
   questProgressDetailFormat,
   questIsDeckMatch,
@@ -23,7 +25,7 @@ const debug = (...args: unknown[]): void => {
 /////////////////////////////////////////////////////////////////////////////////////
 // 
 const questProgressDetail = (quest: Quest): string => {
-  return questProgressDetailFormat(quest)
+  return localizeProgressHtml(questProgressDetailFormat(quest))
 }
 
 interface QuestContent {
@@ -155,7 +157,7 @@ const quests = computed<QuestContent[]>(() => {
     const ret = {
       completed: progress >= 100,
       progress,
-      progressText: progress >= 100 ? '達成!' : progress + '%',
+      progressText: progress >= 100 ? t('達成!') : progress + '%',
       categoryClass: RUtil.questCategoryClass(el.quest),
       categoryText: QuestCategoryText[el.quest.api_category] ?? '?',
       typeClass: RUtil.questTypeClass(el.quest),
@@ -185,7 +187,7 @@ onMounted(() => {
 
 <template>
   <section class="questlist">
-    <div class="questlist-title">任務情報 遂行中: {{ questLen }}/{{ maxQuest }}</div>
+    <div class="questlist-title">{{ t('任務情報 遂行中: ') }}{{ questLen }}/{{ maxQuest }}</div>
     <b-tooltip
        v-for="(quest, index) in quests"
       :key="index"
@@ -200,11 +202,11 @@ onMounted(() => {
       <template #content>
         <div class="quest-tip">
           <div class="tiptitle">
-            <span>{{ quest.record.no }}: {{ quest.record.quest.api_title }}</span>
-            <span>達成度: {{ quest.progressText }}</span>
+            <span>{{ quest.record.no }}: {{ gameText(quest.record.quest.api_title) }}</span>
+            <span>{{ t('達成度: ') }}{{ quest.progressText }}</span>
           </div>
           <hr />
-          <div class="tipdetail">{{ quest.tipDetail }}</div>
+          <div class="tipdetail">{{ gameText(quest.tipDetail) }}</div>
         </div>
       </template>
       <div class="quest">
@@ -214,11 +216,11 @@ onMounted(() => {
           quest.progressText
         }}</span>
         <span class="quest-title">
-          <span v-if="quest.is_special" class="quest-category is-special pl-1 pr-1">限定</span>
+          <span v-if="quest.is_special" class="quest-category is-special pl-1 pr-1">{{ t('限定') }}</span>
           <span v-if="quest.senka > 0" class="quest-category is-senka pl-1 pr-1"
-            >戦果{{ quest.senka }}</span
+            >{{ t('戦果') }}{{ quest.senka }}</span
           >
-          <span class="ml-1">{{ quest.record.quest.api_title }}</span>
+          <span class="ml-1">{{ gameText(quest.record.quest.api_title) }}</span>
         </span>
         <b-progress format="percent" :max="100" show-value0 class="quest-bar is-radiusless">
           <template #bar>
@@ -229,8 +231,8 @@ onMounted(() => {
               :class="state.className"
             />
             <span class="quest-progress-text" :class="{ 'stext': quest.is_stext}">
-              <span v-if="quest.deckOk == true" class="deckOk">編成:OK</span>
-              <span v-if="quest.deckOk == false" class="deckNg">編成:NG</span>
+              <span v-if="quest.deckOk == true" class="deckOk">{{ t('編成:OK') }}</span>
+              <span v-if="quest.deckOk == false" class="deckNg">{{ t('編成:NG') }}</span>
               <!-- XSS attack対象なし -->
               <!-- eslint-disable-next-line vue/no-v-html -->
               <span v-if="quest.progressDetail" v-html="quest.progressDetail"></span>

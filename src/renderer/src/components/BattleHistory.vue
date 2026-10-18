@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { shipText, t, gameText } from '../i18n'
+
 import type { AreaItemGetInfo, BattleRecord, BattleRecordQuery, ShipInfoRecord, SlotitemInfo } from '@common/record'
 import { DbName, isBattleRecordItemGet, recordMapIdToIdNo, toRecordDate, toRecordMapId } from '@common/record'
 import { areaNames, getAreaName, getEventPeriodName } from '@common/area_name'
 import { ApiEventId, ApiItemId, KcsUtil } from '@common/kcs'
-import { getAirSearchResultText, MapLvText } from '@common/locale'
+import { getAirSearchResultText, MapLvText } from '@renderer/locale'
 import BattleHistoryArea from '@renderer/components/BattleHistoryArea.vue'
 import { svdata } from '@renderer/store/svdata'
 import { computed, ComputedRef, nextTick, onMounted, onUnmounted, Ref, ref, toRaw, watch } from 'vue'
@@ -133,7 +135,7 @@ const { year: filterStartYear, isYearMin: isStartYearMin, isYearMax: isStartYear
 const { year: filterEndYear, isYearMin: isEndYearMin, isYearMax: isEndYearMax } =
   yearHolder();
 
-const filterMapIdPlaceholder = '海域を選択'
+const filterMapIdPlaceholder = t('海域を選択')
 
 interface AreaOption {
   value: number;
@@ -604,7 +606,7 @@ function rowClass(_row: BattleTableData, index: number): string {
 function getAreaOptions(): AreaOption[] {
   const ret = areaNames.filter((area) => !KcsUtil.isEventAreaId(area.areaId).valueOf()).map((area) => ({
     value:  toRecordMapId(area.areaId, area.areaNo),
-    label: `${area.areaId} - ${area.areaNo} ${area.areaName}`,
+    label: `${area.areaId} - ${area.areaNo} ${gameText(area.areaName)}`,
   }))
 
   // todo: イベント海域の表示は暫定的に62のみ
@@ -612,7 +614,7 @@ function getAreaOptions(): AreaOption[] {
   const eventName = getEventPeriodName(62);
   ret.push(...areaNames.filter((area) => area.areaId === 62).map((area) => ({
     value:  toRecordMapId(area.areaId, area.areaNo),
-    label: `${eventName} E${area.areaNo} ${area.areaName}`,
+    label: `${gameText(eventName)} E${area.areaNo} ${gameText(area.areaName)}`,
   })))
   return ret
 }
@@ -712,7 +714,7 @@ const totalBossCount = computed((): number => {
 // helper functions
 function shipNameFromId(shipId: number): string {
   const mst = shipId > 0 ? svdata.mstShip(shipId) : null
-  return mst?.api_name ?? `id:${shipId}`
+  return mst ? shipText(mst.api_name) : `id:${shipId}`
 }
 
 function areaNoText(data: BattleTableData): string {
@@ -744,7 +746,7 @@ function areaNameText(data: BattleTableData): string {
   const record = data.header
   const { areaId, areaNo } = recordMapIdToIdNo(record.mapId)
   const areaName = getAreaName(areaId, areaNo) || getAreaNameFromMst(areaId, areaNo) || 'Unknown Area';
-  return areaName
+  return gameText(areaName)
 }
 
 function dateText(data: BattleTableData): string {
@@ -861,7 +863,7 @@ const helpText = computed<string>(() => {
   //if (!isInitial.value) {
   //  return '出撃履歴がありません。';
   //}
-  return '戦闘履歴検索中...';
+  return t('戦闘履歴検索中...');
 });
 
 </script>
@@ -892,7 +894,7 @@ const helpText = computed<string>(() => {
             showReports = !showReports; 
             sesStorage.setBoolean(SessionStorageKeyName.BattleHistoryShowReports, showReports)
           }">
-          <ReportsImage /><span class="button-text">セル状況表示</span></b-button>
+          <ReportsImage /><span class="button-text">{{ t('セル状況表示') }}</span></b-button>
       </div>
     </div>
 
@@ -909,12 +911,12 @@ const helpText = computed<string>(() => {
     <div class="battle-history-control">
       <b-field class="inputs" grouped multiline>
         <label class="input-area">
-          <div class="filter-label">海域</div>
+          <div class="filter-label">{{ t('海域') }}</div>
           <b-select 
             v-model="filterMapId" size="is-small" :placeholder="filterMapIdPlaceholder"
             @change="onChangeFilterMapId"
             >
-            <option :value="null" selected>未選択</option>
+            <option :value="null" selected>{{ t('未選択') }}</option>
             <option
               v-for="area in mapAreaOptions"
               :key="area.value"
@@ -924,7 +926,7 @@ const helpText = computed<string>(() => {
         </label>
 
         <label class="input-count">
-          <div class="filter-label">検索件数</div>
+          <div class="filter-label">{{ t('検索件数') }}</div>
           <b-select v-model.number="filterLimit" size="is-small">
             <option
               v-for="value in countOptions"
@@ -935,7 +937,7 @@ const helpText = computed<string>(() => {
         </label>
 
         <div class="input-date-range">
-          <div class="filter-label">検索対象日</div>
+          <div class="filter-label">{{ t('検索対象日') }}</div>
           <div class="date-range">
             <b-datepicker
               v-model="filterStartDate"
@@ -944,7 +946,7 @@ const helpText = computed<string>(() => {
               :clearable="true"
               :min-date="filterStartMinDate"
               :max-date="new Date()"
-              placeholder="開始日"
+              :placeholder="t('開始日')"
               position="is-bottom-left"
               icon-pack="fa"
               :class="{ 'is-year-min': isStartYearMin, 'is-year-max': isStartYearMax }"
@@ -958,7 +960,7 @@ const helpText = computed<string>(() => {
               :clearable="true"
               :min-date="filterStartMinDate"
               :max-date="new Date()"
-              placeholder="終了日"
+              :placeholder="t('終了日')"
               position="is-bottom-left"
               icon-pack="fa"
               :class="{ 'is-year-min': isEndYearMin, 'is-year-max': isEndYearMax }"
@@ -969,21 +971,20 @@ const helpText = computed<string>(() => {
 
         <label class="input-button search">
           <div class="filter-label is-invisible">empty</div>
-          <b-button size="is-small" @click="onFilterSearch">検索</b-button>
+          <b-button size="is-small" @click="onFilterSearch">{{ t('検索') }}</b-button>
         </label>
         <label class="input-button clear">
           <div class="filter-label is-invisible">empty</div>
-          <b-button size="is-small" @click="onFilterClear">条件<br>クリア</b-button>
+          <b-button size="is-small" @click="onFilterClear">{{ t('条件') }}<br>{{ t('クリア', [], 'input') }}</b-button>
         </label>
       </b-field>
       <div class="results">
         <span class="result-count">
-          <div><span class="char4">出撃件数:</span> {{ datas.length }}件</div>
-          <div class="boss-count"><span class="char4">ボス到達:</span> {{ totalBossCount }}件</div>
+          <div><span class="char4">{{ t('出撃件数:') }}</span> {{ datas.length }}{{ t('件') }}</div>
+          <div class="boss-count"><span class="char4">{{ t('ボス到達:') }}</span> {{ totalBossCount }}{{ t('件') }}</div>
         </span>
         <span class="total-detail">
-          <span class="total-used">消費合計: 
-            <span class="used-unit">
+          <span class="total-used">{{ t('消費合計: ') }}<span class="used-unit">
               <span class="s-icon fuel"></span><span class="value">{{ toNumber(totalUsed.fuel) }}</span>
             </span>
             <span class="used-unit">
@@ -993,8 +994,7 @@ const helpText = computed<string>(() => {
               <span class="s-icon buxite"></span><span class="value">{{ toNumber(totalUsed.buxite) }}</span>
             </span>
           </span>
-          <span v-if="totalGetItems.length > 0" class="total-get-items">獲得合計: 
-            <template 
+          <span v-if="totalGetItems.length > 0" class="total-get-items">{{ t('獲得合計: ') }}<template
               v-for="(item, item_index) in totalGetItems" 
               :key="`totalgetitem-${item_index}`"><span 
                 :class="['s-icon', { 
@@ -1037,7 +1037,7 @@ const helpText = computed<string>(() => {
       >
         <b-table-column centered header-class="battle-area" cell-class="battle-area">
           <template #header>
-            <span>出撃エリア</span>
+            <span>{{ t('出撃エリア') }}</span>
           </template>
           <template #default="props">
             <span :id="ROW_ID_PREFIX+props.row.detailKey">{{ areaNoText(props.row) }}<span
@@ -1047,7 +1047,7 @@ const helpText = computed<string>(() => {
 
         <b-table-column centered header-class="battle-date" cell-class="battle-date">
           <template #header>
-            <span>出撃日時</span>
+            <span>{{ t('出撃日時') }}</span>
           </template>
           <template #default="props">
             <span>{{ dateText(props.row) }} {{ timeText(props.row) }}</span>
@@ -1056,7 +1056,7 @@ const helpText = computed<string>(() => {
 
         <b-table-column centered header-class="battle-date" cell-class="battle-route">
           <template #header>
-            <span>ルート詳細</span>
+            <span>{{ t('ルート詳細') }}</span>
           </template>
           <template #default="props">
             <span>{{ routeText(props.row) }} </span><span 
@@ -1088,7 +1088,7 @@ const helpText = computed<string>(() => {
 
         <b-table-column centered header-class="battle-used" cell-class="battle-used">
           <template #header>
-            <span>資源消費量</span>
+            <span>{{ t('資源消費量') }}</span>
           </template>
           <template #default="props">
             <div class="used-units">
@@ -1155,7 +1155,7 @@ const helpText = computed<string>(() => {
         </template>
 
         <template #empty>
-          <div class="has-text-centered">出撃履歴がありません。</div>
+          <div class="has-text-centered">{{ t('出撃履歴がありません。') }}</div>
         </template>
       </b-table>
     </div>

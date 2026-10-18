@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { ref, computed } from 'vue'
 import { svdata } from '@renderer/store/svdata'
 import { ShipEtcs } from '@common/kcsetc'
@@ -86,9 +88,9 @@ const clearSessionCacheStateText = computed(() => {
     case 'noop':
       return ''
     case 'in_clear':
-      return 'キャッシュをクリア中...'
+      return t('キャッシュをクリア中...')
     case 'cleared':
-      return 'キャッシュをクリアしました'
+      return t('キャッシュをクリアしました')
     default:
       return ''
   }
@@ -103,14 +105,12 @@ const kanlogUrl = 'https://kanlog.info'
   <section class="about-root hero is-dark is-fullheight">
     <div class="hero-body">
       <div class="container about-container">
-        <img class="app-img" src="../assets/img/app/app.png" alt="甲ブラウザロゴ" />
-        <h2 class="subtitle">艦隊運用支援</h2>
-        <h1 class="title">
-          甲ブラウザ<span class="version">{{ versionTxt }}</span>
+        <img class="app-img" src="../assets/img/app/app.png" :alt="t('甲ブラウザロゴ')" />
+        <h2 class="subtitle">{{ t('艦隊運用支援') }}</h2>
+        <h1 class="title">{{ t(' 甲ブラウザ') }}<span class="version">{{ versionTxt }}</span>
         </h1>
-        <p>ゲーム関連画像の権利は各権利者に帰属します。</p>
-        <p class="about-lead">
-          配布ページ：<a
+        <p>{{ t('ゲーム関連画像の権利は各権利者に帰属します。') }}</p>
+        <p class="about-lead">{{ t(' 配布ページ：') }}<a
             class="has-text-success"
             rel="noreferrer"
             :href="appUrl"
@@ -124,18 +124,14 @@ const kanlogUrl = 'https://kanlog.info'
             class="about-block update-check-block"
             :class="{ 'is-update-available-block': isUadeteAvailable || isUadeteReady }"
           >
-            <h3 class="about-heading">更新チェック</h3>
+            <h3 class="about-heading">{{ t('更新チェック') }}</h3>
             <p>
               <label>
-                <input v-model="globalSetting.checkUpdateOnStartup" type="checkbox" />
-                起動時に更新チェックを行う
-              </label>
+                <input v-model="globalSetting.checkUpdateOnStartup" type="checkbox" />{{ t(' 起動時に更新チェックを行う ') }}</label>
             </p>
             <p>
               <label>
-                <input v-model="globalSetting.checkBetaUpdate" type="checkbox" />
-                Beta版(開発版)を更新チェック対象に含める
-              </label>
+                <input v-model="globalSetting.checkBetaUpdate" type="checkbox" />{{ t(' Beta版(開発版)を更新チェック対象に含める ') }}</label>
             </p>
             <p>
               <label class="button-in-about">
@@ -167,8 +163,8 @@ const kanlogUrl = 'https://kanlog.info'
           </section>
 
           <section class="about-block">
-            <h3 class="about-heading">キャッシュ</h3>
-            <p>ゲーム画面が表示されない場合、キャッシュクリアで改善が期待できます。</p>
+            <h3 class="about-heading">{{ t('キャッシュ') }}</h3>
+            <p>{{ t('ゲーム画面が表示されない場合、キャッシュクリアで改善が期待できます。') }}</p>
             <p>
               <label class="button-in-about">
                 <button
@@ -176,23 +172,20 @@ const kanlogUrl = 'https://kanlog.info'
                   :disabled="clearCacheButtonDisable"
                   @click="clearSessionCache()"
                 >
-                  <ClearCacheImage />ブラウザのキャッシュをクリア
-                </button>
+                  <ClearCacheImage />{{ t('ブラウザのキャッシュをクリア ') }}</button>
               </label>
             </p>
             <p class="about-note">{{ clearSessionCacheStateText }}</p>
           </section>
 
           <section class="about-block">
-            <h3 class="about-heading">ゲーム情報提供</h3>
-            <p>ドロップ情報の集計向上のため、情報提供にご協力ください。</p>
+            <h3 class="about-heading">{{ t('ゲーム情報提供') }}</h3>
+            <p>{{ t('ドロップ情報の集計向上のため、情報提供にご協力ください。') }}</p>
             <p>
               <label>
-                <input v-model="globalSetting.enableIntake" type="checkbox" />
-                ドロップ情報を提供する
-              </label>
+                <input v-model="globalSetting.enableIntake" type="checkbox" />{{ t(' ドロップ情報を提供する ') }}</label>
             </p>
-            <p class="about-link-title">艦ログ - 艦これドロップ情報集計サイト</p>
+            <p class="about-link-title">{{ t('艦ログ - 艦これドロップ情報集計サイト') }}</p>
             <p class="about-kanlog-link">
               <a
                 class="has-text-success"
@@ -200,33 +193,30 @@ const kanlogUrl = 'https://kanlog.info'
                 target="_blank"
                 :href="kanlogUrl"
                 @click="openExternalUrl"
-                ><img class="kanlog-img" src="../assets/img/app/kanlog.png" alt="艦ログロゴ" /><span 
+                ><img class="kanlog-img" src="../assets/img/app/kanlog.png" :alt="t('艦ログロゴ')" /><span
                   class="link-text">{{ kanlogUrl }}</span></a
               >
             </p>
           </section>
 
           <section class="about-block">
-            <h3 class="about-heading">開発者向け</h3>
-            <p>甲ブラウザ側の開発者ツールを表示します。</p>
+            <h3 class="about-heading">{{ t('開発者向け') }}</h3>
+            <p>{{ t('甲ブラウザ側の開発者ツールを表示します。') }}</p>
             <p>
               <label class="button-in-about">
                 <button class="button" @click="openKoubrowserDevTool()">
-                  <AppDevToolImage />
-                  甲ブラウザ側開発者ツール表示
-                </button>
+                  <AppDevToolImage />{{ t(' 甲ブラウザ側開発者ツール表示 ') }}</button>
               </label>
             </p>
           </section>
 
           <section class="about-block">
-            <h3 class="about-heading">ライセンス</h3>
-            <p>同梱しているライブラリのライセンスを表示します。</p>
+            <h3 class="about-heading">{{ t('ライセンス') }}</h3>
+            <p>{{ t('同梱しているライブラリのライセンスを表示します。') }}</p>
             <p>
               <label class="button-in-about">
                 <button class="button" @click="openLicenseOverlay()">
-                  <ShowLicenseImage />ライセンス...
-                </button>
+                  <ShowLicenseImage />{{ t('ライセンス... ') }}</button>
               </label>
             </p>
           </section>
@@ -240,14 +230,14 @@ const kanlogUrl = 'https://kanlog.info'
       aria-labelledby="license-title"
     >
       <div class="license-dialog">
-        <h3 id="license-title" class="about-heading">使用コンポーネントとライセンス</h3>
+        <h3 id="license-title" class="about-heading">{{ t('使用コンポーネントとライセンス') }}</h3>
         <div class="license-table-scroll">
           <table class="license-table">
             <thead>
               <tr>
-                <th>ライブラリ</th>
-                <th>バージョン</th>
-                <th>ライセンス</th>
+                <th>{{ t('ライブラリ') }}</th>
+                <th>{{ t('バージョン') }}</th>
+                <th>{{ t('ライセンス') }}</th>
               </tr>
             </thead>
             <tbody>

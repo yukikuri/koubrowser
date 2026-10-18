@@ -1,4 +1,6 @@
 ﻿<script setup lang="ts">
+import { shipText, t } from '../i18n'
+
 import { computed, onMounted } from 'vue'
 import moment from 'moment'
 import { ApiKDock, ApiKDockState, MstShip } from '@common/kcs'
@@ -55,7 +57,7 @@ const kdocks = computed<KDockInfo[]>(() => {
 </script>
 <template>
   <section class="kdock-content">
-    <div class="kdock-title">建造ドック</div>
+    <div class="kdock-title">{{ t('建造ドック') }}</div>
     <div class="kdock-list">
       <div v-for="(info, index) in kdocks" :key="index" class="kdock">
         <div v-if="info.isUse">
@@ -65,16 +67,16 @@ const kdocks = computed<KDockInfo[]>(() => {
             <span class="kdock-img-help"
               ><DockStateTimer
                 :complete-time="info.kdock.api_complete_time"
-                :progress-text="'建造'"
-                :completed-text="'完了'"
+                :progress-text="t('建造')"
+                :completed-text="t('完了')"
             /></span>
           </span>
           <span class="kdock-info">
             <span class="kdock-info-item"
-              ><span v-if="info.isLargeFlag">大型建造: </span>{{ info.mst?.api_name }}</span
+              ><span v-if="info.isLargeFlag">{{ t('大型建造: ') }}</span>{{ shipText(info.mst?.api_name) }}</span
             >
             <span class="kdock-info-item"
-              >残り: <DockTimer :complete-time="info.kdock.api_complete_time" />
+              >{{ t('残り: ') }}<DockTimer :complete-time="info.kdock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>

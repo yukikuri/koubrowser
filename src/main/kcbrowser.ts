@@ -1,3 +1,4 @@
+import { normalizeLanguage, translate } from '@common/i18n'
 import {
   BrowserWindow,
   ipcMain,
@@ -667,7 +668,7 @@ export class KcApp {
     const iconPath = app.isPackaged 
       ? path.join(process.resourcesPath, 'resources/app.ico') : path.join(__dirname, '../../resources/app.ico')
     this.assist_window = new BrowserWindow({
-      title: '甲ブラウザ',
+      title: translate(gameSetting.language, '甲ブラウザ'),
       icon: iconPath,
       parent: this.main_window,
       useContentSize: true,
@@ -764,7 +765,7 @@ export class KcApp {
     // 非表示で作成
     // 現オプション設定内容を取得後に表示
     this.option_window = new BrowserWindow({
-      title: '甲ブラウザ 設定',
+      title: translate(gameSetting.language, '甲ブラウザ 設定'),
       show: false,
       icon: iconPath,
       frame: false,
@@ -965,54 +966,54 @@ export class KcApp {
 
     const template: (MenuItem | Electron.MenuItemConstructorOptions)[] = [
       {
-        label: 'ファイル',
+        label: translate(gameSetting.language, 'ファイル'),
         submenu: [
           {
-            label: '閉じる',
+            label: translate(gameSetting.language, '閉じる'),
             accelerator: 'Ctrl+W',
             role: 'close',
           }
         ]
       },
       {
-        label: '表示',
+        label: translate(gameSetting.language, '表示'),
         submenu: [
           {
-            label: 'リロード',
+            label: translate(gameSetting.language, 'リロード'),
             accelerator: 'Ctrl+R',
             role: 'reload',
           },
           {
-            label: 'リロード',
+            label: translate(gameSetting.language, 'リロード'),
             accelerator: 'F5',
             role: 'reload',
             visible: false
           },
           {
-            label: 'キャッシュを無視してリロード',
+            label: translate(gameSetting.language, 'キャッシュを無視してリロード'),
             accelerator: 'Ctrl+Shift+R',
             role: 'forceReload',
           },
           {
-            label: 'キャッシュを無視してリロード',
+            label: translate(gameSetting.language, 'キャッシュを無視してリロード'),
             accelerator: 'Ctrl+F5',
             role: 'forceReload',
             visible: false
           },
           { type: 'separator' },
           {
-            label: '戻る',
+            label: translate(gameSetting.language, '戻る'),
             accelerator: 'Alt+Left',
             click: (_menuItem, window) => goBackFoward(window?.id ?? -1, true)
           },
           {
-            label: '進む',
+            label: translate(gameSetting.language, '進む'),
             accelerator: 'Alt+Right',
             click: (_menuItem, window) => goBackFoward(window?.id ?? -1, false)
           },
           { type: 'separator' },
           {
-            label: '開発者ツール',
+            label: translate(gameSetting.language, '開発者ツール'),
             accelerator: 'F12',
             role: 'toggleDevTools',
           }
@@ -1484,7 +1485,7 @@ export class KcApp {
 
     const result = dialog.showOpenDialogSync(
       this.option_window, {
-      title: 'キャプチャ保存先フォルダを選択',
+      title: translate(gameSetting.language, 'キャプチャ保存先フォルダを選択'),
       properties: ['openDirectory', 'createDirectory']
     })
     if (result && result.length > 0) {
@@ -1505,7 +1506,7 @@ export class KcApp {
 
     const result = dialog.showOpenDialogSync(
       this.option_window, {
-      title: '読み込む拡張機能フォルダを選択',
+      title: translate(gameSetting.language, '読み込む拡張機能フォルダを選択'),
       properties: ['openDirectory']
     })
     if (result && result.length > 0) {
@@ -1539,6 +1540,7 @@ export class KcApp {
    */
   private onChannelOptionSaveSetting(setting: OptionSetting): void {
     debug(OptionChannel.saveSetting, setting)
+    setting = { ...setting, language: normalizeLanguage(setting.language) }
     optionSettingStore.save(setting)
     this.questSchemaCheckNotifyOnly = setting.questSchemaCheckNotifyOnly === true
     this.questSchemaIntervalConfigured = true
@@ -1634,7 +1636,7 @@ export class KcApp {
             this.wsRecording.bytesWritten,
             'bytes written'
           )
-          dialog.showErrorBox('レコーディング失敗', 'ファイル書き込みに失敗しました')
+          dialog.showErrorBox(translate(gameSetting.language, 'レコーディング失敗'), translate(gameSetting.language, 'ファイル書き込みに失敗しました'))
           const path = this.wsRecording.path
           this.wsRecording.end(() => {
             fs.unlinkSync(path)
@@ -1754,6 +1756,7 @@ export class KcApp {
 
         const msg: RequiredMessage  = { 
           type: 'required',
+        language: gameSetting.language,
           svdata: null,
           quests: [],
           globalSetting,
@@ -1799,7 +1802,8 @@ export class KcApp {
       this.checkUpdateIfNeeded(globalSetting)
 
       const msg: RequiredMessage  = { 
-        type: 'required', 
+        type: 'required',
+        language: gameSetting.language,
         svdata: sendSvData ? svdata.svdataRaw : null,
         quests,
         globalSetting,
@@ -1844,7 +1848,7 @@ export class KcApp {
         const buf = iconv.encode(lines, 'Shift_JIS')
         fs.open(dialog_return.filePath, 'w', (err, fd) => {
           if (err) {
-            dialog.showErrorBox('保存に失敗しました', dialog_return.filePath ?? 'パスがありません')
+            dialog.showErrorBox(translate(gameSetting.language, '保存に失敗しました'), dialog_return.filePath ?? translate(gameSetting.language, 'パスがありません'))
           } else {
             fs.write(fd, buf, 0, buf.length, (err, _written, _buffer) => {
               fs.close(fd, (err) => {
@@ -1855,8 +1859,8 @@ export class KcApp {
               debug('save writed to file', dialog_return.filePath, err)
               if (err) {
                 dialog.showErrorBox(
-                  '書き込みに失敗しました',
-                  dialog_return.filePath ?? 'パスがありません'
+                  translate(gameSetting.language, '書き込みに失敗しました'),
+                  dialog_return.filePath ?? translate(gameSetting.language, 'パスがありません')
                 )
               }
             })

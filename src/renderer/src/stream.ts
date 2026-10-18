@@ -1,3 +1,4 @@
+import { initializeLanguage } from '@renderer/i18n'
 import { MainMessage } from '@common/channel'
 import type { 
   Message, 
@@ -25,6 +26,7 @@ import { questSchemaUpdateAvailable, questSchemaApplyError } from '@renderer/sto
 let requiredRecvedCallback: (()=> void) | null = null;
 
 function onRequired(msg: RequiredMessage): void {
+  initializeLanguage(msg.language)
   console.log('stream got required data >> is null:', msg.svdata === null)
   if (msg.svdata) {
     console.time('copy svdata')

@@ -1,4 +1,6 @@
 ﻿<script setup lang="ts">
+import { shipText, t } from '../i18n'
+
 import { computed, onMounted } from 'vue'
 import moment from 'moment'
 import { ApiNDock, ShipInfo, ApiNDockState, KcsUtil } from '@common/kcs'
@@ -49,7 +51,7 @@ const ndocks = computed<NDockInfo[]>(() => {
 </script>
 <template>
   <section class="ndock-content">
-    <div class="ndock-title">入渠ドック</div>
+    <div class="ndock-title">{{ t('入渠ドック') }}</div>
     <div class="ndock-list">
       <div v-for="(info, index) in ndocks" :key="index" class="ndock">
         <div v-if="info.isIn">
@@ -58,17 +60,17 @@ const ndocks = computed<NDockInfo[]>(() => {
             <span class="ndock-img-help"
               ><DockStateTimer
                 :complete-time="info.ndock.api_complete_time"
-                :progress-text="'修復'"
-                :completed-text="'完了'"
+                :progress-text="t('修復')"
+                :completed-text="t('完了')"
             /></span>
           </span>
           <span class="ndock-info">
             <span class="ndock-info-item"
-              >Lv {{ info.info?.api.api_lv }} {{ info.info?.mst.api_name }}
+              >Lv {{ info.info?.api.api_lv }} {{ shipText(info.info?.mst.api_name) }}
               {{ info.info?.api.api_nowhp }}/{{ info.info?.api.api_maxhp }}</span
             >
             <span class="ndock-info-item"
-              >残り: <DockTimer :complete-time="info.ndock.api_complete_time" />
+              >{{ t('残り: ') }}<DockTimer :complete-time="info.ndock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>

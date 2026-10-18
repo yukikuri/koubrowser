@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { ref, reactive, onMounted, onBeforeUnmount, computed, watch, toRaw, Ref, ComputedRef, onUnmounted } from 'vue'
 import { Const } from '@common/const'
-import { DispSeikuText, getFormationText, TacticsText } from '@common/locale'
+import { DispSeikuText, getFormationText, TacticsText } from '@renderer/locale'
 import { Env } from '@common/env'
 import { replaceArray } from '@common/ts'
 import { gameSetting } from '@renderer/store/gamesetting'
@@ -87,11 +89,11 @@ const tactics = ref<ApiTactics | null>(null)
 
 const title = computed((): string => {
   if (taiha_singeki.value) {
-    return '！大破進撃です！'
+    return t('！大破進撃です！')
   }
 
   if (gameSetting.assistInGame) {
-    return '甲ブラウザ'
+    return t('甲ブラウザ')
   }
   // 画面サイズにより表示しきれないことから空表示
   return ''
@@ -198,11 +200,11 @@ const mapStartOnce = computed((): boolean => {
 const mapAreaText = computed((): string => {
   const mapinfo = svdata.mstBattleMapInfo
   if (!mapinfo) {
-    return '出撃情報がありません'
+    return t('出撃情報がありません')
   }
 
   // mapinfo.api_nameは名前が長いことがあり表示しない
-  const s1 = svdata.inMap ? '出撃中' : '出撃帰'
+  const s1 = svdata.inMap ? t('出撃中') : t('出撃帰')
   const areaText = mapinfo.api_maparea_id > 10 ? 'E' : mapinfo.api_maparea_id + '-'
   return `${s1}: ${areaText}${mapinfo.api_no}`
 })
@@ -218,7 +220,7 @@ const noBattleInfoText = computed((): string => {
   if (inBattle.value || ! mapStartOnce.value) {
     return ''
   }
-  return '戦闘情報がありません'
+  return t('戦闘情報がありません')
 })
 
 const formationText = computed((): string => {
@@ -540,7 +542,7 @@ const isMute = computed((): boolean => {
 })
 
 const muteTitle = computed((): string => {
-  return gameState.muted ? 'サウンドはオフ状態' : 'サウンドはオン状態'
+  return gameState.muted ? t('サウンドはオフ状態') : t('サウンドはオン状態')
 })
 
 const onOpenAssist = (): void => {
@@ -549,7 +551,7 @@ const onOpenAssist = (): void => {
 
 const updateAvailableTitle = computed((): string => {
   const version = startupUpdateVersion.value
-  return version ? `更新があります。バージョン ${version} が利用可能です。` : '更新があります。'
+  return version ? t('更新があります。バージョン {0} が利用可能です。', [version]) : t('更新があります。')
 })
 
 const onUpdateAvailableClick = (event: MouseEvent): void => {
@@ -1074,7 +1076,7 @@ if (EnvRenderer.isTestMode) {
           v-if="isAssistControlOk"
           class="titlebar-button assist"
           :class="{ checked: isAssistShown, disabled: !isAssistOk }"
-          title="アシストを表示"
+          :title="t('アシストを表示')"
           @click="onAssist"
         >
           <ShowAssistImage />
@@ -1086,9 +1088,9 @@ if (EnvRenderer.isTestMode) {
       <button
         v-if="questSchemaUpdateAvailable" type="button" class="quest-schema-update-notice"
         :disabled="questSchemaApplying"
-        :title="questSchemaApplyError ?? 'クリックして任務データの更新を適用します。'"
+        :title="questSchemaApplyError ?? t('クリックして任務データの更新を適用します。')"
         @click="applyQuestSchemaUpdate"
-      >{{ questSchemaApplying ? '任務データ適用中…' : questSchemaApplyError ? '任務データ適用失敗（再試行）' : '任務データ更新あり' }}</button>
+      >{{ questSchemaApplying ? t('任務データ適用中…') : questSchemaApplyError ? t('任務データ適用失敗（再試行）') : t('任務データ更新あり') }}</button>
       <transition name="slide-effect" appear>
         <button
           v-show="isStartupUpdateAvailable"
@@ -1105,63 +1107,63 @@ if (EnvRenderer.isTestMode) {
           v-show="isGimmickClear"
           class="caption-content for-calc-size gimmick-clear-content" 
           :style="gimmickClearStyle">&nbsp;&nbsp;<span 
-            class="g">ギミック</span>解除音<span 
-              v-if="isGimmickClear" class="tag-circle yellow">有</span><span 
-              v-if="false" class="tag-circle yellow">有<span 
+            class="g">{{ t('ギミック') }}</span>{{ t('解除音') }}<span
+              v-if="isGimmickClear" class="tag-circle yellow">{{ t('有') }}</span><span
+              v-if="false" class="tag-circle yellow">{{ t('有') }}<span
                 class="is-map">MAP</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
         <span 
           v-show="isNotSupplyDeck"
           class="caption-content for-calc-size not-supply-content" 
-          :style="notSupplyStyle">&nbsp;&nbsp;未補給</span>
+          :style="notSupplyStyle">{{ t('\u00a0\u00a0未補給') }}</span>
       </transition>
       <transition name="slide-effect" appear>
          <span 
            v-show="isNotSupplyDeck1"
            class="caption-content for-calc-size not-supply-deck1"
-           :style="notSupplyDeck1Style"><span class="tag-circle yellow deck">第一</span></span>
+           :style="notSupplyDeck1Style"><span class="tag-circle yellow deck">{{ t('第一') }}</span></span>
       </transition>
       <transition name="slide-effect" appear>
          <span 
            v-show="isNotSupplyDeck2"
            class="caption-content for-calc-size not-supply-deck2"
-           :style="notSupplyDeck2Style"><span class="tag-circle yellow deck">第二</span></span>
+           :style="notSupplyDeck2Style"><span class="tag-circle yellow deck">{{ t('第二') }}</span></span>
       </transition>
       <transition name="slide-effect" appear>
          <span 
            v-show="isNotSupplyDeck3"
            class="caption-content for-calc-size not-supply-deck3"
-           :style="notSupplyDeck3Style"><span class="tag-circle yellow deck">第三</span></span>
+           :style="notSupplyDeck3Style"><span class="tag-circle yellow deck">{{ t('第三') }}</span></span>
       </transition>
       <transition name="slide-effect" appear>
          <span 
            v-show="isNotSupplyDeck4"
            class="caption-content for-calc-size not-supply-deck4"
-           :style="notSupplyDeck4Style"><span class="tag-circle yellow deck">第四</span></span>
+           :style="notSupplyDeck4Style"><span class="tag-circle yellow deck">{{ t('第四') }}</span></span>
       </transition>
       <transition name="slide-effect" appear>
         <span 
           v-show="isNotSupplyAirBaseExist"
           class="caption-content for-calc-size not-supply-airbase-content" 
-          :style="notSupplyAirBaseStyle">&nbsp;&nbsp;基地未補給<span 
-            v-if="isNotSupplyAirBase" class="tag-circle yellow">有</span><span 
-            v-if="isNotSupplyAirBaseEvent" class="tag-circle yellow">有<span class="is-event">E</span></span></span>
+          :style="notSupplyAirBaseStyle">{{ t('\u00a0\u00a0基地未補給') }}<span
+            v-if="isNotSupplyAirBase" class="tag-circle yellow">{{ t('有') }}</span><span
+            v-if="isNotSupplyAirBaseEvent" class="tag-circle yellow">{{ t('有') }}<span class="is-event">E</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
         <span 
           v-show="isWaySupport"
           class="caption-content for-calc-size way-support-content" 
-          :style="waySupportStyle">&nbsp;&nbsp;前衛支援<span 
-            class="tag-circle red">出<span 
+          :style="waySupportStyle">{{ t('\u00a0\u00a0前衛支援') }}<span
+            class="tag-circle red">{{ t('出') }}<span
             v-if="isEventWaySupport" class="is-event">E</span></span></span>
       </transition>
       <transition name="slide-effect" appear>
         <span 
           v-show="isBossSupport"
           class="caption-content for-calc-size boss-support-content" 
-          :style="bossSupportStyle">&nbsp;&nbsp;決戦支援<span 
-            class="tag-circle red">出<span 
+          :style="bossSupportStyle">{{ t('\u00a0\u00a0決戦支援') }}<span
+            class="tag-circle red">{{ t('出') }}<span
           v-if="isEventBossSupport" class="is-event">E</span></span></span>
       </transition>
     </div>
@@ -1169,9 +1171,9 @@ if (EnvRenderer.isTestMode) {
       <div class="mapinfo-content">
         <div class="map-in-out-img" :class="{ 'in-map': inMap }"><MapInOutImage /></div>
         <div class="map-area-route" :class="{ 'no-map-start': !mapStartOnce }">{{ mapAreaText }}{{ mapCellText }}</div>
-        <div class="timeline-button" :class="{ press: timelinePressed }" title="タイムライン">
+        <div class="timeline-button" :class="{ press: timelinePressed }" :title="t('タイムライン')">
           <div class="battle-score-text">
-            <div>戦果</div>
+            <div>{{ t('戦果') }}</div>
             <div class="score">
               <template v-if="isTodayBattleScoreCalced">
                 <span 
@@ -1232,8 +1234,8 @@ if (EnvRenderer.isTestMode) {
       <div>
         <div
           class="titlebar-button option"
-          title="設定"
-          aria-label="設定"
+          :title="t('設定')"
+          :aria-label="t('設定')"
           @click="onOpenOption"
         >
         <OptionImage />
@@ -1241,7 +1243,7 @@ if (EnvRenderer.isTestMode) {
         <div
           class="titlebar-button rec"
           :class="{ checked: isRecording }"
-          title="録画を開始"
+          :title="t('録画を開始')"
           @click="onRec"
         >
           <RecImage />
@@ -1252,56 +1254,55 @@ if (EnvRenderer.isTestMode) {
         </div> -->
         <div
           class="titlebar-button"
-          title="スクリーンショット・録画フォルダを開く"
+          :title="t('スクリーンショット・録画フォルダを開く')"
           @click="onOpenCaptureFolder"
         >
           <OpenCaptureFolderImage />
         </div>
-        <div class="titlebar-button" title="スクリーンショット" @click="onScreenshot">
+        <div class="titlebar-button" :title="t('スクリーンショット')" @click="onScreenshot">
           <CaptureImage />
         </div>
         <div class="titlebar-button soundonoff" :title="muteTitle" @click="onMute">
           <SoundOffImage v-if="isMute" /><SoundOnImage v-if="!isMute" />
         </div>
-        <div class="titlebar-button reload" title="ページを再読み込みします" @click="onReload">
+        <div class="titlebar-button reload" :title="t('ページを再読み込みします')" @click="onReload">
           <ReloadImage />
         </div>
         <div
           v-if="isDevelopment"
           class="titlebar-button devtool-button"
-          title="デベロッパー ツール"
+          :title="t('デベロッパー ツール')"
           @click="onDevTool"
         >
           <DevToolImage />
         </div>
         <div
           class="titlebar-button devtool-button"
-          title="Game側デベロッパー ツール"
+          :title="t('Game側デベロッパー ツール')"
           @click="onGameDevTool"
         >
           <GameDevToolImage />
         </div>
-        <div class="titlebar-button" title="新しいアシストウインドウを表示" @click="onOpenAssist">
+        <div class="titlebar-button" :title="t('新しいアシストウインドウを表示')" @click="onOpenAssist">
           <OpenAssistImage />
         </div>
         <div
           class="titlebar-button"
           :class="{ checked: isTopMost }"
-          title="常に最前面に表示する"
+          :title="t('常に最前面に表示する')"
           @click="onTopMost"
         >
           <TopMostImage />
         </div>
-        <div class="titlebar-button" title="最小化" @click="onMinimize"><span>&#x2014;</span></div>
+        <div class="titlebar-button" :title="t('最小化')" @click="onMinimize"><span>&#x2014;</span></div>
         <!--<div class="button" @click="onMaximize"><span>&#9744;</span></div>-->
-        <div class="titlebar-button close" title="閉じる" @click="onClose">
+        <div class="titlebar-button close" :title="t('閉じる')" @click="onClose">
           <span>&#10005;</span>
         </div>
       </div>
     </div>
     <transition name="screenshot-toast">
-      <div v-if="screenshotToastFilename" class="screenshot-toast">
-        スクリーンショットを保存しました: {{ screenshotToastFilename }}
+      <div v-if="screenshotToastFilename" class="screenshot-toast">{{ t(' スクリーンショットを保存しました: ') }}{{ screenshotToastFilename }}
       </div>
     </transition>
   </div>

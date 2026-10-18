@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, t, shipText } from '../i18n'
+
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import Highcharts from 'highcharts/highstock'
 import type { TimelineResult } from '@common/channel'
@@ -17,9 +19,9 @@ import {
   getAirSearchResultText,
   QuestCategoryText,
   QuestTypeText,
-  QuestTypeTextYear,
+  getQuestTypeTextYear,
   TacticsText
-} from '@common/locale'
+} from '@renderer/locale'
 import {
   ApiEventId,
   ApiEventKind,
@@ -89,7 +91,7 @@ const battleRecords = computed<TimelineBattleRecord[]>(() => {
 })
 
 const questCountText = computed(
-  () => ` 遂行中: ${quests.value.length} 受託可能: ${props.data[0].quest_max}`
+  () => t(' 遂行中: {0} 受託可能: {1}', [quests.value.length, props.data[0].quest_max])
 )
 
 function questCategoryText(quest: ApiQuest): string {
@@ -105,7 +107,7 @@ function questTypeText(quest: ApiQuest): string {
   const t = QuestTypeText[quest.api_type] ?? ''
   // Quarterly sometimes labeled with year
   if (quest.api_type === ApiQuestType.quarterly) {
-    return `${t}${QuestTypeTextYear}`
+    return `${t}${getQuestTypeTextYear()}`
   }
   return t
 }
@@ -122,7 +124,7 @@ function isQuestStateVisible(quest: ApiQuest): boolean {
 
 function questStateText(quest: ApiQuest): string {
   if (quest.api_state === ApiQuestState.completed) {
-    return '達成'
+    return t('達成')
   }
   const text = ['', '50%', '80%'] as const
   return text[quest.api_progress_flag] ?? ''
@@ -177,7 +179,7 @@ function airSearchResultText(record: TimelineBattleRecord): string {
   if (! ret) {
     return ''
   }
-  return `航空偵察：${ret}`
+  return t('航空偵察：{0}', [ret])
 }
 
 function getNoBattleText(record: TimelineBattleRecord): string {
@@ -185,7 +187,7 @@ function getNoBattleText(record: TimelineBattleRecord): string {
   if (! isNobattle) {
     return ''
   }
-  return '戦闘なし'
+  return t('戦闘なし')
 }
 
 function getInfoText(record: TimelineBattleRecord): string {
@@ -218,7 +220,7 @@ function onBlur(event: Event): void {
 
 const lastBattleInfo = computed<string>(() => {
   const record: BattleRecord = props.data[1][0]
-  return `${ record.rank }: ${battleMapText(record) } Cell:${ record.cellId } ${ record.enemyDeckName }`
+  return `${ record.rank }: ${battleMapText(record) } Cell:${ record.cellId } ${ gameText(record.enemyDeckName) }`
 })
 
 const { computed: isGimmickFlagDetected  } = kcs_stuff.isGimmickFlagDetected()
@@ -614,13 +616,13 @@ function drawDailyScoreChart(
     series: [
       {
         type: 'column',
-        name: '当日戦果',
+        name: t('当日戦果'),
         data: scores,
         color: '#60fa4b'
       },
       {
         type: 'spline',
-        name: '累積戦果',
+        name: t('累積戦果'),
         data: cumulativeScores,
         yAxis: 1,
         color: grad,
@@ -642,7 +644,7 @@ function drawDailyScoreChart(
   dailyScoreChart.update(options, true, true)
 }
 
-const scoreChartStateText = ref(svdata.isShipDataOk ? '当月戦果データを取得中...' : 'GAME開始前により戦果チャートが表示できません');
+const scoreChartStateText = ref(svdata.isShipDataOk ? t('当月戦果データを取得中...') : t('GAME開始前により戦果チャートが表示できません'));
 async function fetchAndDrawDailyScoreChart(): Promise<void> {
   try {
     const { categories, tooltipCategories, scores, cumulativeScores } = await fetchCurrentMonthDailyScores()
@@ -654,7 +656,7 @@ async function fetchAndDrawDailyScoreChart(): Promise<void> {
     drawDailyScoreChart(categories, tooltipCategories, scores, cumulativeScores)
   } catch (err) {
     console.error('timeline fetchCurrentMonthDailyScores error:', err)
-    scoreChartStateText.value = '当月戦果データの取得に失敗しました。'
+    scoreChartStateText.value = t('当月戦果データの取得に失敗しました。')
     hasDailyScore.value = false
   }
 }
@@ -689,7 +691,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
   >
     <section v-if="isShowQuestList">
       <div class="timeline-title px-1">
-        <div>遂行中任務</div>
+        <div>{{ t('遂行中任務') }}</div>
         <div v-if="isQuestsValid">{{ questCountText }}</div>
       </div>
       <div class="px-2 py-1">
@@ -703,7 +705,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
             <span class="quest-type mr-1" :class="questTypeClass(quest)">{{
               questTypeText(quest)
             }}</span>
-            <span>{{ quest.api_title }}</span>
+            <span>{{ gameText(quest.api_title) }}</span>
             <span
               v-if="isQuestStateVisible(quest)"
               class="quest-state"
@@ -714,25 +716,24 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
         </div>
         <div v-else class="quest-content">
           <div class="quest-help help-text">
-            <span class="img mr-2"><InfoImg /></span>クエスト情報が未取得です。任務(クエスト)画面を開いてください。
-          </div>
+            <span class="img mr-2"><InfoImg /></span>{{ t('クエスト情報が未取得です。任務(クエスト)画面を開いてください。 ') }}</div>
         </div>
       </div>
     </section>
     <section v-if="isGimmickFlagDetected">
-      <div class="timeline-title px-1">ギミック</div>
-      <div>ギミック解除音を検知しました。</div>
-      <div>直近戦闘 {{ lastBattleInfo }}</div>
+      <div class="timeline-title px-1">{{ t('ギミック') }}</div>
+      <div>{{ t('ギミック解除音を検知しました。') }}</div>
+      <div>{{ t('直近戦闘 ') }}{{ lastBattleInfo }}</div>
     </section>
     <section v-if="isMapChangeDetected">
-      <div class="timeline-title px-1">海域変化ギミック</div>
-      <div>海域変化を検知しました。</div>
-      <div>直近戦闘 {{ lastBattleInfo }}</div>
+      <div class="timeline-title px-1">{{ t('海域変化ギミック') }}</div>
+      <div>{{ t('海域変化を検知しました。') }}</div>
+      <div>{{ t('直近戦闘 ') }}{{ lastBattleInfo }}</div>
     </section>
     <section>
       <div class="timeline-title px-1">
-        <span>当日戦果</span>
-        <span class="is-right">累積戦果</span>
+        <span>{{ t('当日戦果') }}</span>
+        <span class="is-right">{{ t('累積戦果') }}</span>
       </div>
       <div class="px-2 py-0 daily-score-chart-container">
         <div ref="dailyScoreChartEl" class="daily-score-chart"></div>
@@ -742,7 +743,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
       </div>
     </section>
     <section>
-      <div class="timeline-title px-1">出撃履歴</div>
+      <div class="timeline-title px-1">{{ t('出撃履歴') }}</div>
       <div v-if="isBattleRecordsValid">
         <div v-for="(record, b_index) in battleRecords" :key="b_index" class="card">
           <div class="card-content">
@@ -755,9 +756,9 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
               <div class="media-content is-overflow-hidden">
                 <p class="subtitle is-7">
                   {{ toLocalDateText(record.date) }}
-                  <span v-if="record.drop && record.drop.shipId === -2">母港FULL</span>
+                  <span v-if="record.drop && record.drop.shipId === -2">{{ t('母港FULL') }}</span>
                   <span v-if="record.drop && record.drop.shipId > 0"
-                    >Drop: {{ record.drop.shipName }}</span
+                    >Drop: {{ shipText(record.drop.shipName) }}</span
                   >
                 </p>
                 <p class="title is-6">
@@ -765,7 +766,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
                   <span v-if="record.isBoss" class="tag is-radiusless is-danger is-normal"
                     >BOSS</span
                   >
-                  {{ record.enemyDeckName }} {{ battleSeikuText(record) }}
+                  {{ gameText(record.enemyDeckName) }} {{ battleSeikuText(record) }}
                   {{ battleFormationText(record) }}
                   <span class="info-text">{{ getInfoText(record) }}</span>
                 </p>
@@ -789,8 +790,7 @@ const isNoAssist = computed(() => !gameSetting.assistInGame)
       </div>
       <div v-else>
         <div class="mx-2 my-2 timeline-battle help-text">
-          <span class="img mr-2"><InfoImg /></span>出撃履歴がありません。
-        </div>
+          <span class="img mr-2"><InfoImg /></span>{{ t('出撃履歴がありません。 ') }}</div>
       </div>
     </section>
   </div>
