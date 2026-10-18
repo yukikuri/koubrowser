@@ -1,3 +1,4 @@
+import { normalizeLanguage } from '@common/i18n'
 import { app, BrowserWindow, session } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { Const } from '@common/const'
@@ -132,6 +133,8 @@ if (!gotTheLock) {
     } catch (err) {
       console.error('Failed to load option setting. Falling back to default setting.', err)
     }
+
+    gameSetting.language = normalizeLanguage(optionSetting.language)
 
     // set capture path
     PathStuff.setCapturePath(optionSetting.captureSavePath)

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, t } from '../i18n'
+
 import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
 import { ApiDeckPort, MissionState } from '@common/kcs'
 import DoneImg from '@renderer/assets/img/done.svg'
@@ -67,9 +69,9 @@ watch(
 const stateLabel = computed(() => {
   const state = props.deck.api_mission[0]
   if (state === MissionState.stopped) {
-    return '帰還中'
+    return t('帰還中')
   }
-  return '遠征中'
+  return t('遠征中')
 })
 
 const tagType = computed(() => {
@@ -88,7 +90,7 @@ const toStr = (v: number, prefix: string): string => {
 
 const stateText = computed((): string => {
   if (completed.value) {
-    return '完了'
+    return t('完了')
   }
   const d = moment.duration(Math.max(0, durMs.value))
   const hour = d.asHours()
@@ -100,7 +102,7 @@ const stateText = computed((): string => {
 
 const missionName = computed((): string => {
   const mission = svdata.mstMission(props.deck.api_mission[1])
-  return `${props.deck.api_mission[1]}: ${mission?.api_name ?? ''}`
+  return `${props.deck.api_mission[1]}: ${gameText(mission?.api_name)}`
 })
 </script>
 <template>

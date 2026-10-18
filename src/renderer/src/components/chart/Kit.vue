@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 import { onMounted, onUnmounted, computed, ref } from 'vue'
 import type { KitChartData } from '@common/record'
 import ChartImage from '@assets/img/chart.svg'
@@ -86,14 +88,14 @@ function drawChart(datas: KitChartData): void {
   const zoom_buttons: Highcharts.RangeSelectorButtonsOptions[] = [
     { type: 'hour', count: 6, text: '6H' },
     { type: 'hour', count: 12, text: '12H' },
-    { type: 'day', count: 1, text: '日' },
-    { type: 'week', count: 1, text: '週' },
-    { type: 'month', count: 1, text: '月' },
-    { type: 'month', count: 3, text: '3ヶ月' },
-    { type: 'month', count: 6, text: '半年' },
-    { type: 'ytd', text: '今年' },
-    { type: 'year', count: 1, text: '1年' },
-    { type: 'all', text: '全て' },
+    { type: 'day', count: 1, text: t('日') },
+    { type: 'week', count: 1, text: t('週') },
+    { type: 'month', count: 1, text: t('月') },
+    { type: 'month', count: 3, text: t('3ヶ月') },
+    { type: 'month', count: 6, text: t('半年') },
+    { type: 'ytd', text: t('今年') },
+    { type: 'year', count: 1, text: t('1年') },
+    { type: 'all', text: t('全て') },
   ]
 
   function TooltipFormatter(
@@ -135,7 +137,7 @@ function drawChart(datas: KitChartData): void {
   const options: Highcharts.Options = {
     chart: { renderTo: 'chart-kit', backgroundColor: 'transparent', height: 400, spacingTop: 61 },
     lang: {
-      noData: '表示するデータがありません。',
+      noData: t('表示するデータがありません。'),
     },
     noData: {
       style: {
@@ -276,8 +278,8 @@ onUnmounted(() => {
         <button class="buxite" :class="{ 'is-visible': isSeriesRemodelKitVisible }" @click="toggleSeries('remodel-kit')"><span class="s-icon titlebar-remodel-kit"><span class="line-word"></span></span></button>
       </div>
       <div v-if="isValidDateRange" class="chart-material-detail">
-        <ChartImage class="chart-image" /> 資材チャート: {{ dateFrom }} ～ {{ dateTo }}
-        <span :class="{ 'is-visible': isAnySeriesVisible }">増減 </span>
+        <ChartImage class="chart-image" />{{ t(' 資材チャート: ') }}{{ dateFrom }} ～ {{ dateTo }}
+        <span :class="{ 'is-visible': isAnySeriesVisible }">{{ t('増減 ') }}</span>
         <span class="mr-1" :class="diffFastRepairClass"><span class="s-icon titlebar-fast-repair">{{ fastRepairDiff }}</span></span>
         <span class="mr-1" :class="diffFastBuildClass"><span class="s-icon titlebar-fast-build">{{ fastBuildDiff }}</span></span>
         <span class="mr-1" :class="diffBuildKitClass"><span class="s-icon titlebar-build-kit">{{ buildKitDiff }}</span></span>

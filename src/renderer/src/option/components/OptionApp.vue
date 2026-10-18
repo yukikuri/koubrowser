@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, WritableComputedRef } from 'vue'
 import OptionTitleBar from './OptionTitleBar.vue'
 import QuestSchemaInfo from './QuestSchemaInfo.vue'
@@ -25,23 +27,23 @@ interface CategoryInfo {
 const categories: CategoryInfo[] = [
   {
     key: 'general',
-    title: '一般',
-    description: '基本的な動作に関する設定'
+    title: t('一般'),
+    description: t('基本的な動作に関する設定')
   },
   {
     key: 'quest',
-    title: '任務データ',
-    description: '任務データに関する設定'
+    title: t('任務データ'),
+    description: t('任務データに関する設定')
   },
   {
     key: 'network',
-    title: '通信設定',
-    description: 'プロキシや通信動作に関する設定'
+    title: t('通信設定'),
+    description: t('プロキシや通信動作に関する設定')
   },
   {
     key: 'extension',
-    title: '拡張機能',
-    description: '拡張機能に関する設定'
+    title: t('拡張機能'),
+    description: t('拡張機能に関する設定')
   },
   // {
   //   key: 'assist',
@@ -88,7 +90,7 @@ onMounted(async () => {
   } catch {
     if (!disposed && !receivedState) {
       optionViewInfo.questSchemaCheckStatus = 'error'
-      optionViewInfo.questSchemaError = '任務データの確認状態を取得できませんでした。'
+      optionViewInfo.questSchemaError = t('任務データの確認状態を取得できませんでした。')
     }
   }
 })
@@ -108,7 +110,7 @@ async function checkQuestSchemaNow(applyPending = false): Promise<void> {
   } catch {
     if (!disposed) {
       optionViewInfo.questSchemaCheckStatus = 'error'
-      optionViewInfo.questSchemaError = '任務データの更新確認を要求できませんでした。'
+      optionViewInfo.questSchemaError = t('任務データの更新確認を要求できませんでした。')
     }
   } finally {
     questCheckPending.value = false
@@ -211,20 +213,16 @@ const clearProxyFixedServersInput = (): void => {
 
     <div v-if="props.isError" class="option-error-overlay" role="alertdialog" aria-modal="true">
       <div class="option-error-dialog">
-        <div class="option-error-title">設定を読み込めませんでした</div>
-        <div class="option-error-message">
-          設定情報の取得中にエラーが発生しました。設定画面を閉じてから、もう一度開いてください。
-        </div>
-        <button class="option-error-close-button" type="button" @click="close">
-          閉じる
-        </button>
+        <div class="option-error-title">{{ t('設定を読み込めませんでした') }}</div>
+        <div class="option-error-message">{{ t(' 設定情報の取得中にエラーが発生しました。設定画面を閉じてから、もう一度開いてください。 ') }}</div>
+        <button class="option-error-close-button" type="button" @click="close">{{ t(' 閉じる ') }}</button>
       </div>
     </div>
 
     <main class="option-shell" :class="{ 'is-error': props.isError }">
-      <aside class="option-sidebar" aria-label="設定カテゴリ">
+      <aside class="option-sidebar" :aria-label="t('設定カテゴリ')">
         <div class="option-brand">
-          <div class="option-title">甲ブラウザ 設定</div>
+          <div class="option-title">{{ t('甲ブラウザ 設定') }}</div>
         </div>
         <nav class="option-categories">
           <button
@@ -240,7 +238,7 @@ const clearProxyFixedServersInput = (): void => {
               v-if="category.key === 'quest' && optionViewInfo.questSchemaError"
               class="quest-schema-error-dot"
               role="img"
-              aria-label="任務データにエラーがあります"
+              :aria-label="t('任務データにエラーがあります')"
               :title="optionViewInfo.questSchemaError"
             />
           </button>
@@ -259,13 +257,12 @@ const clearProxyFixedServersInput = (): void => {
           
           <!-- 一般 -->
           <section v-if="isCurrentCategory('general')" class="option-section">
-            <div class="section-title">保存パス</div>
+            <div class="section-title">{{ t('保存パス') }}</div>
             <div class="option-row option-row-vertical">
               <span>
-                <span class="option-row-title">スクリーンショット・録画保存フォルダ</span>
-                <span class="option-row-description">スクリーンショットと録画の保存先フォルダを指定します。</span>
-                <span class="option-row-subdescription">
-                  既定値: <span class="selectable">{{ optionViewInfo.defaultCaptureSavePath }}</span>
+                <span class="option-row-title">{{ t('スクリーンショット・録画保存フォルダ') }}</span>
+                <span class="option-row-description">{{ t('スクリーンショットと録画の保存先フォルダを指定します。') }}</span>
+                <span class="option-row-subdescription">{{ t(' 既定値: ') }}<span class="selectable">{{ optionViewInfo.defaultCaptureSavePath }}</span>
                 </span>
               </span>
               <div class="option-path-control">
@@ -274,33 +271,26 @@ const clearProxyFixedServersInput = (): void => {
                   type="text"
                   :value="optionSetting.captureSavePath ?? ''"
                   readonly
-                  aria-label="スクリーンショットと録画の保存先フォルダ"
-                  placeholder="保存先フォルダを選択"
+                  :aria-label="t('スクリーンショットと録画の保存先フォルダ')"
+                  :placeholder="t('保存先フォルダを選択')"
                 />
-                <button class="option-path-button" type="button" @click="selectCaptureSavePath">
-                  参照
-                </button>
+                <button class="option-path-button" type="button" @click="selectCaptureSavePath">{{ t(' 参照 ') }}</button>
                 <button 
                   class="option-path-button secondary" 
                   type="button" 
                   :disabled="isCaptureSavePathDefault"
-                  @click="resetCaptureSavePath">
-                  既定値に戻す
-                </button>
+                  @click="resetCaptureSavePath">{{ t(' 既定値に戻す ') }}</button>
               </div>
             </div>
 
-            <div class="section-title">大破進撃防止</div>
+            <div class="section-title">{{ t('大破進撃防止') }}</div>
             <div class="option-row option-row-vertical">
               <label class="option-checkbox option-checkbox-with-description">
                 <input v-model="optionSetting.taihaSingekiBlockEnable" type="checkbox" />
 
                 <span class="option-checkbox-body">
-                  <span class="option-checkbox-title">大破進撃防止機能を有効にする</span>
-                  <span class="option-checkbox-description">
-                    大破艦を検知すると、轟沈防止のため進撃操作をボタン上シールドで制限します。<br>
-                    Ctrl+クリック、またはシールド表示OFFで操作できます。
-                  </span>
+                  <span class="option-checkbox-title">{{ t('大破進撃防止機能を有効にする') }}</span>
+                  <span class="option-checkbox-description">{{ t(' 大破艦を検知すると、轟沈防止のため進撃操作をボタン上シールドで制限します。') }}<br>{{ t(' Ctrl+クリック、またはシールド表示OFFで操作できます。 ') }}</span>
                 </span>
               </label>
 
@@ -312,20 +302,21 @@ const clearProxyFixedServersInput = (): void => {
                 />
 
                 <span class="option-checkbox-body">
-                  <span class="option-checkbox-title">一部の安全マスではチェックしない</span>
-                  <span class="option-checkbox-description">
-                    大破進撃扱いにならないことが確認できているマスでは、警告とシールドを表示しません。<br>
-                    対象は以下です。<br>
-                    <br>
-                    ・1-6.鎮守府近海航路 Bマス<br>
-                    ・2-2.バシー海峡 Bマス<br>
-                    ・3-1.モーレイ海 Bマス<br>
-                    ・3-2.キス島沖 Aマス<br>
-                    ・7-2.タウイタウイ泊地沖 Jマス<br>
-                    ・5-6.ラバウル方面海域 Hマス
-                  </span>
+                  <span class="option-checkbox-title">{{ t('一部の安全マスではチェックしない') }}</span>
+                  <span class="option-checkbox-description">{{ t(' 大破進撃扱いにならないことが確認できているマスでは、警告とシールドを表示しません。') }}<br>{{ t(' 対象は以下です。') }}<br>
+                    <br>{{ t(' ・1-6.鎮守府近海航路 Bマス') }}<br>{{ t(' ・2-2.バシー海峡 Bマス') }}<br>{{ t(' ・3-1.モーレイ海 Bマス') }}<br>{{ t(' ・3-2.キス島沖 Aマス') }}<br>{{ t(' ・7-2.タウイタウイ泊地沖 Jマス') }}<br>{{ t(' ・5-6.ラバウル方面海域 Hマス ') }}</span>
                 </span>
               </label>
+            </div>
+
+            <div class="section-title">{{ t('言語') }}</div>
+            <div class="option-row option-row-vertical">
+              <label class="option-row-title" for="interface-language">{{ t('表示言語') }}</label>
+              <select id="interface-language" v-model="optionSetting.language" class="option-text-input">
+                <option value="ja">{{ t('日本語') }}</option>
+                <option value="ko">한국어</option>
+              </select>
+              <span class="option-row-description">{{ t('変更は甲ブラウザ再起動後に反映されます。') }}</span>
             </div>
           </section>
 
@@ -346,45 +337,41 @@ const clearProxyFixedServersInput = (): void => {
 
           <!-- 通信設定 -->
           <section v-if="isCurrentCategory('network')" class="option-section">
-            <div class="section-title">プロキシ設定</div>
+            <div class="section-title">{{ t('プロキシ設定') }}</div>
 
             <div class="option-row option-row-vertical">
               <div>
-                <div class="option-row-title">プロキシの使用方法</div>
-                <div class="option-row-description">
-                  アプリ内通信に使用するプロキシ設定を指定します。変更は甲ブラウザ再起動後に反映されます。
-                </div>
+                <div class="option-row-title">{{ t('プロキシの使用方法') }}</div>
+                <div class="option-row-description">{{ t(' アプリ内通信に使用するプロキシ設定を指定します。変更は甲ブラウザ再起動後に反映されます。 ') }}</div>
               </div>
 
               <div class="option-radio-group">
                 <label class="option-radio">
                   <input v-model="optionSetting.proxyMode" type="radio" value="system" />
-                  <span>システム設定を使用 (規定値)</span>
+                  <span>{{ t('システム設定を使用 (規定値)') }}</span>
                 </label>
 
                 <label class="option-radio">
                   <input v-model="optionSetting.proxyMode" type="radio" value="direct" />
-                  <span>プロキシを使用しない</span>
+                  <span>{{ t('プロキシを使用しない') }}</span>
                 </label>
 
                 <label class="option-radio">
                   <input v-model="optionSetting.proxyMode" type="radio" value="auto_detect" />
-                  <span>自動検出</span>
+                  <span>{{ t('自動検出') }}</span>
                 </label>
 
                 <label class="option-radio option-radio-with-description">
                   <input v-model="optionSetting.proxyMode" type="radio" value="pac_script" />
 
                   <span class="option-radio-body">
-                    <span class="option-radio-title">PAC スクリプトを使用</span>
+                    <span class="option-radio-title">{{ t('PAC スクリプトを使用') }}</span>
                     <span class="option-radio-description">
-                      <span>サポートプロトコル: http, https, data 未サポートプロトコル: file</span>
+                      <span>{{ t('サポートプロトコル: http, https, data 未サポートプロトコル: file') }}</span>
                     </span>
-                    <span class="option-radio-description">
-                      設定例(http): <span class="selectable">http://localhost:8080/proxy.pac</span>
+                    <span class="option-radio-description">{{ t(' 設定例(http): ') }}<span class="selectable">http://localhost:8080/proxy.pac</span>
                     </span>
-                    <span class="option-radio-description">
-                      設定例(data): <span class="selectable">data:application/x-ns-proxy-autoconfig,xxxxx</span>
+                    <span class="option-radio-description">{{ t(' 設定例(data): ') }}<span class="selectable">data:application/x-ns-proxy-autoconfig,xxxxx</span>
                     </span>
                   </span>
 
@@ -396,8 +383,8 @@ const clearProxyFixedServersInput = (): void => {
                     v-model.lazy="proxyPacScriptInput"
                     class="option-text-input"
                     type="url"
-                    placeholder="例: http://localhost:8080/proxy.pac"
-                    aria-label="PAC スクリプト URL"
+                    :placeholder="t('例: http://localhost:8080/proxy.pac')"
+                    :aria-label="t('PAC スクリプト URL')"
                     :disabled="optionSetting.proxyMode !== 'pac_script'"
                     @input="onProxyPacScriptInput"
                   />
@@ -405,7 +392,7 @@ const clearProxyFixedServersInput = (): void => {
                     v-if="hasProxyPacScriptInput"
                     class="option-input-clear-button"
                     type="button"
-                    aria-label="PAC スクリプト URL をクリア"
+                    :aria-label="t('PAC スクリプト URL をクリア')"
                     @click="clearProxyPacScriptInput"
                   >&#10005;</button>
                 </div>
@@ -414,9 +401,8 @@ const clearProxyFixedServersInput = (): void => {
                   <input v-model="optionSetting.proxyMode" type="radio" value="fixed_servers" />
 
                   <span class="option-radio-body">
-                    <span class="option-radio-title">固定プロキシサーバーを使用</span>
-                    <span class="option-radio-description">
-                      設定例: <span class="selectable">http=localhost:40620;https=localhost:40620</span>
+                    <span class="option-radio-title">{{ t('固定プロキシサーバーを使用') }}</span>
+                    <span class="option-radio-description">{{ t(' 設定例: ') }}<span class="selectable">http=localhost:40620;https=localhost:40620</span>
                     </span>
                   </span>
                 </label>
@@ -427,8 +413,8 @@ const clearProxyFixedServersInput = (): void => {
                     v-model.lazy="proxyFixedServersInput"
                     class="option-text-input"
                     type="text"
-                    placeholder="例: http=localhost:40620;https=localhost:40620"
-                    aria-label="固定プロキシサーバー"
+                    :placeholder="t('例: http=localhost:40620;https=localhost:40620')"
+                    :aria-label="t('固定プロキシサーバー')"
                     :disabled="optionSetting.proxyMode !== 'fixed_servers'"
                     @input="onProxyFixedServersInput"
                   />
@@ -436,7 +422,7 @@ const clearProxyFixedServersInput = (): void => {
                     v-if="hasProxyFixedServersInput"
                     class="option-input-clear-button"
                     type="button"
-                    aria-label="固定プロキシサーバーをクリア"
+                    :aria-label="t('固定プロキシサーバーをクリア')"
                     @click="clearProxyFixedServersInput"
                   >&#10005;</button>
                 </div>
@@ -446,16 +432,12 @@ const clearProxyFixedServersInput = (): void => {
 
           <!-- 拡張機能 -->
           <section v-if="isCurrentCategory('extension')" class="option-section">
-            <div class="section-title">読み込み設定</div>
+            <div class="section-title">{{ t('読み込み設定') }}</div>
             <div class="option-row option-row-vertical">
               <span>
-                <span class="option-row-title">拡張機能フォルダ</span>
-                <span class="option-row-description">
-                  読み込むパッケージ化されていない拡張機能のフォルダを指定します。変更は甲ブラウザ再起動後に反映されます。
-                </span>
-                <span class="option-row-description">
-                  信頼できる拡張機能のみを指定してください。拡張機能によってはWeb表示や通信内容を監視・変更できる可能性があるため、ゲーム通信へ影響する拡張機能は使用しないでください。
-                </span>
+                <span class="option-row-title">{{ t('拡張機能フォルダ') }}</span>
+                <span class="option-row-description">{{ t(' 読み込むパッケージ化されていない拡張機能のフォルダを指定します。変更は甲ブラウザ再起動後に反映されます。 ') }}</span>
+                <span class="option-row-description">{{ t(' 信頼できる拡張機能のみを指定してください。拡張機能によってはWeb表示や通信内容を監視・変更できる可能性があるため、ゲーム通信へ影響する拡張機能は使用しないでください。 ') }}</span>
               </span>
               <div class="option-path-control">
                 <input
@@ -463,19 +445,15 @@ const clearProxyFixedServersInput = (): void => {
                   type="text"
                   :value="extensionPath"
                   readonly
-                  aria-label="読み込む拡張機能フォルダ"
-                  placeholder="拡張機能フォルダを選択"
+                  :aria-label="t('読み込む拡張機能フォルダ')"
+                  :placeholder="t('拡張機能フォルダを選択')"
                 />
-                <button class="option-path-button" type="button" @click="selectExtensionPath">
-                  参照
-                </button>
+                <button class="option-path-button" type="button" @click="selectExtensionPath">{{ t(' 参照 ') }}</button>
                 <button 
                   class="option-path-button secondary"
                   type="button"
                   :disabled="isExtensionPathDefault"
-                  @click="resetExtensionPath">
-                  クリア
-                </button>
+                  @click="resetExtensionPath">{{ t(' クリア ', [], 'input') }}</button>
               </div>
             </div>
           </section>

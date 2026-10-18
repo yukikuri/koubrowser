@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { computed, ref } from 'vue'
 import { svdata } from '@renderer/store/svdata'
 import { RUtil, DeckInfo } from '@renderer/util'
@@ -8,7 +10,7 @@ import World from '@renderer/components/World.vue'
 import MissionBadge from '@renderer/components/MissionBadge.vue'
 import LockImage from '@renderer/assets/img/lock.svg'
 import * as kcs_stuff from '@renderer/stuff/kcs_stuff'
-import { CombinedNames } from '@common/locale'
+import { CombinedNames } from '@renderer/locale'
 import { deckShipCount } from '@common/kcs'
 
 type Props = { showRate?: boolean }
@@ -115,7 +117,7 @@ const combinedName = computed<string>(() => {
             {{ deck.name }}
             <MissionBadge v-if="deck.inMission" :deck="deck.deck" />
             <template v-else>
-              <div v-if="deck.seiku > 0" title="制空値" class="seiku-wrapper ml-1">
+              <div v-if="deck.seiku > 0" :title="t('制空値')" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
                   <div 
@@ -124,9 +126,9 @@ const combinedName = computed<string>(() => {
                   }">{{deck.seiku}}</div>
                 </div>
               </div>
-              <div v-if="isShowYusou && (deck.yusou > 0)" title="輸送値" class="seiku-wrapper ml-1">
+              <div v-if="isShowYusou && (deck.yusou > 0)" :title="t('輸送値')" class="seiku-wrapper ml-1">
                 <div class="seiku">
-                  <span class="yusou-value">輸送</span>
+                  <span class="yusou-value">{{ t('輸送') }}</span>
                   <div 
                     class="txt" :class="{
                     'is-minus': deck.isEscapedYusou

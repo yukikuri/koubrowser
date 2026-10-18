@@ -1,3 +1,4 @@
+import type { Language } from '@common/i18n'
 import type { Quest } from '@common/record'
 import type { ApiMapInfoList, ApiMissionList, ApiQuestList, SvDataRaw } from '@common/kcs'
 import type { Api } from '@common/kcsapi'
@@ -25,6 +26,7 @@ export type MessageType = (typeof MessageType)[keyof typeof MessageType]
  */
 export interface RequiredMessage{
   readonly type: 'required'
+  readonly language: Language
   readonly svdata: SvDataRaw | null;
   readonly quests: Quest[];
   readonly globalSetting: GlobalSetting;

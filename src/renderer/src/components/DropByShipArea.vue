@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { shipText, t, gameText } from '../i18n'
+
 import {
   isShipRare,
   isShipUnique,
@@ -13,7 +15,7 @@ import { DropShipMapInfo } from '@renderer/common/drop-ship'
 import { getAreaName, getEventPeriodName } from '@common/area_name'
 import { AggregatedShipDrop, RankDropCountIndex, RankDropCounts, RecordCalculator } from '@common/calc_record'
 import { Spot } from '@common/map'
-import { MapLvText } from '@common/locale'
+import { MapLvText } from '@renderer/locale'
 import LocationImage from '@assets/img/location.svg'
 const isLocatonVisible = ref(false)
 
@@ -94,7 +96,7 @@ function updateTableDatas(drops: AggregatedShipDrop[]): void {
   const totalCounts: RankDropCounts = [0, 0, 0];
   drops.forEach((drop) => {
     const mst = drop.shipId > 0 ? svdata.mstShip(drop.shipId) : null;
-    const shipName = drop.shipId > 0 ? (mst ? mst.api_name : '????') : 'ドロップ無し';    
+    const shipName = drop.shipId > 0 ? (mst ? shipText(mst.api_name) : '????') : t('ドロップ無し');
     const count = drop.counts.reduce((acc, cur) => acc + cur, 0);
     drop.counts.forEach((c, idx) => {
       totalCounts[idx] += c;
@@ -125,7 +127,7 @@ function updateTableDatas(drops: AggregatedShipDrop[]): void {
   // total row
   const totalRow: DataType = {
     shipId: totalRowId,
-    shipName: '合計',
+    shipName: t('合計'),
     counts: totalCounts,
     rate: -1,
     count: totalCount,
@@ -212,7 +214,7 @@ const getMapTitle = (): string => {
   const noOrLabel = props.info.cell_label ?? 'cell'+props.info.cell_no;
   const isEvent = KcsUtil.isEventAreaId(props.info.area_id)
   const mapLvText = isEvent ? (MapLvText[props.info.map_lv] ?? '') : ''
-  const areaName = getAreaName(props.info.area_id, props.info.area_no) || 'Unknown Area';
+  const areaName = gameText(getAreaName(props.info.area_id, props.info.area_no)) || 'Unknown Area';
 
   // イベント名が不明な場合は空表示とする
   const eventName = isEvent ? getEventPeriodName(props.info.area_id) : ''
@@ -337,7 +339,7 @@ const locationStyle = computed<string>(() => {
 
           <b-table-column centered header-class="ship-name" cell-class="ship-name">
             <template #header>
-              <span>艦名</span>
+              <span>{{ t('艦名') }}</span>
             </template>
             <template #default="slotProps">
               <span 
@@ -352,7 +354,7 @@ const locationStyle = computed<string>(() => {
 
           <b-table-column centered header-class="drop-rate" cell-class="drop-rate">
             <template #header>
-              <span>確率</span>
+              <span>{{ t('確率') }}</span>
             </template>
             <template #default="slotProps">
               <span v-if="slotProps.row.rate >= 0">{{ slotProps.row.rate }}%</span>
@@ -361,7 +363,7 @@ const locationStyle = computed<string>(() => {
 
           <b-table-column centered header-class="drop-count" cell-class="drop-count">
             <template #header>
-              <span>ドロップ数</span>
+              <span>{{ t('ドロップ数') }}</span>
             </template>
             <template #default="slotProps">
               <span>S:{{ slotProps.row.counts[RankDropCountIndex.S] }} A:{{ slotProps.row.counts[RankDropCountIndex.A] }} B:{{ slotProps.row.counts[RankDropCountIndex.B] }}</span>

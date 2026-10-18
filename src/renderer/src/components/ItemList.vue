@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { gameText } from '../i18n'
 import { computed } from 'vue'
 import { type ApiUseItem, ApiItemId } from '@common/kcs'
 import { svdata } from '@renderer/store/svdata'
@@ -79,7 +80,7 @@ function onItemImageError(event: Event): void {
 <template>
   <div class="item-list">
     <div v-if="isDataOk" class="item-grid">
-      <div v-for="(item, index) in items" :key="index" :title="item.name">
+      <div v-for="(item, index) in items" :key="index" :title="gameText(item.name)">
         <span>
           <img 
             class="item-img" 

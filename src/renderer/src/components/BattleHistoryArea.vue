@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { shipText, t, gameText } from '../i18n'
+
 import type { BattleRecord } from '@common/record'
 import { isBattleRecordItemGet } from '@common/record'
 import { ApiBattleBase, ApiEventId, isShipRare, isShipUnique, MstShip } from '@common/kcs'
-import { getAirSearchResultText, getFormationShortText, getStateText, getTacticsText  } from '@common/locale'
+import { getAirSearchResultText, getFormationShortText, getStateText, getTacticsText  } from '@renderer/locale'
 import MapImg from '@renderer/components/MapImg.vue'
 import PassedCellImage from '@renderer/assets/img/passed-cell.svg'
 import Line from '@renderer/components/area/Line.vue'
@@ -454,13 +456,13 @@ function getFormationsText(bs: BattleSpot): string {
 }
 
 function battleSpotTitle(bs: BattleSpot): string {
-  const header = `Cell No: ${bs.spot.no} ${getTacticsText(bs.record.formations[2])}\n■${bs.record.enemyDeckName}`
+  const header = `Cell No: ${bs.spot.no} ${getTacticsText(bs.record.formations[2])}\n■${gameText(bs.record.enemyDeckName)}`
   const enemies: string[] = [];
   const enemies2: string[] = [];
   bs.enemyIds.forEach((eid) => {
     const mst = svdata.mstShip(eid);
     if (mst) {
-      enemies.push(mst.api_name);
+      enemies.push(shipText(mst.api_name));
     }
   })
   if (bs.enemyIds2) {
@@ -468,7 +470,7 @@ function battleSpotTitle(bs: BattleSpot): string {
     bs.enemyIds2.forEach((eid) => {
       const mst = svdata.mstShip(eid);
       if (mst) {
-        enemies2.push(mst.api_name);
+        enemies2.push(shipText(mst.api_name));
       }
     })
   }
@@ -540,14 +542,14 @@ function battleSpotTitle(bs: BattleSpot): string {
                 rankE: bs.record.rank === 'E',              
               }"><span 
               v-if="bs.record.midnightJson" 
-              class="nightbattle-label">夜</span>{{ bs.record.rank }}</span><span 
+              class="nightbattle-label">{{ t('夜') }}</span>{{ bs.record.rank }}</span><span
               v-if="bs.dropShip" 
               class="drop" 
               :class="{
                 'is-rare': isShipRare(bs.dropShip.api_backs), 
                 'is-unique': isShipUnique(bs.dropShip.api_backs)
               }"
-              >{{ bs.dropShip.api_name }}</span><span v-else class="drop"></span>
+              >{{ shipText(bs.dropShip.api_name) }}</span><span v-else class="drop"></span>
         </div>
         <div 
           v-if="bs.showFormations"

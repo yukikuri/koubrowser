@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, localizeProgressHtml, t } from '../i18n'
+
 import { computed, ref, toRaw, type Ref } from 'vue'
 import { onMounted, onUnmounted } from 'vue'
 import Highcharts, { AxisLabelsFormatterContextObject, SeriesFlagsOptions, SeriesOptionsType, Tooltip, XAxisOptions, YAxisOptions } from 'highcharts/highstock'
@@ -226,7 +228,7 @@ function updateQuestClearState(clears: QuestClears, states: { quarterly: Quest[]
     if (rec) {
       q.isCleared = true;
       q.clearDate = rec.date;
-      q.clearDateDisplay = rec.date.slice(0,10).replace(/-/g,'/')+' 済'
+      q.clearDateDisplay = rec.date.slice(0,10).replace(/-/g,'/')+t(' 済')
       q.progressDetail = undefined;
       if (rec.questName) {
         q.name = rec.questName;
@@ -234,13 +236,13 @@ function updateQuestClearState(clears: QuestClears, states: { quarterly: Quest[]
     } else {
       q.isCleared = false;
       q.clearDate = undefined;
-      q.clearDateDisplay = '未達成'
+      q.clearDateDisplay = t('未達成')
       q.progressDetail = undefined;
       const quest = quests.find((e) => e.no === q.no);
       if (quest) {
-        q.progressDetail = questProgressDetailFormat(quest)
-        q.progressDetail = q.progressDetail.replace('7-2S(第1)', '7-2-1S');
-        q.progressDetail = q.progressDetail.replace('7-2S(第2)', '7-2-2S');
+        q.progressDetail = localizeProgressHtml(questProgressDetailFormat(quest))
+        q.progressDetail = q.progressDetail.replace(t('7-2S(第1)'), '7-2-1S');
+        q.progressDetail = q.progressDetail.replace(t('7-2S(第2)'), '7-2-2S');
       }
     }
   });
@@ -300,16 +302,16 @@ function updateEoClearState(clears: EoClearRecord[]): void {
     if (rec) {
       q.isCleared = true;
       q.clearDate = rec.date;
-      q.clearDateDisplay = rec.date.slice(0,10).replace(/-/g,'/')+' 済'
+      q.clearDateDisplay = rec.date.slice(0,10).replace(/-/g,'/')+t(' 済')
     } else {
       q.isCleared = false;
       q.clearDate = undefined;
       const gi = getGuageInfo(q.mapId);
       debug('eo guage info mapId:', q.mapId, gi);
       if (gi) {
-        q.clearDateDisplay = `ゲージ ${gi.count}/${gi.countMax}`
+        q.clearDateDisplay = t('ゲージ {0}/{1}', [gi.count, gi.countMax])
       } else {
-        q.clearDateDisplay = '未攻略'
+        q.clearDateDisplay = t('未攻略')
       }
     }
   });
@@ -557,11 +559,11 @@ function toChartInfo(
     if (isEoClear || isQuestClear) {
       let title = '';
       if (isEoClear && isQuestClear) {
-        title = 'EO/任務';
+        title = t('EO/任務');
       } else if (isEoClear) {
         title = 'EO';
       } else if (isQuestClear) {
-        title = '任務';
+        title = t('任務');
       }
       acc.push({
         x: ec-1,
@@ -691,7 +693,7 @@ function hexToRgba(hex: string, alpha = 1): string {
 }
 
 const getWeekDayText = (year: number, month: number, date: number): string => {
-  const dowNames = ['日','月','火','水','木','金','土'];
+  const dowNames = [t('日'),t('月'),t('火'),t('水'),t('木'),t('金'),t('土')];
   const dt = new Date(year, month - 1, date);
   return dowNames[dt.getDay()];
 }
@@ -817,14 +819,11 @@ function flagTooltipFormatter(
 
   // EO records
   if (eoRecords.length > 0) {
-    tags.push('<tr><td colspan="2" style="color:#fae54b;font-size:12.5px;padding-bottom:4px;">EO攻略報酬</td></tr>');
+    tags.push(t('<tr><td colspan=\u00222\u0022 style=\u0022color:#fae54b;font-size:12.5px;padding-bottom:4px;\u0022>EO攻略報酬</td></tr>'));
     eoRecords.sort((a, b) => a.mapId - b.mapId);
     eoRecords.forEach((rec) => {
-      const name = bs.eoRates.find((er) => er.mapId === rec.mapId)?.name ?? `EO Map.${rec.mapId}`;
-      tags.push(`<tr>
-        <td style="padding-right:6px;">・${name}</td>
-        <td style="text-align:right;">+${rec.rate}</td>
-      </tr>`);
+      const name = gameText(bs.eoRates.find((er) => er.mapId === rec.mapId)?.name ?? `EO Map.${rec.mapId}`);
+      tags.push(t('<tr>\n        <td style=\u0022padding-right:6px;\u0022>・{0}</td>\n        <td style=\u0022text-align:right;\u0022>+{1}</td>\n      </tr>', [name, rec.rate]));
     });
   }
 
@@ -832,9 +831,9 @@ function flagTooltipFormatter(
   if (questRecords.length > 0) {
 
     function formatQuestTags(records: QuestClearRecord[], isQuarterly: boolean): void {
-      const prefix = isQuarterly ? 'クオータリー' : 'イヤーリー'
+      const prefix = isQuarterly ? t('クオータリー') : t('イヤーリー')
       tags.push(`<tr><td colspan="2" style="color:#e54bfa;font-size:12.5px;padding-top:8px;padding-bottom:4px;">`+
-      `${prefix}任務達成報酬</td></tr>`);
+      t('{0}任務達成報酬</td></tr>', [prefix]));
       records.forEach((rec) => {
         if (bs.isQuarterlyQuest(rec.no) !== isQuarterly) {
           return;
@@ -844,23 +843,17 @@ function flagTooltipFormatter(
         }
 
         const questInfo = bs.quarterlyQuests.find((q) => q.no === rec.no);
-        const questName = questInfo ? questInfo.name : `任務No.${rec.no}`;
-        tags.push(`<tr>
-          <td style="padding-right:6px;">・${questName}</td>
-          <td style="text-align:right;">+${rec.rate}</td>
-        </tr>`);
+        const questName = questInfo ? questInfo.name : t('任務No.{0}', [rec.no]);
+        tags.push(t('<tr>\n          <td style=\u0022padding-right:6px;\u0022>・{0}</td>\n          <td style=\u0022text-align:right;\u0022>+{1}</td>\n        </tr>', [questName, rec.rate]));
       });
     }
     function formatEtcQuestTags(records: QuestClearRecord[]): void {
       const color = '#60fa4b';
       tags.push(`<tr><td colspan="2" style="color:${color};font-size:12.5px;padding-top:8px;padding-bottom:4px;">`+
-      `戦果任務達成報酬</td></tr>`);
+      t('戦果任務達成報酬</td></tr>'));
       records.forEach((rec) => {
-        const questName = rec.questName ? rec.questName : `任務No.${rec.no}`;
-        tags.push(`<tr>
-          <td style="padding-right:6px;">・${questName}</td>
-          <td style="text-align:right;">+${rec.rate}</td>
-        </tr>`);
+        const questName = rec.questName ? rec.questName : t('任務No.{0}', [rec.no]);
+        tags.push(t('<tr>\n          <td style=\u0022padding-right:6px;\u0022>・{0}</td>\n          <td style=\u0022text-align:right;\u0022>+{1}</td>\n        </tr>', [questName, rec.rate]));
       });
     }
 
@@ -919,7 +912,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
       backgroundColor: 'transparent',
     },
     lang: {
-      noData: '表示するデータがありません。',
+      noData: t('表示するデータがありません。'),
     },
     noData: {
       style: {
@@ -1053,7 +1046,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
             ((now.getDate() === date) && (now.getHours() >= 2)) || ((now.getHours() <= 2) && (now.getDate() == date+1)))
         const label = `${info.month}/${date}`;
         if (isToday) {
-          return label + '<br>本日'
+          return label + t('<br>本日')
         }
         return label;
       },
@@ -1075,7 +1068,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
           // 最大値ラベルにタイトル追加
           // chartにタイトルがはみ出ないよう領域確保用ダミー文字を改行で表示
           if (this.value === this.axis.max) {
-            return '<span class="title-top-space">a</span><br>累計<br>'+this.value;
+            return t('<span class=\u0022title-top-space\u0022>a</span><br>累計<br>')+this.value;
           }
           // 下チャートとのタイトル被り解消
           if (this.value === this.axis.min) {
@@ -1107,7 +1100,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
           // title指定だと位置調整が難しいことから
           // 最大値ラベルにタイトル追加
           if (this.value === this.axis.max) {
-            return '当日<br>'+this.value;
+            return t('当日<br>')+this.value;
           }
           return String(this.value);
         },
@@ -1134,7 +1127,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     {
       type: 'spline',
       id: SeriesTypes.total,
-      name: '累計戦果',
+      name: t('累計戦果'),
       data: info.cumulativeSumScoreLine,
       //data: spliceScore,
       marker: {
@@ -1148,7 +1141,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     {
       type: 'spline',
       id: SeriesTypes.forecastTotal,
-      name: '累計戦果(予測)',
+      name: t('累計戦果(予測)'),
       data: info.isForecastScore ? info.forecastScoreLine : [],
       dashStyle: 'Dash',
       marker: { 
@@ -1162,7 +1155,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.daily,
-      name: '当日戦果', 
+      name: t('当日戦果'),
       data: info.scorePerDateColumn,
       color: seriasColors[1],
       yAxis: 1,
@@ -1170,7 +1163,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.forecastDaily,
-      name: '当日戦果(予測)', 
+      name: t('当日戦果(予測)'),
       data: info.isForecastScore ? info.forecastScorePerDateColumn : [],
       color: hexToRgba(seriasColors[1], 0.50),
       //borderColor: hexToRgba(seriasColors[1], 0.9),
@@ -1183,7 +1176,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.eo,
-      name: 'EO戦果', 
+      name: t('EO戦果'),
       data: info.eoClearRatesColumn,
       color: seriasColors[2],
       yAxis: 0,
@@ -1191,7 +1184,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.forecastEo,
-      name: 'EO戦果(予測)', 
+      name: t('EO戦果(予測)'),
       data: info.isForecastScore ? info.forecastEoClearRatesColumn : [],
       //color: seriasColors[2],
       color: hexToRgba(seriasColors[2], 0.50),
@@ -1204,7 +1197,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.quest,
-      name: '戦果任務', 
+      name: t('戦果任務'),
       data: info.questClearRatesColumn,
       color: seriasColors[3],
       yAxis: 0,
@@ -1212,7 +1205,7 @@ function drawChart(info: ChartInfo, isNew: boolean): void {
     { 
       type: 'column', 
       id: SeriesTypes.forecastQuest,
-      name: '戦果任務(予測)', 
+      name: t('戦果任務(予測)'),
       data: info.isForecastScore ? info.forecastQuestClearRatesColumn : [],
       //color: seriasColors[3],
       color: hexToRgba(seriasColors[3], 0.50),
@@ -2225,7 +2218,7 @@ function unsetAllTempCleared(): void {
 <template>
   <div v-if="isLoading" class="battlescore-root is-loading">
     <img class="blur-img" src="../assets/img/app/battlescore.png"/>
-    <div class="overlay-help"><span>戦果情報を読み込み中...</span></div>
+    <div class="overlay-help"><span>{{ t('戦果情報を読み込み中...') }}</span></div>
   </div>
   <section else class="battlescore-root">
 
@@ -2283,7 +2276,7 @@ function unsetAllTempCleared(): void {
                 custom
                 paddingless
               >
-                <span class="dropdown-title">表示年月の選択</span>
+                <span class="dropdown-title">{{ t('表示年月の選択') }}</span>
                 <b-datepicker
                     v-model="selectedMonth"
                     type="month"
@@ -2300,7 +2293,7 @@ function unsetAllTempCleared(): void {
                     @change-year="changeYear"
                 >
                 <div class="container">
-                  <b-button label="今月" @click="monthSelectSetToday"/>
+                  <b-button :label="t('今月')" @click="monthSelectSetToday"/>
                 </div>
                 </b-datepicker>
               </b-dropdown-item>
@@ -2320,23 +2313,23 @@ function unsetAllTempCleared(): void {
     <div v-if="taskContentsOk" class="tasks-content" :class="{ 'is-visible': taskContentsVisible }">
       <div v-if="isPeriodCurrentMonth" class="task-content is-progress">
         <div class="task-header"><span 
-          class="header-title">未達成 EO: {{ eoProgress.length }} 戦果任務: {{ questsProgress.length }}
+          class="header-title">{{ t('未達成 EO: ') }}{{ eoProgress.length }}{{ t(' 戦果任務: ') }}{{ questsProgress.length }}
           <transition name="fade-effect" appear>
             <span 
               v-if="isForecastScore"
               class="temp-compted-ctl-buttons" 
               ><b-button 
-                @click="setAllTempCleared">すべて仮達成</b-button><b-button 
-                @click="unsetAllTempCleared">仮達成クリア</b-button></span>
+                @click="setAllTempCleared">{{ t('すべて仮達成') }}</b-button><b-button
+                @click="unsetAllTempCleared">{{ t('仮達成クリア') }}</b-button></span>
           </transition></span></div>
 
         <div class="task-grid">
           <template v-for="e in eoProgress" :key="`eo-p-${e.mapId}`">
             <div 
-              class="task-item eo" :title="e.name"
+              class="task-item eo" :title="gameText(e.name)"
               @click="(ev) => toggleTempClear(ev, e)"
             >
-              <div class="task-title">{{ e.name }}</div>
+              <div class="task-title">{{ gameText(e.name) }}</div>
               <div class="task-meta">
                 <span class="badge rate">+{{ e.rate }}</span>
                 <span class="badge date">{{ e.clearDateDisplay }}</span>
@@ -2347,7 +2340,7 @@ function unsetAllTempCleared(): void {
                     v-model="e.setTempCleared"
                     size="is-small" 
                     @update:model-value="tempClearChanged"
-                  ><span class="button-text">仮達成</span></b-checkbox>
+                  ><span class="button-text">{{ t('仮達成') }}</span></b-checkbox>
                 </div>
               </transition>
             </div>
@@ -2355,10 +2348,10 @@ function unsetAllTempCleared(): void {
 
           <template v-for="e in questsProgress" :key="`quest-p-${e.no}`">
             <div 
-              class="task-item quest" :title="e.name" :class="'quest-'+e.no"
+              class="task-item quest" :title="gameText(e.name)" :class="'quest-'+e.no"
               @click="(ev) => toggleTempClear(ev, e)"
             >
-              <div class="task-title">{{ e.name }}</div>
+              <div class="task-title">{{ gameText(e.name) }}</div>
               <div class="task-meta">
                 <span class="badge rate">+{{ e.rate }}</span>
                 <!-- XSS attack対象なし -->
@@ -2372,7 +2365,7 @@ function unsetAllTempCleared(): void {
                     v-model="e.setTempCleared"
                     size="is-small" 
                     @update:model-value="tempClearChanged"
-                  ><span class="button-text">仮達成</span></b-checkbox>
+                  ><span class="button-text">{{ t('仮達成') }}</span></b-checkbox>
                 </div>
               </transition>
             </div>
@@ -2381,12 +2374,12 @@ function unsetAllTempCleared(): void {
       </div>
 
       <div class="task-content is-cleared">
-        <div class="task-header">達成済 EO: {{ eoCleared.length }} 戦果任務: {{ questsCleared.length }}</div>
+        <div class="task-header">{{ t('達成済 EO: ') }}{{ eoCleared.length }}{{ t(' 戦果任務: ') }}{{ questsCleared.length }}</div>
 
         <div class="task-grid">
           <template v-for="e in eoCleared" :key="`eo-c-${e.mapId}`">
-            <div class="task-item is-cleared" :title="e.name">
-              <div class="task-title"><CheckImage/>{{ e.name }}</div>
+            <div class="task-item is-cleared" :title="gameText(e.name)">
+              <div class="task-title"><CheckImage/>{{ gameText(e.name) }}</div>
               <div class="task-meta">
                 <span class="badge rate">+{{ e.rate }}</span>
                 <span class="badge date">{{ e.clearDateDisplay }}</span>
@@ -2395,8 +2388,8 @@ function unsetAllTempCleared(): void {
           </template>
 
           <template v-for="e in questsCleared" :key="`quest-c-${e.no}`">
-            <div class="task-item is-cleared" :title="e.name">
-              <div class="task-title"><CheckImage/>{{ e.name }}</div>
+            <div class="task-item is-cleared" :title="gameText(e.name)">
+              <div class="task-title"><CheckImage/>{{ gameText(e.name) }}</div>
               <div class="task-meta">
                 <span class="badge rate">+{{ e.rate }}</span>
                 <span class="badge date">{{ e.clearDateDisplay }}</span>
@@ -2420,7 +2413,7 @@ function unsetAllTempCleared(): void {
           @mousedown="inheritButtonPressStart"
           @mouseup="inheritButtonPressEnd"
           @mouseleave="inheritButtonPressEnd">
-          <b-icon pack="fa" icon="plus"/><span>引継ぎ戦果</span></b-button>
+          <b-icon pack="fa" icon="plus"/><span>{{ t('引継ぎ戦果') }}</span></b-button>
       </div>
     </transition>
 
@@ -2436,7 +2429,7 @@ function unsetAllTempCleared(): void {
           :class="{ 'is-active': isForecastScore }"
           @click="toggleForecastScore" 
         >
-          <ForecastChartImage /><span class="button-text">戦果予測</span></b-button>
+          <ForecastChartImage /><span class="button-text">{{ t('戦果予測') }}</span></b-button>
       </div>
     </transition>
 
@@ -2446,21 +2439,17 @@ function unsetAllTempCleared(): void {
     <transition name="fade-effect" appear>
       <div v-if="isShowInheritScoreInput" class="input-inherit-score-content">
         <b-message
-          :title="'引継ぎ戦果'"
+          :title="t('引継ぎ戦果')"
           :type="'is-info'"
           :size="'is-small'"
           @close="isShowInheritScoreInput = false"
-          ><span class="help-text">入力した引継ぎ戦果値を該当月の累計戦果に加算します。<br>
-            ゲーム上戦果値と一致させたいなどで入力してください。<br>
-            入力例：<br>
-            当月が4月、
-            ゲーム上戦果値：350、累積戦果が320、当日戦果が0の場合、4月引継ぎ戦果に30を入力</span>
+          ><span class="help-text">{{ t('入力した引継ぎ戦果値を該当月の累計戦果に加算します。') }}<br>{{ t(' ゲーム上戦果値と一致させたいなどで入力してください。') }}<br>{{ t(' 入力例：') }}<br>{{ t(' 当月が4月、 ゲーム上戦果値：350、累積戦果が320、当日戦果が0の場合、4月引継ぎ戦果に30を入力') }}</span>
           <!-- 年 1〜12 月入力 -->
           <div class="inherit-input-wrap">
             <div class="inherit-grid">
               <template v-for="i in 12" :key="i">
                 <div class="inherit-item">
-                  <label class="month-label">{{ i }}月</label>
+                  <label class="month-label">{{ i }}{{ t('月') }}</label>
                   <input 
                     v-model.number="inheritScores[i-1]" 
                     type="number" 
@@ -2473,10 +2462,10 @@ function unsetAllTempCleared(): void {
               </template>
             </div>
             <div class="inherit-actions">
-              <b-button size="is-small" type="is-primary" @click="applyInheritScores">保存</b-button>
-              <b-button size="is-small" @click="restoreInheritScores">復元</b-button>
-              <b-button size="is-small" @click="() => inheritScores = [0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0]">クリア</b-button>
-              <div class="inherit-year-label">年度: {{ inheritYear }}</div>
+              <b-button size="is-small" type="is-primary" @click="applyInheritScores">{{ t('保存') }}</b-button>
+              <b-button size="is-small" @click="restoreInheritScores">{{ t('復元') }}</b-button>
+              <b-button size="is-small" @click="() => inheritScores = [0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0]">{{ t('クリア', [], 'input') }}</b-button>
+              <div class="inherit-year-label">{{ t('年度: ') }}{{ inheritYear }}</div>
             </div>
           </div>
         </b-message>

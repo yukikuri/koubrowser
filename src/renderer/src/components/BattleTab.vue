@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import BattleScore from '@renderer/components/BattleScore.vue';
 import BattleHistroy from '@renderer/components/BattleHistory.vue';
 import { BattleTabUIState as us } from '@renderer/store/ui_state'
@@ -22,10 +24,10 @@ function onTabChange(valueNew: number): void {
       destroy-on-hide
       @update:model-value="onTabChange"
     >
-      <b-tab-item label="戦果">
+      <b-tab-item :label="t('戦果')">
         <BattleScore />
       </b-tab-item>
-      <b-tab-item label="戦闘履歴">
+      <b-tab-item :label="t('戦闘履歴')">
         <BattleHistroy />
       </b-tab-item>
     </b-tabs>

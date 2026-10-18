@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, shipText, t } from '../i18n'
+
 import { svdata } from '@renderer/store/svdata'
 import { MinMax, MaxMin } from '@common/type'
 import { KcsUtil, ShipInfo, HoseiType, HoseiConst, ApiDeckPort, deckShipCount } from '@common/kcs'
@@ -128,7 +130,7 @@ const eshipSlots = (enemy: EnemyEtc): EShipSlot[] => {
   return msts.reduce<EShipSlot[]>((acc, el, index) => {
     acc.push({
       type_img: RUtil.slotTypeImgMst(el),
-      title: el.api_name,
+      title: gameText(el.api_name),
       onslot: hasOnSlot ? enemy.api_onslot[index].toString() : ''
     })
     return acc
@@ -211,10 +213,10 @@ const ships = computed<ShipInfoDmg[]>(() => {
 })
 
 function _eshipTitle(info: EShipInfo): string {
-  let ret = `${info.status.api_id}: ${info.status.api_name}`
+  let ret = `${info.status.api_id}: ${shipText(info.status.api_name)}`
   if (info.status.api_id) {
-    ret += ` 耐久: ${info.status.api_taik}`
-    ret += ` 回避: ${info.status.api_kaih}`
+    ret += t(' 耐久: {0}', [info.status.api_taik])
+    ret += t(' 回避: {0}', [info.status.api_kaih])
   }
   return ret
 }
@@ -223,12 +225,12 @@ function eshipBanner(info: EShipInfo): string {
   return RUtil.eshipBannerImg(info.status.api_id)
 }
 function stype(ship: ShipInfo): string {
-  return svdata.mstStypeFromSafe(ship.mst)
+  return gameText(svdata.mstStypeFromSafe(ship.mst))
 }
 function shipName(ship: ShipInfo): string {
-  return ship.mst.api_name
+  return shipText(ship.mst.api_name)
 }
-const currentDeckName = computed<string>(() => deck.value.api_name ?? '')
+const currentDeckName = computed<string>(() => gameText(deck.value.api_name ?? ''))
 function hpClassesTT(ship: ShipInfo): object {
   return RUtil.hpClassesTT(ship.api)
 }
@@ -276,7 +278,7 @@ function hpClassesTT(ship: ShipInfo): object {
                     <div>
                       <div class="tip-name">
                         <span>ID:{{ eship.info.status.api_id }}&nbsp;</span
-                        >{{ eship.info.status.api_name
+                        >{{ shipText(eship.info.status.api_name)
                         }}<span
                           v-if="eship.info.status.api_yomi !== '-'"
                           :class="eship.info.status.api_yomi"
@@ -296,7 +298,7 @@ function hpClassesTT(ship: ShipInfo): object {
                                 v-if="slot !== undefined"
                                 class="type-img"
                                 :src="slot.type_img"
-                                :title="slot.title"
+                                :title="gameText(slot.title)"
                               />
                               <span v-if="slot.onslot" class="onslot">{{ slot.onslot }}</span>
                             </span>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { ApiBattleStartType, ApiCallback, MapAreaId } from '@common/kcs'
 import EnemyList from '@renderer/components/EnemyList.vue'
 import { EnemyInfo } from '@renderer/util'
@@ -52,7 +54,7 @@ const isCellInfoOk = computed<boolean>(() => {
 })
 
 const prefixText = computed<string>(() => {
-  return items_.value.length < 9 ? '構成' : ''
+  return items_.value.length < 9 ? t('構成') : ''
 })
 
 watch(

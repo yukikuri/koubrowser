@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { gameText } from '@renderer/i18n'
 import { computed } from 'vue'
 import { KcsUtil, type SlotWithOnSlot } from '@common/kcs'
 import { RUtil } from '@renderer/util'
@@ -9,7 +10,7 @@ const props = defineProps<Props>()
 const slotTitle = computed<string | undefined>(() => {
   const slot = props.slotitem
   if (!slot.mst) return undefined
-  return slot.mst.api_name
+  return gameText(slot.mst.api_name)
 })
 
 const hasSlot = computed<boolean>(() => !!props.slotitem.api)

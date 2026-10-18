@@ -20,7 +20,7 @@ import {
 } from '@common/kcs'
 import { EnemyEtc, enemy_etcs } from '@common/enemy_etc'
 import { svdata } from '@renderer/store/svdata'
-import { DeckNames, QuestTypeText, QuestTypeTextYear, SyateiText } from '@common/locale'
+import { DeckNames, QuestTypeText, getQuestTypeTextYear, SyateiText } from '@renderer/locale'
 import { ShipImg } from './stuff/imgs/ship'
 import { SlotImg } from './stuff/imgs/slot'
 import { ItemImg } from './stuff/imgs/item'
@@ -503,7 +503,7 @@ class RUtilImpl {
 
   public questTypeText(quest: ApiQuest): string {
     if (quest.api_label_type > ApiQuestLabelTypeYearLy) {
-      return QuestTypeTextYear
+      return getQuestTypeTextYear()
     }
     return QuestTypeText[quest.api_type] ?? '?'
   }

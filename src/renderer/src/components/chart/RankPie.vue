@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import Highcharts from 'highcharts';
 import * as chartStuff from '@renderer/components/chart/stuff'
@@ -24,11 +26,11 @@ function createChart(): void {
       plotBackgroundColor: 'transparent',  // 追加: プロット領域背景を透明に
     },
     title: { text: undefined },
-    tooltip: { 
+    tooltip: {
       headerFormat: '',
       formatter: function () {
         const p = this.point;
-        const name = p.name === '-' ? 'なし' : p.name;
+        const name = p.name === '-' ? t('なし') : p.name;
         return `<span>${name}: ${p.y}</span><br/><span>${Highcharts.numberFormat(p.percentage!,2)}%</span>`;
       },
       padding: 4,
@@ -53,7 +55,7 @@ function createChart(): void {
       }
     },
     series: [{
-      name: '割合',
+      name: t('割合'),
       data: props.seriesData,
       type: 'pie'
     }],

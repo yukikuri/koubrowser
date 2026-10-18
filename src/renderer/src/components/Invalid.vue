@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { onMounted, onUnmounted } from 'vue'
 
 interface Props {
@@ -7,7 +9,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   message:
-    'DMM ログイン後、「GAME START」画面まで自動で遷移を行います。\n「GAME START」ボタンからゲームを開始すると情報が表示されます。'
+    t('DMM ログイン後、「GAME START」画面まで自動で遷移を行います。\n「GAME START」ボタンからゲームを開始すると情報が表示されます。')
 })
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onUnmounted(() => {
     <div class="hero-body">
       <div class="container invalid-container">
         <section class="invalid-card">
-          <h1 class="title is-5 invalid-title">艦隊情報表示</h1>
+          <h1 class="title is-5 invalid-title">{{ t('艦隊情報表示') }}</h1>
           <p
             v-for="line in message.split('\n')"
             :key="line"

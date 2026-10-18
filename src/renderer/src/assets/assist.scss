@@ -1019,7 +1019,7 @@ $world-event-tab-width: 150px;
     .is-battle a {
       position: relative;
       &::before {
-        content: '出撃中';
+        content: var(--text-sortie, '出撃中');
         top: 2px;
         left: 2px;
         display: inline-block;
@@ -1926,7 +1926,7 @@ weapon-img {
 
   &:has(.is-escaped) {
     &::after {
-      content: '退避';
+      content: var(--text-escaped, '退避');
       position: absolute;
       left: 15px;
       top: 50%;
@@ -2536,7 +2536,7 @@ $tkbar-width: 445px; //$assist-width - $tkbar-title-width;
         }
 
         td:first-child::after {
-          content: '退避';
+          content: var(--text-escaped, '退避');
           position: absolute;
           left: 10px;
           top: 50%;
@@ -6506,15 +6506,15 @@ $mission-succeeded2-color: yellow;
           }
           &.failed:before {
             color: $mission-fail-color;
-            content: '失敗';
+            content: var(--text-mission-failed, '失敗');
           }
           &.succeeded:before {
             color: $mission-succeeded-color;
-            content: '成功';
+            content: var(--text-mission-succeeded, '成功');
           }
           &.succeeded2:before {
             color: $mission-succeeded2-color;
-            content: '大成功';
+            content: var(--text-mission-succeeded2, '大成功');
           }
         }
         cursor: pointer;

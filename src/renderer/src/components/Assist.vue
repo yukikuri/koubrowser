@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import DeckPort from '@renderer/components/DeckPort.vue'
 import MissionCheck from '@renderer/components/MissionCheck.vue';
 import BattleTab from '@renderer/components/BattleTab.vue';
@@ -97,7 +99,7 @@ function fetchPortRecordForChart(): void {
       >
       <b-tab-item>
         <template #header>
-          <span>編成</span>
+          <span>{{ t('編成') }}</span>
         </template>
         <DeckPort v-if="isAppReady && isTabVisibleByName('deckport')" />
         <Invalid v-if="!isAppReady && isTabVisibleByName('deckport')" />
@@ -105,8 +107,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">遠征</div>
-            <div class="main-title">チェック</div>
+            <div class="main-title">{{ t('遠征') }}</div>
+            <div class="main-title">{{ t('チェック') }}</div>
           </div>
         </template>
         <MissionCheck v-if="isAppReady && isTabVisibleByName('missioncheck')" />
@@ -115,8 +117,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">戦果</div>
-            <div class="main-title">戦闘履歴</div>
+            <div class="main-title">{{ t('戦果') }}</div>
+            <div class="main-title">{{ t('戦闘履歴') }}</div>
           </div>
         </template>
         <BattleTab v-if="isAppReady && isTabVisibleByName('battletab')" />
@@ -125,8 +127,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">艦隊/装備</div>
-            <div class="main-title">アイテム</div>
+            <div class="main-title">{{ t('艦隊/装備') }}</div>
+            <div class="main-title">{{ t('アイテム') }}</div>
           </div>
         </template>
         <ShipItems v-if="isAppReady && isTabVisibleByName('shipitems')" />
@@ -135,8 +137,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-subtitle">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">ドロップ履歴</div>
-            <div class="sub-title">（マップ別）</div>
+            <div class="main-title">{{ t('ドロップ履歴') }}</div>
+            <div class="sub-title">{{ t('（マップ別）') }}</div>
           </div>
         </template>
         <DropByMap v-if="isAppReady && isTabVisibleByName('dropbymap')" />
@@ -145,8 +147,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-subtitle" >
         <template #header>
           <div class="tab-content">
-            <div class="main-title">ドロップ履歴</div>
-            <div class="sub-title">（艦名別）</div>
+            <div class="main-title">{{ t('ドロップ履歴') }}</div>
+            <div class="sub-title">{{ t('（艦名別）') }}</div>
           </div>
         </template>
         <DropByShip v-if="isAppReady && isTabVisibleByName('dropbyship')" />
@@ -155,8 +157,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item v-if="isDockQuestlistTabVisible" header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">任務</div>
-            <div class="main-title">ドック</div>
+            <div class="main-title">{{ t('任務') }}</div>
+            <div class="main-title">{{ t('ドック') }}</div>
           </div>
         </template>
         <div v-if="isAppReady && isTabVisibleByName('dockquestlist')">
@@ -171,8 +173,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">資源</div>
-            <div class="main-title">記録</div>
+            <div class="main-title">{{ t('資源') }}</div>
+            <div class="main-title">{{ t('記録') }}</div>
           </div>
         </template>
         <ChartMaterial v-if="isAppReady && isTabVisibleByName('chart')" ref="chartMaterial"/>
@@ -182,8 +184,8 @@ function fetchPortRecordForChart(): void {
       <b-tab-item header-class="tab-with-title">
         <template #header>
           <div class="tab-content">
-            <div class="main-title">アプリ</div>
-            <div class="main-title">情報</div>
+            <div class="main-title">{{ t('アプリ') }}</div>
+            <div class="main-title">{{ t('情報') }}</div>
           </div>
         </template>
         <div v-if="isTabVisibleByName('about')" class="assist-about">

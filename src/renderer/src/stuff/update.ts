@@ -1,3 +1,4 @@
+import { t } from '@renderer/i18n'
 import { computed, ref, toRaw } from 'vue'
 import type { UpdateCheckResult, UpdateStateSnapshot, UpdateStateStatus } from '@common/type'
 import { globalSetting } from '@renderer/store/global_setting'
@@ -98,7 +99,7 @@ export async function clickUpdateButton(): Promise<void> {
       applyUpdateState({
         status: 'error',
         availableVersion: '',
-        errorMessage: error instanceof Error ? error.message : '再起動に失敗しました',
+        errorMessage: error instanceof Error ? error.message : t('再起動に失敗しました'),
         downloadPercent: null,
       })
     }
@@ -113,7 +114,7 @@ export async function clickUpdateButton(): Promise<void> {
       applyUpdateState({
         status: 'error',
         availableVersion: '',
-        errorMessage: error instanceof Error ? error.message : '更新に失敗しました',
+        errorMessage: error instanceof Error ? error.message : t('更新に失敗しました'),
         downloadPercent: null,
       })
     }
@@ -138,7 +139,7 @@ export async function checkForUpdates(): Promise<void> {
     applyUpdateState({
       status: 'error',
       availableVersion: '',
-      errorMessage: error instanceof Error ? error.message : '更新チェックに失敗しました',
+      errorMessage: error instanceof Error ? error.message : t('更新チェックに失敗しました'),
       downloadPercent: null,
     })
   }
@@ -146,10 +147,10 @@ export async function checkForUpdates(): Promise<void> {
 
 export const updateButtonText = computed(() =>
   updateState.value === 'available'
-    ? '更新をダウンロード'
+    ? t('更新をダウンロード')
     : updateState.value === 'ready'
-      ? '再起動'
-      : '更新をチェック'
+      ? t('再起動')
+      : t('更新をチェック')
 )
 
 export const updateButtonDisable = computed(() =>
@@ -161,26 +162,26 @@ export const updateStateText = computed(() => {
     case 'idle':
       return ''
     case 'checking':
-      return '更新をチェック中...'
+      return t('更新をチェック中...')
     case 'available':
-      return `更新が見つかりました。バージョン ${updateAvailableVersion.value} が利用可能です。`
+      return t('更新が見つかりました。バージョン {0} が利用可能です。', [updateAvailableVersion.value])
     case 'latest':
-      return '最新バージョンを使用中です。'
+      return t('最新バージョンを使用中です。')
     case 'updating':
       return updateDownloadPercent.value === null
-        ? '更新をダウンロード中...'
-        : `更新をダウンロード中... ${updateDownloadPercent.value}%`
+        ? t('更新をダウンロード中...')
+        : t('更新をダウンロード中... {0}%', [updateDownloadPercent.value])
     case 'ready':
-      return '更新の準備が整いました。再起動すると更新が適用されます。'
+      return t('更新の準備が整いました。再起動すると更新が適用されます。')
     case 'error':
-      return `更新チェックエラー(${updateErrorMessage.value})`
+      return t('更新チェックエラー({0})', [updateErrorMessage.value])
   }
   return ''
 })
 
 export const updateStateSubText = computed(() =>
   updateState.value === 'ready'
-    ? 'または、アプリケーション終了時に更新が適用されます。'
+    ? t('または、アプリケーション終了時に更新が適用されます。')
     : ''
 )
 export const isUadeteIdle = computed(() => updateState.value === 'idle')

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 import { onMounted, onUnmounted, computed, ref } from 'vue'
 import type { MaterialChartData } from '@common/record'
 import ChartImage from '@assets/img/chart.svg'
@@ -129,16 +131,16 @@ function drawChart(datas: MaterialChartData): void {
   const zoom_buttons: Highcharts.RangeSelectorButtonsOptions[] = [
     { type: 'hour', count: 6, text: '6H' },
     { type: 'hour', count: 12, text: '12H' },
-    { type: 'day', count: 1, text: '日' },
-    { type: 'week', count: 1, text: '週' },
-    { type: 'month', count: 1, text: '月' }, 
-    { type: 'month', count: 3, text: '3ヶ月' }, 
-    { type: 'month', count: 6, text: '半年' }, 
-    { type: 'ytd', text: '今年' }, 
-    { type: 'year', count: 1, text: '1年' }, 
-    { type: 'all', text: '全て' }
+    { type: 'day', count: 1, text: t('日') },
+    { type: 'week', count: 1, text: t('週') },
+    { type: 'month', count: 1, text: t('月') },
+    { type: 'month', count: 3, text: t('3ヶ月') },
+    { type: 'month', count: 6, text: t('半年') },
+    { type: 'ytd', text: t('今年') },
+    { type: 'year', count: 1, text: t('1年') },
+    { type: 'all', text: t('全て') }
   ];
-  
+
   function TooltipFormatter(this: Highcharts.TooltipFormatterContextObject,
     _tooltip: Highcharts.Tooltip): (false|string|Array<(string|null|undefined)>|null|undefined) {
 
@@ -148,7 +150,7 @@ function drawChart(datas: MaterialChartData): void {
     const date_str = '<div class="tip-text date">' + date.format('YYYY.MM.DD') + ' ' + date.format('HH:mm') + '</div>';
 
     const findPrevPoint = (
-      point: Highcharts.Point, 
+      point: Highcharts.Point,
       points: Highcharts.Point[]): Highcharts.Point | null => {
       if (! points.length) {
         return null;
@@ -182,7 +184,7 @@ function drawChart(datas: MaterialChartData): void {
       acc.push(html);
       return acc;
     }, []);
-    
+
     return date_str + (htmls?.join('') ?? '');
   }
 
@@ -195,7 +197,7 @@ function drawChart(datas: MaterialChartData): void {
       spacingTop: 61,
     },
     lang: {
-      noData: '表示するデータがありません。',
+      noData: t('表示するデータがありません。'),
     },
     noData: {
       style: {
@@ -281,7 +283,7 @@ type SeriesWithProcessedYData = Highcharts.Series & {
 function setMinMaxData(ctx: Highcharts.AxisLabelsFormatterContextObject): void {
 
   const findProcessedYData = (
-    ctx: Highcharts.AxisLabelsFormatterContextObject, 
+    ctx: Highcharts.AxisLabelsFormatterContextObject,
     type: string
   ): Array<number> | undefined => {
     const series = ctx.axis.series.find((el) => el.name === type)
@@ -397,8 +399,8 @@ defineExpose({
         <button class="buxite" :class="{ 'is-visible': isSeriesBuxiteVisible}" @click="toggleSeries('buxite')"><span class="s-icon titlebar-buxite"><span class="line-word"></span></span></button>
       </div>
       <div v-if="isValidDateRange" class="chart-material-detail">
-        <ChartImage class="chart-image" /> 資源チャート: {{dateFrom}} ～ {{dateTo}}
-        <span :class="{ 'is-visible': isAnySeriesVisible}">増減 </span>
+        <ChartImage class="chart-image" />{{ t(' 資源チャート: ') }}{{dateFrom}} ～ {{dateTo}}
+        <span :class="{ 'is-visible': isAnySeriesVisible}">{{ t('増減 ') }}</span>
         <span class="fuel mr-1" :class="diffFuelClass"><span class="s-icon titlebar-fuel">{{fuelDiff}}</span></span>
         <span class="bull mr-1" :class="diffBullClass"><span class="s-icon titlebar-bull">{{bullDiff}}</span></span>
         <span class="steel mr-1" :class="diffSteelClass"><span class="s-icon titlebar-steel">{{steelDiff}}</span></span>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { shipText, t, gameText } from '../i18n'
+
 import { computed, onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import { RankDropCountIndex, AggregatedCellShipDrop, RankDropCounts } from '@common/calc_record';
 import { KcsUtil } from '@common/kcs';
@@ -7,7 +9,7 @@ import DropByShipArea from '@renderer/components/DropByShipArea.vue';
 import { DropShipMapInfo } from '@renderer/common/drop-ship';
 import DropByShipControl from '@renderer/components/DropByShipControl.vue';
 import { svdata } from '@renderer/store/svdata';
-import { MapLvText } from '@common/locale';
+import { MapLvText } from '@renderer/locale';
 
 // -----------------------------------------------------------------
 // ref elem
@@ -221,7 +223,7 @@ watch(dropShipId, (newShipId) => {
         }
       });
       recordFetching.value = false;
-      shipHeaderText.value = svdata.mstShip(newShipId)?.api_name || '';
+      shipHeaderText.value = shipText(svdata.mstShip(newShipId)?.api_name);
 
       // 頭行選択の為、テーブルではなくこちらでソートする
       if (currentSortField.value) {
@@ -297,11 +299,11 @@ onUnmounted(() => {
   console.log('drop ship history destroyed')
 })
 
-const HELP_TEXT_PLEASE_SELECT_SHIP = '艦名を選択するとドロップ履歴が表示されます';
-const HELP_TEXT_NO_RECORD = '該当するドロップ履歴が見つかりません';
-const HELP_TEXT_FETCHING = 'ドロップ履歴を取得中です...';
+const HELP_TEXT_PLEASE_SELECT_SHIP = t('艦名を選択するとドロップ履歴が表示されます');
+const HELP_TEXT_NO_RECORD = t('該当するドロップ履歴が見つかりません');
+const HELP_TEXT_FETCHING = t('ドロップ履歴を取得中です...');
 const emptyText = computed<string>(() => {
-  return '該当レコード無し';
+  return t('該当レコード無し');
 })
 
 // -----------------------------------------------------------------
@@ -328,7 +330,7 @@ const getRankDropCountText = (data: ShipDropTableData): string => {
 }
 
 const getAreaNameText = (data: ShipDropTableData): string => {
-  return getAreaName(data.areaId, data.areaNo) || 'Unknown Area';
+  return gameText(getAreaName(data.areaId, data.areaNo)) || 'Unknown Area';
 }
 
 const getAreaCellText = (data: ShipDropTableData): string => {
@@ -351,14 +353,14 @@ const helpText = computed<string>(() => {
   }
   if (recordFetching.value) {
     const mst = svdata.mstShip(dropShipId.value);
-    const shipName = mst ? '「'+mst.api_name+'」の' : '';
+    const shipName = mst ? '「'+shipText(mst.api_name)+t('」の') : '';
     return shipName + HELP_TEXT_FETCHING;
   }
   return HELP_TEXT_NO_RECORD;
 });
 
 const noMapInfoTitle = computed<string>(() => {
-  return '3-5 北方AL海域 K(Boss)'
+  return t('3-5 北方AL海域 K(Boss)')
 });
 
 const isOverlayHelpVisible = computed<boolean>(() => {
@@ -404,7 +406,7 @@ const isInitialState = computed<boolean>(() => {
       >
         <b-table-column centered header-class="drop-area" sortable field="areaId" cell-class="drop-area">
           <template #header>
-            <span>{{ shipHeaderText }} ドロップ海域<span 
+            <span>{{ shipHeaderText }}{{ t(' ドロップ海域') }}<span
               v-if="isSortedField('areaId')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
@@ -416,7 +418,7 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-rate" sortable field="rate" cell-class="drop-rate">
           <template #header>
-            <span>確率<span 
+            <span>{{ t('確率') }}<span
               v-if="isSortedField('rate')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
@@ -426,7 +428,7 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-count" sortable field="dropCount" cell-class="drop-count">
           <template #header>
-            <span>ドロップ数<span 
+            <span>{{ t('ドロップ数') }}<span
               v-if="totalDropCount >= 0">({{ totalDropCount }})</span><span 
               v-if="isSortedField('dropCount')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
@@ -437,7 +439,7 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="rank-drop-count" sortable field="rankDropCount" cell-class="rank-drop-count">
           <template #header>
-            <span>ランク別ドロップ数<span 
+            <span>{{ t('ランク別ドロップ数') }}<span
               v-if="isSortedField('rankDropCount')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
@@ -447,7 +449,7 @@ const isInitialState = computed<boolean>(() => {
 
         <b-table-column centered header-class="drop-rank" sortable field="rankOrder" cell-class="drop-rank">
           <template #header>
-            <span>勝利ランク<span 
+            <span>{{ t('勝利ランク') }}<span
               v-if="isSortedField('rankOrder')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">

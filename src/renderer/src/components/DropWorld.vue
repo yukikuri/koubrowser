@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { gameText, t } from '../i18n'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DropAreas from '@renderer/components/DropAreas.vue'
 import { EventName, eventNames } from '@common/area_name'
@@ -59,7 +61,7 @@ const selectedEventTitle = computed((): string => {
   if (selected) {
     return selected.title;
   } else {
-    return 'イベント海域を選択';
+    return t('イベント海域を選択');
   }
 });
 
@@ -77,43 +79,43 @@ const selectedEventTitle = computed((): string => {
     >
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="1: 鎮守府海域" src="../assets/img/world/world1.png" />
+          <img class="world-img" :title="t('1: 鎮守府海域')" src="../assets/img/world/world1.png" />
         </template>
         <DropAreas v-if="index === 0" :area-id="1" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="2: 南西諸島海域" src="../assets/img/world/world2.png" />
+          <img class="world-img" :title="t('2: 南西諸島海域')" src="../assets/img/world/world2.png" />
         </template>
         <DropAreas v-if="index === 1" :area-id="2" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="3: 北方海域" src="../assets/img/world/world3.png" />
+          <img class="world-img" :title="t('3: 北方海域')" src="../assets/img/world/world3.png" />
         </template>
         <DropAreas v-if="index === 2" :area-id="3" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="7: 南西海域" src="../assets/img/world/world7.png" />
+          <img class="world-img" :title="t('7: 南西海域')" src="../assets/img/world/world7.png" />
         </template>
         <DropAreas v-if="index === 3" :area-id="7" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="4: 西方海域" src="../assets/img/world/world4.png" />
+          <img class="world-img" :title="t('4: 西方海域')" src="../assets/img/world/world4.png" />
         </template>
         <DropAreas v-if="index === 4" :area-id="4" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="5: 南方海域" src="../assets/img/world/world5.png" />
+          <img class="world-img" :title="t('5: 南方海域')" src="../assets/img/world/world5.png" />
         </template>
         <DropAreas v-if="index === 5" :area-id="5" />
       </b-tab-item>
       <b-tab-item>
         <template #header>
-          <img class="world-img" title="6: 中部海域" src="../assets/img/world/world6.png" />
+          <img class="world-img" :title="t('6: 中部海域')" src="../assets/img/world/world6.png" />
         </template>
         <DropAreas v-if="index === 6" :area-id="6" />
       </b-tab-item>
@@ -144,8 +146,8 @@ const selectedEventTitle = computed((): string => {
           <b-dropdown-item 
             v-for="(item, eventIndex) in eventDropdownItems" :key="eventIndex" 
             :value="item.areaId"><span 
-              class="event-period-name">{{ item.periodName }}</span><span 
-              class="event-title">{{ item.title }}</span></b-dropdown-item>          
+              class="event-period-name">{{ gameText(item.periodName) }}</span><span
+              class="event-title">{{ gameText(item.title) }}</span></b-dropdown-item>
       </b-dropdown>
     </div>
   </div>

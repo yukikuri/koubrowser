@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../../i18n'
+
 const minimize = (): void => {
   window.optionApi.minimize()
 }
@@ -13,10 +15,10 @@ const close = (): void => {
     <div class="sidebar"></div>
     <div class="drag-area"></div>
     <div class="buttons">
-      <button class="button minimize is-size-7" type="button" aria-label="最小化" @click="minimize">
+      <button class="button minimize is-size-7" type="button" :aria-label="t('最小化')" @click="minimize">
         <span>&#x2014;</span>
       </button>
-      <button class="button close" type="button" aria-label="閉じる" @click="close">
+      <button class="button close" type="button" :aria-label="t('閉じる')" @click="close">
         <span>&#10005;</span>
       </button>
     </div>

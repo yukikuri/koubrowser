@@ -1,3 +1,4 @@
+import { t } from '@renderer/i18n'
 import { ref } from 'vue'
 
 export const questSchemaUpdateAvailable = ref(false)
@@ -11,11 +12,11 @@ export async function applyQuestSchemaUpdate(): Promise<void> {
   try {
     const result = await window.api.applyQuestSchema()
     if (result.questSchemaCheckStatus === 'error') {
-      questSchemaApplyError.value = result.questSchemaError ?? '任務データの更新を適用できませんでした。'
+      questSchemaApplyError.value = result.questSchemaError ?? t('任務データの更新を適用できませんでした。')
     }
     // 更新通知の表示・解除はmainからの状態通知に従う。
   } catch {
-    questSchemaApplyError.value = '任務データの更新を適用できませんでした。クリックして再試行してください。'
+    questSchemaApplyError.value = t('任務データの更新を適用できませんでした。クリックして再試行してください。')
   } finally {
     questSchemaApplying.value = false
   }

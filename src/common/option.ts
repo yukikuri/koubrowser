@@ -1,3 +1,4 @@
+import type { Language } from '@common/i18n'
 import type { QuestSchemaMetaV1 } from '@common/kcquest_schema_file'
 // electron default 'system'
 export type ProxyMode = 'direct' | 'auto_detect' | 'pac_script' | 'fixed_servers' | 'system';
@@ -8,6 +9,9 @@ export type QuestSchemaCheckIntervalHours = 0 | 1 | 3 | 6 | 12
  * オプション画面で設定可能な項目
  */
 export interface OptionSetting {
+
+  /** Interface language. Applies after restarting; Japanese for older settings. */
+  language: Language
 
   /** 任務データの定期確認間隔（時間）。0は起動時のみ。既定値は6。 */
   questSchemaCheckIntervalHours: QuestSchemaCheckIntervalHours
@@ -86,6 +90,7 @@ export interface OptionData {
 // def or init value
 export function defaultOptionSetting(): OptionSetting {
   return {
+    language: 'ja',
     questSchemaCheckIntervalHours: 6,
     questSchemaCheckNotifyOnly: false,
     captureSavePath: null,

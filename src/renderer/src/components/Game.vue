@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { shipText as shipNameText, t } from '../i18n'
+
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue'
 // webview
 // https://www.electronjs.org/ja/docs/latest/api/webview-tag
@@ -523,21 +525,21 @@ const taihaShipInfos = computed<TaihaShipInfo[]>(() => {
       info.equips.includes(kcs_stuff.EquipType.repair)
     const noDamageControl = info.equips.length === 0
     if (noDamageControl) {
-      subTexts.push('ダメコンなし')
+      subTexts.push(t('ダメコンなし'))
     }
 
     // 退避可能艦表示
     // 再チェック後では表示しない
     if (!taihaSingekiRechecked.value) {
       if (info.canEscape && !escapeTextAdded) {
-        subTexts.push('退避可')
+        subTexts.push(t('退避可'))
         escapeTextAdded = true
       }
     }
 
     const api = info.api_ship
     const mst = svdata.mstShip(api.api_ship_id)
-    const shipText = `Lv.${api.api_lv}${mst?.api_name ?? ''}`
+    const shipText = `Lv.${api.api_lv}${shipNameText(mst?.api_name)}`
     const subText = subTexts.join(',')
 
     return {
@@ -647,12 +649,9 @@ const isMegamiBlockVisible = computed<boolean>(() => isShieldVisible(TaihaSingek
         <div 
           v-if="isTaihaSingekiBlock"
           class="taiha-warning-banner">
-          <div class="banner-title"><WarningIcon />大破艦を検知しました</div>
-          <div class="banner-text">
-            轟沈防止で進撃操作を制限しています。シールドOFFにより操作可能です。
-          </div>
-          <div class="banner-text">
-            大破艦：<template 
+          <div class="banner-title"><WarningIcon />{{ t('大破艦を検知しました') }}</div>
+          <div class="banner-text">{{ t(' 轟沈防止で進撃操作を制限しています。シールドOFFにより操作可能です。 ') }}</div>
+          <div class="banner-text">{{ t(' 大破艦：') }}<template
               v-for="(info, index) in taihaShipInfos" 
               :key="`${index}-${info.shipText}-${info.subText}`"><span 
               class="taiha-info">{{ info.shipText }}&#12308;<img
@@ -672,7 +671,7 @@ const isMegamiBlockVisible = computed<boolean>(() => isShieldVisible(TaihaSingek
           class="block-shield-toggle"
           :left-label="true"
           @update:model-value="onBlockShieldSwitchChanged"
-        ><span class="switch-text">{{ isBlockShieldSwitch ? 'シールドON' : 'シールドOFF' }}</span></b-switch>
+        ><span class="switch-text">{{ isBlockShieldSwitch ? t('シールドON') : t('シールドOFF') }}</span></b-switch>
       </transition>
 
       <BlockShield 
