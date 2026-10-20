@@ -3758,7 +3758,7 @@ export class KcsUtil {
       return los
     }, 0)
 
-    const c3 = teitoku_lv * 0.4
+    const c3 = Math.ceil(teitoku_lv * 0.4)
     const c4 = 2 * (6 - ships.length)
     //console.log('ship_los', ship_los, 'c3', c3, 'c4', c4);
     return ship_los - c3 + c4
@@ -11433,7 +11433,7 @@ export class SvData {
       return los
     }, 0)
 
-    const c3 = this.basic.api_level * 0.4
+    const c3 = Math.ceil(this.basic.api_level * 0.4)
     const c4 = 2 * (6 - KcsUtil.deckShipCount(deck))
     //console.log('ship_los', ship_los, 'c3', c3, 'c4', c4);
     return ship_los - c3 + c4
