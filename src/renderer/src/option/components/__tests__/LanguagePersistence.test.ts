@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { defaultOptionSetting, defaultQuestSchemaCheckState } from '@common/option'
-import { initializeLanguage, language } from '@renderer/i18n'
+import { i18n, initializeLanguage, language } from '@renderer/i18n'
 import { optionSetting, setOptionSettingWithPreventSave } from '@option/store/optionSetting'
 import OptionApp from '../OptionApp.vue'
 
@@ -18,7 +18,7 @@ afterEach(async () => {
   else Reflect.deleteProperty(window, 'optionApi')
 })
 
-it('saves the selected language with existing settings, and applies it when reopening after restart', async () => {
+it('saves the selected language and synchronizes Vue I18n when initialized', async () => {
   const saveSetting = vi.fn()
   Object.defineProperty(window, 'optionApi', { configurable: true, value: {
     saveSetting,
@@ -39,7 +39,7 @@ it('saves the selected language with existing settings, and applies it when reop
   await japanese.get('#interface-language').setValue('ko')
   expect(saveSetting).toHaveBeenCalledWith({ ...setting, language: 'ko' })
   expect(language.value).toBe('ja')
-  expect(japanese.text()).toContain('変更は甲ブラウザ再起動後に反映されます。')
+  expect(japanese.text()).not.toContain('変更は甲ブラウザ再起動後に反映されます。')
   const checkboxCount = japanese.findAll('input[type="checkbox"]').length
   japanese.unmount()
 
@@ -49,7 +49,7 @@ it('saves the selected language with existing settings, and applies it when reop
   expect(document.documentElement.lang).toBe('ko')
   expect(korean.get('.option-title').text()).toBe('갑브라우저 설정')
   expect(korean.get<HTMLSelectElement>('#interface-language').element.value).toBe('ko')
-  expect(korean.text()).toContain('갑브라우저를 다시 시작하면 변경 사항이 적용됩니다.')
+  expect(i18n.global.locale.value).toBe('ko')
   // The safety feature and controls must survive translation.
   expect(korean.findAll('input[type="checkbox"]')).toHaveLength(checkboxCount)
   korean.unmount()

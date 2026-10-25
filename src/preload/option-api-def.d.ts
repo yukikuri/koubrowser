@@ -1,6 +1,8 @@
+import type { Language } from '@common/i18n'
 import type { OptionData, OptionSetting, QuestSchemaCheckState } from '@common/option'
 
 export interface OptionApi {
+  onLanguageChanged(callback: (language: Language) => void): () => void
   checkQuestSchema(): Promise<QuestSchemaCheckState>
   applyQuestSchema(): Promise<QuestSchemaCheckState>
   getQuestSchemaState(): Promise<QuestSchemaCheckState>

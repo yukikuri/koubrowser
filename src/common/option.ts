@@ -10,7 +10,7 @@ export type QuestSchemaCheckIntervalHours = 0 | 1 | 3 | 6 | 12
  */
 export interface OptionSetting {
 
-  /** Interface language. Applies after restarting; Japanese for older settings. */
+  /** Interface language. Applied to open app windows when saved; Japanese for older settings. */
   language: Language
 
   /** 任務データの定期確認間隔（時間）。0は起動時のみ。既定値は6。 */

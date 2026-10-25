@@ -1551,6 +1551,14 @@ export class KcApp {
 
     // オプション設定をゲーム設定に反映する
     gameSetting.applyOptionSetting(setting)
+    if (gameSetting.language !== setting.language) {
+      gameSetting.language = setting.language
+      for (const win of [this.main_window, this.assist_window, this.option_window]) {
+        if (win && !win.isDestroyed() && !win.webContents.isDestroyed()) {
+          win.webContents.send(MainMessage.language_changed, setting.language)
+        }
+      }
+    }
   }
 
   /**

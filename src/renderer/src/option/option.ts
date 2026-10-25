@@ -1,4 +1,4 @@
-import { initializeLanguage } from '../i18n'
+import { i18n, initializeLanguage } from '@renderer/i18n'
 import { createApp } from 'vue'
 import 'bulma/css/bulma.min.css'
 import '@assets/option.scss'
@@ -26,7 +26,11 @@ async function main(): Promise<void> {
   initializeLanguage(data.setting.language)
   setOptionSettingWithPreventSave(data)
 
-  createApp(OptionApp, { isError }).mount('#option-app')
+  window.optionApi.onLanguageChanged(initializeLanguage)
+
+  const app = createApp(OptionApp, { isError });
+  app.use(i18n)
+  app.mount('#option-app')
   await window.optionApi.readyToShow()
 }
 

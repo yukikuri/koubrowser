@@ -1,10 +1,11 @@
 import { t } from '@renderer/i18n'
-import { GameChannel } from '@common/channel'
+import { GameChannel, MainMessage } from '@common/channel'
 import { GameSetting } from '@common/setting'
 import { AppState } from '@common/state'
 import { gameState } from '@renderer/store/gamestate'
 import { gameSetting } from '@renderer/store/gamesetting'
 import { createApp } from 'vue'
+import { i18n, initializeLanguage } from '@renderer/i18n'
 import Buefy from 'buefy'
 import App from '@renderer/App.vue'
 import { Env } from '@common/env'
@@ -51,11 +52,17 @@ streamInitialize(async () => {
     app.config.warnHandler = (_msg, _vm, _info) => {}
   }
   app.config.performance = Env.isDevelopment
+  app.use(i18n)
   app.use(Buefy)
   app.mount('#app')
 });
 
 const ipcRenderer = window.electron.ipcRenderer
+
+ipcRenderer.on(MainMessage.language_changed, (_event, value: unknown) => {
+  initializeLanguage(value)
+  document.title = t(EnvRenderer.isAssist ? '甲ブラウザ アシストウィンドウ' : '甲ブラウザ')
+})
 
 ipcRenderer.on(GameChannel.set_game_setting, (_event, setting: GameSetting) => {
   console.log(GameChannel.set_game_setting, setting)

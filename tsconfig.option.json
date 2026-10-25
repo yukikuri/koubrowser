@@ -6,7 +6,8 @@
     "src/global/**/*",
     "src/renderer/src/option/**/*.ts",
     "src/renderer/src/option/**/*.vue",
-    "src/preload/option-api-def.d.ts"
+    "src/preload/option-api-def.d.ts",
+    "src/renderer/src/i18n.ts"
   ],
   "compilerOptions": {
     "moduleResolution": "bundler",

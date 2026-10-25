@@ -57,6 +57,7 @@ export type TaihaSingekiBlockState = (typeof TaihaSingekiBlockState)[keyof typeo
  */
 export const MainMessage = {
   stream_port: 'stream_port',
+  language_changed: 'language_changed',
   update_state_changed: 'update_state_changed',
   update_download_progress: 'update_download_progress',
   startup_update_checked: 'startup_update_checked',

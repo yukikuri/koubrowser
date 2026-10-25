@@ -1,0 +1,6 @@
+{
+  "invalid": {
+    "title": "艦隊情報表示",
+    "message": "DMM ログイン後、「GAME START」画面まで自動で遷移を行います。\n「GAME START」ボタンからゲームを開始すると情報が表示されます。"
+  }
+}

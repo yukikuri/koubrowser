@@ -316,7 +316,6 @@ const clearProxyFixedServersInput = (): void => {
                 <option value="ja">{{ t('日本語') }}</option>
                 <option value="ko">한국어</option>
               </select>
-              <span class="option-row-description">{{ t('変更は甲ブラウザ再起動後に反映されます。') }}</span>
             </div>
           </section>
 

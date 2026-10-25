@@ -1,13 +1,27 @@
+import { createI18n } from 'vue-i18n'
+import jaKey from '@common/i18n/ja-key.json'
+import ko from '@common/i18n/ko.json'
+import koKey from '@common/i18n/ko-key.json'
 import { readonly, ref } from 'vue'
-import { normalizeLanguage, translate, translateTerm, translateShipName, type MessageValues } from '@common/i18n'
+import { 
+  normalizeLanguage, 
+  translate, 
+  translateTerm, 
+  translateShipName, 
+  type MessageValues
+} from '@common/i18n'
 import { startTextFit } from '@renderer/fit-text'
 
 const currentLanguage = ref(normalizeLanguage(undefined))
 export const language = readonly(currentLanguage)
 
-/** Called when opening a window. Language changes in Settings apply after restart. */
+/** Apply the display language when opening a window or receiving a language change. */
 export function initializeLanguage(value: unknown): void {
   currentLanguage.value = normalizeLanguage(value)
+
+  // todo set lang in renderer main.ts
+  i18n.global.locale.value = currentLanguage.value
+  
   if (typeof document === 'undefined') return
   document.documentElement.lang = currentLanguage.value
   for (const [name, text] of Object.entries(styleTexts())) {
@@ -30,7 +44,21 @@ function styleTexts(): Record<string, string> {
 }
 
 export function t(source: string, values?: MessageValues, context?: string): string {
-  return translate(currentLanguage.value, source, values, context)
+
+  // vue i18n trans
+  const key = context ? `${context}::${source}` : source
+  try {
+    const ret = i18n.global.t(key, [...(values ?? [])])
+    console.log(`i18n trans key: ${key}, ret: ${ret}`)
+    return ret
+  } catch (e) {
+    console.error(`i18n translation failed for key: ${context ? `${context}::${source}` : source}`, e)
+    
+    // default trans
+    const ret = translate(currentLanguage.value, source, values, context)
+    console.log(`default trans key:${key} ret: ${ret}`)
+    return ret
+  }
 }
 
 /** For game-provided names: deliberately separate from ordinary interface messages. */
@@ -67,3 +95,47 @@ export function localizeProgressHtml(source: string): string {
   }
   return fragment.innerHTML
 }
+
+function messageResolver(obj: unknown, path: string): string | null {
+
+  console.log(`messageResolver called with path: ${path}, obj:`, obj)
+
+  if (typeof obj !== 'object' || obj === null) return null
+
+  // まず、キー全体の完全一致で探す
+  if (Object.hasOwn(obj, path)) {
+    const value = (obj as Record<string, unknown>)[path]
+    return typeof value === 'string' ? value : null
+  }
+
+  // なければ、ドット区切りで階層をたどる
+  let value: unknown = obj
+
+  for (const key of path.split('.')) {
+    if (
+      typeof value !== 'object' ||
+      value === null ||
+      !Object.hasOwn(value, key)
+    ) {
+      return null
+    }
+
+    value = (value as Record<string, unknown>)[key]
+  }
+
+  return typeof value === 'string' ? value : null
+}
+
+export const i18n = createI18n({
+  legacy: false,
+  locale: 'ja',
+  fallbackLocale: 'ja',
+  messageResolver,
+  messages: {
+    ja: jaKey,
+    ko: {
+      ...ko,
+      ...koKey
+    }
+  }
+})

@@ -1,9 +1,15 @@
+import type { Language } from '@common/i18n'
 import { contextBridge, ipcRenderer } from 'electron'
-import { OptionChannel } from '@common/channel'
+import { MainMessage, OptionChannel } from '@common/channel'
 import { type OptionSetting, type OptionData, type QuestSchemaCheckState } from '@common/option'
 import { type OptionApi } from './option-api-def'
 
 const optionApi: OptionApi = {
+  onLanguageChanged(callback): () => void {
+    const listener = (_event: Electron.IpcRendererEvent, language: Language): void => callback(language)
+    ipcRenderer.on(MainMessage.language_changed, listener)
+    return (): void => { ipcRenderer.removeListener(MainMessage.language_changed, listener) }
+  },
   applyQuestSchema(): Promise<QuestSchemaCheckState> {
     return ipcRenderer.invoke(OptionChannel.applyQuestSchema)
   },

@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import { t } from '../i18n'
+import { computed, onMounted, onUnmounted } from 'vue'
 
-import { onMounted, onUnmounted } from 'vue'
-
-interface Props {
-  message?: string
-}
-
-withDefaults(defineProps<Props>(), {
-  message:
-    t('DMM ログイン後、「GAME START」画面まで自動で遷移を行います。\n「GAME START」ボタンからゲームを開始すると情報が表示されます。')
-})
+const displayMessage = computed(
+  () => t('invalid.message')
+)
 
 onMounted(() => {
   console.debug('invalid mounted')
@@ -25,9 +19,9 @@ onUnmounted(() => {
     <div class="hero-body">
       <div class="container invalid-container">
         <section class="invalid-card">
-          <h1 class="title is-5 invalid-title">{{ t('艦隊情報表示') }}</h1>
+          <h1 class="title is-5 invalid-title">{{ t('invalid.title') }}</h1>
           <p
-            v-for="line in message.split('\n')"
+            v-for="line in displayMessage.split('\n')"
             :key="line"
             class="subtitle is-6 invalid-message"
           >
