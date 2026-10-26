@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Main Process",
+      "name": "Debug Main Process(test mode)",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}",
@@ -26,12 +26,33 @@
       "presentation": {
         "hidden": true
       }
+    },
+    {
+      "name": "Debug Main Process(no test mode)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": ["--sourcemap"],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222"
+      }
     }
   ],
   "compounds": [
     {
-      "name": "Debug All",
-      "configurations": ["Debug Main Process", "Debug Renderer Process"],
+      "name": "Debug All(test mode)",
+      "configurations": ["Debug Main Process(test mode)", "Debug Renderer Process"],
+      "presentation": {
+        "order": 1
+      }
+    },
+    {
+      "name": "Debug All(no test mode)",
+      "configurations": ["Debug Main Process(no test mode)", "Debug Renderer Process"],
       "presentation": {
         "order": 1
       }

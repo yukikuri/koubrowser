@@ -271,16 +271,15 @@ export class KcRecord {
 
   private mapNext(arg: ApiMapNext): void {
 
-    if (Env.isTestMode) {
-      console.log('test mode: skip map next record')
-      return ;
-    }
-
     // nobattle
     if (KcsUtil.isNobattleCell(arg)) {
       const record = RecordUtil.toNoBattleRecord(svdata, arg)
       if (record) {
-        getWorkerDriver().dbInsert({ dbName: DbName.battle, record });
+        if (Env.isTestMode) {
+          console.log('test mode: skip map next record')
+        } else {
+          getWorkerDriver().dbInsert({ dbName: DbName.battle, record });
+        }
       }
     }
   }

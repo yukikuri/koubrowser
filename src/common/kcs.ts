@@ -5968,6 +5968,7 @@ export class KcsUtil {
     }
 
     if ((api_event_id === ApiEventId.noevent) ||
+        (api_event_id === ApiEventId.getMaterial) ||
         (api_event_id === ApiEventId.imagination)) {
       return true
     }
@@ -7292,6 +7293,7 @@ interface ApiPowerUpParam {
   readonly api_verno: string
   readonly api_id_items: string
   readonly api_slot_dest_flag: string
+  readonly api_limited_feed_type?: string // 南瓜使用時の近代化改修で1が指定
 }
 
 // powerup flag
