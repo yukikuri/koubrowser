@@ -192,7 +192,7 @@ const kanlogUrl = 'https://kanlog.info'
                 ドロップ情報を提供する
               </label>
             </p>
-            <p class="about-link-title">艦ログ - 艦これドロップ情報集計サイト</p>
+            <p class="about-link-title">艦ろぐ - 艦これドロップ情報集計サイト</p>
             <p class="about-kanlog-link">
               <a
                 class="has-text-success"
@@ -200,7 +200,7 @@ const kanlogUrl = 'https://kanlog.info'
                 target="_blank"
                 :href="kanlogUrl"
                 @click="openExternalUrl"
-                ><img class="kanlog-img" src="../assets/img/app/kanlog.png" alt="艦ログロゴ" /><span 
+                ><img class="kanlog-img" src="../assets/img/app/kanlog.png" alt="艦ろぐロゴ" /><span 
                   class="link-text">{{ kanlogUrl }}</span></a
               >
             </p>
