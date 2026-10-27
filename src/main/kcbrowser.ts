@@ -834,7 +834,6 @@ export class KcApp {
     ipcMain.handle(MainChannel.hide_assist, () => this.onChannelShowAssist(false))
     ipcMain.handle(MainChannel.minimize, async () => this.onChannelMinimize())
     ipcMain.handle(MainChannel.close, async () => this.onChannelClose())
-    ipcMain.handle(MainChannel.devtool, async () => this.onChannelDevTool())
     ipcMain.handle(MainChannel.open_devtool, (event, target: unknown): void => {
       const trusted = event.sender === this.main_window?.webContents || event.sender === this.assist_window?.webContents
       if (!trusted || event.senderFrame !== event.sender.mainFrame) return
@@ -1395,21 +1394,6 @@ export class KcApp {
     // no effect
     //mainWindow.close();
     this.mainWindow.destroy()
-  }
-
-  /**
-   *
-   */
-  private onChannelDevTool(): void {
-    debug(MainChannel.devtool)
-    const webContents = this.mainWindow.webContents
-    if (webContents) {
-      if (webContents.isDevToolsOpened()) {
-        webContents.closeDevTools()
-      } else {
-        webContents.openDevTools()
-      }
-    }
   }
 
   /**

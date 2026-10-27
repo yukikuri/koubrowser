@@ -7,7 +7,6 @@ export const MainChannel = {
   hide_assist: 'hide_assist',
   minimize: 'minimize',
   close: 'close',
-  devtool: 'devtool',
   open_devtool: 'open_devtool',
   reload: 'reload',
   open_capture_folder: 'open_capture_folder',

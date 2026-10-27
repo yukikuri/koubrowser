@@ -70,7 +70,7 @@ function clearSessionCache(): void {
 }
 
 function openKoubrowserDevTool(): void {
-  window.api.devtool()
+  window.api.openDevTools('main')
 }
 
 function openLicenseOverlay(): void {

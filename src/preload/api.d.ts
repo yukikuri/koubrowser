@@ -15,7 +15,6 @@ export interface Api {
   hideAssist(): void
   minimize(): void
   close(): void
-  devtool(): void
   openDevTools(target: 'main' | 'assist'): Promise<void>
   reload(): void
   openCaptureFolder(): void
