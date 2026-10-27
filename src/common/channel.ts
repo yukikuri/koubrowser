@@ -8,6 +8,7 @@ export const MainChannel = {
   minimize: 'minimize',
   close: 'close',
   devtool: 'devtool',
+  open_devtool: 'open_devtool',
   reload: 'reload',
   open_capture_folder: 'open_capture_folder',
   save_capture: 'save_capture',

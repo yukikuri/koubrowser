@@ -16,6 +16,7 @@ export interface Api {
   minimize(): void
   close(): void
   devtool(): void
+  openDevTools(target: 'main' | 'assist'): Promise<void>
   reload(): void
   openCaptureFolder(): void
   saveCapture(date: Date, buffer: Buffer): Promise<CaptureResult>

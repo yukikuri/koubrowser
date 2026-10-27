@@ -17,8 +17,16 @@ export class IpcObject<T extends object> {
       if (this.webContents) {
         this.ticked = true
         process.nextTick(() => {
-          this.webContents?.send(this.channel, this.value)
-          this.ticked = false
+          try {
+            const webContents = this.webContents
+            if (!webContents || webContents.isDestroyed()) {
+              return
+            }
+
+            webContents.send(this.channel, this.value)
+          } finally {
+            this.ticked = false
+          }
         })
       }
     }

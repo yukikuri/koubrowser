@@ -925,6 +925,27 @@ body {
     }
   }
 
+  .titlebar-button.devtools-trigger {
+    padding: 0;
+
+    svg {
+      width: 28px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+  }
+
+  .devtools-dropdown {
+    &.is-active {
+      svg {
+        transform: translateY(1px);
+      }
+      .titlebar-button {
+        background-color: rgba(#fff, 0.6);
+      }
+    }
+  }
+
   .screenshot-toast {
     position: fixed;
     top: 36px;
@@ -1052,6 +1073,40 @@ body {
           transform: translateX(-2.5px) translateY(-2px);
         }
       }
+      &.devtools-trigger {
+        svg {
+          width: 22px;
+          height: 22px;
+        }
+      }
+    }
+  }
+}
+
+.dropdown-menu:has(.devtools-menu) {
+  background-color: rgba(#000, 0.5);
+  backdrop-filter: blur(10px); // 背景ぼかし
+  --bulma-dropdown-content-offset: 0px;
+  --bulma-dropdown-content-radius: 0px;
+  border: 1px solid #333;
+  border-top-width: 0;
+  width: fit-content;
+  transform: translateY(-6px);
+  .dropdown-content {
+    --bulma-dropdown-content-background-color: transparent;
+    --bulma-dropdown-content-padding-top: 0px;
+    --bulma-dropdown-content-padding-bottom: 0px;
+  }
+  .dropdown-item {
+    user-select: none;
+    cursor: default;
+    color: #fff;
+    background-color: transparent;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+    text-shadow: 1px 1px 0px #000;
+    &:hover {
+      background-color: rgba(#fff, 0.2);
     }
   }
 }

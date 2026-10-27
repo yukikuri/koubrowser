@@ -157,11 +157,7 @@ const onScreenShot = (onSaved: (result: CaptureResult) => void): void => {
 const onGameDevTool = (): void => {
   const game_wv = getGame()?.getWebview()
   if (game_wv) {
-    if (game_wv.isDevToolsOpened()) {
-      game_wv.closeDevTools()
-    } else {
-      game_wv.openDevTools()
-    }
+    game_wv.openDevTools()
   }
 }
 

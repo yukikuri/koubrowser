@@ -38,6 +38,9 @@ const api: Api = {
   devtool(): void {
     ipcRenderer.invoke(MainChannel.devtool)
   },
+  openDevTools(target: 'main' | 'assist'): Promise<void> {
+    return ipcRenderer.invoke(MainChannel.open_devtool, target)
+  },
 
   reload(): void {
     ipcRenderer.invoke(MainChannel.reload)

@@ -716,6 +716,9 @@ export class KcApp {
     // 補正後に表示
     this.assist_window.show()
 
+    // アシストウインドウ表示状態更新
+    gameSetting.assist_window_visible = true
+
     this.assist_window.addListener('close', () => {
       if (! gameSetting.assistRestricted) {
         // 閉じた位置を保存
@@ -725,6 +728,10 @@ export class KcApp {
       }
     })
     this.assist_window.addListener('closed', () => {
+
+      // アシストウインドウ表示状態更新
+      gameSetting.assist_window_visible = false
+      
       this.assist_window = null
     })
 
@@ -828,6 +835,13 @@ export class KcApp {
     ipcMain.handle(MainChannel.minimize, async () => this.onChannelMinimize())
     ipcMain.handle(MainChannel.close, async () => this.onChannelClose())
     ipcMain.handle(MainChannel.devtool, async () => this.onChannelDevTool())
+    ipcMain.handle(MainChannel.open_devtool, (event, target: unknown): void => {
+      const trusted = event.sender === this.main_window?.webContents || event.sender === this.assist_window?.webContents
+      if (!trusted || event.senderFrame !== event.sender.mainFrame) return
+      const window = target === 'main' ? this.main_window : target === 'assist' ? this.assist_window : null
+      if (!window || window.isDestroyed() || window.webContents.isDestroyed()) return
+      window.webContents.openDevTools({ mode: 'detach' })
+    })
     ipcMain.handle(MainChannel.reload, async (_event, arg) => this.onChannelReload(arg))
     ipcMain.handle(MainChannel.openAssist, async () => this.onChannelOpenAssist())
     ipcMain.handle(MainChannel.topmost, async () => this.onChannelTopmost())
