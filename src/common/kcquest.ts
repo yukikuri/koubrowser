@@ -7501,7 +7501,7 @@ register(
     static key = QuestKey.infer
     static names = [['遠洋潜水艦作戦']]
     static formatter(quest: Quest): string {
-      return detailFormatOne(['遠洋潜水艦作戦(遠征30)：'], quest)
+      return detailFormatOne(['遠洋潜水艦作戦(遠征39)：'], quest)
     }
   }
 )
@@ -7515,7 +7515,7 @@ register(
     static key = QuestKey.infer
     static names = [['遠洋潜水艦作戦']]
     static formatter(quest: Quest): string {
-      return detailFormat(['遠洋潜水艦作戦(遠征30)：'], quest)
+      return detailFormat(['遠洋潜水艦作戦(遠征39)：'], quest)
     }
   }
 )
