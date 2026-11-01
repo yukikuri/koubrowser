@@ -785,7 +785,7 @@ export const modSpotXYData: { [key: string]: { [key: string]: SpotMod | undefine
       Z: { x: 8, y: 0 },
     },
     '6-1': {
-      C: { x: -85, y: 5 },
+      C: { x: -35, y: 35 },
       D: { x: 0, y: -10 },
       F: { x: 0, y: -15 },
       H: { x: -35, y: 20 },
