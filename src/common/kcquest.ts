@@ -13010,12 +13010,12 @@ register(
       const msts = toShipMsts(svdata, ship_ids)
 
       // Fletcher Mk.II
-      if (! shipCount([msts[0]], svdata.shipMstIds(629))) {
+      if (! shipCount(msts, svdata.shipMstIds(629))) {
         return false
       }
-      return shipCategoryCount(msts.slice(1), 
+      return shipCategoryCount(msts, 
         [...ApiShipCategories_US, ...ApiShipCategories_UK, ...ApiShipCategories_AU, ...ApiShipCategories_NL]
-      ) >= 3
+      ) >= 4
     }
   }
 )
@@ -13098,7 +13098,7 @@ register(
       const msts = toShipMsts(svdata, ship_ids)
 
       // kaga kaini
-      if (! shipCount(msts, svdata.shipMstIds(698))) {
+      if (! shipCount([msts[0]], svdata.shipMstIds(698))) {
         return false
       }
 
@@ -13107,17 +13107,18 @@ register(
   }
 )
 
-// 926: 【航空母艦特別任務】航空戦隊、精鋭無比！
+// 926: 最精鋭「第一航空戦隊」、出撃！鎧袖一触！
 register(
   926,
   class {
     static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
+    static max = [1, 1, 1, 1]
     static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [2, 4, 'S'],
-      [2, 5, 'S'],
-      [4, 3, 'S'],
+    static maps: QuestMapOrCell[] = [
+      [5, 5, 'S'],
+      QuestMapCell_7_2_2('S'),
+      [6, 2, 'S'],
+      [6, 5, 'S'],
     ]
     static formatter(quest: Quest): string {
       return detailFormatMaps(quest, this.maps)
@@ -13129,14 +13130,18 @@ register(
       }
 
       const msts = toShipMsts(svdata, ship_ids)
-      return shipTypeCount(msts, [ApiShipType.seiki_kuubo, ApiShipType.soukou_kuubo]) >= 2
+      const shipIds = [
+        svdata.shipMstIds(594), // akagi kaini
+        svdata.shipMstIds(698), // kaga kaini
+      ].flat()
+      return shipCount(msts, shipIds) >= 2 
     }
   }
 )
 
 // 927: 重巡「羽黒」、出撃！ペナン沖海戦
 register(
-  976,
+  927,
   class {
     static readonly questType = QuestType.battleMapDeck
     static max = [4]
