@@ -744,6 +744,25 @@ export function isShipIdLvs(
   return false
 }
 
+export function isShipCategoryLvs(
+  svdata: SvData, ship_id: number, cat_lvs: { cats: ApiShipCategory[], lv: number }[]): boolean {
+  const mst = svdata.mstShipFrom(ship_id)
+  if (!mst) {
+    return false;
+  }
+  const api = svdata.ship(ship_id)
+  if (! api) {
+    return false;
+  }
+
+  for (let i = 0; i < cat_lvs.length; ++i) {
+    if (cat_lvs[i].cats.includes(mst.api_ctype) && api.api_lv >= cat_lvs[i].lv) {
+      return true
+    }
+  }
+  return false
+}
+
 export interface ShipMst {
   readonly api: ApiShip
   readonly mst: MstShip
