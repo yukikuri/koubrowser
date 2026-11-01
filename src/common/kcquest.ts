@@ -10821,13 +10821,14 @@ register(
 
       const msts = toShipMsts(svdata, ship_ids)
       // arasio kaini
-      if (! shipCount([msts[0]], svdata.shipMstIds(490).flat())) {
+      if (! shipCount([msts[0]], svdata.shipMstIds(490))) {
         return false
       }
 
       const shipIds = [
         svdata.shipMstIds(95), // asasio
-        svdata.shipMstIds(96) // oosio
+        svdata.shipMstIds(96), // oosio
+        svdata.shipMstIds(97) // mitisio
       ].flat()
       return shipCount(msts.slice(1), shipIds) >= 1
     }
