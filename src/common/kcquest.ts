@@ -3673,43 +3673,44 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 234: バレンタイン2026特別限定任務
-register(
-  234,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 3, 'S'],
-      [1, 4, 'S'],
-      [2, 1, 'S'],
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(24), // ooi
-        svdata.shipMstIds(99), // kuma
-        svdata.shipMstIds(465), // kasima
-        svdata.shipMstIds(471), // kamikaze
-        svdata.shipMstIds(424), // takanami
-        svdata.shipMstIds(675), // suzunami
-        svdata.shipMstIds(485), // fujinami
-        svdata.shipMstIds(528), // hayanami
-        svdata.shipMstIds(484), // hamanami
-        svdata.shipMstIds(162), // kamoi
-        svdata.shipMstIds(995), // ootomari
-      ].flat()
-      if (! shipCount([ships[0]], check_ids)) {
-        return false
-      }
-      return shipCount(ships.slice(1), check_ids) >= 2
-    }
-  }
-)
+// register(
+//   234,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 3, 'S'],
+//       [1, 4, 'S'],
+//       [2, 1, 'S'],
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(24), // ooi
+//         svdata.shipMstIds(99), // kuma
+//         svdata.shipMstIds(465), // kasima
+//         svdata.shipMstIds(471), // kamikaze
+//         svdata.shipMstIds(424), // takanami
+//         svdata.shipMstIds(675), // suzunami
+//         svdata.shipMstIds(485), // fujinami
+//         svdata.shipMstIds(528), // hayanami
+//         svdata.shipMstIds(484), // hamanami
+//         svdata.shipMstIds(162), // kamoi
+//         svdata.shipMstIds(995), // ootomari
+//       ].flat()
+//       if (! shipCount([ships[0]], check_ids)) {
+//         return false
+//       }
+//       return shipCount(ships.slice(1), check_ids) >= 2
+//     }
+//   }
+// )
 
 // 235: 近海哨戒を実施せよ！
 register(
@@ -3813,39 +3814,40 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 238: バレンタイン2026特別限定任務【拡張作戦】
-register(
-  238,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2,]
-    static key = QuestKey.yearly
-    static maps: QuestMapOrCell[] = [
-      [2, 2, 'A'],
-      [3, 1, 'A'],
-      QuestMapCell_7_5_3('A'),
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(416), // furukatakaini
-        svdata.shipMstIds(142), // kunigasakaini
-        svdata.shipMstIds(321), // ooyodokai
-        svdata.shipMstIds(972), // i41
-        svdata.shipMstIds(535), // Luigi Torelli
-        svdata.shipMstIds(944), // heianmaru
-        svdata.shipMstIds(639), // jingei
-      ].flat()
-      if (! shipCount([ships[0]], check_ids)) {
-        return false
-      }
-      return shipCount(ships.slice(1), check_ids) >= 2
-    }
-  }
-)
+// register(
+//   238,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2,]
+//     static key = QuestKey.yearly
+//     static maps: QuestMapOrCell[] = [
+//       [2, 2, 'A'],
+//       [3, 1, 'A'],
+//       QuestMapCell_7_5_3('A'),
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(416), // furukatakaini
+//         svdata.shipMstIds(142), // kunigasakaini
+//         svdata.shipMstIds(321), // ooyodokai
+//         svdata.shipMstIds(972), // i41
+//         svdata.shipMstIds(535), // Luigi Torelli
+//         svdata.shipMstIds(944), // heianmaru
+//         svdata.shipMstIds(639), // jingei
+//       ].flat()
+//       if (! shipCount([ships[0]], check_ids)) {
+//         return false
+//       }
+//       return shipCount(ships.slice(1), check_ids) >= 2
+//     }
+//   }
+// )
 
 // 239: 「第八駆逐隊」出撃せよ！
 register(
@@ -5910,32 +5912,33 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 329: 【節分任務:枡】節分演習！二〇二六 
-register(
-  329,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [3]
-    static key = QuestKey.infer
-    static need_win_rank: PracticeWinRank = 'B'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (shipTypeCount([ships[0]], [ApiShipType.kaiboukan])) {
-        return  shipTypeCount(ships.slice(1), [ApiShipType.kaiboukan]) >= 2
-      }
-      if (shipTypeCount([ships[0]], [ApiShipType.sensuibokan])) {
-        return shipTypeCount(ships.slice(1), [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])  >= 3
-      }
-      if (shipTypeCount([ships[0]], [ApiShipType.hokyuukan, ApiShipType.yourikukan])) {
-        return shipTypeCount(ships.slice(1), [ApiShipType.kutikukan]) >= 5
-      }
-      return false
-    }
-  }
-)
+// register(
+//   329,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [3]
+//     static key = QuestKey.infer
+//     static need_win_rank: PracticeWinRank = 'B'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (shipTypeCount([ships[0]], [ApiShipType.kaiboukan])) {
+//         return  shipTypeCount(ships.slice(1), [ApiShipType.kaiboukan]) >= 2
+//       }
+//       if (shipTypeCount([ships[0]], [ApiShipType.sensuibokan])) {
+//         return shipTypeCount(ships.slice(1), [ApiShipType.sensuikan, ApiShipType.sensui_kuubo])  >= 3
+//       }
+//       if (shipTypeCount([ships[0]], [ApiShipType.hokyuukan, ApiShipType.yourikukan])) {
+//         return shipTypeCount(ships.slice(1), [ApiShipType.kutikukan]) >= 5
+//       }
+//       return false
+//     }
+//   }
+// )
 
 // 330:	空母機動部隊、演習始め！
 register(
@@ -6999,30 +7002,31 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 374: 【期間限定任務】「三十二駆」特別演習
-register(
-  374,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [3]
-    static key = QuestKey.daily
-    static need_win_rank: PracticeWinRank = 'S'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習S勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const shipIds = [
-        svdata.shipMstIds(674),
-        svdata.shipMstIds(675),
-        svdata.shipMstIds(485),
-        svdata.shipMstIds(528),
-        svdata.shipMstIds(484)
-      ].flat()
-      return shipCount(ships, shipIds) >= 3
-    }
-  }
-)
+// register(
+//   374,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [3]
+//     static key = QuestKey.daily
+//     static need_win_rank: PracticeWinRank = 'S'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習S勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const shipIds = [
+//         svdata.shipMstIds(674),
+//         svdata.shipMstIds(675),
+//         svdata.shipMstIds(485),
+//         svdata.shipMstIds(528),
+//         svdata.shipMstIds(484)
+//       ].flat()
+//       return shipCount(ships, shipIds) >= 3
+//     }
+//   }
+// )
 
 // 375: 「第三戦隊」第二小隊、演習開始！
 register(
@@ -7103,31 +7107,32 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 378: 新春限定！第六艦隊特別演習
-register(
-  378,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [5]
-    static key = QuestKey.daily
-    static need_win_rank: PracticeWinRank = 'A'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習A勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (!shipTypeCount([ships[0]], [ApiShipType.sensuibokan])) {
-        return false
-      }
-      const countSensuibokan = shipTypeCount(ships, [ApiShipType.sensuibokan]) - 1
-      const countSensuikan = shipTypeCount(ships, [ApiShipType.sensuikan])
-      if ((countSensuibokan + countSensuikan) < 2) {
-        return false
-      }
-      return countSensuikan >= 1
-    }
-  }
-)
+// register(
+//   378,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [5]
+//     static key = QuestKey.daily
+//     static need_win_rank: PracticeWinRank = 'A'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習A勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (!shipTypeCount([ships[0]], [ApiShipType.sensuibokan])) {
+//         return false
+//       }
+//       const countSensuibokan = shipTypeCount(ships, [ApiShipType.sensuibokan]) - 1
+//       const countSensuikan = shipTypeCount(ships, [ApiShipType.sensuikan])
+//       if ((countSensuibokan + countSensuikan) < 2) {
+//         return false
+//       }
+//       return countSensuikan >= 1
+//     }
+//   }
+// )
 
 // 379: 【期間限定任務】「精鋭十一駆」特別演習！
 register(
@@ -7153,28 +7158,29 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 380:【期間限定任務】揚陸船団護衛演習
-register(
-  380,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [3]
-    static key = QuestKey.daily
-    static need_win_rank: PracticeWinRank = 'A'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習A勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const landingCount = shipTypeCount(ships, [ApiShipType.yourikukan])
-      const escortCount = shipTypeCount(ships, [ApiShipType.kaiboukan])
-      if (landingCount >= 1 && escortCount >= 2) {
-        return true
-      }
-      return escortCount >= 3
-    }
-  }
-)
+// register(
+//   380,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [3]
+//     static key = QuestKey.daily
+//     static need_win_rank: PracticeWinRank = 'A'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習A勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const landingCount = shipTypeCount(ships, [ApiShipType.yourikukan])
+//       const escortCount = shipTypeCount(ships, [ApiShipType.kaiboukan])
+//       if (landingCount >= 1 && escortCount >= 2) {
+//         return true
+//       }
+//       return escortCount >= 3
+//     }
+//   }
+// )
 
 // 381: 【期間限定任務】秋月型演習任務
 register(
@@ -7888,25 +7894,26 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 441:	【節分任務:恵方】令和八年節分遠征
-register(
-  441,
-  class {
-    static readonly questType = QuestType.missionSpecific
-    static max = [1, 1, 1, 1, 1]
-    static key = QuestKey.yearly
-    static names = [
-      ['海上護衛任務'],
-      ['長時間対潜警戒'],
-      ['タンカー護衛任務'],
-      ['兵站強化任務'],
-      ['遠洋潜水艦作戦']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOne(['遠05：', '遠A3：', '遠09：', '遠A1：', '遠39：'], quest)
-    }
-  }
-)
+// register(
+//   441,
+//   class {
+//     static readonly questType = QuestType.missionSpecific
+//     static max = [1, 1, 1, 1, 1]
+//     static key = QuestKey.yearly
+//     static names = [
+//       ['海上護衛任務'],
+//       ['長時間対潜警戒'],
+//       ['タンカー護衛任務'],
+//       ['兵站強化任務'],
+//       ['遠洋潜水艦作戦']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOne(['遠05：', '遠A3：', '遠09：', '遠A1：', '遠39：'], quest)
+//     }
+//   }
+// )
 
 // 442:	西方連絡作戦準備を実施せよ！
 register(
@@ -8026,72 +8033,76 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 448:	【13周年記念任務】13周年観艦式準備
-register(
-  448,
-  class {
-    static readonly questType = QuestType.missionSpecific
-    static max = [1, 1, 1, 2]
-    static key = QuestKey.yearly
-    static names = [
-      ['警備任務'],
-      ['兵站強化任務'],
-      ['長時間対潜警戒'],
-      ['観艦式予行'],
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormat(['遠征3：', '遠征A1：', '遠征A3：', '遠征7：'], quest)
-    }
-  }
-)
+// register(
+//   448,
+//   class {
+//     static readonly questType = QuestType.missionSpecific
+//     static max = [1, 1, 1, 2]
+//     static key = QuestKey.yearly
+//     static names = [
+//       ['警備任務'],
+//       ['兵站強化任務'],
+//       ['長時間対潜警戒'],
+//       ['観艦式予行'],
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['遠征3：', '遠征A1：', '遠征A3：', '遠征7：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 449:【13周年記念任務】13周年観艦式
-register(
-  449,
-  class {
-    static readonly questType = QuestType.missionSpecific
-    static max = [1]
-    static key = QuestKey.infer
-    static names = [['観艦式']]
-    static formatter(quest: Quest): string {
-      return detailFormatOne(['遠征8：'], quest)
-    }
-  }
-)
+// register(
+//   449,
+//   class {
+//     static readonly questType = QuestType.missionSpecific
+//     static max = [1]
+//     static key = QuestKey.infer
+//     static names = [['観艦式']]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOne(['遠征8：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 450:【期間限定:拡張任務】水雷戦隊遠征作戦！
-register(
-  450,
-  class {
-    static readonly questType = QuestType.missionSpecific
-    static max = [1, 1, 1, 1, 1]
-    static key = QuestKey.infer
-    static names = [
-      ['海上護衛任務'], ['兵站強化任務'], ['タンカー護衛任務'], 
-      ['資源輸送任務'], ['包囲陸戦隊撤収作戦']]
-    static formatter(quest: Quest): string {
-      return detailFormatOne(['遠征5：', '遠征A1：', '遠征9：', '遠征12：', '遠征14：'], quest)
-    }
-  }
-)
+// register(
+//   450,
+//   class {
+//     static readonly questType = QuestType.missionSpecific
+//     static max = [1, 1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static names = [
+//       ['海上護衛任務'], ['兵站強化任務'], ['タンカー護衛任務'], 
+//       ['資源輸送任務'], ['包囲陸戦隊撤収作戦']]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOne(['遠征5：', '遠征A1：', '遠征9：', '遠征12：', '遠征14：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 451:【13周年記念拡張任務】緊急資源輸出入
-register(
-  451,
-  class {
-    static readonly questType = QuestType.missionSpecific
-    static max = [2, 2, 2]
-    static key = QuestKey.infer
-    static names = [
-      ['海上護衛任務'],
-      ['タンカー護衛任務'], 
-      ['ボーキサイト輸送任務']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormat(['遠征5：', '遠征9：', '遠征11：'], quest)
-    }
-  }
-)
+// register(
+//   451,
+//   class {
+//     static readonly questType = QuestType.missionSpecific
+//     static max = [2, 2, 2]
+//     static key = QuestKey.infer
+//     static names = [
+//       ['海上護衛任務'],
+//       ['タンカー護衛任務'], 
+//       ['ボーキサイト輸送任務']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['遠征5：', '遠征9：', '遠征11：'], quest)
+//     }
+//   }
+// )
 
 // 501: はじめての「補給」！
 register(
@@ -9913,121 +9924,128 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 707:【桃の節句任務】駆逐艦桃の節句改修
-register(
-  707,
-  class {
-    static readonly questType = QuestType.kaisouUseType
-    static max = [2]
-    static key = QuestKey.yearly
-    static powerup_ship_type = ApiShipType.kutikukan
-    static use_ship_type: ShipTypeCount = [ApiShipType.keijyun, 3]
-    static formatter(quest: Quest): string {
-      return detailFormat(['駆逐艦への軽巡3隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   707,
+//   class {
+//     static readonly questType = QuestType.kaisouUseType
+//     static max = [2]
+//     static key = QuestKey.yearly
+//     static powerup_ship_type = ApiShipType.kutikukan
+//     static use_ship_type: ShipTypeCount = [ApiShipType.keijyun, 3]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['駆逐艦への軽巡3隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 708:【桃の節句任務】海防艦桃の節句改修
-register(
-  708,
-  class {
-    static readonly questType = QuestType.kaisouUseType
-    static max = [2]
-    static key = QuestKey.yearly
-    static powerup_ship_type = ApiShipType.kaiboukan
-    static use_ship_type: ShipTypeCount = [ApiShipType.kutikukan, 5]
-    static formatter(quest: Quest): string {
-      return detailFormat(['海防艦への駆逐艦5隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   708,
+//   class {
+//     static readonly questType = QuestType.kaisouUseType
+//     static max = [2]
+//     static key = QuestKey.yearly
+//     static powerup_ship_type = ApiShipType.kaiboukan
+//     static use_ship_type: ShipTypeCount = [ApiShipType.kutikukan, 5]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['海防艦への駆逐艦5隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 709:【桃の節句拡張任務】菱餅特別改修2026
-register(
-  709,
-  class {
-    static readonly questType = QuestType.kaisouUseCategoryToCategory
-    static max = [3]
-    static key = QuestKey.yearly
-    static powerup_ship_cats = [ApiShipCategory.fubuki]
-    static use_ship_cats = [ApiShipCategory.sendai]
-    static use_ship_count = 3
-    static formatter(quest: Quest): string {
-      return detailFormat(['吹雪型への川内型3隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   709,
+//   class {
+//     static readonly questType = QuestType.kaisouUseCategoryToCategory
+//     static max = [3]
+//     static key = QuestKey.yearly
+//     static powerup_ship_cats = [ApiShipCategory.fubuki]
+//     static use_ship_cats = [ApiShipCategory.sendai]
+//     static use_ship_count = 3
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['吹雪型への川内型3隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
 
+// 期間限定任務定義。参考用にコメントで残す
 // 710: 【桃の節句】菱餅改修：2021序
-register(
-  710,
-  class {
-    static readonly questType = QuestType.kaisouUseId
-    static max = [1]
-    static key = QuestKey.yearly
-    static powerup_ship_type = ApiShipType.kutikukan
-    static use_ship_ids = [
-      1, 254, 434, 2, 255, 435, 164, 308, 165, 309, 28, 256, 418, 481, 366, 29, 257, 548, 30, 259,
-      7, 260, 31, 261
-    ]
-    static use_ship_count = 4
-    static formatter(quest: Quest): string {
-      return detailFormatOne(['駆逐艦へ睦月型4隻使用改修成功1回：'], quest)
-    }
-  }
-)
+// register(
+//   710,
+//   class {
+//     static readonly questType = QuestType.kaisouUseId
+//     static max = [1]
+//     static key = QuestKey.yearly
+//     static powerup_ship_type = ApiShipType.kutikukan
+//     static use_ship_ids = [
+//       1, 254, 434, 2, 255, 435, 164, 308, 165, 309, 28, 256, 418, 481, 366, 29, 257, 548, 30, 259,
+//       7, 260, 31, 261
+//     ]
+//     static use_ship_count = 4
+//     static formatter(quest: Quest): string {
+//       return detailFormatOne(['駆逐艦へ睦月型4隻使用改修成功1回：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 711: 【桃の節句】菱餅改修：2021破
-register(
-  711,
-  class {
-    static readonly questType = QuestType.kaisouUseIdToId
-    static max = [2]
-    static key = QuestKey.yearly
-    static powerup_ship_ids = [
-      13, 207, 195, 3, 479, 390, 480, 391, 93, 230, 15, 231, 665, 94, 232, 16, 233, 407
-    ]
-    static use_ship_ids = [
-      9, 201, 426, 10, 202, 32, 203, 11, 204, 33, 205, 420, 631, 700, 12, 206, 486, 368
-    ]
-    static use_ship_count = 5
-    static formatter(quest: Quest): string {
-      return detailFormat(['綾波型への吹雪型駆逐艦5隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   711,
+//   class {
+//     static readonly questType = QuestType.kaisouUseIdToId
+//     static max = [2]
+//     static key = QuestKey.yearly
+//     static powerup_ship_ids = [
+//       13, 207, 195, 3, 479, 390, 480, 391, 93, 230, 15, 231, 665, 94, 232, 16, 233, 407
+//     ]
+//     static use_ship_ids = [
+//       9, 201, 426, 10, 202, 32, 203, 11, 204, 33, 205, 420, 631, 700, 12, 206, 486, 368
+//     ]
+//     static use_ship_count = 5
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['綾波型への吹雪型駆逐艦5隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 712: 【桃の節句】菱餅改修：2021週
-register(
-  712,
-  class {
-    static readonly questType = QuestType.kaisouUseType
-    static max = [2]
-    static key = QuestKey.yearly
-    static powerup_ship_type = ApiShipType.jyuujyun
-    static use_ship_type: ShipTypeCount = [ApiShipType.keijyun, 4]
-    static formatter(quest: Quest): string {
-      return detailFormat(['重巡への軽巡4隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   712,
+//   class {
+//     static readonly questType = QuestType.kaisouUseType
+//     static max = [2]
+//     static key = QuestKey.yearly
+//     static powerup_ship_type = ApiShipType.jyuujyun
+//     static use_ship_type: ShipTypeCount = [ApiShipType.keijyun, 4]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['重巡への軽巡4隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 713: 【桃の節句】菱餅改修：2021空
-register(
-  713,
-  class {
-    static readonly questType = QuestType.kaisouUseType
-    static max = [2]
-    static key = QuestKey.yearly
-    static powerup_ship_type = ApiShipType.seiki_kuubo
-    static use_ship_type: ShipTypeCount = [ApiShipType.kei_kuubo, 5]
-    static formatter(quest: Quest): string {
-      return detailFormat(['正規空母への軽空母5隻使用改修成功：'], quest)
-    }
-  }
-)
+// register(
+//   713,
+//   class {
+//     static readonly questType = QuestType.kaisouUseType
+//     static max = [2]
+//     static key = QuestKey.yearly
+//     static powerup_ship_type = ApiShipType.seiki_kuubo
+//     static use_ship_type: ShipTypeCount = [ApiShipType.kei_kuubo, 5]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['正規空母への軽空母5隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
 // 714:	「駆逐艦」の改修工事を実施せよ！
 register(
@@ -10153,133 +10171,137 @@ register(
 )
 
 
+// 期間限定任務定義。参考用にコメントで残す
 // 801:	迎春新年！二〇二六年、艦隊抜錨せよ！
-register(
-  801,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 1, 'S'],
-      [1, 2, 'S'],
-      [1, 3, 'S'],
-      [1, 5, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (
-        shipTypeCount([ships[0]], [ApiShipType.keijyun, ApiShipType.renjyun, ApiShipType.raijyun]) <
-        1
-      ) {
-        return false
-      }
-      if (shipTypeCount(ships, [ApiShipType.kaiboukan]) >= 2) {
-        return true
-      }
-      if (shipTypeCount(ships, [ApiShipType.kutikukan]) >= 3) {
-        return true
-      }
-      return false
-    }
-  }
-)
+// register(
+//   801,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 1, 'S'],
+//       [1, 2, 'S'],
+//       [1, 3, 'S'],
+//       [1, 5, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (
+//         shipTypeCount([ships[0]], [ApiShipType.keijyun, ApiShipType.renjyun, ApiShipType.raijyun]) <
+//         1
+//       ) {
+//         return false
+//       }
+//       if (shipTypeCount(ships, [ApiShipType.kaiboukan]) >= 2) {
+//         return true
+//       }
+//       if (shipTypeCount(ships, [ApiShipType.kutikukan]) >= 3) {
+//         return true
+//       }
+//       return false
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 802:	賀正！令和八年、精鋭巡洋艦戦隊、出撃始めッ！
-register(
-  802,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [1, 4, 'S'],
-      [2, 1, 'S'],
-      [2, 2, 'S'],
-      [2, 3, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const checkTypes = ApiShipTypeKeijyunClasses.concat(ApiShipTypeJyujyunClasses)
-      if (shipTypeCount([ships[0]], checkTypes) < 1) {
-        return false
-      }
-      if (shipTypeCount(ships, checkTypes) < 3) {
-        return false
-      }
-      if (shipTypeCount(ships, [ApiShipType.kutikukan]) < 1) {
-        return false
-      }
-      return true
-    }
-  }
-)
+// register(
+//   802,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [1, 4, 'S'],
+//       [2, 1, 'S'],
+//       [2, 2, 'S'],
+//       [2, 3, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const checkTypes = ApiShipTypeKeijyunClasses.concat(ApiShipTypeJyujyunClasses)
+//       if (shipTypeCount([ships[0]], checkTypes) < 1) {
+//         return false
+//       }
+//       if (shipTypeCount(ships, checkTypes) < 3) {
+//         return false
+//       }
+//       if (shipTypeCount(ships, [ApiShipType.kutikukan]) < 1) {
+//         return false
+//       }
+//       return true
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 803:	謹賀新年2026年！空母機動部隊、西へ！南北へ！
-register(
-  803,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [3, 1, 'S'],
-      [4, 2, 'S'],
-      [5, 2, 'S'],
-      [4, 1, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (shipTypeCount([ships[0]], ApiShipTypeKuboClasses) < 1) {
-        return false
-      }
-      return shipTypeCount(ships, [ApiShipType.kutikukan]) >= 2
-    }
-  }
-)
+// register(
+//   803,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [3, 1, 'S'],
+//       [4, 2, 'S'],
+//       [5, 2, 'S'],
+//       [4, 1, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (shipTypeCount([ships[0]], ApiShipTypeKuboClasses) < 1) {
+//         return false
+//       }
+//       return shipTypeCount(ships, [ApiShipType.kutikukan]) >= 2
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 804:	新春【拡張作戦】精鋭日英米空母、新年協同作戦！
-register(
-  804,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMapOrCell[] = [
-      [2, 5, 'S'],
-      QuestMapCell_7_2_2('S'),
-      [6, 2, 'S'],
-      [4, 5, 'S'],
-      [5, 5, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(515), // Ark Royal
-        svdata.shipMstIds(885), // Victorious
-        svdata.shipMstIds(549), // Intrepid
-        svdata.shipMstIds(603), // Hornet
-        svdata.shipMstIds(90), // souryu
-        svdata.shipMstIds(91), // hiryu
-        svdata.shipMstIds(110), // syoukaku
-        svdata.shipMstIds(111) // zuikaku
-      ].flat()
-      return shipCount(ships, check_ids) >= 2
-    }
-  }
-)
+// register(
+//   804,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMapOrCell[] = [
+//       [2, 5, 'S'],
+//       QuestMapCell_7_2_2('S'),
+//       [6, 2, 'S'],
+//       [4, 5, 'S'],
+//       [5, 5, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(515), // Ark Royal
+//         svdata.shipMstIds(885), // Victorious
+//         svdata.shipMstIds(549), // Intrepid
+//         svdata.shipMstIds(603), // Hornet
+//         svdata.shipMstIds(90), // souryu
+//         svdata.shipMstIds(91), // hiryu
+//         svdata.shipMstIds(110), // syoukaku
+//         svdata.shipMstIds(111) // zuikaku
+//       ].flat()
+//       return shipCount(ships, check_ids) >= 2
+//     }
+//   }
+// )
 
 // 817: 新編艦隊、南西諸島防衛線へ急行せよ！
 register(
@@ -10663,78 +10685,80 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 840: 【節分任務:豆】節分作戦二〇二六
-register(
-  840,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [1, 2, 'A'],
-      [1, 3, 'A'],
-      [1, 4, 'A']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      if (ship_ids.length < 2) {
-        return false
-      }
-      const ships = toShipMsts(svdata, [ship_ids[0], ship_ids[1]])
-      const check_ids = [
-        svdata.shipMstIds(89), // housyou
-        svdata.shipMstIds(183), // ooyodo
-        svdata.shipMstIds(93), // oboro
-        svdata.shipMstIds(94), // sazanami
-        svdata.shipMstIds(15), // akebono
-        svdata.shipMstIds(16), // usio
-        svdata.shipMstIds(953), // asahi
-        svdata.shipMstIds(182), // akasi
-        svdata.shipMstIds(634), //jingei
-        svdata.shipMstIds(635), // tyogei
-      ].flat()
-      return shipCount(ships, check_ids) == 2
-    }
-  }
-)
+// register(
+//   840,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [1, 2, 'A'],
+//       [1, 3, 'A'],
+//       [1, 4, 'A']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       if (ship_ids.length < 2) {
+//         return false
+//       }
+//       const ships = toShipMsts(svdata, [ship_ids[0], ship_ids[1]])
+//       const check_ids = [
+//         svdata.shipMstIds(89), // housyou
+//         svdata.shipMstIds(183), // ooyodo
+//         svdata.shipMstIds(93), // oboro
+//         svdata.shipMstIds(94), // sazanami
+//         svdata.shipMstIds(15), // akebono
+//         svdata.shipMstIds(16), // usio
+//         svdata.shipMstIds(953), // asahi
+//         svdata.shipMstIds(182), // akasi
+//         svdata.shipMstIds(634), //jingei
+//         svdata.shipMstIds(635), // tyogei
+//       ].flat()
+//       return shipCount(ships, check_ids) == 2
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 841: 【節分任務:鬼】南西方面節分作戦二〇二六
-register(
-  841,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [2, 1, 'A'],
-      [2, 2, 'A'],
-      [2, 3, 'A']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      if (ship_ids.length < 2) {
-        return false
-      }
-      const ships = toShipMsts(svdata, [ship_ids[0], ship_ids[1]])
-      const check_ids = [
-        svdata.shipMstIds(935), // Jean Bart
-        svdata.shipMstIds(931), // Ranger
-        svdata.shipMstIds(534), // snyou
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(115), // yuubari
-        svdata.shipMstIds(965), // Gloire
-        svdata.shipMstIds(562), // Johnston
-        svdata.shipMstIds(453), // kazagumo
-        svdata.shipMstIds(409), // hayasimo
-      ].flat()
-      return shipCount(ships, check_ids) == 2
-    }
-  }
-)
+// register(
+//   841,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [2, 1, 'A'],
+//       [2, 2, 'A'],
+//       [2, 3, 'A']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       if (ship_ids.length < 2) {
+//         return false
+//       }
+//       const ships = toShipMsts(svdata, [ship_ids[0], ship_ids[1]])
+//       const check_ids = [
+//         svdata.shipMstIds(935), // Jean Bart
+//         svdata.shipMstIds(931), // Ranger
+//         svdata.shipMstIds(534), // snyou
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(115), // yuubari
+//         svdata.shipMstIds(965), // Gloire
+//         svdata.shipMstIds(562), // Johnston
+//         svdata.shipMstIds(453), // kazagumo
+//         svdata.shipMstIds(409), // hayasimo
+//       ].flat()
+//       return shipCount(ships, check_ids) == 2
+//     }
+//   }
+// )
 
 // 842: 主力戦艦戦隊、抜錨せよ！
 register(
@@ -10769,46 +10793,47 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 843: 【節分任務:柊】節分拡張作戦二〇二六、重巡出撃！
-register(
-  843,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMapOrCell[] = [
-      [4, 1, 'S'],
-      [4, 2, 'S'],
-      [4, 3, 'S'],
-      QuestMapCell_7_5_3('S')
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      if (ship_ids.length < 3) {
-        return false
-      }
-      const ships = toShipMsts(svdata, ship_ids)
-      if (! shipTypeCount([ships[0]], [ApiShipType.jyuujyun])) {
-        return false
-      }
-      const ships1 = ships.slice(1)
-      if (! shipTypeCount(ships1, [ApiShipType.jyuujyun])) {
-        return false
-      }
-      const check_ids = [
-        svdata.shipMstIds(161), // akitsumaru
-        svdata.shipMstIds(900), // yamasiomaru
-        svdata.shipMstIds(943) // kumanomaru
-      ].flat()
-      if (! shipTypeCount(ships1, [ApiShipType.kei_kuubo]) && ! shipCount(ships1, check_ids)) {
-        return false
-      }
-      return true
-    }
-  }
-)
+// register(
+//   843,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMapOrCell[] = [
+//       [4, 1, 'S'],
+//       [4, 2, 'S'],
+//       [4, 3, 'S'],
+//       QuestMapCell_7_5_3('S')
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       if (ship_ids.length < 3) {
+//         return false
+//       }
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (! shipTypeCount([ships[0]], [ApiShipType.jyuujyun])) {
+//         return false
+//       }
+//       const ships1 = ships.slice(1)
+//       if (! shipTypeCount(ships1, [ApiShipType.jyuujyun])) {
+//         return false
+//       }
+//       const check_ids = [
+//         svdata.shipMstIds(161), // akitsumaru
+//         svdata.shipMstIds(900), // yamasiomaru
+//         svdata.shipMstIds(943) // kumanomaru
+//       ].flat()
+//       if (! shipTypeCount(ships1, [ApiShipType.kei_kuubo]) && ! shipCount(ships1, check_ids)) {
+//         return false
+//       }
+//       return true
+//     }
+//   }
+// )
 
 // 844: 精鋭「第八駆逐隊」突入せよ！ 
 register(
@@ -11449,47 +11474,50 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 866: 秋刀魚漁：鎮守府秋刀魚祭り開幕だね。頑張ろう！
-register(
-  866,
-  class {
-    static readonly questType = QuestType.collectItem
-    static max = [10]
-    static key = QuestKey.yearly
-    static item_id = ApiItemId.saury
-    static formatter(quest: Quest): string {
-      return detailFormat(['秋刀魚所持数：'], quest)
-    }
-  }
-)
+// register(
+//   866,
+//   class {
+//     static readonly questType = QuestType.collectItem
+//     static max = [10]
+//     static key = QuestKey.yearly
+//     static item_id = ApiItemId.saury
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['秋刀魚所持数：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 867: 秋刀魚漁：こんなに美味しいなんて！司令、最高です！
-register(
-  867,
-  class {
-    static readonly questType = QuestType.collectItem
-    static max = [20]
-    static key = QuestKey.yearly
-    static item_id = ApiItemId.saury
-    static formatter(quest: Quest): string {
-      return detailFormat(['秋刀魚所持数：'], quest)
-    }
-  }
-)
+// register(
+//   867,
+//   class {
+//     static readonly questType = QuestType.collectItem
+//     static max = [20]
+//     static key = QuestKey.yearly
+//     static item_id = ApiItemId.saury
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['秋刀魚所持数：'], quest)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 868: 秋刀魚漁：秋月型の秋刀魚祭り、全力で参りますっ！
-register(
-  868,
-  class {
-    static readonly questType = QuestType.collectItem
-    static max = [50]
-    static key = QuestKey.yearly
-    static item_id = ApiItemId.saury
-    static formatter(quest: Quest): string {
-      return detailFormat(['秋刀魚所持数：'], quest)
-    }
-  }
-)
+// register(
+//   868,
+//   class {
+//     static readonly questType = QuestType.collectItem
+//     static max = [50]
+//     static key = QuestKey.yearly
+//     static item_id = ApiItemId.saury
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['秋刀魚所持数：'], quest)
+//     }
+//   }
+// )
 
 // 869: 補給線の安全を確保せよ！
 register(
@@ -11885,44 +11913,47 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 882:【節分任務:最終拡張作戦】節分二〇二六 戦果拡大！
-register(
-  882,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [1, 5, 'S'],
-      [3, 2, 'S'],
-      [5, 3, 'S'],
-      [6, 2, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(137), // agano
-        svdata.shipMstIds(140), // sakawa
-        svdata.shipMstIds(2), // kisaragi
-        svdata.shipMstIds(11), // miyuki
-        svdata.shipMstIds(486), // uranami
-        svdata.shipMstIds(479), // amagiri
-        svdata.shipMstIds(480), // sagiri
-        svdata.shipMstIds(583), // minegumo
-        svdata.shipMstIds(410), // kiyosimo
-        svdata.shipMstIds(425), // asasimo
-        svdata.shipMstIds(451), // mizuho
-      ].flat()
-      if (! shipCount([msts[0]], check_ids)) {
-        return false
-      }
-      return shipCount(msts.slice(1), check_ids) >= 2
-    }
-  }
-)
+// register(
+//   882,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [1, 5, 'S'],
+//       [3, 2, 'S'],
+//       [5, 3, 'S'],
+//       [6, 2, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(137), // agano
+//         svdata.shipMstIds(140), // sakawa
+//         svdata.shipMstIds(2), // kisaragi
+//         svdata.shipMstIds(11), // miyuki
+//         svdata.shipMstIds(486), // uranami
+//         svdata.shipMstIds(479), // amagiri
+//         svdata.shipMstIds(480), // sagiri
+//         svdata.shipMstIds(583), // minegumo
+//         svdata.shipMstIds(410), // kiyosimo
+//         svdata.shipMstIds(425), // asasimo
+//         svdata.shipMstIds(451), // mizuho
+//       ].flat()
+//       if (! shipCount([msts[0]], check_ids)) {
+//         return false
+//       }
+//       return shipCount(msts.slice(1), check_ids) >= 2
+//     }
+//   }
+// )
+
+// 883: 七周年任務【後段作戦】
 
 // 884: 最精鋭甲型駆逐艦、突入！敵中突破！
 register(
@@ -12518,120 +12549,125 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 906:【桃の節句】鎮守府近海の安全確保作戦2022
-register(
-  906,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 2, 'A'],
-      [1, 3, 'A'],
-      [1, 5, 'A'],
-      [1, 6, '']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 3
-    }
-  }
-)
+// register(
+//   906,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 2, 'A'],
+//       [1, 3, 'A'],
+//       [1, 5, 'A'],
+//       [1, 6, '']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 3
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 907:【桃の節句】南西諸島海域 春の戦闘哨戒2026
-register(
-  907,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [2, 1, 'S'],
-      [2, 2, 'S'],
-      [2, 3, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 4
-    }
-  }
-)
+// register(
+//   907,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [2, 1, 'S'],
+//       [2, 2, 'S'],
+//       [2, 3, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 4
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 908:【桃の節句】春の雛祭り艦隊決戦！2026
-register(
-  908,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.yearly
-    static maps: QuestMapOrCell[] = [[2, 4, 'S'], [2, 5, 'S'], QuestMapCell_7_2_2('S')]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(1005), // Minneapolis
-        svdata.shipMstIds(561), // Samuel B.Roberts
-        svdata.shipMstIds(133), // yuugumo
-        svdata.shipMstIds(16), // usio
-      ].flat()
-      if (! shipCount([ships[0]], check_ids)) {
-        return false
-      }
-      return shipCount(ships.slice(1), check_ids) >= 1
-    }
-  }
-)
+// register(
+//   908,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.yearly
+//     static maps: QuestMapOrCell[] = [[2, 4, 'S'], [2, 5, 'S'], QuestMapCell_7_2_2('S')]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(1005), // Minneapolis
+//         svdata.shipMstIds(561), // Samuel B.Roberts
+//         svdata.shipMstIds(133), // yuugumo
+//         svdata.shipMstIds(16), // usio
+//       ].flat()
+//       if (! shipCount([ships[0]], check_ids)) {
+//         return false
+//       }
+//       return shipCount(ships.slice(1), check_ids) >= 1
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 909:【桃の節句：拡張作戦】春の攻勢作戦！
-register(
-  909,
-  class {
-    static readonly questType = QuestType.battleMap
-    static max = [1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [3, 5, 'S'],
-      [4, 5, 'S'],
-      [6, 4, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-  }
-)
+// register(
+//   909,
+//   class {
+//     static readonly questType = QuestType.battleMap
+//     static max = [1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [3, 5, 'S'],
+//       [4, 5, 'S'],
+//       [6, 4, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 910: 【年末年始】鎮守府海域哨戒、警戒を厳に！
-register(
-  910,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 1, 'S'],
-      [1, 2, 'S'],
-      [1, 3, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (shipTypeCount(ships, [ApiShipType.keijyun]) < 1) {
-        return false
-      }
-      return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 3
-    }
-  }
-)
+// register(
+//   910,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 1, 'S'],
+//       [1, 2, 'S'],
+//       [1, 3, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (shipTypeCount(ships, [ApiShipType.keijyun]) < 1) {
+//         return false
+//       }
+//       return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 3
+//     }
+//   }
+// )
 
 // 911: 再編「第三一駆逐隊」、抜錨せよ！
 register(
@@ -12756,30 +12792,31 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 915:	【期間限定任務】飛べ！世界の下駄履き機！
-register(
-  915,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [1, 4, 'S'],
-      [2, 3, 'S'],
-      [2, 4, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      if (shipTypeCount([ships[0]], [ApiShipType.suibo]) < 1) {
-        return false
-      }
-      return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 2
-    }
-  }
-)
+// register(
+//   915,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [1, 4, 'S'],
+//       [2, 3, 'S'],
+//       [2, 4, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (shipTypeCount([ships[0]], [ApiShipType.suibo]) < 1) {
+//         return false
+//       }
+//       return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 2
+//     }
+//   }
+// )
 
 // 916:	「比叡改二丙」見参！第三戦隊、南方突入！
 register(
@@ -13531,69 +13568,71 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 941: 【春限定】春の近海哨戒お散歩！2026
-register(
-  941,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [1, 2, 'A'],
-      [1, 3, 'A'],
-      [2, 1, 'A'],
-      [2, 2, 'A']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      if (deckShipCount(ship_ids) > 5) {
-        return false
-      }
-      const ships = toShipMsts(svdata, ship_ids)
-      if (! shipTypeCount([ships[0]], [ApiShipType.kutikukan, ApiShipType.renjyun, ApiShipType.sensuibokan])) {
-        return false
-      }
-      return shipTypeCount(ships.slice(1), [ApiShipType.kutikukan, ApiShipType.kaiboukan, ApiShipType.sensuikan]) === 4
-    }
-  }
-)
+// register(
+//   941,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [1, 2, 'A'],
+//       [1, 3, 'A'],
+//       [2, 1, 'A'],
+//       [2, 2, 'A']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       if (deckShipCount(ship_ids) > 5) {
+//         return false
+//       }
+//       const ships = toShipMsts(svdata, ship_ids)
+//       if (! shipTypeCount([ships[0]], [ApiShipType.kutikukan, ApiShipType.renjyun, ApiShipType.sensuibokan])) {
+//         return false
+//       }
+//       return shipTypeCount(ships.slice(1), [ApiShipType.kutikukan, ApiShipType.kaiboukan, ApiShipType.sensuikan]) === 4
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 942: 続：春のお散歩哨戒です！
-register(
-  942,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [2, 3, 'A'],
-      [2, 5, 'A'],
-      [3, 5, 'A'],
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      if (deckShipCount(ship_ids) < 2) {
-        return false
-      }
-      const ships = toShipMsts(svdata, ship_ids)
-      const shipIds = [
-        svdata.shipMstIds(9), // fubuki
-        svdata.shipMstIds(133), // yuugumo
-        svdata.shipMstIds(165), // uzuki
-        svdata.shipMstIds(44), // murasane
-        svdata.shipMstIds(181), // amatukaze
-        svdata.shipMstIds(634), // jingei
-        svdata.shipMstIds(635), // tyougei
-        svdata.shipMstIds(944), // heianmaru
-      ].flat()
-      return shipCount([ships[0], ships[1]], shipIds) === 2
-    }
-  }
-)
+// register(
+//   942,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [2, 3, 'A'],
+//       [2, 5, 'A'],
+//       [3, 5, 'A'],
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       if (deckShipCount(ship_ids) < 2) {
+//         return false
+//       }
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const shipIds = [
+//         svdata.shipMstIds(9), // fubuki
+//         svdata.shipMstIds(133), // yuugumo
+//         svdata.shipMstIds(165), // uzuki
+//         svdata.shipMstIds(44), // murasane
+//         svdata.shipMstIds(181), // amatukaze
+//         svdata.shipMstIds(634), // jingei
+//         svdata.shipMstIds(635), // tyougei
+//         svdata.shipMstIds(944), // heianmaru
+//       ].flat()
+//       return shipCount([ships[0], ships[1]], shipIds) === 2
+//     }
+//   }
+// )
 
 // 943: 新しき翼。改装航空母艦「龍鳳」、出撃せよ！
 register(
@@ -15588,34 +15627,35 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1020: 【期間限定任務】「第三戦隊」緊急展開
-register(
-  1020,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.yearly
-    static maps: QuestMap[] = [
-      [1, 4, 'A'],
-      [2, 1, 'A'],
-      [2, 2, 'A'],
-      [4, 2, 'A']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const ids = [
-        svdata.shipMstIds(78), // kongou
-        svdata.shipMstIds(79), // haruna
-        svdata.shipMstIds(85), // kirisima
-        svdata.shipMstIds(86) // hiei
-      ].flat()
-      return shipCount(ships, ids) >= 2
-    }
-  }
-)
+// register(
+//   1020,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.yearly
+//     static maps: QuestMap[] = [
+//       [1, 4, 'A'],
+//       [2, 1, 'A'],
+//       [2, 2, 'A'],
+//       [4, 2, 'A']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const ids = [
+//         svdata.shipMstIds(78), // kongou
+//         svdata.shipMstIds(79), // haruna
+//         svdata.shipMstIds(85), // kirisima
+//         svdata.shipMstIds(86) // hiei
+//       ].flat()
+//       return shipCount(ships, ids) >= 2
+//     }
+//   }
+// )
 
 // 1021: 「早霜改二」見ているだけでは…ありません！
 register(
@@ -15645,34 +15685,35 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1022:【期間限定任務】「三十二駆」月次戦闘哨戒！
-register(
-  1022,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [1, 1, 1, 1]
-    static key = QuestKey.infer
-    static maps: QuestMap[] = [
-      [2, 3, 'A'],
-      [7, 1, 'A'],
-      [4, 1, 'A'],
-      [5, 1, 'A']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatOneByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ids = [
-        svdata.shipMstIds(674), // tamanami
-        svdata.shipMstIds(675), // suzunami
-        svdata.shipMstIds(485), // fujinami
-        svdata.shipMstIds(528), // hayanami
-        svdata.shipMstIds(484) // hamanami
-      ].flat()
-      return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
-    }
-  }
-)
+// register(
+//   1022,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [1, 1, 1, 1]
+//     static key = QuestKey.infer
+//     static maps: QuestMap[] = [
+//       [2, 3, 'A'],
+//       [7, 1, 'A'],
+//       [4, 1, 'A'],
+//       [5, 1, 'A']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatOneByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ids = [
+//         svdata.shipMstIds(674), // tamanami
+//         svdata.shipMstIds(675), // suzunami
+//         svdata.shipMstIds(485), // fujinami
+//         svdata.shipMstIds(528), // hayanami
+//         svdata.shipMstIds(484) // hamanami
+//       ].flat()
+//       return shipCount(toShipMsts(svdata, ship_ids), ids) >= 3
+//     }
+//   }
+// )
 
 // 1023: 三十二駆「藤波改二」、鳥海を護衛せよ！
 register(
@@ -15886,30 +15927,31 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1030: 【期間限定任務】Fletcher級、哨戒任務！
-register(
-  1030,
-  class {
-    static readonly questType = QuestType.battleMapDeck
-    static max = [2, 2, 2]
-    static key = QuestKey.infer
-    static maps: QuestMapOrCell[] = [
-      [1, 3, 'S'],
-      [1, 4, 'S'],
-      [2, 4, 'S']
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormatByMap(quest, this.maps)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const msts = toShipMsts(svdata, ship_ids)
-      return (
-        shipCategoryCount(msts, [ApiShipCategory.fletcher]) >= 2 &&
-        shipCategoryCount(msts, [ApiShipCategory.northampton]) >= 1
-      )
-    }
-  }
-)
+// register(
+//   1030,
+//   class {
+//     static readonly questType = QuestType.battleMapDeck
+//     static max = [2, 2, 2]
+//     static key = QuestKey.infer
+//     static maps: QuestMapOrCell[] = [
+//       [1, 3, 'S'],
+//       [1, 4, 'S'],
+//       [2, 4, 'S']
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormatByMap(quest, this.maps)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const msts = toShipMsts(svdata, ship_ids)
+//       return (
+//         shipCategoryCount(msts, [ApiShipCategory.fletcher]) >= 2 &&
+//         shipCategoryCount(msts, [ApiShipCategory.northampton]) >= 1
+//       )
+//     }
+//   }
+// )
 
 // 1031: 【初夏限定任務】北方海域 戦闘哨戒作戦2026
 register(
@@ -17283,49 +17325,51 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1135: 【期間限定任務】「連山」に連なる翼
-register(
-  1135,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [1]
-    static key = QuestKey.yearly
-    static id_or_types = []
-    static getCondition(_svdata: SvData): DestroyItemCondition {
-      return {
-        flagship_ids: [],
-        flagship_slotitem_ids: [395],
-        flagship_slotitem_lvl: [10]
-      }
-    }
-    static formatter(_quest: Quest): string {
-      return ''
-    }
-  }
-)
+// register(
+//   1135,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [1]
+//     static key = QuestKey.yearly
+//     static id_or_types = []
+//     static getCondition(_svdata: SvData): DestroyItemCondition {
+//       return {
+//         flagship_ids: [],
+//         flagship_slotitem_ids: [395],
+//         flagship_slotitem_lvl: [10]
+//       }
+//     }
+//     static formatter(_quest: Quest): string {
+//       return ''
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1136: 【13周年記念任務:拡張任務】空技廠研究開発
-register(
-  1136,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [6, 2]
-    static key = QuestKey.yearly
-    static id_or_types = [{ id: 201 }, { id: 242 }]
-    static getCondition(_svdata: SvData): DestroyItemCondition {
-      return {
-        flagship_ids: [894, 899, 1031],
-        flagship_slotitem_ids: [96],
-        flagship_slotitem_lvl: [],
-        flagship_slotitem_alv_max: true,
-        flagship_slotitem_only: true,
-      }
-    }
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 紫電一一型：', 'Swordfish：'], quest)
-    }
-  }
-)
+// register(
+//   1136,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [6, 2]
+//     static key = QuestKey.yearly
+//     static id_or_types = [{ id: 201 }, { id: 242 }]
+//     static getCondition(_svdata: SvData): DestroyItemCondition {
+//       return {
+//         flagship_ids: [894, 899, 1031],
+//         flagship_slotitem_ids: [96],
+//         flagship_slotitem_lvl: [],
+//         flagship_slotitem_alv_max: true,
+//         flagship_slotitem_only: true,
+//       }
+//     }
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 紫電一一型：', 'Swordfish：'], quest)
+//     }
+//   }
+// )
 
 // 1137: 鵜来型海防艦兵装の開発
 register(
@@ -17587,53 +17631,55 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1149: 【期間限定任務】作戦後の不要装備等用途廃止
-register(
-  1149,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [8, 8, 4]
-    static key = QuestKey.infer
-    static id_or_types = [
-      { type: SlotitemType.MediumMainGun },
-      { type: SlotitemType.Torpedo },
-      { type: SlotitemType.LargeMainGun }
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 中口径：', '魚雷：', '大口径：'], quest)
-    }
-    static getCondition(_svdata: SvData): undefined {
-      return undefined
-    }
-  }
-)
+// register(
+//   1149,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [8, 8, 4]
+//     static key = QuestKey.infer
+//     static id_or_types = [
+//       { type: SlotitemType.MediumMainGun },
+//       { type: SlotitemType.Torpedo },
+//       { type: SlotitemType.LargeMainGun }
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 中口径：', '魚雷：', '大口径：'], quest)
+//     }
+//     static getCondition(_svdata: SvData): undefined {
+//       return undefined
+//     }
+//   }
+// )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 1150: 【初夏限定任務】海軍工廠の整理再編2026
-register(
-  1150,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [20, 20, 10, 10]
-    static key = QuestKey.infer
-    static id_or_types = [
-      { type: SlotitemType.MediumMainGun },
-      { type: SlotitemType.LargeMainGun },
-      { type: SlotitemType.SecondaryGun },
-      {
-        id_with_alv: {
-          id: 25,
-          alv: 7
-        }
-      }
-    ]
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 中：', '大：', '副砲：', '零式水偵[熟練max]：'], quest)
-    }
-    static getCondition(_svdata: SvData): undefined {
-      return undefined
-    }
-  }
-)
+// register(
+//   1150,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [20, 20, 10, 10]
+//     static key = QuestKey.infer
+//     static id_or_types = [
+//       { type: SlotitemType.MediumMainGun },
+//       { type: SlotitemType.LargeMainGun },
+//       { type: SlotitemType.SecondaryGun },
+//       {
+//         id_with_alv: {
+//           id: 25,
+//           alv: 7
+//         }
+//       }
+//     ]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 中：', '大：', '副砲：', '零式水偵[熟練max]：'], quest)
+//     }
+//     static getCondition(_svdata: SvData): undefined {
+//       return undefined
+//     }
+//   }
+// )
 
 // 1151: 陸軍戦闘機及び海外戦闘機の増備
 register(
