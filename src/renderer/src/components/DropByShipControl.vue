@@ -28,7 +28,7 @@ const emit = defineEmits<{
 //
 interface TabInfo {
   name: string;
-  types: ApiShipType[];
+  types: readonly ApiShipType[];
 }
 const tabNames: TabInfo[] = [
   { name: '戦艦級', types: ApiShipTypeSenkanClasses },

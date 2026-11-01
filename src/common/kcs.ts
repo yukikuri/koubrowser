@@ -68,44 +68,44 @@ export const ApiShipType = {
 } as const
 export type ApiShipType = (typeof ApiShipType)[keyof typeof ApiShipType]
 
-export const ApiShipTypeSenkanClasses: ApiShipType[] = [
+export const ApiShipTypeSenkanClasses: readonly ApiShipType[] = [
   ApiShipType.kousoku_senkan,
   ApiShipType.teisoku_senkan,
   ApiShipType.koukuu_senkan,
   ApiShipType.tyoudokyuu_senkan
 ] as const
 
-export const ApiShipTypeKuboClasses: ApiShipType[] = [
+export const ApiShipTypeKuboClasses: readonly ApiShipType[] = [
   ApiShipType.kei_kuubo,
   ApiShipType.seiki_kuubo,
   ApiShipType.soukou_kuubo
 ] as const
 
-export const ApiShipTypeJyujyunClasses: ApiShipType[] = [
+export const ApiShipTypeJyujyunClasses: readonly ApiShipType[] = [
   ApiShipType.jyuujyun,
   ApiShipType.koujyun
 ] as const
 
-export const ApiShipTypeKeijyunClasses: ApiShipType[] = [
+export const ApiShipTypeKeijyunClasses: readonly ApiShipType[] = [
   ApiShipType.keijyun,
   ApiShipType.renjyun,
   ApiShipType.raijyun
 ] as const
 
-export const ApiShipTypeKutikukanClasses: ApiShipType[] = [
+export const ApiShipTypeKutikukanClasses: readonly ApiShipType[] = [
   ApiShipType.kutikukan
 ] as const
 
-export const ApiShipTypeKaiboukanClasses: ApiShipType[] = [
+export const ApiShipTypeKaiboukanClasses: readonly ApiShipType[] = [
   ApiShipType.kaiboukan
 ] as const
 
-export const ApiShipTypeSensuikanClasses: ApiShipType[] = [
+export const ApiShipTypeSensuikanClasses: readonly ApiShipType[] = [
   ApiShipType.sensuikan,
   ApiShipType.sensui_kuubo
 ] as const
 
-export const ApiShipTypeHojoClasses: ApiShipType[] = [
+export const ApiShipTypeHojoClasses: readonly ApiShipType[] = [
   ApiShipType.kousakusen,
   ApiShipType.sensuibokan,
   ApiShipType.hokyuukan,
@@ -257,6 +257,69 @@ export const ApiShipCategory = {
   béarn: 141, // Béarn型
 } as const
 export type ApiShipCategory = (typeof ApiShipCategory)[keyof typeof ApiShipCategory]
+
+// 米: アメリカ艦
+export const ApiShipCategories_US: readonly ApiShipCategory[] = [
+  ApiShipCategory.colorado,
+  ApiShipCategory.northCarolina,
+  ApiShipCategory.southDakota,
+  ApiShipCategory.iowa,
+  ApiShipCategory.nevada,
+  ApiShipCategory.lexington,
+  ApiShipCategory.ranger,
+  ApiShipCategory.yorktown,
+  ApiShipCategory.intrepid,
+  ApiShipCategory.gambierBay,
+  ApiShipCategory.independence,
+  ApiShipCategory.northampton,
+  ApiShipCategory.new_orleans,
+  ApiShipCategory.brooklyn,
+  ApiShipCategory.st_Louis,
+  ApiShipCategory.atlanta,
+  ApiShipCategory.fletcher,
+  ApiShipCategory.johnCButle,
+  ApiShipCategory.gato,
+  ApiShipCategory.salmon,
+] as const
+
+// 米: アメリカ艦(空母)
+export const ApiShipCategories_US_Kuubo: readonly ApiShipCategory[] = [
+  ApiShipCategory.lexington,
+  ApiShipCategory.ranger,
+  ApiShipCategory.yorktown,
+  ApiShipCategory.intrepid,
+  ApiShipCategory.gambierBay,
+  ApiShipCategory.independence,
+] as const
+
+// 英: イギリス艦
+export const ApiShipCategories_UK  : readonly ApiShipCategory[] = [
+  ApiShipCategory.queenElizabeth,
+  ApiShipCategory.nelson,
+  ApiShipCategory.courageous_jyunyou,
+  ApiShipCategory.courageous_kubo,
+  ApiShipCategory.arkRoyal,
+  ApiShipCategory.illustrious,
+  ApiShipCategory.town,
+  ApiShipCategory.jervis,
+] as const
+
+// 英: イギリス艦(空母)
+export const ApiShipCategories_UK_Kuubo: readonly ApiShipCategory[] = [
+  ApiShipCategory.courageous_kubo,
+  ApiShipCategory.arkRoyal,
+  ApiShipCategory.illustrious,
+] as const
+
+// 豪: オーストラリア艦
+export const ApiShipCategories_AU  : readonly ApiShipCategory[] = [
+  ApiShipCategory.perth,
+] as const
+
+// 蘭: オランダ艦 
+export const ApiShipCategories_NL  : readonly ApiShipCategory[] = [
+  ApiShipCategory.deRuyter,
+] as const
 
 export const ApiShipBacks = {
   none: 0,
@@ -717,7 +780,7 @@ export interface Attackable {
   asw: boolean
 }
 
-export function isShipIds(svdata: SvData, ship_id: number, mst_ship_ids: number[]): boolean {
+export function isShipIds(svdata: SvData, ship_id: number, mst_ship_ids: readonly number[]): boolean {
   const mst = svdata.mstShipFrom(ship_id)
   if (mst) {
     return mst_ship_ids.includes(mst.api_id)
@@ -726,7 +789,7 @@ export function isShipIds(svdata: SvData, ship_id: number, mst_ship_ids: number[
 }
 
 export function isShipIdLvs(
-  svdata: SvData, ship_id: number, id_lvs: { ids: number[], lv: number }[]): boolean {
+  svdata: SvData, ship_id: number, id_lvs: readonly { ids: readonly number[], lv: number }[]): boolean {
   const mst = svdata.mstShipFrom(ship_id)
   if (!mst) {
     return false;
@@ -745,7 +808,7 @@ export function isShipIdLvs(
 }
 
 export function isShipCategoryLvs(
-  svdata: SvData, ship_id: number, cat_lvs: { cats: ApiShipCategory[], lv: number }[]): boolean {
+  svdata: SvData, ship_id: number, cat_lvs: readonly { cats: readonly ApiShipCategory[], lv: number }[]): boolean {
   const mst = svdata.mstShipFrom(ship_id)
   if (!mst) {
     return false;
@@ -768,7 +831,7 @@ export interface ShipMst {
   readonly mst: MstShip
 }
 
-export function toShipMsts(svdata: SvData, ship_ids: number[]): ShipMst[] {
+export function toShipMsts(svdata: SvData, ship_ids: readonly number[]): ShipMst[] {
   return ship_ids.reduce<ShipMst[]>((acc, ship_id) => {
     const api = svdata.ship(ship_id)
     let mst
@@ -782,11 +845,11 @@ export function toShipMsts(svdata: SvData, ship_ids: number[]): ShipMst[] {
   }, [])
 }
 
-export function deckShipCount(ship_ids: number[]): number {
+export function deckShipCount(ship_ids: readonly number[]): number {
   return ship_ids.reduce((acc, el) => (el > 0 ? acc + 1 : acc), 0)
 }
 
-export function shipCount(ships: ShipMst[], mst_ship_ids: number[]): number {
+export function shipCount(ships: readonly ShipMst[], mst_ship_ids: readonly number[]): number {
   return ships.reduce((acc, ship) => {
     if (mst_ship_ids.includes(ship.mst.api_id)) {
       ++acc
@@ -795,7 +858,7 @@ export function shipCount(ships: ShipMst[], mst_ship_ids: number[]): number {
   }, 0)
 }
 
-export function shipTypeCount(ships: ShipMst[], ship_types: ApiShipType[], lv?: number): number {
+export function shipTypeCount(ships: readonly ShipMst[], ship_types: readonly ApiShipType[], lv?: number): number {
   return ships.reduce((acc, ship) => {
     if (ship_types.includes(ship.mst.api_stype)) {
       if (lv !== undefined) {
@@ -810,7 +873,7 @@ export function shipTypeCount(ships: ShipMst[], ship_types: ApiShipType[], lv?: 
   }, 0)
 }
 
-export const shipCategoryCount = (ships: ShipMst[], cats: ApiShipCategory[]): number => {
+export const shipCategoryCount = (ships: readonly ShipMst[], cats: readonly ApiShipCategory[]): number => {
   return ships.reduce((acc, el) => {
     if (cats.includes(el.mst.api_ctype)) {
       ++acc
@@ -820,19 +883,19 @@ export const shipCategoryCount = (ships: ShipMst[], cats: ApiShipCategory[]): nu
 }
 
 
-export function isShipType(mst: MstShip, types: ApiShipType[]): boolean {
+export function isShipType(mst: MstShip, types: readonly ApiShipType[]): boolean {
   return types.includes(mst.api_stype)
 }
 
-export const isShipCategory = (category: ApiShipCategory, categories: ApiShipCategory[]): boolean => {
+export const isShipCategory = (category: ApiShipCategory, categories: readonly ApiShipCategory[]): boolean => {
   return categories.includes(category)
 }
 
-const isShipId = (mst_id: number, ids: number[]): boolean => {
+const isShipId = (mst_id: number, ids: readonly number[]): boolean => {
   return ids.includes(mst_id)
 }
 
-const isSlotitemId = (slot: Slot, ids: number[]): boolean => {
+const isSlotitemId = (slot: Slot, ids: readonly number[]): boolean => {
   if (slot) return ids.includes(slot.mst.api_id)
   return false
 }

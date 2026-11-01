@@ -87,7 +87,7 @@ export type AggregateShipType = (typeof AggregateShipType)[keyof typeof Aggregat
 /**
  * 
  */
-export const AggregateShipTypes: { type: AggregateShipType, apiTypes: ApiShipType[] }[] = [
+export const AggregateShipTypes: { type: AggregateShipType, apiTypes: readonly ApiShipType[] }[] = [
   {
     type: AggregateShipType.senkan,
     apiTypes: ApiShipTypeSenkanClasses
