@@ -12792,31 +12792,30 @@ register(
   }
 )
 
-// 期間限定任務定義。参考用にコメントで残す
 // 915:	【期間限定任務】飛べ！世界の下駄履き機！
-// register(
-//   915,
-//   class {
-//     static readonly questType = QuestType.battleMapDeck
-//     static max = [1, 1, 1]
-//     static key = QuestKey.infer
-//     static maps: QuestMap[] = [
-//       [1, 4, 'S'],
-//       [2, 3, 'S'],
-//       [2, 4, 'S']
-//     ]
-//     static formatter(quest: Quest): string {
-//       return detailFormatOneByMap(quest, this.maps)
-//     }
-//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-//       const ships = toShipMsts(svdata, ship_ids)
-//       if (shipTypeCount([ships[0]], [ApiShipType.suibo]) < 1) {
-//         return false
-//       }
-//       return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 2
-//     }
-//   }
-// )
+register(
+  915,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 4, 'S'],
+      [2, 3, 'S'],
+      [2, 4, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatOneByMap(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const ships = toShipMsts(svdata, ship_ids)
+      if (shipTypeCount([ships[0]], [ApiShipType.suibo]) < 1) {
+        return false
+      }
+      return shipTypeCount(ships, [ApiShipType.kutikukan, ApiShipType.kaiboukan]) >= 2
+    }
+  }
+)
 
 // 916:	「比叡改二丙」見参！第三戦隊、南方突入！
 register(
@@ -17653,33 +17652,32 @@ register(
 //   }
 // )
 
-// 期間限定任務定義。参考用にコメントで残す
 // 1150: 【初夏限定任務】海軍工廠の整理再編2026
-// register(
-//   1150,
-//   class {
-//     static readonly questType = QuestType.destroyItemIdOrType
-//     static max = [20, 20, 10, 10]
-//     static key = QuestKey.infer
-//     static id_or_types = [
-//       { type: SlotitemType.MediumMainGun },
-//       { type: SlotitemType.LargeMainGun },
-//       { type: SlotitemType.SecondaryGun },
-//       {
-//         id_with_alv: {
-//           id: 25,
-//           alv: 7
-//         }
-//       }
-//     ]
-//     static formatter(quest: Quest): string {
-//       return detailFormat(['破棄 中：', '大：', '副砲：', '零式水偵[熟練max]：'], quest)
-//     }
-//     static getCondition(_svdata: SvData): undefined {
-//       return undefined
-//     }
-//   }
-// )
+register(
+  1150,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [20, 20, 10, 10]
+    static key = QuestKey.infer
+    static id_or_types = [
+      { type: SlotitemType.MediumMainGun },
+      { type: SlotitemType.LargeMainGun },
+      { type: SlotitemType.SecondaryGun },
+      {
+        id_with_alv: {
+          id: 25,
+          alv: 7
+        }
+      }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 中：', '大：', '副砲：', '零式水偵[熟練max]：'], quest)
+    }
+    static getCondition(_svdata: SvData): undefined {
+      return undefined
+    }
+  }
+)
 
 // 1151: 陸軍戦闘機及び海外戦闘機の増備
 register(
