@@ -9548,7 +9548,7 @@ register(
       { types: [ SlotitemType.SmallRadar, SlotitemType.LargeRadar] },
     ]
     static formatter(quest: Quest): string {
-      return detailFormat(['破棄 13号電探：', '22号電探：'], quest)
+      return detailFormat(['破棄 電探：'], quest)
     }
     static getCondition(_svdata: SvData): DestroyItemCondition {
       return {
