@@ -276,10 +276,13 @@ export interface QuestKaisou
  * 近代化改修(対象艦、使用艦指定有り)
  */
 export type ShipTypeCount = [ApiShipType, number]
+export type ShipTypesCount = [ApiShipType[], number]
 export interface QuestKaisouUseType 
   extends QuestBase<'kaisouUseType'>, QuestCommon, QuestFormatter {
   powerup_ship_type: ApiShipType | null
+  powerup_ship_types?: ApiShipType[]
   use_ship_type: ShipTypeCount | null
+  use_ship_types?: ShipTypesCount
 }
 
 /**
@@ -1778,6 +1781,35 @@ register(
   }
 )
 
+// 154: 海上突入部隊を編成せよ！
+register(
+  154,
+  class {
+    static readonly questType = QuestType.hensei
+    static max = [1]
+    static key = QuestKey.infer
+    static formatter(_quest: Quest): string {
+      return ''
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      if (deckShipCount(ship_ids) < 6) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds = [
+        svdata.shipMstIds(86), // hiei
+        svdata.shipMstIds(85), // kirisima
+        svdata.shipMstIds(21), // nagara
+        svdata.shipMstIds(34), // akatuki
+        svdata.shipMstIds(36), // ikaduti
+        svdata.shipMstIds(37), // inazuma
+      ].flat()
+      return shipCount(msts, shipIds) === 6
+    }
+  }
+)
+
 // 155: 新編「第六駆逐隊」を編成せよ！
 register(
   155,
@@ -1911,6 +1943,9 @@ register(
     }
   }
 )
+
+// 159: 「翔鶴」に艦攻「村田隊」を配置転換せよ！
+// 160: 空母機動部隊「第三艦隊」を編成せよ！
 
 // 161: 「第五航空戦隊」を再編成せよ！
 register(
@@ -5558,6 +5593,8 @@ register(
   }
 )
 
+// 305: 対霧の艦隊「演習」を実施せよ！
+
 // 306:式の準備！(その弐)
 register(
   306,
@@ -5613,6 +5650,8 @@ register(
     }
   }
 )
+
+// 310: FS 作戦に備え、艦隊練度向上に努めよ！
 
 // 311: 精鋭艦隊演習
 register(
@@ -6177,6 +6216,8 @@ register(
     }
   }
 )
+
+// 341: 七周年任務【七駆演習】
 
 // 342:	小艦艇群演習強化任務
 register(
@@ -7425,6 +7466,8 @@ register(
   }
 )
 
+// 407: 情報収集！ツンデレ重巡を探せ！
+
 // 408: 潜水艦派遣作戦による技術入手の継続！
 register(
   408,
@@ -7606,6 +7649,8 @@ register(
     }
   }
 )
+
+// 421: 親善艦参加観艦式を実施せよ！
 
 // 422: 潜水艦派遣作戦による航空機技術入手
 register(
@@ -9421,6 +9466,99 @@ register(
   }
 )
 
+// 669: 夜戦型艦上戦闘機の開発
+register(
+  669,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [2, 2]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { id: 27 },
+      { id: 28 }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 13号電探：', '22号電探：'], quest)
+    }
+    static getCondition(_svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_slotitem_ids: [205],
+        flagship_slotitem_lvl: [10],
+        flagship_slotitem_alv_max: true,
+      }
+    }
+  }
+)
+
+// 670: 夜戦型艦上戦闘機の性能強化
+register(
+  670,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [2, 2]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { id: 27 },
+      { id: 28 }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 13号電探：', '22号電探：'], quest)
+    }
+    static getCondition(_svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_slotitem_ids: [206],
+        flagship_slotitem_lvl: [10],
+        flagship_slotitem_alv_max: true,
+      }
+    }
+  }
+)
+
+// 671: 夜間作戦型艦上攻撃機の開発
+register(
+  671,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [2, 2]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { id: 27 },
+      { id: 28 }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 13号電探：', '22号電探：'], quest)
+    }
+    static getCondition(_svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_slotitem_ids: [256],
+        flagship_slotitem_lvl: [],
+      }
+    }
+  }
+)
+
+// 672: 「遊撃部隊」艦隊司令部の創設
+register(
+  672,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [3]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { types: [ SlotitemType.SmallRadar, SlotitemType.LargeRadar] },
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 13号電探：', '22号電探：'], quest)
+    }
+    static getCondition(_svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_slotitem_ids: [107],
+        flagship_slotitem_lvl: [],
+      }
+    }
+  }
+)
+
 // 673:	装備開発力の整備
 register(
   673,
@@ -9590,6 +9728,74 @@ register(
     }
     static getCondition(_svdata: SvData): undefined {
       return undefined
+    }
+  }
+)
+
+// 682: 「海防艦」整備計画
+register(
+  682,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [4, 4]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { type: SlotitemType.MediumMainGun },
+      { type: SlotitemType.LargeMainGun }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 中口径：', '大口径：'], quest)
+    }
+    static getCondition(_svdata: SvData): undefined {
+      return undefined
+    }
+  }
+)
+
+// 683: 航空戦艦用強化型新主砲の研究
+register(
+  683,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [3, 2]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { id: 8 },
+      { id: 28 }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 41cm連装砲：', '22号電探：'], quest)
+    }
+    static getCondition(svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_ids: svdata.shipMstIds(553),
+        flagship_slotitem_ids: [105],
+        flagship_slotitem_lvl: [10],
+      }
+    }
+  }
+)
+
+// 684: 精鋭「航空戦艦」彗星隊の編成
+register(
+  684,
+  class {
+    static readonly questType = QuestType.destroyItemIdOrType
+    static max = [3, 3]
+    static key = QuestKey.infer
+    static id_or_types: ItemIdOrType[] = [
+      { id: 23 },
+      { id: 24 }
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['破棄 九九艦爆：', '彗星：'], quest)
+    }
+    static getCondition(svdata: SvData): DestroyItemCondition {
+      return {
+        flagship_ids: svdata.shipMstIds(553),
+        flagship_slotitem_ids: [0, 0, 291],
+        flagship_slotitem_lvl: [],
+      }
     }
   }
 )
@@ -9924,6 +10130,39 @@ register(
   }
 )
 
+// 704: 「大型艦建造」の準備！(その壱)
+register(
+  704,
+  class {
+    static readonly questType = QuestType.kaisou
+    static max = [4]
+    static key = QuestKey.infer
+    static need_succeeded = true
+    static formatter(quest: Quest): string {
+      return detailFormat(['近代化改修成功：'], quest)
+    }
+  }
+)
+
+// 705: 航空艤装の近代化改修
+register(
+  705,
+  class {
+    static readonly questType = QuestType.kaisouUseType
+    static max = [2]
+    static key = QuestKey.infer
+    static powerup_ship_type = null
+    static powerup_ship_types = [ApiShipType.seiki_kuubo, ApiShipType.soukou_kuubo]
+    static use_ship_type = null
+    static use_ship_types: ShipTypesCount = [ [...ApiShipTypeKuboClasses], 5]
+    static formatter(quest: Quest): string {
+      return detailFormat(['正規空母への空母5隻使用改修成功：'], quest)
+    }
+  }
+)
+
+// 706: 五周年任務【参：近代化改修】
+
 // 期間限定任務定義。参考用にコメントで残す
 // 707:【桃の節句任務】駆逐艦桃の節句改修
 // register(
@@ -10154,22 +10393,22 @@ register(
   }
 )
 
+// 期間限定任務定義。参考用にコメントで残す
 // 720: 【期間限定:拡張任務】夕雲型改装任務！
-register(
-  720,
-  class {
-    static readonly questType = QuestType.kaisouUseCategoryToType
-    static max = [3]
-    static key = QuestKey.infer
-    static powerup_ship_cats = [ApiShipCategory.yuugumo]
-    static use_ship_types = [ApiShipType.jyuujyun, ApiShipType.koujyun]
-    static use_ship_count = 3
-    static formatter(quest: Quest): string {
-      return detailFormat(['夕雲型への重巡級3隻使用改修成功：'], quest)
-    }
-  }
-)
-
+// register(
+//   720,
+//   class {
+//     static readonly questType = QuestType.kaisouUseCategoryToType
+//     static max = [3]
+//     static key = QuestKey.infer
+//     static powerup_ship_cats = [ApiShipCategory.yuugumo]
+//     static use_ship_types = [ApiShipType.jyuujyun, ApiShipType.koujyun]
+//     static use_ship_count = 3
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['夕雲型への重巡級3隻使用改修成功：'], quest)
+//     }
+//   }
+// )
 
 // 期間限定任務定義。参考用にコメントで残す
 // 801:	迎春新年！二〇二六年、艦隊抜錨せよ！
@@ -10303,6 +10542,322 @@ register(
 //   }
 // )
 
+// 805: 旗艦「霞」北方海域を哨戒せよ！
+register(
+  805,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [3, 1, 'B']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 4) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      // kasumi kaini
+      if (shipCount([msts[0]], svdata.shipMstIds(464)) < 1) {
+        return false
+      }
+      return shipTypeCount(msts.slice(1), [ApiShipType.kutikukan]) >= 3
+    }
+  }
+)
+
+// 806: 旗艦「霞」出撃！敵艦隊を撃滅せよ！
+register(
+  806,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [2, 5, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 3) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      // kasumi kaini
+      if (shipCount([msts[0]], svdata.shipMstIds(464)) < 1) {
+        return false
+      }
+      return shipTypeCount(msts.slice(1), [ApiShipType.kutikukan]) >= 2
+    }
+  }
+)
+
+// 807: 「第三十一戦隊」出撃せよ！
+register(
+  807,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 6, '']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 3) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      // isuzu kaini
+      if (shipCount([msts[0]], svdata.shipMstIds(141)) < 1) {
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(418), // satuki kaini
+        svdata.shipMstIds(309), // uzuki kai
+      ].flat()
+      return shipCount(msts.slice(1), shipIds) >= 2
+    }
+  }
+)
+
+// 808: 「第二七駆逐隊」出撃せよ！
+register(
+  808,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [2, 3, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 4) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      // siratuyu kai
+      if (shipCount([msts[0]], svdata.shipMstIds(242)) < 1) {
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(43), // sigure
+        svdata.shipMstIds(405), // haruasame
+        svdata.shipMstIds(46), // samidare
+      ].flat()
+      return shipCount(msts.slice(1), shipIds) >= 3
+    }
+  }
+)
+
+// 809: 強襲上陸作戦用戦力を増強せよ！
+register(
+  809,
+  class {
+    static readonly questType = QuestType.battleMap
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [6, 3, 'B']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+  }
+)
+
+// 810: 製油所地帯を防衛せよ！
+register(
+  810,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [3]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 3, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      const count = deckShipCount(ship_ids);
+      if (count < 2) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const keijyunCount = shipTypeCount(msts, [ApiShipType.keijyun])
+      const kutikuCount = shipTypeCount(msts, [ApiShipType.kutikukan])
+      return (keijyunCount === 1) && ((keijyunCount + kutikuCount) === count)
+    }
+  }
+)
+
+// 811: 南西諸島防衛線を強化せよ！
+register(
+  811,
+  class {
+    static readonly questType = QuestType.battleMap
+    static max = [5]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 4, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+  }
+)
+
+// 812: オリョール海の制海権を確保せよ！
+register(
+  812,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [6]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [2, 3, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      // oosio
+      return isShipIds(svdata, ship_ids[0], svdata.shipMstIds(96))
+    }
+  }
+)
+
+// 813: 旗艦「大潮」出撃せよ！
+register(
+  813,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [3, 5, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      // oosio kaini
+      return isShipIds(svdata, ship_ids[0], svdata.shipMstIds(199))
+    }
+  }
+)
+
+// 814: 強行高速輸送部隊、出撃せよ！
+register(
+  814,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [4, 1, 'A']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 5) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      if (shipTypeCount(msts, [ApiShipType.kutikukan]) < 4) {
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(158), // sendai kaini
+        svdata.shipMstIds(469), // kawakaze kaini
+        svdata.shipMstIds(145), // sigure kaini
+      ].flat()
+      if(shipCount(msts, shipIds) < 3) {
+        return false
+      }
+      return true
+    }
+  }
+)
+
+// 815: 「第一航空戦隊」西へ！
+register(
+  815,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [4, 5, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 2) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      // akagi
+      if (shipCount([msts[0]], svdata.shipMstIds(83)) < 1) { // akagi
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(84), // kaga
+      ].flat()
+      return shipCount(msts.slice(1), shipIds) >= 1
+    }
+  }
+)
+
+// 816: 艦隊、三周年！
+register(
+  816,
+  class {
+    static readonly questType = QuestType.battleMap
+    static max = [1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [2, 2, 'S'],
+      [2, 3, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+  }
+)
+
 // 817: 新編艦隊、南西諸島防衛線へ急行せよ！
 register(
   817,
@@ -10324,6 +10879,136 @@ register(
   }
 )
 
+// 818: 鎮守府近海航路の安全確保を強化せよ！
+register(
+  818,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 6, '']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 5) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      if (shipTypeCount([msts[0]], [ApiShipType.keijyun, ApiShipType.renjyun]) < 1) {
+        return false
+      }
+
+      return shipTypeCount(msts.slice(1), [ApiShipType.kutikukan]) >= 4
+    }
+  }
+)
+
+// 819: 「第三十一戦隊」敵潜を制圧せよ！
+register(
+  819,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [2]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 6, '']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 3) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      // isuzu kaini
+      if (shipCount([msts[0]], svdata.shipMstIds(141)) < 1) {
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(418), // satuki kaini
+        svdata.shipMstIds(309), // uzuki kai
+      ].flat()
+      return shipCount(msts.slice(1), shipIds) >= 2
+    }
+  }
+)
+
+// 820: 新編「第八駆逐隊」出撃せよ！
+register(
+  820,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 6, '']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 4) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      // asasio kaini
+      if (shipCount([msts[0]], svdata.shipMstIds(463)) < 1) {
+        return false
+      }
+
+      const shipIds = [
+        svdata.shipMstIds(97), // mitisio
+        svdata.shipMstIds(96), // oosio
+        svdata.shipMstIds(98), // arasio
+      ].flat()
+      return shipCount(msts.slice(1), shipIds) >= 3
+    }
+  }
+)
+
+// 821: 精鋭「八駆第一小隊」対潜哨戒！
+register(
+  821,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [2]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 5, 'S']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 2) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      const shipIds = [
+        svdata.shipMstIds(468), // asasio kaini tyou
+        svdata.shipMstIds(199), // oosio kaini
+      ].flat()
+      return shipCount(msts, shipIds) >= 2
+    }
+  }
+)
+
 // 822:	沖ノ島海域迎撃戦
 register(
   822,
@@ -10334,6 +11019,36 @@ register(
     static maps: QuestMap[] = [[2, 4, 'S']]
     static formatter(quest: Quest): string {
       return detailFormatByMap(quest, this.maps)
+    }
+  }
+)
+
+// 823: 水雷戦隊、南西防衛線に反復出撃せよ！
+register(
+  823,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [2]
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [1, 4, 'A']
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 5) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+
+      if (shipTypeCount([msts[0]], ApiShipTypeKeijyunClasses) < 1) {
+        return false
+      }
+
+      return shipTypeCount(msts.slice(1), [ApiShipType.kutikukan]) >= 4
     }
   }
 )

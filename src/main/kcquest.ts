@@ -1317,6 +1317,34 @@ class QuestKaisouUseType extends QuestKaisouBase {
           this.increment()
         }
       }
+      return 
+    }
+
+    const types = this.stuff.powerup_ship_types
+    if (types !== undefined) {
+      const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id)
+      if (!mst) {
+        return
+      }
+      if (! types.includes(mst.api_stype)) {
+        return
+      }
+    }
+
+    const use_types = this.stuff.use_ship_types
+    if (use_types !== undefined) {
+      if (arg.use_ships.length === use_types[1]) {
+        const count = arg.use_ships.reduce((acc, el) => {
+          if (use_types[0].includes(el.api_stype)) {
+            ++acc
+          }
+          return acc
+        }, 0)
+        if (count == use_types[1]) {
+          this.increment()
+        }
+      }
+      return
     }
   }
 }
