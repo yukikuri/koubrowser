@@ -78,7 +78,7 @@ describe('quest schema conversion', () => {
   })
 
   it('accounts for every QuestType, including explicit unsupported types', () => {
-    expect([...fixtures.map(([type]) => type), 'battle214'].sort())
+    expect([...fixtures.map(([type]) => type), 'battle214', 'quest317'].sort())
       .toEqual(Object.values(QuestType).sort())
   })
 

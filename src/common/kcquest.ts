@@ -230,6 +230,14 @@ export interface QuestBattleMapDeck
 }
 
 /**
+ * 任務特化
+ * 317: 甲型駆逐艦の戦力整備計画
+ */
+export interface QuestSpecific317
+  extends QuestBase<'quest317'>, QuestCommon, QuestFormatter, QuestMaps, QuestDeckMatcher {
+}
+
+/**
  * マップ到達
  */
 export interface QuestMapGoal 
@@ -427,6 +435,7 @@ export type QuestStuffByType = CheckQuestStuffMap<{
   battle214: QuestBattle214
   battleMap: QuestBattleMap
   battleMapDeck: QuestBattleMapDeck
+  quest317: QuestSpecific317
   mapGoal: QuestMapGoal
   gaugeClear: QuestGaugeClear
   missionStart: QuestMissionStart
@@ -5738,10 +5747,33 @@ register(
 )
 
 // 317: 甲型駆逐艦の戦力整備計画
-// todo practice and battle map
-//register(
-//  317,
-//)
+register(
+  317,
+  class {
+    static readonly questType = QuestType.quest317
+    static max = [3, 1, 1, 1, 1]
+    static notFixState = true
+    static key = QuestKey.infer
+    static maps: QuestMap[] = [
+      [2, 2, 'A'],
+      [2, 3, 'A'],
+      [2, 4, 'A'],
+      [2, 5, 'A'],
+    ]
+    static formatter(quest: Quest): string {
+      return detailFormat(['演習勝利：', '2-2A：', '2-3A：', '2-4A：', '2-5A：'], quest)
+    }
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+
+      if (deckShipCount(ship_ids) < 2) {
+        return false
+      }
+
+      const msts = toShipMsts(svdata, ship_ids)
+      return shipCategoryCount(msts, [ApiShipCategory.yuugumo, ApiShipCategory.kagerou]) >= 2
+    }
+  }
+)
 
 // 318: 給糧艦「伊良湖」の支援
 register(

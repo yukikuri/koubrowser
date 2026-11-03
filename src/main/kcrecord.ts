@@ -483,7 +483,7 @@ export class KcRecord {
           const loaded_updater = this.quest_updaters[index]
           loaded_updater.apiData = true
           loaded_updater.quest = quest
-          loaded_updater.fixState(quest, loaded_updater.record!.state)
+          loaded_updater.fixState(quest, loaded_updater.record!.state, loaded_updater.record ?? undefined)
           loaded_updater.update(false)
         }
       } else {
