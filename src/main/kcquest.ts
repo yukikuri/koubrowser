@@ -245,7 +245,10 @@ export function generateDateKey(stuff: qs.QuestCommon, quest: ApiQuest): string 
   }
 }
 
-type QuestStateContext = Pick<Quest, 'date'>
+type QuestStateContext = Pick<Quest, 'date'> & {
+  /** 保存済みAPI情報による進捗補正を省略する */
+  skipApiProgressCorrection?: boolean
+}
 
 /**
  *
@@ -465,7 +468,7 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
   fixState(
     quest: ApiQuest, 
     state: QuestCounter, 
-    _context?: QuestStateContext): boolean {
+    context?: QuestStateContext): boolean {
 
     // option
     // not fix state
@@ -490,7 +493,8 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
       ret = true
     }
 
-    if (max.length === 1) {
+    const isSkip = context?.skipApiProgressCorrection ?? false
+    if (max.length === 1 && ! isSkip) {
       // percent < corrent count
       // or
       // not completed != corrent count completed
@@ -524,7 +528,6 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
 
     if (!state.count.some((el, index) => el < state.countMax[index])) {
       this.unsetCallback()
-      this.popNo()
     }
     this.update()
   }
@@ -549,7 +552,6 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
     if (doUpdate) {
       if (!state.count.some((el, index) => el < state.countMax[index])) {
         this.unsetCallback()
-        this.popNo()
       }
       this.update()
     }
@@ -2084,7 +2086,14 @@ const createQuestUpdater = (
       record.state = updater.newState(quest)
     }
     updater.record = record
-    updater.fixState(quest, record.state, record)
+
+    const context: QuestStateContext = {
+      date: record.date,
+      skipApiProgressCorrection: true
+    }
+    updater.fixState(quest, record.state, context)
+    record.date = context.date
+
     updater.tmpRecord = Object.assign({}, record.state)
     updater.setCallback()
   }

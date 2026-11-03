@@ -10323,11 +10323,23 @@ export class SvData {
       const req: ApiClearItemGetParam = qsParse(query)
       const api_quest_id = parseInt(req.api_quest_id)
       if (!isNaN(api_quest_id)) {
+
+        // remove quest list
+        const questlist = this.apiData.api_questlist
+        if (questlist) {
+          const index = questlist.api_list.findIndex(
+            (quest) => quest.api_no === api_quest_id
+          )
+          if (index !== -1) {
+            questlist.api_list.splice(index, 1)
+          }
+        }
+
+        // call callback
         const withParam: ApiClearItemGetWithParam = {
           ...data,
           api_quest_id
         }
-        // call callback
         ApiCallback.call(KcsApi.Api.REQ_QUEST_CLEARITEMGET, withParam)
       }
     }

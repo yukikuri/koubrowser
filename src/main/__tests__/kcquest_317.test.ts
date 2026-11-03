@@ -217,7 +217,7 @@ describe('quest 317 sortie events', () => {
     const { q, record } = start([3, 0, 0, 0, 0])
     for (const map of [2, 3, 4, 5]) battle(map, 'S')
     expect(record.state.count).toEqual([3, 1, 1, 1, 1])
-    expect(QuestUpdater.popNo).toHaveBeenCalledWith(317)
+    expect(QuestUpdater.popNo).not.toHaveBeenCalled()
     expect(q.update).toHaveBeenCalledTimes(4)
     const matcher = vi.mocked(definition().isDeckMatch)
     matcher.mockClear()
