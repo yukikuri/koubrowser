@@ -6568,6 +6568,21 @@ export interface ApiPresetDeck {
   readonly api_deck: { [key: string]: ApiPresetDeckInfo }
 }
 
+export interface ApiPresetDevItem {
+  readonly api_preset_no: number
+  readonly api_name: string   // empty string if not set
+  readonly api_item1: number
+  readonly api_item2: number
+  readonly api_item3: number
+  readonly api_item4: number
+}
+
+// api req kousyou preset dev items
+export interface ApiPresetDevItems {
+  readonly api_max_num: number
+  readonly api_preset_items: ApiPresetDevItem[]
+}
+
 export interface ApiBasic {
   readonly api_member_id: string
   readonly api_nickname: string
@@ -7591,6 +7606,13 @@ interface ApiRemodelSlot {
 export interface ApiRemodelSlotWithParam extends ApiRemodelSlot {
   readonly api_level: number
   readonly api_certain_flag: number
+}
+
+// api req kousyou preset dev items update name param
+interface _ApiPresetDevItemsUpdateNameParam {
+  readonly api_verno: string
+  readonly api_preset_id: string
+  readonly api_name: string
 }
 
 export interface ApiMission {
@@ -9112,6 +9134,9 @@ export class SvData {
           this.reqKousyouRemodelSlot(api_data as ApiRemodelSlot)
           break
 
+        case KcsApi.Api.REQ_KOUSYOU_PRESET_DEV_ITEMS_UPDATE_NAME:
+          break
+
         case KcsApi.Api.REQ_KOUSYOU_CREATEITEM:
           this.reqKousyouCreateItem(api_data as ApiCreateItem)
           break
@@ -9120,9 +9145,6 @@ export class SvData {
           this.reqKousyouDestroyItem2(api_data as ApiDestroyItem2)
           break
 
-        case KcsApi.Api.REQ_KOUSYOU_CREATESHIP:
-          this.reqKousyouCreateShip()
-          break
 
         case KcsApi.Api.REQ_KOUSYOU_DESTROYSHIP:
           this.reqKousyouDestroyShip(api_data as ApiDestroyShip)
@@ -9258,6 +9280,10 @@ export class SvData {
 
         case KcsApi.Api.GET_MEMBER_PRESET_DECK:
           this.getMemberPresetDeck(api_data as ApiPresetDeck)
+          break
+
+        case KcsApi.Api.GET_MEMBER_PRESET_DEV_ITEMS:
+          this.getMemberPresetDevItems(api_data as ApiPresetDevItems)
           break
 
         case KcsApi.Api.SORTIE_CONDITIONS:
@@ -9902,6 +9928,10 @@ export class SvData {
     fix(api_data)
     Object.assign(this.apiData.api_preset_deck, api_data)
     //console.trace(this.apiData.api_preset_deck);
+  }
+  
+  private getMemberPresetDevItems(_api_data: ApiPresetDevItems): void {
+    // noop
   }
 
   private getMemberSortieConditions(api_data: ApiSortieConditions): void {

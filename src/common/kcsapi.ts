@@ -25,6 +25,10 @@ export const Api = {
   REQ_RANKING: '/api_req_ranking/',
   // 図鑑
   GET_MEMBER_PICTURE_BOOK: '/api_get_member/picture_book',
+  // 編成 - プリセット取得
+  GET_MEMBER_PRESET_DECK: '/api_get_member/preset_deck',
+  // 開発 - アイテム開発値取得
+  GET_MEMBER_PRESET_DEV_ITEMS: '/api_get_member/preset_dev_items',
   // アイテム - 家具コイン使用、豆、勲章使用など
   REQ_MEMBER_ITEMUSE: '/api_req_member/itemuse',
   // アイテム - 家具コインなど使用後、ただしスロットアイテムは全取得されない
@@ -44,8 +48,6 @@ export const Api = {
 
   // 編成 drag&drop 位置変更・艦隊から外し・艦隊に追加
   REQ_HENSEI_CHANGE: '/api_req_hensei/change',
-  // 編成 - プリセット取得
-  GET_MEMBER_PRESET_DECK: '/api_get_member/preset_deck',
   // 編成 - プリセット記録
   REQ_HENSEI_PRESET_REGISTER: '/api_req_hensei/preset_register',
   // 編成 - プリセット削除
@@ -111,12 +113,12 @@ export const Api = {
   REQ_KOUSYOU_DESTROYITEM2: '/api_req_kousyou/destroyitem2',
   // 工廠 - 建造完了艦取得
   REQ_KOUSYOU_GETSHIP: '/api_req_kousyou/getship',
+  // 工廠 - 高速建造
+  REQ_KOUSYOU_CREATESHIP_SPEEDCHANGE: '/api_req_kousyou/createship_speedchange',
   // 工廠 - 建造
   REQ_KOUSYOU_CREATESHIP: '/api_req_kousyou/createship',
   // 工廠 - 建造状況
   GET_MEMBER_KDOCK: '/api_get_member/kdock',
-  // 工廠 - 高速建造
-  REQ_KOUSYOU_CREATESHIP_SPEEDCHANGE: '/api_req_kousyou/createship_speedchange',
   // 工廠 - 解体
   REQ_KOUSYOU_DESTROYSHIP: '/api_req_kousyou/destroyship',
 
@@ -128,6 +130,8 @@ export const Api = {
   REQ_KOUSYOU_REMODEL_SLOT_RECOVER: '/api_req_kousyou/remodel_slot_recover',
   // 改修
   REQ_KOUSYOU_REMODEL_SLOT: '/api_req_kousyou/remodel_slot',
+  // 工廠 - アイテム開発資源プリセット名更新
+  REQ_KOUSYOU_PRESET_DEV_ITEMS_UPDATE_NAME: '/api_req_kousyou/preset_dev_items_update_name',
 
   // 出撃 - 出撃表示
   GET_MEMBER_MAPINFO: '/api_get_member/mapinfo',
