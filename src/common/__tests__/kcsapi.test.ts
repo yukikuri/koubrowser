@@ -1,6 +1,35 @@
 import { expect, describe, it } from 'vitest'
 import * as kcsapi from '@common/kcsapi'
 
+describe('kcsapi getApi', () => {
+  it.each([undefined, '', ' ', 'https://example.com/kcs2/index.php', '/kcsapi/api_unknown/action'])
+    ('returns undefined for an unrecognized URL: %s', (url) => {
+      expect(kcsapi.getApi(url)).toBeUndefined()
+    })
+
+  describe.each(Object.entries(kcsapi.Api))('%s', (_name, api) => {
+    const path = api.startsWith('/kcsapi/') ? api : `/kcsapi${api}`
+
+    it('recognizes the API path', () => {
+      expect(kcsapi.getApi(path)).toBe(api)
+    })
+
+    it.each(['http', 'https'])('recognizes an absolute %s URL with query parameters', (scheme) => {
+      expect(kcsapi.getApi(`${scheme}://example.com${path}?api_verno=1`)).toBe(api)
+    })
+  })
+
+  it('recognizes ranking operations by their shared API prefix', () => {
+    expect(kcsapi.getApi('https://example.com/kcsapi/api_req_ranking/getlist'))
+      .toBe(kcsapi.Api.REQ_RANKING)
+  })
+
+  it('matches API names case-sensitively', () => {
+    expect(kcsapi.getApi('/kcsapi/api_start2/getdata')).toBeUndefined()
+    expect(kcsapi.getApi('/kcsapi/api_start2/getData')).toBe(kcsapi.Api.START2_GET_DATA)
+  })
+})
+
 describe('kcsapi get server id test', () => {
   it('get server id(ok)', () => {
     const urls: {url: string, id: kcsapi.ApiServerId}[] = [
