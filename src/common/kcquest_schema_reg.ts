@@ -19,7 +19,7 @@ export function regQuestSchemaFromJson(json: string): regQuestSchemaResult {
 
   // スキーマ登録
   for (const schema of schemas.quests) {
-    qs.questRegisterReplace(schema.no, schema.stuff)
+    qs.questRegisterReplace(schema.no, schemas.meta.revision, schema.stuff)
   }
 
   // 登録したスキーマmeta設定

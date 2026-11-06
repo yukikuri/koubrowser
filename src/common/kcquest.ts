@@ -36,6 +36,7 @@ import {
   detailFormatOne, 
   detailFormatOneByMap
 } from '@common/kcquest_formatter'
+import { getQuestRevision } from '@common/kcquest_revision'
 
 /**
  *
@@ -491,11 +492,19 @@ function register<T extends QuestType>(id: number, cls: QuestStuffClass<T>): voi
  * questRegisterReplace 関数
  * 
  * @param id 
+ * @param revision 
  * @param cls 
  */
-export function questRegisterReplace<T extends QuestType>(id: number, cls: QuestStuffClass<T>): void {
-  console.log(`[INFO] quest stuff id ${id} is replaced`)
+export function questRegisterReplace<T extends QuestType>(
+    id: number, jsonRevision: number, cls: QuestStuffClass<T>): boolean {
+  const currentRevision = getQuestRevision(id)
+  if (currentRevision >= jsonRevision) {
+    console.log(`[INFO] quest stuff id ${id} is not replaced (app revision ${currentRevision}, json revision ${jsonRevision})`)
+    return false
+  }
+  console.log(`[INFO] quest stuff id ${id} is replaced (app revision ${currentRevision}, json revision ${jsonRevision})`)
   questStuffs.set(id, cls as QuestStuffClass<QuestType>)
+  return true
 }
 
 /**
@@ -17393,6 +17402,36 @@ register(
         svdata.shipMstIds(993), // kasi
       ].flat()
       return shipCount(msts.slice(1), ids) >= 2
+    }
+  }
+)
+
+// 1053: 再編二十駆「天霧」「狭霧」南方へ展開せよ！
+register(
+  1053,
+  class {
+    static readonly questType = QuestType.battleMapDeck
+    static max = [1, 1, 1, 1]
+    static key = QuestKey.infer
+    static maps: QuestMapOrCell[] = [
+      [5, 1, 'S'],
+      [5, 3, 'S'],
+      [5, 4, 'S'],
+      QuestMapCell_5_6_3('S')
+    ]
+
+    static formatter(quest: Quest): string {
+      return detailFormatMaps(quest, this.maps)
+    }
+
+    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+      const msts = toShipMsts(svdata, ship_ids)
+      const ids = [
+        svdata.shipMstIds(903), // 天霧改二
+        svdata.shipMstIds(902), // 狭霧改二
+      ].flat()
+
+      return shipCount(msts, ids) >= 2
     }
   }
 )

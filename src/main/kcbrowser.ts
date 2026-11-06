@@ -280,8 +280,8 @@ export class KcApp {
   private readonly questSchemaUpdater = new QuestSchemaUpdater({
     fetch: () => fetchQuestSchemaFile(UrlStuff.questSchema, false),
     save: (json): void => fs.writeFileSync(PathStuff.questSchemaFilePath, json, 'utf8'),
-    register: (quests): void => {
-      for (const schema of quests) qs.questRegisterReplace(schema.no, schema.stuff)
+    register: (quests, revision): void => {
+      for (const schema of quests) qs.questRegisterReplace(schema.no, revision, schema.stuff)
     },
     didApply: (json): void => {
       this.kcrecord?.rebuildQuestUpdaters()

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { QuestSchemaMetaV1 } from '@common/kcquest_schema_file'
 import { defaultOptionSetting, type QuestSchemaCheckIntervalHours, type QuestSchemaCheckStatus } from '@common/option'
+import { getQuestRevision } from '@common/kcquest_revision'
 
 const checkIntervalHours = defineModel<QuestSchemaCheckIntervalHours>('checkIntervalHours', {
   default: defaultOptionSetting().questSchemaCheckIntervalHours
@@ -44,6 +45,16 @@ function formatDate(value: string): string {
   }).format(date)
 }
 const updatedAtText = computed(() => props.meta ? formatDate(props.meta.updatedAt) : '')
+
+const visibleQuestInfos = computed(() => {
+  const meta = props.meta
+  if (!meta) return []
+
+  return (meta.questInfos ?? []).filter(
+    (info) => getQuestRevision(info.no) < meta.revision
+  )
+})
+
 </script>
 
 <template>
@@ -76,7 +87,7 @@ const updatedAtText = computed(() => props.meta ? formatDate(props.meta.updatedA
     <div v-if="meta?.questInfos?.length" class="quest-schema-contents">
       <div class="option-row-title">含まれる任務</div>
       <ul aria-label="含まれる任務データ">
-        <li v-for="(questInfo, index) in meta.questInfos" :key="`${questInfo.no}-${index}`">
+        <li v-for="(questInfo, index) in visibleQuestInfos" :key="`${questInfo.no}-${index}`">
           <span class="option-row-description quest-schema-description">{{ questInfo.info }}</span>
         </li>
       </ul>
