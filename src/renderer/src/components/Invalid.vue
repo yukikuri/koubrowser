@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { t } from '../i18n'
+import { t } from '@renderer/i18n'
 import { computed, onMounted, onUnmounted } from 'vue'
 
 const displayMessage = computed(

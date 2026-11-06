@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { t } from '../i18n'
+import { t } from '@renderer/i18n'
 
 import { ref, computed } from 'vue'
 import { svdata } from '@renderer/store/svdata'
@@ -180,7 +180,7 @@ const kanlogUrl = 'https://kanlog.info'
 
           <section class="about-block">
             <h3 class="about-heading">{{ t('ゲーム情報提供') }}</h3>
-            <p>{{ t('ドロップ情報の集計向上のため、情報提供にご協力ください。') }}</p>
+            <p>{{ t('about.dataContributionRequest') }}</p>
             <p>
               <label>
                 <input v-model="globalSetting.enableIntake" type="checkbox" />{{ t(' ドロップ情報を提供する ') }}</label>

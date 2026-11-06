@@ -2,5 +2,8 @@
   "invalid": {
     "title": "함대 정보 표시",
     "message": "DMM 로그인 후 「GAME START」 화면으로 자동 이동합니다.\n「GAME START」 버튼으로 게임을 시작하면 정보를 표시합니다."
+  },
+  "about": {
+    "dataContributionRequest": "@:{'terms.drop'} 정보 집계에 참여해 주세요."    
   }
 }

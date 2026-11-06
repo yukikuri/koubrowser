@@ -1,7 +1,9 @@
 import { createI18n } from 'vue-i18n'
-import jaKey from '@common/i18n/ja-key.json'
+import jaMessages from '@common/i18n/locales/ja/messages.json'
+import jaTerms from '@common/i18n/locales/ja/terms.json'
 import ko from '@common/i18n/ko.json'
-import koKey from '@common/i18n/ko-key.json'
+import koMessages from '@common/i18n/locales/ko/messages.json'
+import koTerms from '@common/i18n/locales/ko/terms.json'
 import { readonly, ref } from 'vue'
 import { 
   normalizeLanguage, 
@@ -132,10 +134,14 @@ export const i18n = createI18n({
   fallbackLocale: 'ja',
   messageResolver,
   messages: {
-    ja: jaKey,
+    ja: {
+      ...jaMessages,
+      terms: jaTerms
+    },
     ko: {
       ...ko,
-      ...koKey
+      ...koMessages,
+      terms: koTerms
     }
   }
 })
