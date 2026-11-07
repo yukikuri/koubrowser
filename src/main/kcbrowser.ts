@@ -472,6 +472,8 @@ export class KcApp {
     if (gameState.muted) {
       additionalArguments.push(Const.ArgIsInitMuted);
     }
+    additionalArguments.push(`${Const.ArgLanguage}=${gameSetting.language}`);
+
     const mainWindowOptions: BrowserWindowConstructorOptions = {
       useContentSize: true,
       width: mainWindowSize.width,
@@ -657,6 +659,7 @@ export class KcApp {
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }
+    additionalArguments.push(`${Const.ArgLanguage}=${gameSetting.language}`);
 
     debug('assist window info', {
       assistRestricted: gameSetting.assistRestricted,
@@ -761,6 +764,7 @@ export class KcApp {
     if (Env.isTestMode) {
       additionalArguments.push(Const.ArgIsTestMode);
     }
+    additionalArguments.push(`${Const.ArgLanguage}=${gameSetting.language}`);
 
     // 非表示で作成
     // 現オプション設定内容を取得後に表示
@@ -1764,7 +1768,6 @@ export class KcApp {
 
         const msg: RequiredMessage  = { 
           type: 'required',
-        language: gameSetting.language,
           svdata: null,
           quests: [],
           globalSetting,
@@ -1811,7 +1814,6 @@ export class KcApp {
 
       const msg: RequiredMessage  = { 
         type: 'required',
-        language: gameSetting.language,
         svdata: sendSvData ? svdata.svdataRaw : null,
         quests,
         globalSetting,

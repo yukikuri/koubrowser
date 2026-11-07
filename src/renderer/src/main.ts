@@ -5,7 +5,7 @@ import { AppState } from '@common/state'
 import { gameState } from '@renderer/store/gamestate'
 import { gameSetting } from '@renderer/store/gamesetting'
 import { createApp } from 'vue'
-import { i18n, initializeLanguage } from '@renderer/i18n'
+import { i18n, setLanguage } from '@renderer/i18n'
 import Buefy from 'buefy'
 import App from '@renderer/App.vue'
 import { Env } from '@common/env'
@@ -22,6 +22,11 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { streamInitialize } from '@renderer/stream'
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { MainRendererState } from '@renderer/store/renderer_state'
+
+// set language 
+if (EnvRenderer.language) {
+  setLanguage(EnvRenderer.language)
+}
 
 // if assist window change title
 if (EnvRenderer.isAssist) {
@@ -60,7 +65,7 @@ streamInitialize(async () => {
 const ipcRenderer = window.electron.ipcRenderer
 
 ipcRenderer.on(MainMessage.language_changed, (_event, value: unknown) => {
-  initializeLanguage(value)
+  setLanguage(value)
   document.title = t(EnvRenderer.isAssist ? '甲ブラウザ アシストウィンドウ' : '甲ブラウザ')
 })
 

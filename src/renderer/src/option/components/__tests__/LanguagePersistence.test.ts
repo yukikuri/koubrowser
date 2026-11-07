@@ -2,13 +2,13 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { defaultOptionSetting, defaultQuestSchemaCheckState } from '@common/option'
-import { i18n, initializeLanguage, language } from '@renderer/i18n'
+import { i18n, setLanguage, language } from '@renderer/i18n'
 import { optionSetting, setOptionSettingWithPreventSave } from '@option/store/optionSetting'
 import OptionApp from '../OptionApp.vue'
 
 const original = Object.getOwnPropertyDescriptor(window, 'optionApi')
 afterEach(async () => {
-  initializeLanguage('ja')
+  setLanguage('ja')
   setOptionSettingWithPreventSave({
     setting: defaultOptionSetting(),
     viewInfo: { defaultCaptureSavePath: '', ...defaultQuestSchemaCheckState() }
@@ -43,7 +43,7 @@ it('saves the selected language and synchronizes Vue I18n when initialized', asy
   const checkboxCount = japanese.findAll('input[type="checkbox"]').length
   japanese.unmount()
 
-  initializeLanguage(optionSetting.language)
+  setLanguage(optionSetting.language)
   const korean = mount(OptionApp)
   await flushPromises()
   expect(document.documentElement.lang).toBe('ko')

@@ -1,13 +1,13 @@
 import { afterEach, expect, it } from 'vitest'
-import { initializeLanguage, localizeProgressHtml } from '@renderer/i18n'
+import { setLanguage, localizeProgressHtml } from '@renderer/i18n'
 
-afterEach(() => initializeLanguage('ja'))
+afterEach(() => setLanguage('ja'))
 
 it('keeps Japanese progress markup byte for byte and translates only counter text in Korean', () => {
   const original = '<span class="cleared">遠征05：1/1</span> <span>未確認の条件：0/3</span>'
-  initializeLanguage('ja')
+  setLanguage('ja')
   expect(localizeProgressHtml(original)).toBe(original)
-  initializeLanguage('ko')
+  setLanguage('ko')
   const translated = localizeProgressHtml(original)
   const fragment = document.createElement('template')
   fragment.innerHTML = translated
@@ -18,7 +18,7 @@ it('keeps Japanese progress markup byte for byte and translates only counter tex
 })
 
 it('shortens map clear states so each entry fits on one line', () => {
-  initializeLanguage('ko')
+  setLanguage('ko')
   const translated = localizeProgressHtml('<span class="cleared">3-1S：済</span> <span>3-3S：未</span>')
   const fragment = document.createElement('template')
   fragment.innerHTML = translated

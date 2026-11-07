@@ -18,10 +18,9 @@ const currentLanguage = ref(normalizeLanguage(undefined))
 export const language = readonly(currentLanguage)
 
 /** Apply the display language when opening a window or receiving a language change. */
-export function initializeLanguage(value: unknown): void {
+export function setLanguage(value: unknown): void {
   currentLanguage.value = normalizeLanguage(value)
 
-  // todo set lang in renderer main.ts
   i18n.global.locale.value = currentLanguage.value
   
   if (typeof document === 'undefined') return
@@ -131,7 +130,16 @@ function messageResolver(obj: unknown, path: string): string | null {
 export const i18n = createI18n({
   legacy: false,
   locale: 'ja',
+
+  // 言語が見つからない場合のフォールバック
   fallbackLocale: 'ja',
+
+  // キーが見つからない場合、警告をコンソールに出す
+  missingWarn: true,
+
+  // キーが見つからない場合、フォールバック言語も探し、それでも見つからない場合はキー値自体を出力する
+  fallbackFormat: true,
+
   messageResolver,
   messages: {
     ja: {

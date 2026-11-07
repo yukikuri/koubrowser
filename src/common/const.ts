@@ -36,6 +36,7 @@ export class Const {
   static readonly ArgIsTestMode = '--is-test-mode'
   static readonly ArgIsInitMuted = '--is-init-muted'
   static readonly ArgAppLaunchId = '--app-launch-id' 
+  static readonly ArgLanguage = '--language' 
   static readonly GamePageUrl = 'https://www.dmm.com/netgame/feature/kancolle.html'
   static readonly AssetsCdnUrl = 'https://assetsbase.link/kb/'
 
