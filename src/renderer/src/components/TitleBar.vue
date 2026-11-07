@@ -40,7 +40,13 @@ import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@co
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
-import { questSchemaUpdateAvailable, questSchemaApplying, questSchemaApplyError, applyQuestSchemaUpdate } from '@renderer/store/quest_schema_update'
+import { CaptureResult } from '@common/capture'
+import { 
+  questSchemaUpdateAvailable, 
+  questSchemaApplying, 
+  questSchemaApplyError, 
+  applyQuestSchemaUpdate
+} from '@renderer/store/quest_schema_update'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -425,7 +431,7 @@ const emit = defineEmits<{
   (e: 'timeline'): void
   (e: 'rec'): void
   (e: 'recStop'): void
-  (e: 'screenshot', onSaved: (result: import('@common/capture').CaptureResult) => void): void
+  (e: 'screenshot', onSaved: (result: CaptureResult) => void): void
   (e: 'gameDevtool'): void
   (e: 'mute'): void
 }>()
@@ -517,7 +523,7 @@ const startScreenshotToastTimer = (): void => {
   }, 4000)
 }
 
-const showScreenshotToast = (result: import('@common/capture').CaptureResult): void => {
+const showScreenshotToast = (result: CaptureResult): void => {
   screenshotToastVersion++
   screenshotToastFilename.value = result.filename
   screenshotToastPath.value = result.filepath
