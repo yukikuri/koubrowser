@@ -9145,7 +9145,10 @@ export class SvData {
           this.reqKousyouDestroyItem2(api_data as ApiDestroyItem2)
           break
 
-
+        case KcsApi.Api.REQ_KOUSYOU_CREATESHIP:
+          this.reqKousyouCreateShip()
+          break
+          
         case KcsApi.Api.REQ_KOUSYOU_DESTROYSHIP:
           this.reqKousyouDestroyShip(api_data as ApiDestroyShip)
           break
