@@ -1,3 +1,4 @@
+import type { CaptureResult } from '@common/capture'
 import type { TimelineResult, TaihaSingekiBlockState, AirbaseTargetSpots, AirbaseSpot } from '@common/channel'
 import type { UpdateCheckResult, UpdateStateSnapshot } from '@common/type'
 import type { Query, QueryReturn, PortChartData } from '@common/record'
@@ -14,10 +15,11 @@ export interface Api {
   hideAssist(): void
   minimize(): void
   close(): void
-  devtool(): void
+  openDevTools(target: 'main' | 'assist'): Promise<void>
   reload(): void
   openCaptureFolder(): void
-  saveCapture(date: Date, buffer: Buffer): Promise<string>
+  saveCapture(date: Date, buffer: Buffer): Promise<CaptureResult>
+  openCapture(filepath: string): Promise<string>
   openOption(): void
   applyQuestSchema(): Promise<QuestSchemaCheckState>
   openAssist(): void

@@ -178,6 +178,7 @@ export type QuestSchemaByType = CheckedSchemaMap<{
   battle214: never
   battleMap: QuestBattleMap
   battleMapDeck: QuestBattleMapDeck
+  quest317: never
   mapGoal: QuestMapGoal
   gaugeClear: QuestGaugeClear
   missionStart: QuestMissionStart

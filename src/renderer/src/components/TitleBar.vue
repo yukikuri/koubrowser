@@ -2,7 +2,6 @@
 import { ref, reactive, onMounted, onBeforeUnmount, computed, watch, toRaw, Ref, ComputedRef, onUnmounted } from 'vue'
 import { Const } from '@common/const'
 import { DispSeikuText, getFormationText, TacticsText } from '@common/locale'
-import { Env } from '@common/env'
 import { replaceArray } from '@common/ts'
 import { gameSetting } from '@renderer/store/gamesetting'
 import MapInOutImage from '@assets/img/titlebar/map-in-out.svg'
@@ -14,7 +13,6 @@ import RecImage from '@assets/img/titlebar/rec.svg'
 import OpenCaptureFolderImage from '@assets/img/titlebar/open-capture-folder.svg'
 import CaptureImage from '@assets/img/titlebar/capture.svg'
 import ReloadImage from '@assets/img/titlebar/reload.svg'
-import DevToolImage from '@assets/img/titlebar/devtool.svg'
 import GameDevToolImage from '@assets/img/titlebar/game-devtool.svg'
 import OpenAssistImage from '@assets/img/titlebar/open-assist.svg'
 import TopMostImage from '@assets/img/titlebar/topmost.svg'
@@ -42,7 +40,13 @@ import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@co
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
-import { questSchemaUpdateAvailable, questSchemaApplying, questSchemaApplyError, applyQuestSchemaUpdate } from '@renderer/store/quest_schema_update'
+import { CaptureResult } from '@common/capture'
+import { 
+  questSchemaUpdateAvailable, 
+  questSchemaApplying, 
+  questSchemaApplyError, 
+  applyQuestSchemaUpdate
+} from '@renderer/store/quest_schema_update'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -67,6 +71,11 @@ const todayBattleScoreDialOffsets = ref<number[]>([])
 // 
 const titlebarEl = ref<HTMLElement | null>(null)
 const screenshotToastFilename = ref('')
+const screenshotToastPath = ref('')
+const screenshotToastError = ref('')
+const screenshotOpening = ref(false)
+let screenshotToastHovered = false
+let screenshotToastVersion = 0
 let screenshotToastTimer: ReturnType<typeof setTimeout> | null = null
 
 const props = defineProps<{
@@ -95,10 +104,6 @@ const title = computed((): string => {
   }
   // 画面サイズにより表示しきれないことから空表示
   return ''
-})
-
-const isDevelopment = computed((): boolean => {
-  return Env.isDevelopment
 })
 
 const inAssistMain = computed((): boolean => {
@@ -426,7 +431,7 @@ const emit = defineEmits<{
   (e: 'timeline'): void
   (e: 'rec'): void
   (e: 'recStop'): void
-  (e: 'screenshot', onSaved: (filename: string) => void): void
+  (e: 'screenshot', onSaved: (result: CaptureResult) => void): void
   (e: 'gameDevtool'): void
   (e: 'mute'): void
 }>()
@@ -509,13 +514,59 @@ const clearScreenshotToastTimer = (): void => {
   }
 }
 
-const showScreenshotToast = (filename: string): void => {
-  screenshotToastFilename.value = filename
+const startScreenshotToastTimer = (): void => {
   clearScreenshotToastTimer()
+  if (!screenshotToastFilename.value || screenshotToastHovered || screenshotOpening.value) return
   screenshotToastTimer = setTimeout(() => {
     screenshotToastFilename.value = ''
     screenshotToastTimer = null
   }, 4000)
+}
+
+const showScreenshotToast = (result: CaptureResult): void => {
+  screenshotToastVersion++
+  screenshotToastFilename.value = result.filename
+  screenshotToastPath.value = result.filepath
+  screenshotToastError.value = ''
+  screenshotOpening.value = false
+  startScreenshotToastTimer()
+}
+
+const onScreenshotToastEnter = (): void => {
+  screenshotToastHovered = true
+  clearScreenshotToastTimer()
+}
+
+const onScreenshotToastLeave = (): void => {
+  screenshotToastHovered = false
+  startScreenshotToastTimer()
+}
+
+const openScreenshot = async (): Promise<void> => {
+  if (screenshotOpening.value) return
+  const version = screenshotToastVersion
+  screenshotOpening.value = true
+  screenshotToastError.value = ''
+  clearScreenshotToastTimer()
+  try {
+    const error = await window.api.openCapture(screenshotToastPath.value)
+    if (version !== screenshotToastVersion) return
+    if (error) {
+      screenshotToastError.value = `画像を開けませんでした: ${error}`
+    } else {
+      screenshotToastFilename.value = ''
+      screenshotToastHovered = false
+    }
+  } catch {
+    if (version === screenshotToastVersion) {
+      screenshotToastError.value = '画像を開けませんでした。再度お試しください。'
+    }
+  } finally {
+    if (version === screenshotToastVersion) {
+      screenshotOpening.value = false
+      if (screenshotToastFilename.value) startScreenshotToastTimer()
+    }
+  }
 }
 
 const onScreenshot = (): void => {
@@ -526,12 +577,22 @@ const onReload = (): void => {
   window.api.reload()
 }
 
-const onDevTool = (): void => {
-  window.api.devtool()
-}
-
 const onGameDevTool = (): void => {
   emit('gameDevtool')
+}
+
+const assistDevToolsAvailable = computed<boolean>(
+  () => gameSetting.assist_window_visible
+)
+
+const devToolsError = ref('')
+
+const onOpenWindowDevTools = async (target: 'main' | 'assist'): Promise<void> => {
+  try {
+    await window.api.openDevTools(target)
+  } catch {
+    devToolsError.value = '開発者ツールを開けませんでした。'
+  }
 }
 
 const isMute = computed((): boolean => {
@@ -1018,6 +1079,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  screenshotToastVersion++
   clearTodayBattleScoreAnimTimer()
   clearDailyBattleScoreResetTimer()
   clearScreenshotToastTimer()
@@ -1266,21 +1328,36 @@ if (EnvRenderer.isTestMode) {
         <div class="titlebar-button reload" title="ページを再読み込みします" @click="onReload">
           <ReloadImage />
         </div>
-        <div
-          v-if="isDevelopment"
-          class="titlebar-button devtool-button"
-          title="デベロッパー ツール"
-          @click="onDevTool"
+        <b-dropdown
+          class="devtools-dropdown"
+          position="is-bottom-left"
+          append-to-body
+          :mobile-modal="false"
+          aria-role="menu"
         >
-          <DevToolImage />
-        </div>
-        <div
-          class="titlebar-button devtool-button"
-          title="Game側デベロッパー ツール"
-          @click="onGameDevTool"
-        >
-          <GameDevToolImage />
-        </div>
+          <template #trigger="{ active }">
+            <button
+              type="button"
+              class="titlebar-button devtools-trigger"
+              title="開発者ツール"
+              aria-label="開発者ツールの対象を選択"
+              aria-haspopup="menu"
+              :aria-expanded="active"
+            >
+              <GameDevToolImage />
+            </button>
+          </template>
+          <div class="devtools-menu">
+            <b-dropdown-item aria-role="menuitem" @click="onGameDevTool">ゲーム画面 開発者ツール</b-dropdown-item>
+            <b-dropdown-item aria-role="menuitem" @click="onOpenWindowDevTools('main')">メイン画面 開発者ツール</b-dropdown-item>
+            <b-dropdown-item
+              aria-role="menuitem"
+              :disabled="!assistDevToolsAvailable"
+              @click="onOpenWindowDevTools('assist')"
+            >アシスト画面 開発者ツール</b-dropdown-item>
+            <div v-if="devToolsError" class="devtools-error" role="alert">{{ devToolsError }}</div>
+          </div>
+        </b-dropdown>
         <div class="titlebar-button" title="新しいアシストウインドウを表示" @click="onOpenAssist">
           <OpenAssistImage />
         </div>
@@ -1300,8 +1377,20 @@ if (EnvRenderer.isTestMode) {
       </div>
     </div>
     <transition name="screenshot-toast">
-      <div v-if="screenshotToastFilename" class="screenshot-toast">
-        スクリーンショットを保存しました: {{ screenshotToastFilename }}
+      <div
+        v-if="screenshotToastFilename"
+        class="screenshot-toast"
+        @mouseenter="onScreenshotToastEnter"
+        @mouseleave="onScreenshotToastLeave"
+      >
+        <div class="screenshot-toast-row">
+          <span class="screenshot-toast-message">
+            スクリーンショットを保存しました:<br>
+            {{ screenshotToastFilename }}
+          </span>
+          <button type="button" :disabled="screenshotOpening" @click.stop="openScreenshot">open</button>
+        </div>
+        <div v-if="screenshotToastError" class="screenshot-toast-error" role="alert">{{ screenshotToastError }}</div>
       </div>
     </transition>
   </div>

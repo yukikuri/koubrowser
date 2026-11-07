@@ -271,16 +271,15 @@ export class KcRecord {
 
   private mapNext(arg: ApiMapNext): void {
 
-    if (Env.isTestMode) {
-      console.log('test mode: skip map next record')
-      return ;
-    }
-
     // nobattle
     if (KcsUtil.isNobattleCell(arg)) {
       const record = RecordUtil.toNoBattleRecord(svdata, arg)
       if (record) {
-        getWorkerDriver().dbInsert({ dbName: DbName.battle, record });
+        if (Env.isTestMode) {
+          console.log('test mode: skip map next record')
+        } else {
+          getWorkerDriver().dbInsert({ dbName: DbName.battle, record });
+        }
       }
     }
   }
@@ -484,7 +483,7 @@ export class KcRecord {
           const loaded_updater = this.quest_updaters[index]
           loaded_updater.apiData = true
           loaded_updater.quest = quest
-          loaded_updater.fixState(quest, loaded_updater.record!.state)
+          loaded_updater.fixState(quest, loaded_updater.record!.state, loaded_updater.record ?? undefined)
           loaded_updater.update(false)
         }
       } else {

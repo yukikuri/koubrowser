@@ -4,6 +4,7 @@ import { type OptionSetting } from '@common/option'
 export class GameSetting {
   public zoom_factor: number = 1.0
   public topmost: boolean = false
+  public assist_window_visible: boolean = false
 
   public capture_min_width: number = 1280
   public capture_max_width: number = 1280

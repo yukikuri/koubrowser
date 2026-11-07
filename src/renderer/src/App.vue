@@ -17,6 +17,7 @@ import { gameState } from '@renderer/store/gamestate'
 import { appState } from '@global/appstate'
 import { BattleRecord, recordMapIdToIdNo } from '@common/record'
 import { CellInfo } from '@common/map'
+import type { CaptureResult } from '@common/capture'
 import { mapInfoCache } from './common/mapinfo'
 const el = ref<HTMLElement | null>(null)
 const game = ref<InstanceType<typeof Game> | null>(null)
@@ -141,7 +142,7 @@ const onRecStop = (): void => {
   )
 }
 
-const onScreenShot = (onSaved: (filename: string) => void): void => {
+const onScreenShot = (onSaved: (result: CaptureResult) => void): void => {
   console.log('screenshot')
   const webview = getGame()?.getWebview()
   if (webview) {
@@ -156,11 +157,7 @@ const onScreenShot = (onSaved: (filename: string) => void): void => {
 const onGameDevTool = (): void => {
   const game_wv = getGame()?.getWebview()
   if (game_wv) {
-    if (game_wv.isDevToolsOpened()) {
-      game_wv.closeDevTools()
-    } else {
-      game_wv.openDevTools()
-    }
+    game_wv.openDevTools()
   }
 }
 

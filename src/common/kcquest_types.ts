@@ -14,6 +14,7 @@ export const QuestType = {
   battle214: 'battle214',
   battleMap: 'battleMap',
   battleMapDeck: 'battleMapDeck',
+  quest317: 'quest317',
   mapGoal: 'mapGoal',
   gaugeClear: 'gaugeClear',
   missionStart: 'missionStart',

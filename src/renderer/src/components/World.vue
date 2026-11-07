@@ -6,6 +6,7 @@ import Areas from '@renderer/components/Areas.vue'
 import { svdata } from '@renderer/store/svdata'
 import * as mapInfoStore from '@renderer/store/mapinfo'
 import LockImage from '@renderer/assets/img/lock.svg'
+import { Env } from '@common/env'
 
 type Props = { deckIndex?: number }
 withDefaults(defineProps<Props>(), { deckIndex: 0 })
@@ -131,6 +132,11 @@ onUnmounted(() => {
 })
 
 function isWorldLocked(id: number): boolean {
+
+  if (Env.isTestMode) {
+    return false;
+  }
+  
   const mapinfos = svdata.mapinfos.length > 0 ? svdata.mapinfos : mapInfoStore.mapInfo.api_map_info
   return !mapinfos.some((el) => el.api_id === id)
 }

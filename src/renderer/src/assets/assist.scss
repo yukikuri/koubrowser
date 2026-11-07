@@ -3738,6 +3738,28 @@ $eship-col-height: math.div(60px, math.div(240px, $eship-col-width)) + 12px;
       background-color: $tipborder-color;
     }
   }
+
+  &.questlist-assist {
+    position: relative;
+
+    // ツールチップではなく、任務一覧全体を配置基準にする
+    > .questtip {
+      position: static;
+    }
+
+    > .questtip > .tooltip-content {
+      top: calc(100% + 6px) !important;
+      bottom: auto !important;
+      left: 7px !important;
+      right: auto !important;
+
+      width: calc(100% - 14px) !important;
+      max-width: none;
+      margin: 0;
+      transform: none !important;
+      z-index: 100;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////
