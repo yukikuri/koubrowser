@@ -1348,13 +1348,13 @@ if (EnvRenderer.isTestMode) {
             </button>
           </template>
           <div class="devtools-menu">
-            <b-dropdown-item aria-role="menuitem" @click="onGameDevTool">ゲーム画面 開発者ツール</b-dropdown-item>
-            <b-dropdown-item aria-role="menuitem" @click="onOpenWindowDevTools('main')">メイン画面 開発者ツール</b-dropdown-item>
+            <b-dropdown-item aria-role="menuitem" @click="onGameDevTool">ゲーム画面の開発者ツールを開く</b-dropdown-item>
+            <b-dropdown-item aria-role="menuitem" @click="onOpenWindowDevTools('main')">メイン画面の開発者ツールを開く</b-dropdown-item>
             <b-dropdown-item
               aria-role="menuitem"
               :disabled="!assistDevToolsAvailable"
               @click="onOpenWindowDevTools('assist')"
-            >アシスト画面 開発者ツール</b-dropdown-item>
+            >アシスト画面の開発者ツールを開く</b-dropdown-item>
             <div v-if="devToolsError" class="devtools-error" role="alert">{{ devToolsError }}</div>
           </div>
         </b-dropdown>
