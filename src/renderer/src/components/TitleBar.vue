@@ -87,7 +87,20 @@ const props = defineProps<{
 /////////////////////////////////////////////////////////////////////////////////////
 // 野崎タイマー
 const nosakiCheckResult = computed((): NosakiCheckResult => nosakiStuff.check(svdata))
-const isNosakiTimerVisible = computed(() => nosakiCheckResult.value !== NosakiCheckResult.Disable)
+
+// タイマー表示はオプション設定で表示OFFなら表示しない
+// タイマー自体はオプション設定に関係なく動作させる
+const isNosakiTimerVisible = computed(() => {
+
+  // option setting
+  if (! gameSetting.nosakiTimerEnable) {
+    return false
+  }
+
+  // nosaki check result
+  return nosakiCheckResult.value !== NosakiCheckResult.Disable
+})
+
 const nosakiTimerDurMs = ref(0)
 let nosakiTimerIntervalId: number | undefined
 
