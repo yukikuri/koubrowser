@@ -41,12 +41,14 @@ import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
 import { CaptureResult } from '@common/capture'
+import { IntervalOneSec } from '@renderer/common/interval'
 import { 
   questSchemaUpdateAvailable, 
   questSchemaApplying, 
   questSchemaApplyError, 
   applyQuestSchemaUpdate
 } from '@renderer/store/quest_schema_update'
+import { NosakiCheckResult, nosakiStuff } from '@common/stuff/nosaki'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
@@ -82,6 +84,63 @@ const props = defineProps<{
   timelinePressed: boolean
 }>()
 
+/////////////////////////////////////////////////////////////////////////////////////
+// 野崎タイマー
+const nosakiCheckResult = computed((): NosakiCheckResult => nosakiStuff.check(svdata))
+const isNosakiTimerVisible = computed(() => nosakiCheckResult.value !== NosakiCheckResult.Disable)
+const nosakiTimerDurMs = ref(0)
+let nosakiTimerIntervalId: number | undefined
+
+const clearNosakiTimer = (): void => {
+  if (nosakiTimerIntervalId !== undefined) {
+    IntervalOneSec.unreg(nosakiTimerIntervalId)
+    nosakiTimerIntervalId = undefined
+  }
+}
+
+/**
+ * 
+ * @param addMs 
+ */
+const startNosakiTimer = (addMs: number): void => {
+  clearNosakiTimer()
+  nosakiTimerDurMs.value = 15 * 60 * 1000 + addMs
+  nosakiTimerIntervalId = IntervalOneSec.reg(() => {
+    nosakiTimerDurMs.value -= 1000
+    if (nosakiTimerDurMs.value <= 0) {
+      nosakiTimerDurMs.value = 0
+      clearNosakiTimer()
+    }
+  })
+}
+
+const nosakiTimerText = computed((): string => {
+  const totalSec = Math.floor(nosakiTimerDurMs.value / 1000)
+  const totalSeconds = totalSec < (15 * 60) ? totalSec : 15 * 60
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+})
+
+watch(
+  nosakiCheckResult,
+  result => {
+    if (result !== NosakiCheckResult.Disable) {
+
+      if (result !== NosakiCheckResult.EnableNoChange) {
+        // タイマー表示は2秒遅れで表示する
+        startNosakiTimer(2000)
+      }
+    } else {
+      clearNosakiTimer()
+      //nosakiTimerDurMs.value = 0
+    }
+  },
+  { immediate: true }
+)
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 let cb_port: number = 0
 let cb_map_start = 0
 let cb_map_next: number = 0
@@ -260,6 +319,8 @@ function styleWidthHolder(): { width: Ref<number>, getStyle: ComputedRef<string>
   return { width, getStyle };
 }
 
+const nosakiTimerStyle = computed(() => "--width: 62px")
+
 const { width: updateAvailableContentWidth, getStyle: updateAvailableContentStyle } = styleWidthHolder();
 const { width: gimmickClearWidth, getStyle: gimmickClearStyle } = styleWidthHolder();
 const { width: notSupplyWidth, getStyle: notSupplyStyle } = styleWidthHolder();
@@ -322,6 +383,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   debug('unmounted')
+  clearNosakiTimer()
   ApiCallback.unset(cb_port)
   ApiCallback.unset(cb_map_start);
   ApiCallback.unset(cb_map_next);
@@ -1145,6 +1207,19 @@ if (EnvRenderer.isTestMode) {
     </div>
     <div class="title-content" :class="{ dragable: isDragable }">
       <span class="main-text">{{ title }}</span>
+      <transition name="slide-effect" appear>
+        <span
+          v-show="isNosakiTimerVisible"
+          class="caption-content nosaki-timer-content"
+          :style="nosakiTimerStyle"
+          role="status"
+        >
+          <span class="nosaki-timer-badge">
+            <span>野&nbsp;</span>
+            <span class="nosaki-timer-value">{{ nosakiTimerText }}</span>
+          </span>
+        </span>
+      </transition>
       <button
         v-if="questSchemaUpdateAvailable" type="button" class="quest-schema-update-notice"
         :disabled="questSchemaApplying"
@@ -1397,6 +1472,55 @@ if (EnvRenderer.isTestMode) {
 </template>
 
 <style scoped>
+.nosaki-timer-content {
+  /*overflow: hidden;*/
+  vertical-align: middle;
+  line-height: normal;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.nosaki-timer-content .nosaki-timer-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  min-width: 0;
+  height: 1.5em;
+  margin-left: 4px;
+  margin-right: 1px;
+  padding-top: 2px;
+  padding-right: 4px;
+  padding-bottom: 2px;
+  padding-left: 4px;
+  border: 2px solid #cfad00;
+  border-radius: 0%;
+  border-right-width: 1px;
+  border-left-width: 1px;
+  background-color: #ffda1d;
+  color: #000;
+  font-size: 12px;
+  line-height: 1em;
+  text-shadow:
+    -1px -1px 0 #ffab1d,
+    1px -1px 0 #ffab1d,
+    -1px 1px 0 #ffab1d,
+    1px 1px 0 #ffab1d;
+  transform: translateX(1px) translateY(-1px);
+}
+
+.nosaki-timer-value {
+  display: inline-block;
+  width: 5ch;
+  flex-shrink: 0;
+  text-align: right;
+
+  color: #000;
+  font-family: Consolas, "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
+
 .quest-schema-update-notice {
   -webkit-app-region: no-drag;
   flex-shrink: 0;
