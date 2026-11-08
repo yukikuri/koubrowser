@@ -35,6 +35,9 @@ export interface OptionSetting {
 
   // taiha singeki block check skip for safe cell, default true
   taihaSingekiBlockSkipSafeCell: boolean
+
+  // nosaki timer enable, default false
+  nosakiTimerEnable: boolean
 }
 
 /**
@@ -94,7 +97,8 @@ export function defaultOptionSetting(): OptionSetting {
     proxyFixedServers: null,
     extensions: [],
     taihaSingekiBlockEnable: true,
-    taihaSingekiBlockSkipSafeCell: true
+    taihaSingekiBlockSkipSafeCell: true,
+    nosakiTimerEnable: false
   }
 }
 

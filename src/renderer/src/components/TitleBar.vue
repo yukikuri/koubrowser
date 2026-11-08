@@ -41,16 +41,22 @@ import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
 import { CaptureResult } from '@common/capture'
+import { IntervalOneSec } from '@renderer/common/interval'
 import { 
   questSchemaUpdateAvailable, 
   questSchemaApplying, 
   questSchemaApplyError, 
   applyQuestSchemaUpdate
 } from '@renderer/store/quest_schema_update'
+import { 
+  NosakiCheckResult, 
+  NosakiCheckResultContext, 
+  nosakiStuff 
+} from '@common/stuff/nosaki'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
-const DEBUG = false;
+const DEBUG = 0;
 
 const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[TitleBar]", ...args);
@@ -82,6 +88,96 @@ const props = defineProps<{
   timelinePressed: boolean
 }>()
 
+/////////////////////////////////////////////////////////////////////////////////////
+// 野崎タイマー
+const nosakiCheckResult = computed((): NosakiCheckResultContext => {
+  const result = nosakiStuff.check(svdata)
+  debug("nosaki check result:", result)
+  return result
+})
+
+// タイマー表示はオプション設定で表示OFFなら表示しない
+// タイマー自体はオプション設定に関係なく動作させる
+const isNosakiTimerVisible = computed(() => {
+
+  // option setting
+  if (! gameSetting.nosakiTimerEnable) {
+    return false
+  }
+
+  // nosaki check result
+  return nosakiCheckResult.value.result !== NosakiCheckResult.Disable
+})
+
+const nosakiTimerDurMs = ref(0)
+const nosakiTimerElapsedCount = ref(0)
+let nosakiTimerIntervalId: number | undefined
+
+const clearNosakiTimer = (): void => {
+  debug("clearNosakiTimer called.", nosakiTimerIntervalId)
+  if (nosakiTimerIntervalId !== undefined) {
+    IntervalOneSec.unreg(nosakiTimerIntervalId)
+    nosakiTimerIntervalId = undefined
+  }
+}
+
+/**
+ * 
+ * @param addMs 
+ */
+const NOSAKI_TIMER_INTERVAL_SEC = 15 * 60
+const NOSAKI_TIMER_INTERVAL_MS = NOSAKI_TIMER_INTERVAL_SEC * 1000
+const startNosakiTimer = (addMs: number): void => {
+  debug("startNosakiTimer called with addMs:", addMs)
+  clearNosakiTimer()
+  nosakiTimerElapsedCount.value = 0
+  nosakiTimerDurMs.value = NOSAKI_TIMER_INTERVAL_MS + addMs
+  nosakiTimerIntervalId = IntervalOneSec.reg(() => {
+    nosakiTimerDurMs.value -= 1000
+    if (nosakiTimerDurMs.value <= 0) {
+      nosakiTimerElapsedCount.value += 1
+      nosakiTimerDurMs.value = NOSAKI_TIMER_INTERVAL_MS
+    }
+  })
+}
+
+const nosakiTimerText = computed((): string => {
+  const totalSec = Math.floor(nosakiTimerDurMs.value / 1000)
+  const totalSeconds = totalSec < (NOSAKI_TIMER_INTERVAL_SEC) ? totalSec : NOSAKI_TIMER_INTERVAL_SEC
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+})
+
+const nosakiTimerElapsedText = computed((): string => {
+  const count = nosakiTimerElapsedCount.value
+  if (count <= 0) {
+    return ''
+  }
+  return count.toString()
+})
+
+watch(
+  () => ({
+    result: nosakiCheckResult.value.result,
+    context: nosakiCheckResult.value.context
+  }),
+  (current, previous) => {
+    if (current.result === NosakiCheckResult.Disable) {
+      clearNosakiTimer()
+      return
+    }
+
+    if (previous === undefined || current.context !== previous.context) {
+      // 0秒のタイミングぴったりでの操作を考慮し、タイマー表示は1秒遅れで表示する
+      startNosakiTimer(1000)
+    }
+  },
+  { immediate: true }
+)
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 let cb_port: number = 0
 let cb_map_start = 0
 let cb_map_next: number = 0
@@ -260,6 +356,8 @@ function styleWidthHolder(): { width: Ref<number>, getStyle: ComputedRef<string>
   return { width, getStyle };
 }
 
+const nosakiTimerStyle = computed(() => "--width: 62px")
+
 const { width: updateAvailableContentWidth, getStyle: updateAvailableContentStyle } = styleWidthHolder();
 const { width: gimmickClearWidth, getStyle: gimmickClearStyle } = styleWidthHolder();
 const { width: notSupplyWidth, getStyle: notSupplyStyle } = styleWidthHolder();
@@ -322,6 +420,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   debug('unmounted')
+  clearNosakiTimer()
   ApiCallback.unset(cb_port)
   ApiCallback.unset(cb_map_start);
   ApiCallback.unset(cb_map_next);
@@ -1145,6 +1244,25 @@ if (EnvRenderer.isTestMode) {
     </div>
     <div class="title-content" :class="{ dragable: isDragable }">
       <span class="main-text">{{ title }}</span>
+      <transition name="slide-effect" appear>
+        <span
+          v-show="isNosakiTimerVisible"
+          class="caption-content nosaki-timer-content"
+          :style="nosakiTimerStyle"
+          role="status"
+        >
+          <span class="nosaki-timer-badge">
+            <span class="nosaki-timer-label">
+              野
+              <span v-if="nosakiTimerElapsedText" class="nosaki-timer-elapsed">
+                {{ nosakiTimerElapsedText }}
+              </span>
+            </span>
+            <span>&nbsp;</span>
+            <span class="nosaki-timer-value">{{ nosakiTimerText }}</span>
+          </span>
+        </span>
+      </transition>
       <button
         v-if="questSchemaUpdateAvailable" type="button" class="quest-schema-update-notice"
         :disabled="questSchemaApplying"
@@ -1395,26 +1513,3 @@ if (EnvRenderer.isTestMode) {
     </transition>
   </div>
 </template>
-
-<style scoped>
-.quest-schema-update-notice {
-  -webkit-app-region: no-drag;
-  flex-shrink: 0;
-  margin: 0 4px;
-  padding: 1px 4px;
-  border: 1px solid #f0d56b;
-  border-radius: 3px;
-  background: #293225;
-  color: #ffe78b;
-  font-size: 11px;
-  line-height: 1.4;
-  cursor: pointer;
-}
-.quest-schema-update-notice:hover {
-  background: #414c35;
-}
-.quest-schema-update-notice:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-</style>
