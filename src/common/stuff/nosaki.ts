@@ -84,7 +84,7 @@ class NosakiStuff {
 
       // check damage
       const state = KcsUtil.shipHpState(api)
-      if (state === ShipHpState.syouha || state === ShipHpState.taiha) {
+      if (state !== ShipHpState.normal) {
         debug("nosaki check. Ship is damaged")
         return false
       }
