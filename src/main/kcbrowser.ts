@@ -77,6 +77,7 @@ import { DevEnv } from '@common/devenv'
 import { fetchQuestSchemaFile } from './kcquest_schema_fetcher'
 import { QuestSchemaUpdater } from './kcquest_schema_updater'
 import { QuestSchemaScheduler } from './kcquest_schema_scheduler'
+import type { CaptureResult } from '@common/capture'
 import type { QuestSchemaCheckState } from '@common/option'
 import { UrlStuff } from '@main/url'
 import { regQuestSchemaFromFile } from '@main/kcquest'
@@ -279,8 +280,8 @@ export class KcApp {
   private readonly questSchemaUpdater = new QuestSchemaUpdater({
     fetch: () => fetchQuestSchemaFile(UrlStuff.questSchema, false),
     save: (json): void => fs.writeFileSync(PathStuff.questSchemaFilePath, json, 'utf8'),
-    register: (quests): void => {
-      for (const schema of quests) qs.questRegisterReplace(schema.no, schema.stuff)
+    register: (quests, revision): void => {
+      for (const schema of quests) qs.questRegisterReplace(schema.no, revision, schema.stuff)
     },
     didApply: (json): void => {
       this.kcrecord?.rebuildQuestUpdaters()
@@ -715,6 +716,9 @@ export class KcApp {
     // 補正後に表示
     this.assist_window.show()
 
+    // アシストウインドウ表示状態更新
+    gameSetting.assist_window_visible = true
+
     this.assist_window.addListener('close', () => {
       if (! gameSetting.assistRestricted) {
         // 閉じた位置を保存
@@ -724,6 +728,10 @@ export class KcApp {
       }
     })
     this.assist_window.addListener('closed', () => {
+
+      // アシストウインドウ表示状態更新
+      gameSetting.assist_window_visible = false
+      
       this.assist_window = null
     })
 
@@ -826,12 +834,28 @@ export class KcApp {
     ipcMain.handle(MainChannel.hide_assist, () => this.onChannelShowAssist(false))
     ipcMain.handle(MainChannel.minimize, async () => this.onChannelMinimize())
     ipcMain.handle(MainChannel.close, async () => this.onChannelClose())
-    ipcMain.handle(MainChannel.devtool, async () => this.onChannelDevTool())
+    ipcMain.handle(MainChannel.open_devtool, (event, target: unknown): void => {
+      const trusted = event.sender === this.main_window?.webContents || event.sender === this.assist_window?.webContents
+      if (!trusted || event.senderFrame !== event.sender.mainFrame) return
+      const window = target === 'main' ? this.main_window : target === 'assist' ? this.assist_window : null
+      if (!window || window.isDestroyed() || window.webContents.isDestroyed()) return
+      window.webContents.openDevTools({ mode: 'detach' })
+    })
     ipcMain.handle(MainChannel.reload, async (_event, arg) => this.onChannelReload(arg))
     ipcMain.handle(MainChannel.openAssist, async () => this.onChannelOpenAssist())
     ipcMain.handle(MainChannel.topmost, async () => this.onChannelTopmost())
     ipcMain.handle(MainChannel.notify_mute_state, async (_event, arg) => this.onChannelNotifyMuteState(arg))
     ipcMain.handle(MainChannel.open_capture_folder, async () => this.onChannelOpenCaptureFolder())
+    ipcMain.handle(MainChannel.open_capture, async (event, filepath: string) => {
+      if (
+        event.sender !== this.main_window?.webContents ||
+        event.senderFrame !== event.sender.mainFrame ||
+        !this.savedCapturePaths.has(filepath)
+      ) {
+        return 'この画像を開くことはできません。'
+      }
+      return shell.openPath(filepath)
+    })
     ipcMain.handle(MainChannel.save_capture, async (_event, date, buffer) =>
       this.onChannelSaveCapture(date, buffer)
     )
@@ -1375,21 +1399,6 @@ export class KcApp {
   /**
    *
    */
-  private onChannelDevTool(): void {
-    debug(MainChannel.devtool)
-    const webContents = this.mainWindow.webContents
-    if (webContents) {
-      if (webContents.isDevToolsOpened()) {
-        webContents.closeDevTools()
-      } else {
-        webContents.openDevTools()
-      }
-    }
-  }
-
-  /**
-   *
-   */
   private onChannelReload(ignoreCache: boolean): void {
     debug(MainChannel.reload, 'ignoreCache:', ignoreCache)
     const webContents = this.mainWindow.webContents
@@ -1564,13 +1573,17 @@ export class KcApp {
    * @param date
    * @param buffer
    */
-  private async onChannelSaveCapture(date: Date, buffer: Buffer): Promise<string> {
+  private readonly savedCapturePaths = new Set<string>()
+
+  private async onChannelSaveCapture(date: Date, buffer: Buffer): Promise<CaptureResult> {
     const capture_dir = PathStuff.capturePath(true)
     const filename = `${moment(date).format('YYYYMMDD-HHmmss')}.png`
     debug(MainChannel.save_capture, 'date:', date, filename, capture_dir)
-    await fs.promises.writeFile(path.join(capture_dir, filename), buffer, {})
+    const filepath = path.resolve(capture_dir, filename)
+    await fs.promises.writeFile(filepath, buffer, {})
+    this.savedCapturePaths.add(filepath)
     debug('save writed to file', filename)
-    return filename
+    return { filename, filepath }
   }
 
   private closeRecorder(): void {

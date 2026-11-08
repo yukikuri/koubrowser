@@ -2,7 +2,6 @@
 import { ref, reactive, onMounted, onBeforeUnmount, computed, watch, toRaw, Ref, ComputedRef, onUnmounted } from 'vue'
 import { Const } from '@common/const'
 import { DispSeikuText, getFormationText, TacticsText } from '@common/locale'
-import { Env } from '@common/env'
 import { replaceArray } from '@common/ts'
 import { gameSetting } from '@renderer/store/gamesetting'
 import MapInOutImage from '@assets/img/titlebar/map-in-out.svg'
@@ -14,7 +13,6 @@ import RecImage from '@assets/img/titlebar/rec.svg'
 import OpenCaptureFolderImage from '@assets/img/titlebar/open-capture-folder.svg'
 import CaptureImage from '@assets/img/titlebar/capture.svg'
 import ReloadImage from '@assets/img/titlebar/reload.svg'
-import DevToolImage from '@assets/img/titlebar/devtool.svg'
 import GameDevToolImage from '@assets/img/titlebar/game-devtool.svg'
 import OpenAssistImage from '@assets/img/titlebar/open-assist.svg'
 import TopMostImage from '@assets/img/titlebar/topmost.svg'
@@ -42,11 +40,23 @@ import { DbName, PortRecord, PortRecordQueryProjection, toRecordDate } from '@co
 import { EnvRenderer } from '@renderer/common/env-renderer'
 import { hasStartupUpdateAvailable, startupUpdateVersion } from '@renderer/stuff/update'
 import { AssistUIState } from '@renderer/store/ui_state'
-import { questSchemaUpdateAvailable, questSchemaApplying, questSchemaApplyError, applyQuestSchemaUpdate } from '@renderer/store/quest_schema_update'
+import { CaptureResult } from '@common/capture'
+import { IntervalOneSec } from '@renderer/common/interval'
+import { 
+  questSchemaUpdateAvailable, 
+  questSchemaApplying, 
+  questSchemaApplyError, 
+  applyQuestSchemaUpdate
+} from '@renderer/store/quest_schema_update'
+import { 
+  NosakiCheckResult, 
+  NosakiCheckResultContext, 
+  nosakiStuff 
+} from '@common/stuff/nosaki'
 
 /////////////////////////////////////////////////////////////////////////////////////
 // デバッグログ
-const DEBUG = false;
+const DEBUG = 0;
 
 const debug = (...args: unknown[]): void => {
   if (DEBUG) console.debug("[TitleBar]", ...args);
@@ -67,12 +77,107 @@ const todayBattleScoreDialOffsets = ref<number[]>([])
 // 
 const titlebarEl = ref<HTMLElement | null>(null)
 const screenshotToastFilename = ref('')
+const screenshotToastPath = ref('')
+const screenshotToastError = ref('')
+const screenshotOpening = ref(false)
+let screenshotToastHovered = false
+let screenshotToastVersion = 0
 let screenshotToastTimer: ReturnType<typeof setTimeout> | null = null
 
 const props = defineProps<{
   timelinePressed: boolean
 }>()
 
+/////////////////////////////////////////////////////////////////////////////////////
+// 野崎タイマー
+const nosakiCheckResult = computed((): NosakiCheckResultContext => {
+  const result = nosakiStuff.check(svdata)
+  debug("nosaki check result:", result)
+  return result
+})
+
+// タイマー表示はオプション設定で表示OFFなら表示しない
+// タイマー自体はオプション設定に関係なく動作させる
+const isNosakiTimerVisible = computed(() => {
+
+  // option setting
+  if (! gameSetting.nosakiTimerEnable) {
+    return false
+  }
+
+  // nosaki check result
+  return nosakiCheckResult.value.result !== NosakiCheckResult.Disable
+})
+
+const nosakiTimerDurMs = ref(0)
+const nosakiTimerElapsedCount = ref(0)
+let nosakiTimerIntervalId: number | undefined
+
+const clearNosakiTimer = (): void => {
+  debug("clearNosakiTimer called.", nosakiTimerIntervalId)
+  if (nosakiTimerIntervalId !== undefined) {
+    IntervalOneSec.unreg(nosakiTimerIntervalId)
+    nosakiTimerIntervalId = undefined
+  }
+}
+
+/**
+ * 
+ * @param addMs 
+ */
+const NOSAKI_TIMER_INTERVAL_SEC = 15 * 60
+const NOSAKI_TIMER_INTERVAL_MS = NOSAKI_TIMER_INTERVAL_SEC * 1000
+const startNosakiTimer = (addMs: number): void => {
+  debug("startNosakiTimer called with addMs:", addMs)
+  clearNosakiTimer()
+  nosakiTimerElapsedCount.value = 0
+  nosakiTimerDurMs.value = NOSAKI_TIMER_INTERVAL_MS + addMs
+  nosakiTimerIntervalId = IntervalOneSec.reg(() => {
+    nosakiTimerDurMs.value -= 1000
+    if (nosakiTimerDurMs.value <= 0) {
+      nosakiTimerElapsedCount.value += 1
+      nosakiTimerDurMs.value = NOSAKI_TIMER_INTERVAL_MS
+    }
+  })
+}
+
+const nosakiTimerText = computed((): string => {
+  const totalSec = Math.floor(nosakiTimerDurMs.value / 1000)
+  const totalSeconds = totalSec < (NOSAKI_TIMER_INTERVAL_SEC) ? totalSec : NOSAKI_TIMER_INTERVAL_SEC
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+})
+
+const nosakiTimerElapsedText = computed((): string => {
+  const count = nosakiTimerElapsedCount.value
+  if (count <= 0) {
+    return ''
+  }
+  return count.toString()
+})
+
+watch(
+  () => ({
+    result: nosakiCheckResult.value.result,
+    context: nosakiCheckResult.value.context
+  }),
+  (current, previous) => {
+    if (current.result === NosakiCheckResult.Disable) {
+      clearNosakiTimer()
+      return
+    }
+
+    if (previous === undefined || current.context !== previous.context) {
+      // 0秒のタイミングぴったりでの操作を考慮し、タイマー表示は1秒遅れで表示する
+      startNosakiTimer(1000)
+    }
+  },
+  { immediate: true }
+)
+
+/////////////////////////////////////////////////////////////////////////////////////
+// 
 let cb_port: number = 0
 let cb_map_start = 0
 let cb_map_next: number = 0
@@ -95,10 +200,6 @@ const title = computed((): string => {
   }
   // 画面サイズにより表示しきれないことから空表示
   return ''
-})
-
-const isDevelopment = computed((): boolean => {
-  return Env.isDevelopment
 })
 
 const inAssistMain = computed((): boolean => {
@@ -255,6 +356,8 @@ function styleWidthHolder(): { width: Ref<number>, getStyle: ComputedRef<string>
   return { width, getStyle };
 }
 
+const nosakiTimerStyle = computed(() => "--width: 62px")
+
 const { width: updateAvailableContentWidth, getStyle: updateAvailableContentStyle } = styleWidthHolder();
 const { width: gimmickClearWidth, getStyle: gimmickClearStyle } = styleWidthHolder();
 const { width: notSupplyWidth, getStyle: notSupplyStyle } = styleWidthHolder();
@@ -317,6 +420,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   debug('unmounted')
+  clearNosakiTimer()
   ApiCallback.unset(cb_port)
   ApiCallback.unset(cb_map_start);
   ApiCallback.unset(cb_map_next);
@@ -426,7 +530,7 @@ const emit = defineEmits<{
   (e: 'timeline'): void
   (e: 'rec'): void
   (e: 'recStop'): void
-  (e: 'screenshot', onSaved: (filename: string) => void): void
+  (e: 'screenshot', onSaved: (result: CaptureResult) => void): void
   (e: 'gameDevtool'): void
   (e: 'mute'): void
 }>()
@@ -509,13 +613,59 @@ const clearScreenshotToastTimer = (): void => {
   }
 }
 
-const showScreenshotToast = (filename: string): void => {
-  screenshotToastFilename.value = filename
+const startScreenshotToastTimer = (): void => {
   clearScreenshotToastTimer()
+  if (!screenshotToastFilename.value || screenshotToastHovered || screenshotOpening.value) return
   screenshotToastTimer = setTimeout(() => {
     screenshotToastFilename.value = ''
     screenshotToastTimer = null
   }, 4000)
+}
+
+const showScreenshotToast = (result: CaptureResult): void => {
+  screenshotToastVersion++
+  screenshotToastFilename.value = result.filename
+  screenshotToastPath.value = result.filepath
+  screenshotToastError.value = ''
+  screenshotOpening.value = false
+  startScreenshotToastTimer()
+}
+
+const onScreenshotToastEnter = (): void => {
+  screenshotToastHovered = true
+  clearScreenshotToastTimer()
+}
+
+const onScreenshotToastLeave = (): void => {
+  screenshotToastHovered = false
+  startScreenshotToastTimer()
+}
+
+const openScreenshot = async (): Promise<void> => {
+  if (screenshotOpening.value) return
+  const version = screenshotToastVersion
+  screenshotOpening.value = true
+  screenshotToastError.value = ''
+  clearScreenshotToastTimer()
+  try {
+    const error = await window.api.openCapture(screenshotToastPath.value)
+    if (version !== screenshotToastVersion) return
+    if (error) {
+      screenshotToastError.value = `画像を開けませんでした: ${error}`
+    } else {
+      screenshotToastFilename.value = ''
+      screenshotToastHovered = false
+    }
+  } catch {
+    if (version === screenshotToastVersion) {
+      screenshotToastError.value = '画像を開けませんでした。再度お試しください。'
+    }
+  } finally {
+    if (version === screenshotToastVersion) {
+      screenshotOpening.value = false
+      if (screenshotToastFilename.value) startScreenshotToastTimer()
+    }
+  }
 }
 
 const onScreenshot = (): void => {
@@ -526,12 +676,22 @@ const onReload = (): void => {
   window.api.reload()
 }
 
-const onDevTool = (): void => {
-  window.api.devtool()
-}
-
 const onGameDevTool = (): void => {
   emit('gameDevtool')
+}
+
+const assistDevToolsAvailable = computed<boolean>(
+  () => gameSetting.assist_window_visible
+)
+
+const devToolsError = ref('')
+
+const onOpenWindowDevTools = async (target: 'main' | 'assist'): Promise<void> => {
+  try {
+    await window.api.openDevTools(target)
+  } catch {
+    devToolsError.value = '開発者ツールを開けませんでした。'
+  }
 }
 
 const isMute = computed((): boolean => {
@@ -1018,6 +1178,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  screenshotToastVersion++
   clearTodayBattleScoreAnimTimer()
   clearDailyBattleScoreResetTimer()
   clearScreenshotToastTimer()
@@ -1083,6 +1244,25 @@ if (EnvRenderer.isTestMode) {
     </div>
     <div class="title-content" :class="{ dragable: isDragable }">
       <span class="main-text">{{ title }}</span>
+      <transition name="slide-effect" appear>
+        <span
+          v-show="isNosakiTimerVisible"
+          class="caption-content nosaki-timer-content"
+          :style="nosakiTimerStyle"
+          role="status"
+        >
+          <span class="nosaki-timer-badge">
+            <span class="nosaki-timer-label">
+              野
+              <span v-if="nosakiTimerElapsedText" class="nosaki-timer-elapsed">
+                {{ nosakiTimerElapsedText }}
+              </span>
+            </span>
+            <span>&nbsp;</span>
+            <span class="nosaki-timer-value">{{ nosakiTimerText }}</span>
+          </span>
+        </span>
+      </transition>
       <button
         v-if="questSchemaUpdateAvailable" type="button" class="quest-schema-update-notice"
         :disabled="questSchemaApplying"
@@ -1266,21 +1446,36 @@ if (EnvRenderer.isTestMode) {
         <div class="titlebar-button reload" title="ページを再読み込みします" @click="onReload">
           <ReloadImage />
         </div>
-        <div
-          v-if="isDevelopment"
-          class="titlebar-button devtool-button"
-          title="デベロッパー ツール"
-          @click="onDevTool"
+        <b-dropdown
+          class="devtools-dropdown"
+          position="is-bottom-left"
+          append-to-body
+          :mobile-modal="false"
+          aria-role="menu"
         >
-          <DevToolImage />
-        </div>
-        <div
-          class="titlebar-button devtool-button"
-          title="Game側デベロッパー ツール"
-          @click="onGameDevTool"
-        >
-          <GameDevToolImage />
-        </div>
+          <template #trigger="{ active }">
+            <button
+              type="button"
+              class="titlebar-button devtools-trigger"
+              title="開発者ツール"
+              aria-label="開発者ツールの対象を選択"
+              aria-haspopup="menu"
+              :aria-expanded="active"
+            >
+              <GameDevToolImage />
+            </button>
+          </template>
+          <div class="devtools-menu">
+            <b-dropdown-item aria-role="menuitem" @click="onGameDevTool">ゲーム画面の開発者ツールを開く</b-dropdown-item>
+            <b-dropdown-item aria-role="menuitem" @click="onOpenWindowDevTools('main')">メイン画面の開発者ツールを開く</b-dropdown-item>
+            <b-dropdown-item
+              aria-role="menuitem"
+              :disabled="!assistDevToolsAvailable"
+              @click="onOpenWindowDevTools('assist')"
+            >アシスト画面の開発者ツールを開く</b-dropdown-item>
+            <div v-if="devToolsError" class="devtools-error" role="alert">{{ devToolsError }}</div>
+          </div>
+        </b-dropdown>
         <div class="titlebar-button" title="新しいアシストウインドウを表示" @click="onOpenAssist">
           <OpenAssistImage />
         </div>
@@ -1300,32 +1495,21 @@ if (EnvRenderer.isTestMode) {
       </div>
     </div>
     <transition name="screenshot-toast">
-      <div v-if="screenshotToastFilename" class="screenshot-toast">
-        スクリーンショットを保存しました: {{ screenshotToastFilename }}
+      <div
+        v-if="screenshotToastFilename"
+        class="screenshot-toast"
+        @mouseenter="onScreenshotToastEnter"
+        @mouseleave="onScreenshotToastLeave"
+      >
+        <div class="screenshot-toast-row">
+          <span class="screenshot-toast-message">
+            スクリーンショットを保存しました:<br>
+            {{ screenshotToastFilename }}
+          </span>
+          <button type="button" :disabled="screenshotOpening" @click.stop="openScreenshot">open</button>
+        </div>
+        <div v-if="screenshotToastError" class="screenshot-toast-error" role="alert">{{ screenshotToastError }}</div>
       </div>
     </transition>
   </div>
 </template>
-
-<style scoped>
-.quest-schema-update-notice {
-  -webkit-app-region: no-drag;
-  flex-shrink: 0;
-  margin: 0 4px;
-  padding: 1px 4px;
-  border: 1px solid #f0d56b;
-  border-radius: 3px;
-  background: #293225;
-  color: #ffe78b;
-  font-size: 11px;
-  line-height: 1.4;
-  cursor: pointer;
-}
-.quest-schema-update-notice:hover {
-  background: #414c35;
-}
-.quest-schema-update-notice:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-</style>

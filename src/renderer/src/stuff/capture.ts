@@ -1,9 +1,10 @@
 import type { Rectangle, WebviewTag } from 'electron'
 import { gameSetting } from '@renderer/store/gamesetting'
+import type { CaptureResult } from '@common/capture'
 import { Const } from '@common/const'
 
 class CaptureStuff {
-  public capture(webview: WebviewTag): Promise<string> {
+  public capture(webview: WebviewTag): Promise<CaptureResult> {
     const date = new Date()
     const rect: Rectangle = {
       x: 0,

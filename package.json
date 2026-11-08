@@ -1,6 +1,6 @@
 {
   "name": "koubrowser",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "甲ブラウザ",
   "main": "./out/main/index.js",
   "private": true,

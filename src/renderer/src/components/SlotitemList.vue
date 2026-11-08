@@ -3,7 +3,14 @@ import { computed, ref, watch } from 'vue'
 import { svdata } from '@renderer/store/svdata'
 import StarImage from '@renderer/assets/img/star.svg'
 import LockImage from '@renderer/assets/img/lock.svg'
-import { ApiRange, ApiShip, type ApiSlotitem, KcsUtil, type MstSlotitem, SlotitemImgType, SlotitemType } from '@common/kcs'
+import { 
+  type ApiRange, 
+  type ApiShip, 
+  type ApiSlotitem, 
+  KcsUtil, 
+  type MstSlotitem, 
+  SlotitemImgType, 
+  SlotitemType } from '@common/kcs'
 import { SlotitemRareTextMap, SyateiText } from '@common/locale'
 import { RUtil } from '@renderer/util'
 import { SlotImg } from '@renderer/stuff/imgs/slot'
@@ -639,9 +646,21 @@ const internalDetailBomAa = (mst: MstSlotitem, api: ApiSlotitem): number => {
 }
 
 const internalDetailBomTorForLandAttacker = (mst: MstSlotitem, api: ApiSlotitem): number => {
-  return ((KcsUtil.bomFromLevel(mst, api.api_level) + mst.api_baku) +
-    (KcsUtil.torFromLevel(mst, api.api_level) + mst.api_raig))*100 +
-    (KcsUtil.aaFromLevel(mst, api.api_level) + mst.api_tyku);
+  const imgtype = KcsUtil.slotitemImgType(mst)
+
+  if (imgtype === SlotitemImgType.rikutaisen) {
+    const weight = 100;
+    return mst.api_tais + weight;
+  }
+
+  if (imgtype === SlotitemImgType.kanjyou_teisatuki) {
+    const weight = 0;
+    return mst.api_saku + mst.api_houm + weight;
+  }
+
+  const weight = 1000;
+  return (KcsUtil.bomFromLevel(mst, api.api_level) + mst.api_baku)*100 +
+    (KcsUtil.torFromLevel(mst, api.api_level) + mst.api_raig) + weight;
 }
 
 const internalDetailHit = (mst: MstSlotitem, api: ApiSlotitem): number => {
@@ -1091,14 +1110,17 @@ function filterCheckboxInfos(): FilterCheckboxInfo[] {
       ],
       internalDetailCalc: internalDetailAa,
     },
-    // naikatei: 36, // 内火艇
     // 陸攻
+    // 大型陸上機
+    // 陸偵
     {
       key: FilterKey.landBasedAttackAircraft,
-      title: '陸上攻撃機',
+      title: '陸上攻撃機/陸上偵察機',
       checkboxImgType: SlotitemImgType.rikukou,
       types: [
         SlotitemType.LandAttackAircraft,
+        SlotitemType.LargeLandPlane,
+        SlotitemType.LandRecAircraft,
       ],
       internalDetailCalc: internalDetailBomTorForLandAttacker,
     },
@@ -1560,6 +1582,23 @@ const LandAttackAircraftOrder: BuildHtmlNameType[] = [
   BuildHtmlName.armor,
 ];
 
+const LandTaisenOrder: BuildHtmlNameType[] = [
+  BuildHtmlName.asw,
+  BuildHtmlName.bom,
+  BuildHtmlName.hit,
+  BuildHtmlName.los,
+  BuildHtmlName.tor,
+  BuildHtmlName.aa,
+  BuildHtmlName.fire,
+  BuildHtmlName.tor_hit,
+  BuildHtmlName.kb,
+  BuildHtmlName.kt,
+  BuildHtmlName.asw_hit,
+  BuildHtmlName.ev,
+  BuildHtmlName.raik,
+  BuildHtmlName.armor,
+];
+
 const SubmarineEquipmentOrder: BuildHtmlNameType[] = [
   BuildHtmlName.ev,
   BuildHtmlName.hit,
@@ -1739,9 +1778,19 @@ const buildParamOrderMap: Map<SlotitemImgType, BuildHtmlNameType[]> = new Map<Sl
     SlotitemImgType.yakan_kougekiki,
     TorpedoBomberOrder,
   ],
+  // 47: 陸上対潜哨戒機
+  [
+    SlotitemImgType.rikutaisen,
+    LandTaisenOrder,
+  ],
   // 48: 陸上攻撃機2
   [
     SlotitemImgType.rikukou2,
+    LandAttackAircraftOrder,
+  ],
+  // 49: 陸上攻撃機2
+  [
+    SlotitemImgType.rikukou_jyuubaku,
     LandAttackAircraftOrder,
   ],
   // 50: 夜偵

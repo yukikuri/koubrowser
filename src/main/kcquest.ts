@@ -40,7 +40,7 @@ import { svdata } from '@main/svdata'
 import moment from 'moment'
 import { getWorkerDriverQuest } from '@main/stuff/wrokers'
 import { calcEnemyHps } from '@common/kcsbattle'
-import { currentServerDate } from '@common/kcdate'
+import { currentServerDate, getQuestDateString } from '@common/kcdate'
 import { Env } from '@common/env'
 import { QuestMap, QuestMapCell } from '@common/kcquest_definition'
 import fs from 'node:fs'
@@ -245,6 +245,11 @@ export function generateDateKey(stuff: qs.QuestCommon, quest: ApiQuest): string 
   }
 }
 
+type QuestStateContext = Pick<Quest, 'date'> & {
+  /** 保存済みAPI情報による進捗補正を省略する */
+  skipApiProgressCorrection?: boolean
+}
+
 /**
  *
  */
@@ -264,7 +269,11 @@ export abstract class QuestUpdater {
   public abstract insert(): void
   public abstract update(doNotify: boolean): void
   public abstract newState(quest: ApiQuest): QuestState
-  public abstract fixState(quest: ApiQuest, state: QuestState): boolean
+  public abstract fixState(
+    quest: ApiQuest, 
+    state: QuestState,
+    context?: QuestStateContext
+  ): boolean
   public abstract setCallback(): void
   public abstract unsetCallback(): void
 
@@ -374,7 +383,7 @@ abstract class QuestUpdaterImplDB extends QuestUpdater {
       let needUpdate = invalidated
       if (invalidated) {
         const state = this.newState(quest)
-        this.fixState(quest, state)
+        this.fixState(quest, state, doc ?? undefined)
         doc = {
           no,
           date: currentRecordDate(false),
@@ -384,7 +393,7 @@ abstract class QuestUpdaterImplDB extends QuestUpdater {
         }
       } else {
         if (doc && doc.state) {
-          needUpdate = this.fixState(quest, doc.state)
+          needUpdate = this.fixState(quest, doc.state, doc)
         }
       }
 
@@ -456,7 +465,11 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
     return questCounter(max.slice().fill(0), max)
   }
 
-  fixState(quest: ApiQuest, state: QuestCounter): boolean {
+  fixState(
+    quest: ApiQuest, 
+    state: QuestCounter, 
+    context?: QuestStateContext): boolean {
+
     // option
     // not fix state
     if (this.commonStuff.notFixState) {
@@ -480,7 +493,8 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
       ret = true
     }
 
-    if (max.length === 1) {
+    const isSkip = context?.skipApiProgressCorrection ?? false
+    if (max.length === 1 && ! isSkip) {
       // percent < corrent count
       // or
       // not completed != corrent count completed
@@ -514,7 +528,6 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
 
     if (!state.count.some((el, index) => el < state.countMax[index])) {
       this.unsetCallback()
-      this.popNo()
     }
     this.update()
   }
@@ -539,7 +552,6 @@ abstract class QuestAnyCounter extends QuestUpdaterImplDB {
     if (doUpdate) {
       if (!state.count.some((el, index) => el < state.countMax[index])) {
         this.unsetCallback()
-        this.popNo()
       }
       this.update()
     }
@@ -1064,6 +1076,125 @@ class QuestBattleMapDeck extends QuestBattleBase {
 /**
  *
  */
+class QuestSpecific317 extends QuestAnyCounter {
+  private stuff: qs.QuestSpecific317
+  private cb_practice: number = 0
+  private cb_battle: number = 0
+
+  readonly idx_practice = 0
+  readonly idx_22 = 1
+  readonly idx_23 = 2
+  readonly idx_24 = 3
+  readonly idx_25 = 4
+  readonly idx_date = 5
+
+  constructor(p: UpdaterCtorParam, stuff: qs.QuestSpecific317) {
+    super(p, stuff)
+    this.stuff = stuff
+  }
+
+  setCallback(): void {
+    this.cb_practice = ApiCallback.set([
+      Api.REQ_PRACTICE_BATTLE_RESULT,
+      (arg: PrvPracticeBattleInfo) => this.onPractice(arg)
+    ])
+    this.cb_battle = ApiCallback.set([
+      Api.REQ_SORTIE_BATTLERESULT,
+      (arg: PrvBattleInfo) => this.onBattle(arg)
+    ])
+  }
+
+  fixState(
+    _quest: ApiQuest, 
+    state: QuestCounter, 
+    context?: QuestStateContext): boolean {
+    
+    if (! context) {
+      return false
+    }
+
+    const today = getQuestDateString(currentServerDate())
+    const questDate = getQuestDateString(new Date(context.date))
+    if(today !== questDate) {
+      if (state.count[this.idx_practice] < state.countMax[this.idx_practice]) {
+        // reset practice counter
+        state.count[this.idx_practice] = 0
+
+        // update date
+        context.date = currentRecordDate(false)
+        return true
+      }
+    }
+
+    return false
+  }
+
+  unsetCallback(): void {
+    if (this.cb_practice) {
+      ApiCallback.unset(this.cb_practice)
+      this.cb_practice = 0
+    }
+    if (this.cb_battle) {
+      ApiCallback.unset(this.cb_battle)
+      this.cb_battle = 0
+    }
+  }
+
+  onBattle(result: PrvBattleInfo): void {
+
+    const state = this.state
+
+    // 演習未達成ではカウントしない
+    if (state.count[this.idx_practice] !== state.countMax[this.idx_practice]) {
+      return
+    }
+
+    // boss battle?
+    if (result.map.api_event_id !== ApiEventId.bossBattle) {
+      return
+    }
+
+    const index = matchMap(this.stuff.maps, result.map, result.result?.api_win_rank)
+    if (-1 === index) {
+      return
+    }
+
+    const deck = svdata.battleDeck
+    if (!deck) {
+      return
+    }
+    if (!this.stuff.isDeckMatch(svdata, deck.api_ship)) {
+      return
+    }
+    this.increment(1, index+1)
+  }
+
+  onPractice(result: PrvPracticeBattleInfo): void {
+
+    let isUpdate = false;
+    if (
+      this.record &&
+      this.fixState(this.quest, this.state, this.record)
+    ) {
+      isUpdate = true
+    }
+
+    const deck = svdata.deckPort(result.deck_id)
+    if (fullfillWinCond(result.result.api_win_rank, 'B') && 
+        deck && 
+        this.stuff.isDeckMatch(svdata, deck.api_ship)) {
+      this.increment()
+    } else {
+      if (isUpdate) {
+        this.update()
+      }
+    }
+  }
+}
+
+/**
+ *
+ */
 class QuestMapGoal extends QuestAnyCounter {
   private stuff: qs.QuestMapGoal
   private cb_map_next: number = 0
@@ -1317,6 +1448,34 @@ class QuestKaisouUseType extends QuestKaisouBase {
           this.increment()
         }
       }
+      return 
+    }
+
+    const types = this.stuff.powerup_ship_types
+    if (types !== undefined) {
+      const mst = svdata.mstShip(arg.api_data.api_ship.api_ship_id)
+      if (!mst) {
+        return
+      }
+      if (! types.includes(mst.api_stype)) {
+        return
+      }
+    }
+
+    const use_types = this.stuff.use_ship_types
+    if (use_types !== undefined) {
+      if (arg.use_ships.length === use_types[1]) {
+        const count = arg.use_ships.reduce((acc, el) => {
+          if (use_types[0].includes(el.api_stype)) {
+            ++acc
+          }
+          return acc
+        }, 0)
+        if (count == use_types[1]) {
+          this.increment()
+        }
+      }
+      return
     }
   }
 }
@@ -1849,6 +2008,9 @@ const createQuestUpdater = (
     case QuestType.battleMapDeck:
       updater = new QuestBattleMapDeck({ quest, updated }, stuff)
       break
+    case QuestType.quest317:
+      updater = new QuestSpecific317({ quest, updated }, stuff)
+      break
     case QuestType.mapGoal:
       updater = new QuestMapGoal({ quest, updated }, stuff)
       break
@@ -1924,7 +2086,14 @@ const createQuestUpdater = (
       record.state = updater.newState(quest)
     }
     updater.record = record
-    updater.fixState(quest, record.state)
+
+    const context: QuestStateContext = {
+      date: record.date,
+      skipApiProgressCorrection: true
+    }
+    updater.fixState(quest, record.state, context)
+    record.date = context.date
+
     updater.tmpRecord = Object.assign({}, record.state)
     updater.setCallback()
   }

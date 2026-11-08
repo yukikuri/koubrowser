@@ -327,6 +327,21 @@ const clearProxyFixedServersInput = (): void => {
                 </span>
               </label>
             </div>
+
+            <div class="section-title">野崎タイマー</div>
+            <div class="option-row option-row-vertical">
+              <label class="option-checkbox option-checkbox-with-description">
+                <input v-model="optionSetting.nosakiTimerEnable" type="checkbox" />
+
+                <span class="option-checkbox-body">
+                  <span class="option-checkbox-title">野崎タイマーを有効にする</span>
+                  <span class="option-checkbox-description">
+                    母港給糧艦システムが有効な艦隊を構成した場合、タイトルバーに15分タイマー表示を行います。<br>
+                  </span>
+                </span>
+              </label>
+            </div>
+
           </section>
 
           <!-- 任務データ -->

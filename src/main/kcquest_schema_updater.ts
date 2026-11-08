@@ -1,12 +1,12 @@
 import { defaultQuestSchemaCheckState, type QuestSchemaCheckState } from '@common/option'
 import { QuestSchemaHolder } from '@common/kcquest_schema_holder'
 import { loadQuestSchemaJson, type LoadedQuestSchema } from '@common/kcquest_schema_loader'
-import type { FetchQuestSchemaResult } from './kcquest_schema_fetcher'
+import type { FetchQuestSchemaResult } from '@main/kcquest_schema_fetcher'
 
 interface QuestSchemaUpdaterDependencies {
   fetch(): Promise<FetchQuestSchemaResult>
   save(json: string): void
-  register(quests: LoadedQuestSchema[]): void
+  register(quests: LoadedQuestSchema[], revision: number): void
   didApply(json: string): void
   notify(state: QuestSchemaCheckState): void
 }
@@ -123,7 +123,7 @@ export class QuestSchemaUpdater {
         this.fail('任務データを保存できなかったため、更新を適用しませんでした。')
         return
       }
-      this.dependencies.register(schemas.quests)
+      this.dependencies.register(schemas.quests, schemas.meta.revision)
       this.dependencies.didApply(jsonText)
       QuestSchemaHolder.setMeta(schemas.meta)
     }

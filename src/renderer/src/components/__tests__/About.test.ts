@@ -22,7 +22,7 @@ beforeAll(() => {
       onUpdateDownloadProgress: vi.fn().mockReturnValue(() => undefined),
       onStartupUpdateChecked: vi.fn().mockReturnValue(() => undefined),
       openExternalUrl: vi.fn(),
-      devtool: vi.fn(),
+      openDevTools: vi.fn(),
       saveAppSetting: vi.fn(),
   } satisfies Partial<Window['api']>
 
