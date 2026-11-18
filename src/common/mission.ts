@@ -707,7 +707,7 @@ const missionDetails: MissionDetail[] = [
     mapAreaId: MapAreaId.area1,
     durationMinute: 180,
     material: toMaterial(0, 300, 0, 100),
-    kitNormal: toKitInfo(ApiItemId.fast_build, 4, MissionGetType.normal),
+    kitNormal: toKitInfo(ApiItemId.build_kit, 4, MissionGetType.normal),
     kitSucceeded2: toKitInfo(ApiItemId.fast_repair, 3, MissionGetType.succeeded2),
     isMonthly: true,
     isCombat: true,
