@@ -4,6 +4,33 @@
     "message": "DMM 로그인 후 「GAME START」 화면으로 자동 이동합니다.\n「GAME START」 버튼으로 게임을 시작하면 정보를 표시합니다."
   },
   "about": {
-    "dataContributionRequest": "@:{'terms.drop'} 정보 집계에 참여해 주세요."    
+    "dataContributionRequest": "@:{'terms.drop'} 정보 집계에 참여해 주세요.",
+    "clearingCache": "캐시 삭제 중...",
+    "cacheCleared": "캐시를 삭제했습니다",
+    "appLogo": "@:{'terms.appName'} 로고",
+    "subtitle": "함대 운용 지원",
+    "title": " @:{'terms.appName'}",
+    "imageRights": "게임 관련 이미지의 권리는 각 권리자에게 있습니다.",
+    "distributionPage": " 배포 페이지:",
+    "updateCheck": "업데이트 확인",
+    "checkUpdateOnStartup": " 시작할 때 업데이트 확인 ",
+    "checkBetaUpdate": " 베타 버전(개발판)도 업데이트 확인 대상에 포함 ",
+    "cache": "캐시",
+    "cacheDescription": "게임 화면이 표시되지 않으면 캐시를 지워 보세요.",
+    "clearCache": "브라우저 캐시 지우기 ",
+    "dataContribution": "게임 정보 제공",
+    "enableIntake": " @:{'terms.drop'} 정보 제공 ",
+    "kanlogDescription": "艦ログ - 艦これ @:{'terms.drop'} 정보 집계 사이트",
+    "kanlogLogo": "艦ログ 로고",
+    "developer": "개발자용",
+    "devtoolDescription": "@:{'terms.appName'}의 개발자 도구를 엽니다.",
+    "openDevtool": " @:{'terms.appName'} 개발자 도구 열기 ",
+    "license": "라이선스",
+    "licenseDescription": "앱에 포함된 라이브러리의 라이선스를 표시합니다.",
+    "showLicenses": "라이선스... ",
+    "licensesTitle": "사용 구성 요소 및 라이선스",
+    "library": "라이브러리",
+    "version": "버전",
+    "ok": "OK"
   }
 }

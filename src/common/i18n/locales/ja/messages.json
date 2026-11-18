@@ -4,6 +4,33 @@
     "message": "DMM ログイン後、「GAME START」画面まで自動で遷移を行います。\n「GAME START」ボタンからゲームを開始すると情報が表示されます。"
   },
   "about": {
-    "dataContributionRequest": "@:{'terms.drop'}情報の集計向上のため、情報提供にご協力ください。"
+    "dataContributionRequest": "@:{'terms.drop'}情報の集計向上のため、情報提供にご協力ください。",
+    "clearingCache": "キャッシュをクリア中...",
+    "cacheCleared": "キャッシュをクリアしました",
+    "appLogo": "@:{'terms.appName'}ロゴ",
+    "subtitle": "艦隊運用支援",
+    "title": " @:{'terms.appName'}",
+    "imageRights": "ゲーム関連画像の権利は各権利者に帰属します。",
+    "distributionPage": " 配布ページ：",
+    "updateCheck": "更新チェック",
+    "checkUpdateOnStartup": " 起動時に更新チェックを行う ",
+    "checkBetaUpdate": " Beta版(開発版)を更新チェック対象に含める ",
+    "cache": "キャッシュ",
+    "cacheDescription": "ゲーム画面が表示されない場合、キャッシュクリアで改善が期待できます。",
+    "clearCache": "ブラウザのキャッシュをクリア ",
+    "dataContribution": "ゲーム情報提供",
+    "enableIntake": " ドロップ情報を提供する ",
+    "kanlogDescription": "艦ろぐ - 艦これドロップ情報集計サイト",
+    "kanlogLogo": "艦ろぐロゴ",
+    "developer": "開発者向け",
+    "devtoolDescription": "@:{'terms.appName'}側の開発者ツールを表示します。",
+    "openDevtool": " @:{'terms.appName'}側開発者ツール表示 ",
+    "license": "ライセンス",
+    "licenseDescription": "同梱しているライブラリのライセンスを表示します。",
+    "showLicenses": "ライセンス... ",
+    "licensesTitle": "使用コンポーネントとライセンス",
+    "library": "ライブラリ",
+    "version": "バージョン",
+    "ok": "OK"
   }
 }

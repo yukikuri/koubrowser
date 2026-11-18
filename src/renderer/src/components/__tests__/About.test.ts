@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
+import { setLanguage } from '@renderer/i18n'
 import About from '../About.vue'
 
 // 
@@ -34,6 +36,33 @@ beforeAll(() => {
 })
 
 describe('About.vue', () => {
+  it('updates keyed messages and license labels when the language changes', async () => {
+    setLanguage('ja')
+    const wrapper = mount(About)
+    try {
+      expect(wrapper.get('.subtitle').text()).toBe('艦隊運用支援')
+      setLanguage('ko')
+      await nextTick()
+      expect(wrapper.get('.subtitle').text()).toBe('함대 운용 지원')
+      expect(wrapper.get('.app-img').attributes('alt')).toBe('갑브라우저 로고')
+      expect(wrapper.text()).toContain('드랍 정보 제공')
+      const licenseButton = wrapper.findAll('button').find(button => button.text().includes('라이선스...'))
+      expect(licenseButton).toBeDefined()
+      await licenseButton!.trigger('click')
+      expect(wrapper.get('#license-title').text()).toBe('사용 구성 요소 및 라이선스')
+      expect(wrapper.findAll('th').map(cell => cell.text())).toEqual(['라이브러리', '버전', '라이선스'])
+      const cacheButton = wrapper.findAll('button').find(button => button.text().includes('브라우저 캐시 지우기'))
+      expect(cacheButton).toBeDefined()
+      await cacheButton!.trigger('click')
+      await flushPromises()
+      expect(wrapper.get('.about-note').text()).toBe('캐시를 삭제했습니다')
+      expect(wrapper.text()).not.toContain('about.')
+    } finally {
+      wrapper.unmount()
+      setLanguage('ja')
+    }
+  })
+
   it('renders component', () => {
     const wrapper = mount(About)
     expect(wrapper.exists()).toBe(true)
