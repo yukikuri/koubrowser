@@ -9447,7 +9447,7 @@ export class SvData {
   }
 
   private getMemberMission(api_data: ApiMissionList): void {
-    assignSafeE(this.apiData.api_mission, api_data.api_list_items)
+    replaceArray(this.apiData.api_mission, api_data.api_list_items)
     ApiCallback.call(KcsApi.Api.GET_MEMBER_MISSION, api_data)
   }
 
