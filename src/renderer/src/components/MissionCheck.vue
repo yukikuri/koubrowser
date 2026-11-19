@@ -370,7 +370,7 @@ const isLock4stDeck = computed(() => {
 })
 
 // Keep empty text for table when no data
-const emptyText = t('該当する遠征が見つかりません。')
+const emptyText = computed(() => t('missionCheck.empty'))
 </script>
 <template>
   <div class="mission-state-content">
@@ -378,37 +378,37 @@ const emptyText = t('該当する遠征が見つかりません。')
       <b-field class="inputs" position="is-centered" multiline>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea1" size="is-small" /><span 
-            class="filter-label">{{ t('鎮守府海域') }}</span>
+            class="filter-label">{{ t('missionCheck.navalBaseArea') }}</span>
         </label>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea2" size="is-small" /><span 
-            class="filter-label">{{ t('南西諸島海域') }}</span>
+            class="filter-label">{{ t('missionCheck.southwestIslandsArea') }}</span>
         </label>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea3" size="is-small" /><span 
-            class="filter-label">{{ t('北方海域') }}</span>
+            class="filter-label">{{ t('missionCheck.northernArea') }}</span>
         </label>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea6" size="is-small" /><span 
-            class="filter-label">{{ t('南西海域') }}</span>
+            class="filter-label">{{ t('missionCheck.southwestArea') }}</span>
         </label>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea4" size="is-small" /><span 
-            class="filter-label">{{ t('西方海域') }}</span>
+            class="filter-label">{{ t('missionCheck.westernArea') }}</span>
         </label>
         <label class="input-checkbox">
           <b-checkbox v-model="filterArea5" size="is-small" /><span 
-            class="filter-label">{{ t('南方海域') }}</span>
+            class="filter-label">{{ t('missionCheck.southernArea') }}</span>
         </label>
         <div class="sep-vertical"></div>
         <div class="monthly-block">
-          <div class="monthly-title">{{ t('マンスリー') }}</div>
+          <div class="monthly-title">{{ t('missionCheck.monthly') }}</div>
           <div class="monthly-controls">
             <label class="input-checkbox">
-              <b-checkbox v-model="filterMonthly" size="is-small" /><span class="filter-label">{{ t('表示') }}</span>
+              <b-checkbox v-model="filterMonthly" size="is-small" /><span class="filter-label">{{ t('missionCheck.show') }}</span>
             </label>
             <label class="input-checkbox">
-              <b-checkbox v-model="filterClearedMonthlyUnDisplay" size="is-small" /><span class="filter-label">{{ t('クリア済非表示') }}</span>
+              <b-checkbox v-model="filterClearedMonthlyUnDisplay" size="is-small" /><span class="filter-label">{{ t('missionCheck.hideCleared') }}</span>
             </label>
           </div>
         </div>      
@@ -430,10 +430,10 @@ const emptyText = t('該当する遠征が見つかりません。')
       >
         <b-table-column centered header-class="keep">
           <template #header>
-            <div :title="t('常に表示する')"><KeepImg /></div>
+            <div :title="t('missionCheck.alwaysShow')"><KeepImg /></div>
           </template>
           <template #default="props">
-            <span class="mission-keep-content" :title="t('常に表示する')" @click="toggleKeep(props.row.detail.id)" ><span
+            <span class="mission-keep-content" :title="t('missionCheck.alwaysShow')" @click="toggleKeep(props.row.detail.id)" ><span
               :class="{
                 'is-keep': isKeeped(props.row.detail.id)}"><KeepImg /></span></span>
           </template>
@@ -441,26 +441,26 @@ const emptyText = t('該当する遠征が見つかりません。')
 
         <b-table-column centered header-class="kind">
           <template #header>
-            <span>{{ t('種別') }}</span>
+            <span>{{ t('missionCheck.type') }}</span>
           </template>
           <template #default="props">
             <span class="mission-kind-content">
-              <span v-if="props.row.isCleared && props.row.detail.isMonthly" class="tag state-text">{{ t('済', [], 'badge') }}</span>
-              <span v-if="props.row.detail.isMonthly" class="tag state-monthly">{{ t('月') }}</span>
+              <span v-if="props.row.isCleared && props.row.detail.isMonthly" class="tag state-text">{{ t('missionCheck.clearedBadge') }}</span>
+              <span v-if="props.row.detail.isMonthly" class="tag state-monthly">{{ t('missionCheck.monthlyBadge') }}</span>
             </span>
           </template>
         </b-table-column>
 
         <b-table-column header-class="name">
           <template #header>
-            <span>{{ t('遠征名') }}</span>
+            <span>{{ t('missionCheck.expeditionName') }}</span>
           </template>
           <template #default="props">
             <span class="mission-name-content">
               <span class="mission-name">
                 {{ props.row.detail.id + ': ' + gameText(props.row.detail.name) }}
               </span>
-              <span v-if="props.row.detail.isCombat" class="tag mission-fight">{{ t('交') }}</span>
+              <span v-if="props.row.detail.isCombat" class="tag mission-fight">{{ t('missionCheck.combatBadge') }}</span>
             </span>
           </template>
         </b-table-column>
@@ -511,8 +511,8 @@ const emptyText = t('該当する遠征が見つかりません。')
 
         <b-table-column centered header-class="kit">
           <template #header>
-            <div class="header-text">{{ t('獲得資材') }}</div>
-            <div class="sub">{{ t('成功/大成功') }}</div>
+            <div class="header-text">{{ t('missionCheck.rewards') }}</div>
+            <div class="sub">{{ t('missionCheck.successGreatSuccess') }}</div>
           </template>
           <template #default="props">
             <div v-if="isGetKit(props.row)" class="mission-kit-content">
@@ -526,7 +526,7 @@ const emptyText = t('該当する遠征が見つかりません。')
 
         <b-table-column centered header-class="time" sortable field="detail.durationMinute">
           <template #header>
-            <span>{{ t('時間') }}<span v-if="isSortedField('detail.durationMinute')" class="order-text">{{ getOrderText() }}</span></span>
+            <span>{{ t('missionCheck.duration') }}<span v-if="isSortedField('detail.durationMinute')" class="order-text">{{ getOrderText() }}</span></span>
           </template>
           <template #default="props">
             <span class="mission-time-content">
@@ -537,15 +537,15 @@ const emptyText = t('該当する遠征が見つかりません。')
         
         <b-table-column centered header-class="result">
           <template #header>
-            <div :class="{hasBonus: hasBonus(0)}"><LockImage v-if="isLock2stDeck" /><span v-else>{{ t('第二艦隊') }}</span></div>
-            <div v-if="hasBonus(0)" class="bonusText">{{ t('報酬+') }}{{getBonus(0)}}%</div>
+            <div :class="{hasBonus: hasBonus(0)}"><LockImage v-if="isLock2stDeck" /><span v-else>{{ t('missionCheck.secondFleet') }}</span></div>
+            <div v-if="hasBonus(0)" class="bonusText">{{ t('missionCheck.rewardBonus') }}{{getBonus(0)}}%</div>
           </template>
           <template #default="props">
             <div
               :class="['mission-result', { 'in-mission': props.row.inMission[0] }]"
               @click="onClickMission(props.index, 0, props.row)"
             >
-              <div v-if="props.row.inMission[0]" class="mission-running">{{ t('遠征中') }}</div>
+              <div v-if="props.row.inMission[0]" class="mission-running">{{ t('missionCheck.onExpedition') }}</div>
               <div
                 :class="[
                   'text',
@@ -559,15 +559,15 @@ const emptyText = t('該当する遠征が見つかりません。')
 
         <b-table-column centered header-class="result">
           <template #header>
-            <div :class="{hasBonus: hasBonus(1)}"><LockImage v-if="isLock3stDeck" /><span v-else>{{ t('第三艦隊') }}</span></div>
-            <div v-if="hasBonus(1)" class="bonusText">{{ t('報酬+') }}{{getBonus(1)}}%</div>
+            <div :class="{hasBonus: hasBonus(1)}"><LockImage v-if="isLock3stDeck" /><span v-else>{{ t('missionCheck.thirdFleet') }}</span></div>
+            <div v-if="hasBonus(1)" class="bonusText">{{ t('missionCheck.rewardBonus') }}{{getBonus(1)}}%</div>
           </template>
           <template #default="props">
             <div
               :class="['mission-result', { 'in-mission': props.row.inMission[1] }]"
               @click="onClickMission(props.index, 1, props.row)"
             >
-              <div v-if="props.row.inMission[1]" class="mission-running">{{ t('遠征中') }}</div>
+              <div v-if="props.row.inMission[1]" class="mission-running">{{ t('missionCheck.onExpedition') }}</div>
               <div
                 :class="[
                   'text',
@@ -581,15 +581,15 @@ const emptyText = t('該当する遠征が見つかりません。')
 
         <b-table-column centered header-class="result">
           <template #header>
-            <div :class="{hasBonus: hasBonus(2)}"><LockImage v-if="isLock4stDeck" /><span v-else>{{ t('第四艦隊') }}</span></div>
-            <div v-if="hasBonus(2)" class="bonusText">{{ t('報酬+') }}{{getBonus(2)}}%</div>
+            <div :class="{hasBonus: hasBonus(2)}"><LockImage v-if="isLock4stDeck" /><span v-else>{{ t('missionCheck.fourthFleet') }}</span></div>
+            <div v-if="hasBonus(2)" class="bonusText">{{ t('missionCheck.rewardBonus') }}{{getBonus(2)}}%</div>
           </template>
           <template #default="props">
             <div
               :class="['mission-result', { 'in-mission': props.row.inMission[2] }]"
               @click="onClickMission(props.index, 2, props.row)"
             >
-              <div v-if="props.row.inMission[2]" class="mission-running">{{ t('遠征中') }}</div>
+              <div v-if="props.row.inMission[2]" class="mission-running">{{ t('missionCheck.onExpedition') }}</div>
               <div
                 :class="[
                   'text',

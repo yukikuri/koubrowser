@@ -100,5 +100,31 @@
     "records": "기록",
     "app": "앱",
     "information": "정보"
+  },
+  "missionCheck": {
+    "empty": "해당 원정을 찾을 수 없습니다.",
+    "navalBaseArea": "@:{'terms.area1'}",
+    "southwestIslandsArea": "@:{'terms.area2'}",
+    "northernArea": "@:{'terms.area3'}",
+    "southwestArea": "@:{'terms.area6'}",
+    "westernArea": "@:{'terms.area4'}",
+    "southernArea": "@:{'terms.area5'}",
+    "monthly": "월간",
+    "show": "표시",
+    "hideCleared": "완료한 항목 숨기기",
+    "alwaysShow": "항상 표시",
+    "type": "종류",
+    "clearedBadge": "済",
+    "monthlyBadge": "월",
+    "expeditionName": "원정 이름",
+    "combatBadge": "交",
+    "rewards": "획득 자재",
+    "successGreatSuccess": "성공/대성공",
+    "duration": "시간",
+    "secondFleet": "제2함대",
+    "rewardBonus": "보상+",
+    "onExpedition": "원정 중",
+    "thirdFleet": "제3함대",
+    "fourthFleet": "제4함대"
   }
 }

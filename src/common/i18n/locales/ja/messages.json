@@ -100,5 +100,31 @@
     "records": "記録",
     "app": "アプリ",
     "information": "情報"
+  },
+  "missionCheck": {
+    "empty": "該当する遠征が見つかりません。",
+    "navalBaseArea": "@:{'terms.area1'}",
+    "southwestIslandsArea": "@:{'terms.area2'}",
+    "northernArea": "@:{'terms.area3'}",
+    "southwestArea": "@:{'terms.area6'}",
+    "westernArea": "@:{'terms.area4'}",
+    "southernArea": "@:{'terms.area5'}",
+    "monthly": "マンスリー",
+    "show": "表示",
+    "hideCleared": "クリア済非表示",
+    "alwaysShow": "常に表示する",
+    "type": "種別",
+    "clearedBadge": "済",
+    "monthlyBadge": "月",
+    "expeditionName": "遠征名",
+    "combatBadge": "交",
+    "rewards": "獲得資材",
+    "successGreatSuccess": "成功/大成功",
+    "duration": "時間",
+    "secondFleet": "第二艦隊",
+    "rewardBonus": "報酬+",
+    "onExpedition": "遠征中",
+    "thirdFleet": "第三艦隊",
+    "fourthFleet": "第四艦隊"
   }
 }

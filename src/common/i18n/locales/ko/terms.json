@@ -11,5 +11,11 @@
   "evasion": "회피",
   "transport": "수송",
   "quests": "임무",
-  "battleResults": "전과"
+  "battleResults": "전과",
+  "area1": "진수부해역",
+  "area2": "남서제도해역",
+  "area3": "북방해역",
+  "area4": "서방해역",
+  "area5": "남방해역",
+  "area6": "남서해역"
 }

@@ -11,5 +11,11 @@
   "evasion": "回避",
   "transport": "輸送",
   "quests": "任務",
-  "battleResults": "戦果"
+  "battleResults": "戦果",
+  "area1": "鎮守府海域",
+  "area2": "南西諸島海域",
+  "area3": "北方海域",
+  "area4": "西方海域",
+  "area5": "南方海域",
+  "area6": "南西海域"
 }
