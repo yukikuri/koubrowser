@@ -59,5 +59,10 @@
     "shootdown": "격추 비율/고정",
     "antiAirCutinTotal": "대공CI 합계: ",
     "fleetAirDefense": "방공: "
+  },
+  "deckPort": {
+    "airPower": "제공치",
+    "transportPower": "@:{'terms.transport'} 수치",
+    "transport": "@:{'terms.transport'}"
   }
 }

@@ -117,7 +117,7 @@ const combinedName = computed<string>(() => {
             {{ deck.name }}
             <MissionBadge v-if="deck.inMission" :deck="deck.deck" />
             <template v-else>
-              <div v-if="deck.seiku > 0" :title="t('制空値')" class="seiku-wrapper ml-1">
+              <div v-if="deck.seiku > 0" :title="t('deckPort.airPower')" class="seiku-wrapper ml-1">
                 <div class="seiku">
                   <span class="s-icon seiku"></span>
                   <div 
@@ -126,9 +126,9 @@ const combinedName = computed<string>(() => {
                   }">{{deck.seiku}}</div>
                 </div>
               </div>
-              <div v-if="isShowYusou && (deck.yusou > 0)" :title="t('輸送値')" class="seiku-wrapper ml-1">
+              <div v-if="isShowYusou && (deck.yusou > 0)" :title="t('deckPort.transportPower')" class="seiku-wrapper ml-1">
                 <div class="seiku">
-                  <span class="yusou-value">{{ t('輸送') }}</span>
+                  <span class="yusou-value">{{ t('deckPort.transport') }}</span>
                   <div 
                     class="txt" :class="{
                     'is-minus': deck.isEscapedYusou

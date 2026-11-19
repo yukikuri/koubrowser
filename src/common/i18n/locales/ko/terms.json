@@ -8,5 +8,6 @@
   "speed": "속도",
   "range": "거리",
   "accuracy": "명중",
-  "evasion": "회피"
+  "evasion": "회피",
+  "transport": "수송"
 }

@@ -8,5 +8,6 @@
   "speed": "速力",
   "range": "射程",
   "accuracy": "命中",
-  "evasion": "回避"
+  "evasion": "回避",
+  "transport": "輸送"
 }
