@@ -9,5 +9,7 @@
   "range": "射程",
   "accuracy": "命中",
   "evasion": "回避",
-  "transport": "輸送"
+  "transport": "輸送",
+  "quests": "任務",
+  "battleResults": "戦果"
 }

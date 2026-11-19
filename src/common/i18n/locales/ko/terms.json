@@ -9,5 +9,7 @@
   "range": "거리",
   "accuracy": "명중",
   "evasion": "회피",
-  "transport": "수송"
+  "transport": "수송",
+  "quests": "임무",
+  "battleResults": "전과"
 }
