@@ -175,7 +175,7 @@ const tktipHtml = computed<string>(() => {
   const src = RUtil.shipBannerImg(api.api_ship_id, false, true)
   const rate = MathUtil.floor(KcsUtil.rateTK(tk) * 100.0, 1)
   const tkconst = TKCutinConsts[tk]
-  return t('<div>{0}</div><img class=\u0022img\u0022 src=\u0022{1}\u0022><div>{2} {3}%</div><div>固定:{4} 変動:{5}</div>', [header, src, tktag, rate, tkconst.kotei, tkconst.hendou])
+  return t('deck.antiAirCutinTooltip', [header, src, tktag, rate, tkconst.kotei, tkconst.hendou])
 })
 
 const tkrateHover = (event: Event): void => {
@@ -252,9 +252,9 @@ const tkRates = computed<TKRate[]>(() => {
 const tkrateTotal = computed<number>(() => tkRates.value.reduce((acc, r) => acc + r.rate, 0.0))
 const tknorateText = computed<string>(() => {
   const total = tkrateTotal.value
-  if (total === 0) return t('対空CIなし')
+  if (total === 0) return t('deck.noAntiAirCutin')
   const v = MathUtil.floor((1.0 - total) * 100.0, 1)
-  return `${v <= 12.0 ? '' : t('不発: ')}${v}%`
+  return `${v <= 12.0 ? '' : t('deck.misfire')}${v}%`
 })
 const tknorateStyle = computed(() => ({
   '--left': `${tkrateTotal.value}`,
@@ -264,7 +264,7 @@ const totalTkrateText = computed<string>(() => MathUtil.floor(tkrateTotal.value 
 const tkrateStyle = (rate: TKRate): StyleValue => ({ '--left': `${rate.left}`, '--width': `${rate.rate}` })
 const tkrateText = (rate: TKRate): string => {
   const v = MathUtil.floor(rate.rate * 100.0, 1)
-  const prefix = v > 12.0 ? t('{0}種: ', [rate.tk]) : ''
+  const prefix = v > 12.0 ? t('deck.cutinType', [rate.tk]) : ''
   return `${prefix}${v}%`
 }
 const deckKTBText = computed(() => {
@@ -366,7 +366,7 @@ const toNaNTxt = (v: number): string => {
 
 const THCutinTag = (ships: ShipInfoSp[], st: THCutinState): string => {
   const kongos: THCutin[] = [THCutin.Kongou, THCutin.Hiei, THCutin.Haruna, THCutin.Kirisima];
-  const name = kongos.includes(st.type)  ? t('夜戦突撃') : t('特殊砲撃')
+  const name = kongos.includes(st.type)  ? t('deck.nightAssault') : t('deck.specialShelling')
   const rate = KcsUtil.rateTH(st, ships)
   const rate_v = MathUtil.floor((rate?.rate ?? NaN) * 100.0, 1)
   const plusfactor = rate?.plusFactor ? '+?' : ''
@@ -375,7 +375,7 @@ const THCutinTag = (ships: ShipInfoSp[], st: THCutinState): string => {
 
 const TKCutinTag = (tk: TKCutinState): string => {
   const rates = tk.type.map((el) => toNaNTxt(MathUtil.floor(KcsUtil.rateTK(el) * 100.0, 1)) + '%')
-  return t('<span class=\u0022sp\u0022><span class=\u0022tag is-info\u0022>{0}種 対空CI</span><span class=\u0022sp-rate\u0022>{1}</span></span>', [tk.type.join('/'), rates.join(' ')])
+  return t('deck.antiAirCutinTag', [tk.type.join('/'), rates.join(' ')])
 }
 
 const SenseiTaisenTag = (st: SenseiTaisenState): string => {
@@ -389,7 +389,7 @@ const SenseiTaisenTag = (st: SenseiTaisenState): string => {
 }
 
 const SenseiRaigekiTag = (): string => {
-  return t('<span class=\u0022sp\u0022><span class=\u0022tag is-info\u0022>先制雷撃</span><span class=\u0022sp-rate\u0022>&nbsp;</span></span>')
+  return t('deck.openingTorpedoTag')
 }
 
 const FunsindanmakuTag = (ship: ShipInfoSp): string => {
@@ -398,7 +398,7 @@ const FunsindanmakuTag = (ship: ShipInfoSp): string => {
   if (fdrate) {
     rate_txt = toNaNTxt(MathUtil.floor(fdrate.rate * 100, 1))
   }
-  return t('<span class=\u0022sp\u0022><span class=\u0022small tag is-primary\u0022>噴弾</span><span class=\u0022sp-rate\u0022>{0}%</span></span>', [rate_txt])
+  return t('deck.rocketBarrageTag', [rate_txt])
 }
 
 const YateiTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
@@ -421,9 +421,9 @@ const YateiTag = (ship: ShipInfoSp, ships: ShipInfoSp[]): string => {
   let title = ''
   if (rate && !rate.enable) {
     disableCls = 'is-disable'
-    title = t('艦隊に制空戦装備なし')
+    title = t('deck.noAirCombatEquipment')
   }
-  return t('<span class=\u0022sp\u0022><span class=\u0022small tag is-dark {0}\u0022 title=\u0022{1}\u0022>夜偵</span><span class=\u0022sp-rate\u0022>{2}%</span></span>', [disableCls, title, rate_txt])
+  return t('deck.nightReconTag', [disableCls, title, rate_txt])
 }
 
 const FACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): string => {
@@ -441,7 +441,7 @@ const FACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): s
     })
     const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total * 100, 1)
     const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total * 100, 1)
-    total_html = t('<span class=\u0022sp\u0022><span class=\u0022tag is-danger\u0022>合計</span><span class=\u0022sp-rate\u0022>{0}%/{1}%</span></span>', [toNaNTxt(total_kakuho), toNaNTxt(total_yuusei)])
+    total_html = t('deck.airCutinTotalTag', [toNaNTxt(total_kakuho), toNaNTxt(total_yuusei)])
   }
 
   let html;
@@ -486,7 +486,7 @@ const AACutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): s
     })
     const total_kakuho = MathUtil.floor(MathUtil.totalRate(calc_rates[0]).total * 100, 1)
     const total_yuusei = MathUtil.floor(MathUtil.totalRate(calc_rates[1]).total * 100, 1)
-    total_html = t('<span class=\u0022sp\u0022><span class=\u0022tag is-danger\u0022>合計</span><span class=\u0022sp-rate\u0022>{0}%/{1}%</span></span>', [toNaNTxt(total_kakuho), toNaNTxt(total_yuusei)])
+    total_html = t('deck.airCutinTotalTag', [toNaNTxt(total_kakuho), toNaNTxt(total_yuusei)])
   }
 
   let html;
@@ -527,7 +527,7 @@ const YCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): st
   if (multiCi.length > 1) {
     const calc_rates: number[] = multiCi.map((rate) => rate.rate)
     const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total * 100, 1)
-    total_html = t('<span class=\u0022sp\u0022><span class=\u0022tag is-dark\u0022>合計</span><span class=\u0022sp-rate\u0022>{0}%</span></span>', [toNaNTxt(total)])
+    total_html = t('deck.nightCutinTotalTag', [toNaNTxt(total)])
   }
 
   let html;
@@ -584,7 +584,7 @@ const YSCutinTag = (ship: ShipInfoSp, ships: ShipInfoSp[], isReduce: boolean): s
   if (rates.length > 1) {
     const calc_rates: number[] = rates.map((rate) => rate.rate)
     const total = MathUtil.floor(MathUtil.totalRate(calc_rates).total * 100, 1)
-    total_html = t('<span class=\u0022sp\u0022><span class=\u0022tag is-dark\u0022>合計</span><span class=\u0022sp-rate\u0022>{0}%</span></span>', [toNaNTxt(total)])
+    total_html = t('deck.nightCutinTotalTag', [toNaNTxt(total)])
   }
 
   let html
@@ -676,7 +676,7 @@ const shipBouku = (shipSps: ShipInfoSp[], ship: ShipInfoSp): string => {
 
 const TipTKCiTag = (st: TKCutinState): string => {
   //return `<span class="sp tag is-info">${st.type.join(' ,')}種対空CI(${st.entry.join(',')})</span>`;
-  return t('<span class=\u0022sp tag is-link\u0022>{0}種 対空CI</span>', [st.type.join(' ,')])
+  return t('deck.antiAirCutinTipTag', [st.type.join(' ,')])
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -768,7 +768,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="hp" centered cell-class="cell-status small">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon" :class="slotProps.row.hpIconClass" :title="t('耐久')"></div>
+            <div class="s-icon" :class="slotProps.row.hpIconClass" :title="t('deck.hp')"></div>
             <div>
               <span :class="slotProps.row.hpClass">{{ slotProps.row.ship.api.api_nowhp }}</span>
             </div>
@@ -776,7 +776,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="cond" centered cell-class="cell-status small">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon cond" :class="slotProps.row.condClass" :title="t('コンディション')"></div>
+            <div class="s-icon cond" :class="slotProps.row.condClass" :title="t('deck.condition')"></div>
             <div>
               <span :class="slotProps.row.condClass">{{ slotProps.row.ship.api.api_cond }}</span>
             </div>
@@ -784,7 +784,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="fual" centered cell-class="cell-status large0">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon fuel" :title="t('燃料')"></div>
+            <div class="s-icon fuel" :title="t('deck.fuel')"></div>
             <div :class="slotProps.row.fualClass">
               <span>{{ slotProps.row.fual_per }}%</span>
             </div>
@@ -792,7 +792,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="bull" centered cell-class="cell-status large0">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon bull" :title="t('弾薬')"></div>
+            <div class="s-icon bull" :title="t('deck.ammo')"></div>
             <div :class="slotProps.row.bullClass">
               <span>{{ slotProps.row.bull_per }}%</span>
             </div>
@@ -800,7 +800,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="speed" centered cell-class="cell-status large1">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon speed" :title="t('速力')"></div>
+            <div class="s-icon speed" :title="t('deck.speed')"></div>
             <div>
               <span :class="slotProps.row.sokuClass">{{ slotProps.row.soku_text }}</span>
             </div>
@@ -808,7 +808,7 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="range" centered cell-class="cell-status large1">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon range" :title="t('射程')"></div>
+            <div class="s-icon range" :title="t('deck.range')"></div>
             <div>
               <span :class="slotProps.row.syateiClass">{{ slotProps.row.syatei_text }}</span>
             </div>
@@ -816,19 +816,19 @@ function rowClass(row: DeckShip | null): string {
         </b-table-column>
         <b-table-column v-slot="slotProps" label="hit" centered cell-class="cell-status large0">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon hit" :title="t('命中項')"></div>
+            <div class="s-icon hit" :title="t('deck.accuracy')"></div>
             <div :class="slotProps.row.hitClass">{{ slotProps.row.hit }}%</div>
           </div>
         </b-table-column>
         <b-table-column v-slot="slotProps" label="ev" centered cell-class="cell-status large0">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon ev" :title="t('回避項')"></div>
+            <div class="s-icon ev" :title="t('deck.evasion')"></div>
             <div :class="slotProps.row.evClass">{{ slotProps.row.ev }}%</div>
           </div>
         </b-table-column>
         <b-table-column v-slot="slotProps" label="boku" cell-class="cell-status large_aa">
           <div v-if="slotProps.row !== null">
-            <div class="s-icon aa" :title="t('撃墜 割合/固定')"></div>
+            <div class="s-icon aa" :title="t('deck.shootdown')"></div>
             <div class="status-txt">{{ slotProps.row.boku_text }}</div>
           </div>
         </b-table-column>
@@ -850,7 +850,7 @@ function rowClass(row: DeckShip | null): string {
       <template #content><span class="tktip" v-html="tktipHtml"></span></template>
       <section class="deck-ship-list tkrate">
         <span class="tkrate1 list-title"
-          >{{ t('対空CI合計: ') }}{{ totalTkrateText }} <span>{{ t('艦防: ') }}{{ deckKTBText }}</span></span
+          >{{ t('deck.antiAirCutinTotal') }}{{ totalTkrateText }} <span>{{ t('deck.fleetAirDefense') }}{{ deckKTBText }}</span></span
         >
         <span class="tkrate2">
           <span class="tkrate-container">

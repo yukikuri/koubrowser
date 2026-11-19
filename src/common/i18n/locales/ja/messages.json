@@ -32,5 +32,32 @@
     "library": "ライブラリ",
     "version": "バージョン",
     "ok": "OK"
+  },
+  "deck": {
+    "antiAirCutinTooltip": "<div>{0}</div><img class=\"img\" src=\"{1}\"><div>{2} {3}%</div><div>固定:{4} 変動:{5}</div>",
+    "noAntiAirCutin": "対空CIなし",
+    "misfire": "不発: ",
+    "cutinType": "{0}種: ",
+    "nightAssault": "夜戦突撃",
+    "specialShelling": "特殊砲撃",
+    "antiAirCutinTag": "<span class=\"sp\"><span class=\"tag is-info\">{0}種 対空CI</span><span class=\"sp-rate\">{1}</span></span>",
+    "openingTorpedoTag": "<span class=\"sp\"><span class=\"tag is-info\">先制雷撃</span><span class=\"sp-rate\">&nbsp;</span></span>",
+    "rocketBarrageTag": "<span class=\"sp\"><span class=\"small tag is-primary\">噴弾</span><span class=\"sp-rate\">{0}%</span></span>",
+    "noAirCombatEquipment": "艦隊に制空戦装備なし",
+    "nightReconTag": "<span class=\"sp\"><span class=\"small tag is-dark {0}\" title=\"{1}\">夜偵</span><span class=\"sp-rate\">{2}%</span></span>",
+    "airCutinTotalTag": "<span class=\"sp\"><span class=\"tag is-danger\">合計</span><span class=\"sp-rate\">{0}%/{1}%</span></span>",
+    "nightCutinTotalTag": "<span class=\"sp\"><span class=\"tag is-dark\">合計</span><span class=\"sp-rate\">{0}%</span></span>",
+    "antiAirCutinTipTag": "<span class=\"sp tag is-link\">{0}種 対空CI</span>",
+    "hp": "耐久",
+    "condition": "コンディション",
+    "fuel": "燃料",
+    "ammo": "弾薬",
+    "speed": "速力",
+    "range": "射程",
+    "accuracy": "命中項",
+    "evasion": "回避項",
+    "shootdown": "撃墜 割合/固定",
+    "antiAirCutinTotal": "対空CI合計: ",
+    "fleetAirDefense": "艦防: "
   }
 }

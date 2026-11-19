@@ -32,5 +32,32 @@
     "library": "라이브러리",
     "version": "버전",
     "ok": "OK"
+  },
+  "deck": {
+    "antiAirCutinTooltip": "<div>{0}</div><img class=\"img\" src=\"{1}\"><div>{2} {3}%</div><div>고정:{4} 변동:{5}</div>",
+    "noAntiAirCutin": "대공 CI 없음",
+    "misfire": "불발: ",
+    "cutinType": "{0}종: ",
+    "nightAssault": "야전돌격",
+    "specialShelling": "특수포격",
+    "antiAirCutinTag": "<span class=\"sp\"><span class=\"tag is-info\">{0}종 대공CI</span><span class=\"sp-rate\">{1}</span></span>",
+    "openingTorpedoTag": "<span class=\"sp\"><span class=\"tag is-info\">선제뇌격</span><span class=\"sp-rate\">&nbsp;</span></span>",
+    "rocketBarrageTag": "<span class=\"sp\"><span class=\"small tag is-primary\">분진탄막</span><span class=\"sp-rate\">{0}%</span></span>",
+    "noAirCombatEquipment": "함대에 제공 장비 없음",
+    "nightReconTag": "<span class=\"sp\"><span class=\"small tag is-dark {0}\" title=\"{1}\">야정</span><span class=\"sp-rate\">{2}%</span></span>",
+    "airCutinTotalTag": "<span class=\"sp\"><span class=\"tag is-danger\">합계</span><span class=\"sp-rate\">{0}%/{1}%</span></span>",
+    "nightCutinTotalTag": "<span class=\"sp\"><span class=\"tag is-dark\">합계</span><span class=\"sp-rate\">{0}%</span></span>",
+    "antiAirCutinTipTag": "<span class=\"sp tag is-link\">{0}종 대공CI</span>",
+    "hp": "내구",
+    "condition": "피로도",
+    "fuel": "연료",
+    "ammo": "탄약",
+    "speed": "속도",
+    "range": "거리",
+    "accuracy": "명중항",
+    "evasion": "회피항",
+    "shootdown": "격추 비율/고정",
+    "antiAirCutinTotal": "대공CI 합계: ",
+    "fleetAirDefense": "방공: "
   }
 }
