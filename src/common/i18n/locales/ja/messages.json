@@ -82,5 +82,23 @@
     "completed": "完了",
     "remaining": "残り: ",
     "empty": "Empty"
+  },
+  "assist": {
+    "formation": "編成",
+    "expedition": "遠征",
+    "check": "チェック",
+    "battleResults": "戦果",
+    "battleHistory": "戦闘履歴",
+    "fleetEquipment": "艦隊/装備",
+    "items": "アイテム",
+    "dropHistory": "@:{'terms.drop'}履歴",
+    "byMap": "（マップ別）",
+    "byShip": "（艦名別）",
+    "quests": "任務",
+    "docks": "ドック",
+    "resources": "資源",
+    "records": "記録",
+    "app": "アプリ",
+    "information": "情報"
   }
 }

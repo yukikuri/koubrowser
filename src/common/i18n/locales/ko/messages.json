@@ -82,5 +82,23 @@
     "completed": "완료",
     "remaining": "잔여: ",
     "empty": "비어 있음"
+  },
+  "assist": {
+    "formation": "편성",
+    "expedition": "원정",
+    "check": "확인",
+    "battleResults": "전과",
+    "battleHistory": "전투 기록",
+    "fleetEquipment": "함대/장비",
+    "items": "아이템",
+    "dropHistory": "@:{'terms.drop'} 기록",
+    "byMap": "(지도별)",
+    "byShip": "(함선별)",
+    "quests": "임무",
+    "docks": "도크",
+    "resources": "자원",
+    "records": "기록",
+    "app": "앱",
+    "information": "정보"
   }
 }
