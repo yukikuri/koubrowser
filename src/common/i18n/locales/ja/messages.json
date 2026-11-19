@@ -64,5 +64,8 @@
     "airPower": "制空値",
     "transportPower": "@:{'terms.transport'}値",
     "transport": "@:{'terms.transport'}"
+  },
+  "cellEnemy": {
+    "composition": "構成"
   }
 }

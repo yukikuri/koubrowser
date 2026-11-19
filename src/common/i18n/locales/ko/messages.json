@@ -64,5 +64,8 @@
     "airPower": "제공치",
     "transportPower": "@:{'terms.transport'} 수치",
     "transport": "@:{'terms.transport'}"
+  },
+  "cellEnemy": {
+    "composition": "구성"
   }
 }

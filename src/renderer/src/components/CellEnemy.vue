@@ -54,7 +54,7 @@ const isCellInfoOk = computed<boolean>(() => {
 })
 
 const prefixText = computed<string>(() => {
-  return items_.value.length < 9 ? t('構成') : ''
+  return items_.value.length < 9 ? t('cellEnemy.composition') : ''
 })
 
 watch(
