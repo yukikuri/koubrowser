@@ -1,4 +1,12 @@
 {
   "drop": "ドロップ",
-  "appName": "甲ブラウザ"
+  "appName": "甲ブラウザ",
+  "hp": "耐久",
+  "condition": "コンディション",
+  "fuel": "燃料",
+  "ammo": "弾薬",
+  "speed": "速力",
+  "range": "射程",
+  "accuracy": "命中",
+  "evasion": "回避"
 }

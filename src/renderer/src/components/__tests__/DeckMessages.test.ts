@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { i18n, setLanguage, t } from '@renderer/i18n'
 import jaMessages from '@common/i18n/locales/ja/messages.json'
 import koMessages from '@common/i18n/locales/ko/messages.json'
+import jaTerms from '@common/i18n/locales/ja/terms.json'
+import koTerms from '@common/i18n/locales/ko/terms.json'
 
 afterEach(() => setLanguage('ja'))
 
@@ -10,10 +12,12 @@ it('compiles every deck message in both languages, including HTML and list place
   expect(Object.keys(koMessages.deck).sort()).toEqual(Object.keys(jaMessages.deck).sort())
   for (const locale of ['ja', 'ko'] as const) {
     const messages = locale === 'ja' ? jaMessages.deck : koMessages.deck
+    const terms: Record<string, string> = locale === 'ja' ? jaTerms : koTerms
     for (const [key, message] of Object.entries(messages)) {
       const values = ['ship', 'banner.png', 'cutin', 50, 7, 1.5]
       const translated = i18n.global.t(`deck.${key}`, values, { locale })
-      expect(translated).toBe(message.replace(/\{(\d+)\}/g, (_, index: string) => String(values[Number(index)])))
+      const resolved = message.replace(/@:\{'terms\.([^']+)'\}/g, (_, term: string) => terms[term])
+      expect(translated).toBe(resolved.replace(/\{(\d+)\}/g, (_, index: string) => String(values[Number(index)])))
     }
   }
 })

@@ -1,4 +1,12 @@
 {
   "drop": "드랍",
-  "appName": "갑브라우저"
+  "appName": "갑브라우저",
+  "hp": "내구",
+  "condition": "피로도",
+  "fuel": "연료",
+  "ammo": "탄약",
+  "speed": "속도",
+  "range": "거리",
+  "accuracy": "명중",
+  "evasion": "회피"
 }
