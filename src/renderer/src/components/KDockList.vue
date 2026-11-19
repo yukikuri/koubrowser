@@ -57,7 +57,7 @@ const kdocks = computed<KDockInfo[]>(() => {
 </script>
 <template>
   <section class="kdock-content">
-    <div class="kdock-title">{{ t('建造ドック') }}</div>
+    <div class="kdock-title">{{ t('kDockList.title') }}</div>
     <div class="kdock-list">
       <div v-for="(info, index) in kdocks" :key="index" class="kdock">
         <div v-if="info.isUse">
@@ -67,16 +67,16 @@ const kdocks = computed<KDockInfo[]>(() => {
             <span class="kdock-img-help"
               ><DockStateTimer
                 :complete-time="info.kdock.api_complete_time"
-                :progress-text="t('建造')"
-                :completed-text="t('完了')"
+                :progress-text="t('kDockList.building')"
+                :completed-text="t('kDockList.completed')"
             /></span>
           </span>
           <span class="kdock-info">
             <span class="kdock-info-item"
-              ><span v-if="info.isLargeFlag">{{ t('大型建造: ') }}</span>{{ shipText(info.mst?.api_name) }}</span
+              ><span v-if="info.isLargeFlag">{{ t('kDockList.largeConstruction') }}</span>{{ shipText(info.mst?.api_name) }}</span
             >
             <span class="kdock-info-item"
-              >{{ t('残り: ') }}<DockTimer :complete-time="info.kdock.api_complete_time" />
+              >{{ t('kDockList.remaining') }}<DockTimer :complete-time="info.kdock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>
@@ -84,7 +84,7 @@ const kdocks = computed<KDockInfo[]>(() => {
         <div v-else-if="info.locked">
           <span class="kdock-locked"><LockImage /></span>
         </div>
-        <div v-else><span class="kdock-empty">Empty</span></div>
+        <div v-else><span class="kdock-empty">{{ t('kDockList.empty') }}</span></div>
       </div>
     </div>
   </section>

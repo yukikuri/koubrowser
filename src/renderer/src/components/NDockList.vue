@@ -51,7 +51,7 @@ const ndocks = computed<NDockInfo[]>(() => {
 </script>
 <template>
   <section class="ndock-content">
-    <div class="ndock-title">{{ t('入渠ドック') }}</div>
+    <div class="ndock-title">{{ t('nDockList.title') }}</div>
     <div class="ndock-list">
       <div v-for="(info, index) in ndocks" :key="index" class="ndock">
         <div v-if="info.isIn">
@@ -60,8 +60,8 @@ const ndocks = computed<NDockInfo[]>(() => {
             <span class="ndock-img-help"
               ><DockStateTimer
                 :complete-time="info.ndock.api_complete_time"
-                :progress-text="t('修復')"
-                :completed-text="t('完了')"
+                :progress-text="t('nDockList.repairing')"
+                :completed-text="t('nDockList.completed')"
             /></span>
           </span>
           <span class="ndock-info">
@@ -70,7 +70,7 @@ const ndocks = computed<NDockInfo[]>(() => {
               {{ info.info?.api.api_nowhp }}/{{ info.info?.api.api_maxhp }}</span
             >
             <span class="ndock-info-item"
-              >{{ t('残り: ') }}<DockTimer :complete-time="info.ndock.api_complete_time" />
+              >{{ t('nDockList.remaining') }}<DockTimer :complete-time="info.ndock.api_complete_time" />
               {{ info.completedTimeText }}</span
             >
           </span>
@@ -78,7 +78,7 @@ const ndocks = computed<NDockInfo[]>(() => {
         <div v-else-if="info.locked">
           <span class="ndock-locked"><LockImage /></span>
         </div>
-        <div v-else><span class="ndock-empty">Empty</span></div>
+        <div v-else><span class="ndock-empty">{{ t('nDockList.empty') }}</span></div>
       </div>
     </div>
   </section>

@@ -67,5 +67,20 @@
   },
   "cellEnemy": {
     "composition": "구성"
+  },
+  "kDockList": {
+    "title": "공창 도크",
+    "building": "건조",
+    "completed": "완료",
+    "largeConstruction": "대형함 건조: ",
+    "remaining": "잔여: ",
+    "empty": "비어 있음"
+  },
+  "nDockList": {
+    "title": "수리 도크",
+    "repairing": "수리",
+    "completed": "완료",
+    "remaining": "잔여: ",
+    "empty": "비어 있음"
   }
 }

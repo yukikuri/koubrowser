@@ -67,5 +67,20 @@
   },
   "cellEnemy": {
     "composition": "構成"
+  },
+  "kDockList": {
+    "title": "建造ドック",
+    "building": "建造",
+    "completed": "完了",
+    "largeConstruction": "大型建造: ",
+    "remaining": "残り: ",
+    "empty": "Empty"
+  },
+  "nDockList": {
+    "title": "入渠ドック",
+    "repairing": "修復",
+    "completed": "完了",
+    "remaining": "残り: ",
+    "empty": "Empty"
   }
 }
