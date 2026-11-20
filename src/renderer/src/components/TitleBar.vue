@@ -127,7 +127,11 @@ const clearNosakiTimer = (): void => {
  */
 const NOSAKI_TIMER_INTERVAL_SEC = 15 * 60
 const NOSAKI_TIMER_INTERVAL_MS = NOSAKI_TIMER_INTERVAL_SEC * 1000
-const startNosakiTimer = (addMs: number): void => {
+const startNosakiTimer = (): void => {
+
+  // 0秒のタイミングぴったりでの操作を考慮し、タイマー表示は1秒遅れで表示する
+  const addMs = 1000
+
   debug("startNosakiTimer called with addMs:", addMs)
   clearNosakiTimer()
   nosakiTimerElapsedCount.value = 0
@@ -169,8 +173,7 @@ watch(
     }
 
     if (previous === undefined || current.context !== previous.context) {
-      // 0秒のタイミングぴったりでの操作を考慮し、タイマー表示は1秒遅れで表示する
-      startNosakiTimer(1000)
+      startNosakiTimer()
     }
   },
   { immediate: true }
@@ -440,6 +443,12 @@ function onPort(): void {
     updateTodayBattleScore()
   } else {
     fetchTodayExp()    
+  }
+
+  // reset nosaki timer
+  if (nosakiTimerElapsedCount.value > 0) {
+    clearNosakiTimer()
+    startNosakiTimer()
   }
 }
 
