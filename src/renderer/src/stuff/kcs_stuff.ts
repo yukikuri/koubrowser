@@ -137,6 +137,11 @@ const filterTaihaShip = (svdata: SvData, deck: ApiDeckPort): TaihaShip[] => {
       return acc
     }
 
+    // 轟沈は判定しない
+    if (api_ship.api_nowhp < 1) {
+      return acc
+    }
+
     if (KcsUtil.shipHpState(api_ship) == ShipHpState.taiha) {
 
       // 退避可能か？
