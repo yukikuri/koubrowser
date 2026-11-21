@@ -487,10 +487,22 @@ function mapPushCell(): void {
     if (api_map) {
       // set battle result
       const battle_result = svdata.lastBattle
-      if (battle_result && mapcell_labels.length > 0) {
+      const battleMap = svdata.battleMap
+      
+      // debug({
+      //   'L': '1', 
+      //   api_map: toRaw(api_map), 
+      //   battle_result: toRaw(battle_result), 
+      //   mapcell_labels: [...toRaw(mapcell_labels)], 
+      //   'mapCount': battleMap.length})
+
+      if (battle_result && mapcell_labels.length > 0 && battleMap.length > 0) {
         const last_index = mapcell_labels.length - 1
-        const txt = mapcell_labels[last_index]
-        mapcell_labels[last_index] = txt + '(' + (battle_result.result?.api_win_rank ?? '?') + ')'
+        const lastMap = battleMap[last_index]
+        if (! KcsUtil.isNobattleCellValue(lastMap.api_event_kind, lastMap.api_event_id)) {
+          const txt = mapcell_labels[last_index]
+          mapcell_labels[last_index] = txt + '(' + (battle_result.result?.api_win_rank ?? '?') + ')'
+        }
       }
 
       // set map label
@@ -501,6 +513,14 @@ function mapPushCell(): void {
           mapcell_labels.push(spot?.label ?? '?')
         })
       }
+      
+      // debug({
+      //   'L': '2', 
+      //   api_map: toRaw(api_map), 
+      //   battle_result: toRaw(battle_result), 
+      //   mapcell_labels: [...toRaw(mapcell_labels)],
+      //   'mapCount': battleMap.length
+      // })
     }
   }
 }
