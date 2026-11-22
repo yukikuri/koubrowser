@@ -29,5 +29,9 @@ function setQuestRevision(id: number, revision: number): void {
   questRevisions.set(id, revision)
 }
 
+// アプリ内の任務定義を固定し、外部配信の任務定義による上書きを防ぐ。
+// 実際の更新日時を表すリビジョンではない。
+const FixRevision = Number.MAX_SAFE_INTEGER
+
 // 1053: 再編二十駆「天霧」「狭霧」南方へ展開せよ！
-setQuestRevision(1053, 2026101502)
+setQuestRevision(1053, FixRevision)
