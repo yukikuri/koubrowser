@@ -6937,35 +6937,36 @@ register(
 )
 
 // 369:【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！
-register(
-  369,
-  class {
-    static readonly questType = QuestType.practiceDeck
-    static max = [4]
-    static key = QuestKey.daily
-    static need_win_rank: PracticeWinRank = 'A'
-    static formatter(quest: Quest): string {
-      return detailFormat(['演習A勝利：'], quest)
-    }
-    static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
-      const ships = toShipMsts(svdata, ship_ids)
-      const check_ids = [
-        svdata.shipMstIds(421), //akiduki
-        svdata.shipMstIds(423), // hatuduki
-        svdata.shipMstIds(995), // ootomari
-        svdata.shipMstIds(527), // kisinami
-        svdata.shipMstIds(452), // okinami
-        svdata.shipMstIds(167), // isokaze
-        svdata.shipMstIds(74), // syouhou
-        svdata.shipMstIds(97), // mitisio
-        svdata.shipMstIds(145), // sigure kaini
-        svdata.shipMstIds(962), // Mogador
-        svdata.shipMstIds(931), // Ranger
-      ].flat()
-      return shipCount(ships, check_ids) >= 4
-    }
-  }
-)
+// register(
+//   369,
+//   class {
+//     static readonly questType = QuestType.practiceDeck
+//     static max = [4]
+//     static key = QuestKey.daily
+//     static need_win_rank: PracticeWinRank = 'A'
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['演習A勝利：'], quest)
+//     }
+//     static isDeckMatch(svdata: SvData, ship_ids: number[]): boolean {
+//       const ships = toShipMsts(svdata, ship_ids)
+//       const check_ids = [
+//         svdata.shipMstIds(144), //
+//         svdata.shipMstIds(145), // 
+//         svdata.shipMstIds(421), // 
+//         svdata.shipMstIds(423), // 
+//         svdata.shipMstIds(14), // 
+//         svdata.shipMstIds(167), // isokaze
+//         svdata.shipMstIds(74), // syouhou
+//         svdata.shipMstIds(995), // 
+//         svdata.shipMstIds(944), 
+//         svdata.shipMstIds(1055), 
+//         svdata.shipMstIds(1053), 
+//         svdata.shipMstIds(962), 
+//       ].flat()
+//       return shipCount(ships, check_ids) >= 4
+//     }
+//   }
+// )
 
 // 370:【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！
 register(
@@ -17602,28 +17603,28 @@ register(
 )
 
 // 1110: 秋刀魚祭り【拡張任務】秋刀魚で戦闘糧食！
-register(
-  1110,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [4]
-    static key = QuestKey.yearly
-    static id_or_types: ItemIdOrType[] = [{ id: 66 }]
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 8cm高角砲：', ], quest)
-    }
-    static getCondition(svdata: SvData): DestroyItemCondition {
-      return {
-        flagship_id_lvs: [
-          { ids: svdata.shipMstIds(135), lv: 100 },
-          { ids: svdata.shipMstIds(996), lv: 1 },
-        ],
-        flagship_slotitem_ids: [145],
-        flagship_slotitem_lvl: [6]
-      }
-    }
-  }
-)
+// register(
+//   1110,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [4]
+//     static key = QuestKey.yearly
+//     static id_or_types: ItemIdOrType[] = [{ id: 129 }]
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 熟練見張員：', ], quest)
+//     }
+//     static getCondition(svdata: SvData): DestroyItemCondition {
+//       return {
+//         flagship_id_lvs: [
+//           { ids: svdata.shipMstIds(135), lv: 100 },
+//           { ids: svdata.shipMstIds(996), lv: 1 },
+//         ],
+//         flagship_slotitem_ids: [145],
+//         flagship_slotitem_lvl: [4]
+//       }
+//     }
+//   }
+// )
 
 // 1112: 鎮守府「大掃除」祭り！
 register(
@@ -18311,25 +18312,25 @@ register(
 )
 
 // 1144: 秋刀魚祭り【拡張任務二〇二五】フィナーレ！
-register(
-  1144,
-  class {
-    static readonly questType = QuestType.destroyItemIdOrType
-    static max = [5]
-    static key = QuestKey.yearly
-    static id_or_types = [{ id: 120 }]
-    static getCondition(_svdata: SvData): DestroyItemCondition {
-      return {
-        flagship_categories: [ApiShipCategory.akizuki],
-        flagship_slotitem_ids: [553],
-        flagship_slotitem_lvl: [7]
-      }
-    }
-    static formatter(quest: Quest): string {
-      return detailFormat(['破棄 91式高射装置：'], quest)
-    }
-  }
-)
+// register(
+//   1144,
+//   class {
+//     static readonly questType = QuestType.destroyItemIdOrType
+//     static max = [4]
+//     static key = QuestKey.yearly
+//     static id_or_types = [{ id: 21 }]
+//     static getCondition(svdata: SvData): DestroyItemCondition {
+//       return {
+//         flagship_ids: svdata.shipMstIds(196), // hiryu kaini
+//         flagship_slotitem_ids: [],
+//         flagship_slotitem_lvl: []
+//       }
+//     }
+//     static formatter(quest: Quest): string {
+//       return detailFormat(['破棄 零式艦戦52型：'], quest)
+//     }
+//   }
+// )
 
 // 1145: 【工廠任務】伊号潜水艦装備の拡充
 register(
