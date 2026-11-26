@@ -357,7 +357,13 @@ export const GoeiKuuboIds: number[] = [
   883, // ryuuhou kaini bo
   884, // unnyou
   888, // ryuuhou kaini
-  889 // unnyoukaini
+  889, // unnyoukaini
+  925, // Langley
+  930, // Langley kai
+  1023, // Independence
+  1028, // Independence kai
+  1036, // Independence Flight II
+
 ]
 
 export const TokumukanIds: number[] = [
