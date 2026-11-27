@@ -9803,6 +9803,23 @@ export class SvData {
       } else {
         assignSafeE(this.apiData.api_questlist, api_data)
       }
+    } else {
+
+      // 別タブ表示の場合、
+      // 現クエスト情報に無ければ追加
+      // 現クエスト情報に有れば更新
+      const questlist = this.apiData.api_questlist
+      if (questlist) {
+        for (const q of api_data.api_list) {
+          const existing = questlist.api_list.find((eq) => eq.api_no === q.api_no)
+          if (existing) {
+            Object.assign(existing, q)
+          } else {
+            questlist.api_list.push(q)
+            questlist.api_list.sort((a, b) => a.api_no - b.api_no)
+          }
+        }
+      }
     }
 
     if (api_tab_id !== -1) {
